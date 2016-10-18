@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import com.example.markwen.easycourse.components.Rooms;
-import com.example.markwen.easycourse.components.User;
+import com.example.markwen.easycourse.fragments.Rooms;
+import com.example.markwen.easycourse.fragments.User;
 
 import java.util.ArrayList;
 import java.util.List;

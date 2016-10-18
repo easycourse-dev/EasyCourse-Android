@@ -47,4 +47,5 @@ dependencies {
 
     // socket.io
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
 }

@@ -1,12 +1,13 @@
 package com.example.markwen.easycourse;
 
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
@@ -36,6 +37,34 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setSelectedTabIndicatorHeight(0);
         setupTabIcons();
 
+        // TODO: Set default selected tab
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                // Change text color
+                TextView tabTemplate = (TextView)tab.getCustomView().findViewById(R.id.customTab);
+                tabTemplate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+
+                // TODO: Change color of icon
+                tabTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_chatboxes, 0, 0);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // Change text color
+                TextView tabTemplate = (TextView)tab.getCustomView().findViewById(R.id.customTab);
+                tabTemplate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorTabDefault));
+
+                // TODO: Change color of icon
+                tabTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_chatboxes, 0, 0);
+            }
+        });
     }
 
     private void setupViewPager(ViewPager viewPager) {

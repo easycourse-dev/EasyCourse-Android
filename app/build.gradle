@@ -19,8 +19,17 @@ android {
     }
     sourceSets {
         main {
-            java.srcDirs = ['src/main/java', 'src/main/java/components']
-            res.srcDirs = ['src/main/res', 'src/main/res/components']
+            java.srcDirs = [
+                    'src/main/java',
+                    'src/main/java/components',
+                    'src/main/java/fragments'
+            ]
+            res.srcDirs = [
+                    'src/main/res/layout/fragments',
+                    'src/main/res/layout/components',
+                    'src/main/res/layout',
+                    'src/main/res'
+            ]
         }
     }
 }

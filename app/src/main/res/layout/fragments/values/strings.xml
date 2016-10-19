@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appName">EasyCourse</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="signup">Signup</string>
+    <string name="username">Username</string>
+    <string name="verify_password">Verify password</string>
+    <string name="facebook_login">Facebook Login</string>
+    <string name="log_in_button">Log In</string>
+    <string name="sign_up_button">Sign Up</string>
+</resources>

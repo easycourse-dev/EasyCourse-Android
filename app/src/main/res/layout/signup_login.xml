@@ -1,11 +1,113 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/username"/>
+        android:text="@string/appName"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="@color/colorWhiteText"
+        android:layout_marginTop="80dp"/>
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextEmail"
+        android:layout_width="300dp"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:hint="@string/email"
+        android:textColorHint="@color/colorWhiteText"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhiteText"
+        android:textAlignment="center"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextPassword"
+        android:layout_width="300dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:hint="@string/password"
+        android:textColorHint="@color/colorWhiteText"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhiteText"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextVerifyPassword"
+        android:layout_width="300dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:hint="@string/verify_password"
+        android:textColorHint="@color/colorWhiteText"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhiteText"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextUsername"
+        android:layout_width="300dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:hint="@string/username"
+        android:textColorHint="@color/colorWhiteText"
+        android:textSize="18sp"
+        android:textColor="@color/colorWhiteText"
+        android:textAlignment="center"
+        android:inputType="text" />
+
+    <RelativeLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonLogin"
+            android:text="@string/log_in_button"
+            android:background="@drawable/login_button"
+            android:textColor="@color/colorWhiteText"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignLeft="@+id/buttonSignup"
+            android:layout_alignStart="@+id/buttonSignup"
+            android:layout_alignParentStart="true"/>
+
+        <Button
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonSignup"
+            android:text="@string/sign_up_button"
+            android:background="@drawable/signup_button"
+            android:textColor="@color/colorWhiteText"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonFacebookLogin"
+            android:text="@string/facebook_login"
+            android:background="@drawable/facebook_login_button"
+            android:textColor="@color/colorWhiteText"
+            android:layout_marginTop="6dp"
+            android:layout_below="@+id/buttonLogin" />
+
+
+    </RelativeLayout>
 
 </LinearLayout>

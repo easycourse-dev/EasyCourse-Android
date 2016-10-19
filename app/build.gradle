@@ -24,6 +24,7 @@ android {
                     'src/main/java/components',
                     'src/main/java/fragments',
                     'src/main/java/models',
+                    'src/main/java/utils',
                     'src/main/java'
             ]
             res.srcDirs = [

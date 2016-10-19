@@ -1,7 +1,8 @@
 package com.example.markwen.easycourse;
 
+import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
@@ -11,6 +12,13 @@ import android.widget.EditText;
 
 public class SignupLogin extends AppCompatActivity {
     private ViewGroup mContainerView;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+        // Hide toolbar title for this specific activity
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
 
     private void addItem() {
         EditText username = (EditText)findViewById(R.id.username);

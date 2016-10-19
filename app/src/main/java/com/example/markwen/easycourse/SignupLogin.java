@@ -11,17 +11,12 @@ import android.widget.EditText;
  */
 
 public class SignupLogin extends AppCompatActivity {
-    private ViewGroup mContainerView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-        // Hide toolbar title for this specific activity
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-    }
-
-    private void addItem() {
-        EditText username = (EditText)findViewById(R.id.username);
-        mContainerView.addView(username, 0);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.signup_login);
+        // Hide toolbar for this specific activity
+        getSupportActionBar().hide();
     }
 }

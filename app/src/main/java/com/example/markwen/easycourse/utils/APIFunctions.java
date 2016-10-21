@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse;
+package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
 import android.util.Log;

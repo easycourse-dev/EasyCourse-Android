@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -63,33 +64,40 @@ public class SignupLogin extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     String email = emailEditText.getText().toString();
-                    String pwd = passwordEditText.getText().toString();
-                    String uname = usernameEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+                    String verifyPassword = verifyPasswordEditText.getText().toString();
+                    String username = usernameEditText.getText().toString();
 
-                    // TODO: add verify password function
                     // make API call only if the 2 passwords are the same
                     // make a Toast and don't do anything if they don't match
+                    if(!password.equals(verifyPassword)){
+                        Snackbar snackbar = Snackbar
+                                .make(view, "Passwords don't match, please try again.", Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                        passwordEditText.setText("");
+                        verifyPasswordEditText.setText("");
+                    }
+                    else {
+                        APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                Log.e("com.example.easycourse", "status success " + statusCode);
+                                Log.e("com.example.easycourse", response.toString());
+                                // TODO: store user at SharedPreferences
 
-                    APIFunctions.signUp(getApplicationContext(),email,pwd,uname, new JsonHttpResponseHandler(){
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            Log.e("com.example.easycourse", "status success " + statusCode);
-                            Log.e("com.example.easycourse", response.toString());
+                                // TODO: make an Intent to move on to the next activity
+                            }
 
-                            // TODO: store user at SharedPreferences
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                                Log.e("com.example.easycourse", "status failure " + statusCode);
+                                Log.e("com.example.easycourse", res.toString());
 
-                            // TODO: make an Intent to move on to the next activity
-                        }
+                                // TODO: make a Toast to notify user with error
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "status failure " + statusCode);
-                            Log.e("com.example.easycourse", res.toString());
-
-                            // TODO: make a Toast to notify user with error
-
-                        }
-                    });
+                            }
+                        });
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e("com.example.easycourse", e.toString());

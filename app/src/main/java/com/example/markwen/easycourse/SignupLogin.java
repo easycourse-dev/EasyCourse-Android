@@ -29,28 +29,27 @@ public class SignupLogin extends AppCompatActivity {
     EditText passwordEditText;
     EditText verifyPasswordEditText;
     EditText usernameEditText;
-    Button signupButton;
-    Button loginButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Creating views
         setContentView(R.layout.signup_login);
         // Hide toolbar for this specific activity
         getSupportActionBar().hide();
+
+        emailEditText = (EditText) findViewById(R.id.editTextEmail);
+        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
+        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
+        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
+
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
-        emailEditText = (EditText) findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
-        signupButton = (Button) findViewById(R.id.buttonSignup);
-        loginButton = (Button) findViewById(R.id.buttonLogin);
+        Button signupButton = (Button) findViewById(R.id.buttonSignup);
+        Button loginButton = (Button) findViewById(R.id.buttonLogin);
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,5 +1,7 @@
 package com.example.markwen.easycourse;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -30,6 +32,10 @@ public class SignupLogin extends AppCompatActivity {
     EditText verifyPasswordEditText;
     EditText usernameEditText;
 
+    Button signupButton;
+    Button loginButton;
+    SharedPreferences sharedPref;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,15 +47,14 @@ public class SignupLogin extends AppCompatActivity {
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
         verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
+        signupButton = (Button) findViewById(R.id.buttonSignup);
+        loginButton = (Button) findViewById(R.id.buttonLogin);
 
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-
-        Button signupButton = (Button) findViewById(R.id.buttonSignup);
-        Button loginButton = (Button) findViewById(R.id.buttonLogin);
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,11 +108,16 @@ public class SignupLogin extends AppCompatActivity {
                     APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler(){
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            Log.e("com.example.easycourse", "status success " + statusCode);
-                            Log.e("com.example.easycourse", response.toString());
+                            // Log.e("com.example.easycourse", "status success " + statusCode);
+                            // Log.e("com.example.easycourse", response.toString());
 
-                            // TODO: store user at SharedPreferences
+                            // Store user at SharedPreferences
+                            sharedPref = getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("currentUser", response.toString());
+                            editor.commit();
 
+                            // Log.e("currentUser", sharedPref.getString("currentUser", "0"));
                             // TODO: make an Intent to move on to the next activity
                         }
 

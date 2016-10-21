@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -116,18 +118,22 @@ public class SignupLogin extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("currentUser", response.toString());
                             editor.commit();
-
                             // Log.e("currentUser", sharedPref.getString("currentUser", "0"));
-                            // TODO: make an Intent to move on to the next activity
+
+                            // Make an Intent to move on to the next activity
+                            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(mainActivityIntent);
+
+                            finish();
                         }
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "status failure "+statusCode);
-                            Log.e("com.example.easycourse", res.toString());
+                            // Log.e("com.example.easycourse", "status failure "+statusCode);
+                            // Log.e("com.example.easycourse", res.toString());
 
-                            // TODO: make a Toast to notify user with error
-
+                            // Make a Toast to notify user with error
+                            Toast.makeText(getApplicationContext(), "Log in failed, please check your credentials and network connection.", Toast.LENGTH_LONG).show();
                         }
                     });
                 } catch (JSONException e) {

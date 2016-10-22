@@ -71,30 +71,39 @@ public class SignupLogin extends AppCompatActivity {
                     // make API call only if the 2 passwords are the same
                     // make a Toast and don't do anything if they don't match
                     if(!password.equals(verifyPassword)){
-                        Snackbar snackbar = Snackbar
+                        Snackbar passwordMismatchSnackbar = Snackbar
                                 .make(view, "Passwords don't match, please try again.", Snackbar.LENGTH_LONG);
-                        snackbar.show();
+                        passwordMismatchSnackbar.show();
                         passwordEditText.setText("");
                         verifyPasswordEditText.setText("");
                     }
                     else {
+                        final Snackbar signupErrorSnackbar = Snackbar
+                                .make(view, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
                         APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Log.e("com.example.easycourse", "status success " + statusCode);
                                 Log.e("com.example.easycourse", response.toString());
-                                // TODO: store user at SharedPreferences
 
-                                // TODO: make an Intent to move on to the next activity
+                                // TODO: store user token at SharedPreferences
+                                sharedPref = getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("currentUser", response.toString());
+                                editor.commit();
+
+                                // Make an Intent to move on to the next activity
+                                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(mainActivityIntent);
+
+                                finish();
                             }
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                                 Log.e("com.example.easycourse", "status failure " + statusCode);
                                 Log.e("com.example.easycourse", res.toString());
-
-                                // TODO: make a Toast to notify user with error
-
+                                signupErrorSnackbar.show();
                             }
                         });
                     }
@@ -121,6 +130,7 @@ public class SignupLogin extends AppCompatActivity {
                             // Log.e("com.example.easycourse", "status success " + statusCode);
                             // Log.e("com.example.easycourse", response.toString());
 
+                            // TODO: store user token at SharedPreferences
                             // Store user at SharedPreferences
                             sharedPref = getPreferences(Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();

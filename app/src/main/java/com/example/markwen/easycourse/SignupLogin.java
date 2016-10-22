@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -83,12 +82,17 @@ public class SignupLogin extends AppCompatActivity {
                         APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                Log.e("com.example.easycourse", "status success " + statusCode);
-                                Log.e("com.example.easycourse", response.toString());
+                                String userToken = "";
 
-                                // TODO: store user token at SharedPreferences
+                                //for each header in array Headers scan for Auth header
+                                for(Header header: headers){
+                                    if(header.toString().contains("Auth"))
+                                        userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                                }
+
                                 sharedPref = getPreferences(Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("userToken", userToken);
                                 editor.putString("currentUser", response.toString());
                                 editor.commit();
 
@@ -124,19 +128,26 @@ public class SignupLogin extends AppCompatActivity {
                     String email = emailEditText.getText().toString();
                     String pwd = passwordEditText.getText().toString();
 
+                    final Snackbar loginErrorSnackbar = Snackbar
+                            .make(view, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+
                     APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler(){
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            // Log.e("com.example.easycourse", "status success " + statusCode);
-                            // Log.e("com.example.easycourse", response.toString());
+                            String userToken = "";
 
-                            // TODO: store user token at SharedPreferences
+                            //for each header in array Headers scan for Auth header
+                            for(Header header: headers){
+                                if(header.toString().contains("Auth"))
+                                    userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                            }
+
                             // Store user at SharedPreferences
                             sharedPref = getPreferences(Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
                             editor.commit();
-                            // Log.e("currentUser", sharedPref.getString("currentUser", "0"));
 
                             // Make an Intent to move on to the next activity
                             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -147,11 +158,8 @@ public class SignupLogin extends AppCompatActivity {
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            // Log.e("com.example.easycourse", "status failure "+statusCode);
-                            // Log.e("com.example.easycourse", res.toString());
-
-                            // Make a Toast to notify user with error
-                            Toast.makeText(getApplicationContext(), "Log in failed, please check your credentials and network connection.", Toast.LENGTH_LONG).show();
+                            // Make a Snackbar to notify user with error
+                            loginErrorSnackbar.show();
                         }
                     });
                 } catch (JSONException e) {

@@ -97,7 +97,7 @@ public class SignupLogin extends AppCompatActivity {
                                 editor.commit();
 
                                 // Make an Intent to move on to the next activity
-                                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                Intent mainActivityIntent = new Intent(getApplicationContext(), SignupInitialSetup.class);
                                 startActivity(mainActivityIntent);
 
                                 finish();

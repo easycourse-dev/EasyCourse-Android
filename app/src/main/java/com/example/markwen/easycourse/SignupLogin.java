@@ -36,6 +36,7 @@ public class SignupLogin extends AppCompatActivity {
 
     Button signupButton;
     Button loginButton;
+    Button fbLoginButton;
     SharedPreferences sharedPref;
 
     @Override
@@ -51,6 +52,7 @@ public class SignupLogin extends AppCompatActivity {
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
         signupButton = (Button) findViewById(R.id.buttonSignup);
         loginButton = (Button) findViewById(R.id.buttonLogin);
+        fbLoginButton = (Button) findViewById(R.id.buttonFacebookLogin);
 
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -143,6 +145,13 @@ public class SignupLogin extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e("com.example.easycourse", e.toString());
                 }
+            }
+        });
+
+        fbLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
     }

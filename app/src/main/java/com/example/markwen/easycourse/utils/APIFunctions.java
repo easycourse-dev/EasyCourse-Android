@@ -1,7 +1,8 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -19,7 +20,7 @@ public class APIFunctions {
     static AsyncHttpClient client = new AsyncHttpClient();
     static final String URL = "http://zengjintaotest.com/api";
 
-
+    //API function for signup to server
     public static void signUp(Context context, String email, String password, String displayName, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         client.addHeader("isMobile","true");
         client.addHeader("Content-Type", "application/json");
@@ -38,11 +39,10 @@ public class APIFunctions {
         client.post(context, URL+"/signup/", body, "application/json", jsonHttpResponseHandler);
     }
 
+    //API function to login to server
     public static void login(Context context, String email, String password, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         client.addHeader("isMobile","true");
         client.addHeader("Content-Type", "application/json");
-
-        Log.e("com.example.easycourse", "email : "+email);
 
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("email", email);
@@ -53,6 +53,23 @@ public class APIFunctions {
         client.post(context, URL+"/login", body, "application/json", jsonHttpResponseHandler);
     }
 
+    //API function to logout user
+    public static boolean logout(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
+        //Get userToken from shared preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String userToken = sharedPref.getString("userToken", null);
+
+        //Return false if userToken is not found
+        if(userToken==null)
+            return false;
+
+        client.addHeader("auth",userToken);
+        client.post(context, URL+"/logout", null, jsonHttpResponseHandler);
+
+        return true;
+    }
+
+    //API function to login to facebook with accessToken
     public static void facebookLogin(Context context, String accessToken, JsonHttpResponseHandler jsonHttpResponseHandler){
         client.addHeader("isMobile","true");
         client.addHeader("Content-Type", "application/json");

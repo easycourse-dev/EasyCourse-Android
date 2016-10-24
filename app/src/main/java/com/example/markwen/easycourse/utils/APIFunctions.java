@@ -52,4 +52,11 @@ public class APIFunctions {
 
         client.post(context, URL+"/login", body, "application/json", jsonHttpResponseHandler);
     }
+
+    public static void facebookLogin(Context context, String accessToken, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.addHeader("isMobile","true");
+        client.addHeader("Content-Type", "application/json");
+
+        client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
+    }
 }

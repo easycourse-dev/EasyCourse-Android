@@ -55,12 +55,9 @@ public class APIFunctions {
 
     //API function to logout user
     public static boolean logout(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
-        //Get userToken from shared preferences
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String userToken = sharedPref.getString("userToken", null);
-
+        String userToken = getUserToken(context);
         //Return false if userToken is not found
-        if(userToken==null)
+        if(userToken.isEmpty())
             return false;
 
         client.addHeader("auth",userToken);
@@ -75,5 +72,33 @@ public class APIFunctions {
         client.addHeader("Content-Type", "application/json");
 
         client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
+    }
+
+    public static boolean updateUser(Context context, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("university", universityID);
+        StringEntity body = new StringEntity(jsonParam.toString());
+        
+        client.post(context, URL+"/user/update", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
+    private static String getUserToken(Context context){
+        //Get userToken from shared preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String userToken = sharedPref.getString("userToken", null);
+
+        //Return empty if userToken is not found
+        if(userToken==null)
+            return "";
+        else
+            return userToken;
     }
 }

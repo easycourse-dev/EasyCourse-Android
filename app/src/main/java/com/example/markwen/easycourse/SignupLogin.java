@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -36,18 +38,24 @@ public class SignupLogin extends AppCompatActivity {
     EditText passwordEditText;
     EditText verifyPasswordEditText;
     EditText usernameEditText;
-    ViewGroup.LayoutParams editTextParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
     Button signupButton;
     Button loginButton;
+    Button facebookButton;
+
+
+    LinearLayout signupLinearLayout;
+
     SharedPreferences sharedPref;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup_login);
-        // Hide toolbar for this specific activity
-        getSupportActionBar().hide();
+        // Hide toolbar for this specific activity and null check
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
 
         emailEditText = (EditText) findViewById(R.id.editTextEmail);
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
@@ -55,6 +63,13 @@ public class SignupLogin extends AppCompatActivity {
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
         signupButton = (Button) findViewById(R.id.buttonSignup);
         loginButton = (Button) findViewById(R.id.buttonLogin);
+        facebookButton = (Button) findViewById(R.id.buttonFacebookLogin);
+        signupLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutSignup);
+
+
+        // Set username and verify passwords inially gone
+        verifyPasswordEditText.setVisibility(View.GONE);
+        usernameEditText.setVisibility(View.GONE);
 
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -62,20 +77,12 @@ public class SignupLogin extends AppCompatActivity {
         verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
-        // Hide Signup EditText fields at start
-        ((ViewManager)verifyPasswordEditText.getParent()).removeView(verifyPasswordEditText);
-        ((ViewManager)usernameEditText.getParent()).removeView(usernameEditText);
     }
 
     public void emailLogin(View v) {
-        emailEditText = (EditText) findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
 
-        // Hide Signup EditText fields
-        ((ViewManager)verifyPasswordEditText.getParent()).removeView(verifyPasswordEditText);
-        ((ViewManager)usernameEditText.getParent()).removeView(usernameEditText);
+        verifyPasswordEditText.setVisibility(View.GONE);
+        usernameEditText.setVisibility(View.GONE);
 
         // Get inputs and check if fields are empty
         // only execute login API when fields are all filled
@@ -83,14 +90,12 @@ public class SignupLogin extends AppCompatActivity {
     }
 
     public void signup(View v) {
-        emailEditText = (EditText) findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
 
+        verifyPasswordEditText.setVisibility(View.VISIBLE);
+        usernameEditText.setVisibility(View.VISIBLE);
         // Show Signup EditText fields
-        ((ViewManager)verifyPasswordEditText.getParent()).addView(verifyPasswordEditText, editTextParams);
-        ((ViewManager)usernameEditText.getParent()).addView(usernameEditText, editTextParams);
+        // ((ViewManager)verifyPasswordEditText.getParent()).addView(verifyPasswordEditText, editTextParams);
+        // ((ViewManager)usernameEditText.getParent()).addView(usernameEditText, editTextParams);
 
         // Get inputs and check if fields are empty
         // only execute login API when fields are all filled
@@ -110,14 +115,13 @@ public class SignupLogin extends AppCompatActivity {
 
                     // make API call only if the 2 passwords are the same
                     // make a Toast and don't do anything if they don't match
-                    if(!password.equals(verifyPassword)){
+                    if (!password.equals(verifyPassword)) {
                         Snackbar passwordMismatchSnackbar = Snackbar
                                 .make(view, "Passwords don't match, please try again.", Snackbar.LENGTH_LONG);
                         passwordMismatchSnackbar.show();
                         passwordEditText.setText("");
                         verifyPasswordEditText.setText("");
-                    }
-                    else {
+                    } else {
                         final Snackbar signupErrorSnackbar = Snackbar
                                 .make(view, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
                         APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
@@ -126,16 +130,16 @@ public class SignupLogin extends AppCompatActivity {
                                 String userToken = "";
 
                                 //for each header in array Headers scan for Auth header
-                                for(Header header: headers){
-                                    if(header.toString().contains("Auth"))
-                                        userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                                for (Header header : headers) {
+                                    if (header.toString().contains("Auth"))
+                                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                                 }
 
                                 sharedPref = getPreferences(Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("userToken", userToken);
                                 editor.putString("currentUser", response.toString());
-                                editor.commit();
+                                editor.apply();
 
                                 // Make an Intent to move on to the next activity
                                 Intent mainActivityIntent = new Intent(getApplicationContext(), SignupInitialSetup.class);
@@ -147,7 +151,7 @@ public class SignupLogin extends AppCompatActivity {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                                 Log.e("com.example.easycourse", "status failure " + statusCode);
-                                Log.e("com.example.easycourse", res.toString());
+                                Log.e("com.example.easycourse", res);
                                 signupErrorSnackbar.show();
                             }
                         });
@@ -172,15 +176,15 @@ public class SignupLogin extends AppCompatActivity {
                     final Snackbar loginErrorSnackbar = Snackbar
                             .make(view, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
 
-                    APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler(){
+                    APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             String userToken = "";
 
                             //for each header in array Headers scan for Auth header
-                            for(Header header: headers){
-                                if(header.toString().contains("Auth"))
-                                    userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                            for (Header header : headers) {
+                                if (header.toString().contains("Auth"))
+                                    userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                             }
 
                             // Store user at SharedPreferences
@@ -188,7 +192,7 @@ public class SignupLogin extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
-                            editor.commit();
+                            editor.apply();
 
                             // Make an Intent to move on to the next activity
                             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);

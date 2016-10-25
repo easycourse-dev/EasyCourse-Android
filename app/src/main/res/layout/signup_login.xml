@@ -2,13 +2,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimary"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/linearLayoutSignup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <TextView
             android:layout_width="match_parent"
@@ -30,7 +36,7 @@
             android:textSize="18sp"
             android:textColor="@color/colorWhiteText"
             android:textAlignment="center"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"/>
 
         <EditText
             android:layout_height="wrap_content"
@@ -73,9 +79,11 @@
 
         <RelativeLayout
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <Button
                 android:layout_width="147dp"
@@ -105,21 +113,22 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:onClick="signup"/>
 
-            <Button
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonFacebookLogin"
-                android:text="@string/facebook_login"
-                android:background="@drawable/facebook_login_button"
-                android:textColor="@color/colorWhiteText"
-                android:layout_marginTop="6dp"
-                android:layout_below="@+id/buttonLogin"
-                style="?android:attr/borderlessButtonStyle"
-                android:onClick="facebookLogin"/>
-
 
         </RelativeLayout>
 
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonFacebookLogin"
+            android:text="@string/facebook_login"
+            android:background="@drawable/facebook_login_button"
+            android:textColor="@color/colorWhiteText"
+            android:layout_marginTop="6dp"
+            android:layout_gravity="center"
+            style="?android:attr/borderlessButtonStyle"
+            android:onClick="facebookLogin"/>
+
     </LinearLayout>
+
 
 </ScrollView>

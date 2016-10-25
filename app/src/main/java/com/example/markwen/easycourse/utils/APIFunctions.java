@@ -74,6 +74,7 @@ public class APIFunctions {
         client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
     }
 
+    //API function to update user's university
     public static boolean updateUser(Context context, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -85,9 +86,14 @@ public class APIFunctions {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("university", universityID);
         StringEntity body = new StringEntity(jsonParam.toString());
-        
+
         client.post(context, URL+"/user/update", body, "application/json", jsonHttpResponseHandler);
         return true;
+    }
+
+    //API function to get university list
+    public static void getUniversities(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/univ", jsonHttpResponseHandler);
     }
 
     private static String getUserToken(Context context){

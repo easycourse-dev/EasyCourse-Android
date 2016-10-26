@@ -14,6 +14,13 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -36,12 +43,17 @@ public class SignupLogin extends AppCompatActivity {
 
     Button signupButton;
     Button loginButton;
-    Button fbLoginButton;
+    LoginButton fbLoginButton;
+    CallbackManager callbackManager;
     SharedPreferences sharedPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Facebook SDK setup
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(getApplication());
+
         setContentView(R.layout.signup_login);
         // Hide toolbar for this specific activity
         getSupportActionBar().hide();
@@ -52,7 +64,8 @@ public class SignupLogin extends AppCompatActivity {
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
         signupButton = (Button) findViewById(R.id.buttonSignup);
         loginButton = (Button) findViewById(R.id.buttonLogin);
-        fbLoginButton = (Button) findViewById(R.id.buttonFacebookLogin);
+        callbackManager = CallbackManager.Factory.create();
+        fbLoginButton = (LoginButton) findViewById(R.id.buttonFacebookLogin);
 
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -174,9 +187,20 @@ public class SignupLogin extends AppCompatActivity {
             }
         });
 
-        fbLoginButton.setOnClickListener(new View.OnClickListener() {
+        fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+
             @Override
-            public void onClick(View view) {
+            public void onSuccess(LoginResult loginResult) {
+                
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
 
             }
         });

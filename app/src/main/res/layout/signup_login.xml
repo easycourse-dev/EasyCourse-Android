@@ -103,7 +103,7 @@
                 android:layout_alignParentEnd="true"
                 style="?android:attr/borderlessButtonStyle" />
 
-            <Button
+            <com.facebook.login.widget.LoginButton
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/buttonFacebookLogin"

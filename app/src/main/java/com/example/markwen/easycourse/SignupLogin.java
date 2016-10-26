@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,14 +8,15 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewManager;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
 
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -34,6 +34,10 @@ import cz.msebera.android.httpclient.Header;
 
 public class SignupLogin extends AppCompatActivity {
 
+    private static final String TAG = "SignupLogin";
+
+    TextView titleTextView;
+
     EditText emailEditText;
     EditText passwordEditText;
     EditText verifyPasswordEditText;
@@ -48,6 +52,12 @@ public class SignupLogin extends AppCompatActivity {
 
     SharedPreferences sharedPref;
 
+    Animation titleAnimEnter;
+    Animation emailAnimEnter;
+    Animation passwordAnimEnter;
+    Animation loginAnimEnter;
+    Animation signupAnimEnter;
+    Animation facebookAnimEnter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +67,7 @@ public class SignupLogin extends AppCompatActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
+        titleTextView = (TextView) findViewById(R.id.textViewTitle);
         emailEditText = (EditText) findViewById(R.id.editTextEmail);
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
         verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
@@ -77,28 +88,53 @@ public class SignupLogin extends AppCompatActivity {
         verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
+        // Animate views when activity starts
+        titleAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        emailAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        emailAnimEnter.setStartOffset(250);
+        passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        passwordAnimEnter.setStartOffset(250);
+        loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        loginAnimEnter.setStartOffset(250*2);
+        signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        signupAnimEnter.setStartOffset(250*2);
+        facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        facebookAnimEnter.setStartOffset(250*2);
     }
 
     public void emailLogin(View v) {
 
-        verifyPasswordEditText.setVisibility(View.GONE);
-        usernameEditText.setVisibility(View.GONE);
+        // Removes verify password and username edittexts if visible
+        if (verifyPasswordEditText.getVisibility() == View.VISIBLE) {
+            verifyPasswordEditText.setVisibility(View.GONE);
+            usernameEditText.setVisibility(View.GONE);
+            signupButton.setBackgroundResource(R.drawable.signup_button);
+            loginButton.setBackgroundResource(R.drawable.login_button);
 
-        // Get inputs and check if fields are empty
-        // only execute login API when fields are all filled
+        } else { // Edittexts are hidden, do logic
+            Log.d(TAG, "Login clicked-doing login");
+            // Get inputs and check if fields are empty
+            // only execute login API when fields are all filled
+        }
+
 
     }
 
     public void signup(View v) {
 
-        verifyPasswordEditText.setVisibility(View.VISIBLE);
-        usernameEditText.setVisibility(View.VISIBLE);
-        // Show Signup EditText fields
-        // ((ViewManager)verifyPasswordEditText.getParent()).addView(verifyPasswordEditText, editTextParams);
-        // ((ViewManager)usernameEditText.getParent()).addView(usernameEditText, editTextParams);
+        // Brings in verify password and username edittexts if not visible
+        if (verifyPasswordEditText.getVisibility() == View.GONE) {
+            verifyPasswordEditText.setVisibility(View.VISIBLE);
+            usernameEditText.setVisibility(View.VISIBLE);
+            signupButton.setBackgroundResource(R.drawable.login_button);
+            loginButton.setBackgroundResource(R.drawable.signup_button);
 
-        // Get inputs and check if fields are empty
-        // only execute login API when fields are all filled
+        } else { // Edittexts are shown, do logic
+            Log.d(TAG, "Signup clicked-doing signup");
+            // Get inputs and check if fields are empty
+            // only execute login API when fields are all filled
+        }
+
 
     }
 
@@ -216,5 +252,18 @@ public class SignupLogin extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            titleTextView.startAnimation(titleAnimEnter);
+            emailEditText.startAnimation(emailAnimEnter);
+            passwordEditText.startAnimation(passwordAnimEnter);
+            loginButton.startAnimation(loginAnimEnter);
+            signupButton.startAnimation(signupAnimEnter);
+            facebookButton.startAnimation(facebookAnimEnter);
+        }
     }
 }

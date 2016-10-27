@@ -8,6 +8,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -104,6 +105,26 @@ public class APIFunctions {
     //API function to get language list
     public static void getLanguages(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
         client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
+    }
+
+    //API function to set courses and languages in user's profile
+    public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        JSONArray jsonLanguageCodeArray = new JSONArray(languageCodeArray);
+        JSONArray jsonCourseCodeArray = new JSONArray(courseCodeArray);
+        jsonParam.put("lang", jsonLanguageCodeArray);
+        jsonParam.put("course", jsonCourseCodeArray);
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/choosecourse", body, "application/json", jsonHttpResponseHandler);
+        return true;
     }
 
     private static String getUserToken(Context context){

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -43,6 +44,11 @@ public class SignupLogin extends AppCompatActivity {
     EditText verifyPasswordEditText;
     EditText usernameEditText;
 
+    TextInputLayout emailInputLayout;
+    TextInputLayout passwordInputLayout;
+    TextInputLayout verifyPasswordInputLayout;
+    TextInputLayout usernameInputLayout;
+
     Button signupButton;
     Button loginButton;
     Button facebookButton;
@@ -72,6 +78,13 @@ public class SignupLogin extends AppCompatActivity {
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
         verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
+
+        emailInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutEmail);
+        passwordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutPassword);
+        verifyPasswordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutVerifyPassword);
+        usernameInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutUsername);
+
+
         signupButton = (Button) findViewById(R.id.buttonSignup);
         loginButton = (Button) findViewById(R.id.buttonLogin);
         facebookButton = (Button) findViewById(R.id.buttonFacebookLogin);
@@ -79,8 +92,8 @@ public class SignupLogin extends AppCompatActivity {
 
 
         // Set username and verify passwords inially gone
-        verifyPasswordEditText.setVisibility(View.GONE);
-        usernameEditText.setVisibility(View.GONE);
+        verifyPasswordInputLayout.setVisibility(View.GONE);
+        usernameInputLayout.setVisibility(View.GONE);
 
         // Changing EditText colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -121,9 +134,9 @@ public class SignupLogin extends AppCompatActivity {
     public void signup(View v) {
 
         // Brings in verify password and username edittexts if not visible
-        if (verifyPasswordEditText.getVisibility() == View.GONE) {
-            verifyPasswordEditText.setVisibility(View.VISIBLE);
-            usernameEditText.setVisibility(View.VISIBLE);
+        if (verifyPasswordInputLayout.getVisibility() == View.GONE) {
+            verifyPasswordInputLayout.setVisibility(View.VISIBLE);
+            usernameInputLayout.setVisibility(View.VISIBLE);
             signupButton.setBackgroundResource(R.drawable.login_button);
             loginButton.setBackgroundResource(R.drawable.signup_button);
 
@@ -220,9 +233,9 @@ public class SignupLogin extends AppCompatActivity {
     public void emailLogin(View v) {
 
         // Removes verify password and username edittexts if visible
-        if (verifyPasswordEditText.getVisibility() == View.VISIBLE) {
-            verifyPasswordEditText.setVisibility(View.GONE);
-            usernameEditText.setVisibility(View.GONE);
+        if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
+            verifyPasswordInputLayout.setVisibility(View.GONE);
+            usernameInputLayout.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
 
@@ -293,8 +306,8 @@ public class SignupLogin extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             titleTextView.startAnimation(titleAnimEnter);
-            emailEditText.startAnimation(emailAnimEnter);
-            passwordEditText.startAnimation(passwordAnimEnter);
+            emailInputLayout.startAnimation(emailAnimEnter);
+            passwordInputLayout.startAnimation(passwordAnimEnter);
             loginButton.startAnimation(loginAnimEnter);
             signupButton.startAnimation(signupAnimEnter);
             facebookButton.startAnimation(facebookAnimEnter);

@@ -96,6 +96,11 @@ public class APIFunctions {
         client.get(context, URL+"/univ", jsonHttpResponseHandler);
     }
 
+    //API function to search course database
+    public static void searchCourse(Context context, String searchQuery, int limit, int skip, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/course?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
+    }
+
     private static String getUserToken(Context context){
         //Get userToken from shared preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);

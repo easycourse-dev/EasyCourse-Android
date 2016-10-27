@@ -60,4 +60,7 @@ dependencies {
 
     // Facebook SDK
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+
+    // Bottom TabBar
+    compile 'com.github.armcha:LuseenBottomNavigation:1.8.2'
 }

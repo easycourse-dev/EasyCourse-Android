@@ -2,116 +2,47 @@ package com.example.markwen.easycourse;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.markwen.easycourse.fragments.Rooms;
-import com.example.markwen.easycourse.fragments.User;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationItem;
+import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
+import com.luseen.luseenbottomnavigation.BottomNavigation.OnBottomNavigationItemClickListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TabLayout tabLayout;
+    private BottomNavigationView bottomNavigationView;
     private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
+        // Tabs setup
+        BottomNavigationItem bottomNavigationItem = new BottomNavigationItem
+                ("Chats", ContextCompat.getColor(this, R.color.colorAccent), R.drawable.ic_chatboxes);
+        BottomNavigationItem bottomNavigationItem1 = new BottomNavigationItem
+                ("User", ContextCompat.getColor(this, R.color.colorTabDefault), R.drawable.ic_contact_outline);
+        bottomNavigationView.addTab(bottomNavigationItem);
+        bottomNavigationView.addTab(bottomNavigationItem1);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setSelectedTabIndicatorHeight(0);
-        setupTabIcons();
-
-        // TODO: Set default selected tab
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        bottomNavigationView.setOnBottomNavigationItemClickListener(new OnBottomNavigationItemClickListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                // Change text color
-                TextView tabTemplate = (TextView)tab.getCustomView().findViewById(R.id.customTab);
-                tabTemplate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
-
-                // TODO: Change color of icon
-                tabTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_chatboxes, 0, 0);
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                // Change text color
-                TextView tabTemplate = (TextView)tab.getCustomView().findViewById(R.id.customTab);
-                tabTemplate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorTabDefault));
-
-                // TODO: Change color of icon
-                tabTemplate.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_chatboxes, 0, 0);
+            public void onNavigationItemClick(int index) {
+                Toast.makeText(MainActivity.this, "Item " +index +" clicked", Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-    private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new Rooms(), "Rooms");
-        adapter.addFragment(new User(), "User");
-        viewPager.setAdapter(adapter);
-    }
+        // Viewpager setup
+        
 
-    private void setupTabIcons() {
-        TextView roomsTab = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-        roomsTab.setText("Rooms");
-        roomsTab.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_chatboxes, 0, 0);
-        tabLayout.getTabAt(0).setCustomView(roomsTab);
-
-        TextView userTab = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-        userTab.setText("User");
-        userTab.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_contact_outline, 0, 0);
-        tabLayout.getTabAt(1).setCustomView(userTab);
-    }
-
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>(); // List of Fragments
-        private final List<String> mFragmentTitleList = new ArrayList<>(); // List of Fragment titles
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
+        // Connect Viewpager with tab
+        ContextCompat.getColor(getApplicationContext(), R.color.colorAccent);
+        bottomNavigationView.setUpWithViewPager(yourPager , colorResources , imageResources);
     }
 }

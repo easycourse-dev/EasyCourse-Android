@@ -12,16 +12,13 @@
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/tabs"  />
+            android:layout_above="@+id/bottomNavigation"  />
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
+        <com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            app:tabMode="fixed"
-            app:tabGravity="fill"
-            app:tabBackground = "@android:color/transparent"  />
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
 
     </RelativeLayout>
 

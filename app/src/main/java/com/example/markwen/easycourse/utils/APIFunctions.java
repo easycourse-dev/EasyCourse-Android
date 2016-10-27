@@ -101,6 +101,11 @@ public class APIFunctions {
         client.get(context, URL+"/course?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
     }
 
+    //API function to get language list
+    public static void getLanguages(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
+    }
+
     private static String getUserToken(Context context){
         //Get userToken from shared preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);

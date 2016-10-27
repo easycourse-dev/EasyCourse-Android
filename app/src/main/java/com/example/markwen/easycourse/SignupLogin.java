@@ -88,35 +88,33 @@ public class SignupLogin extends AppCompatActivity {
         verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
-        // Animate views when activity starts
+        // Animations for views when activity starts/resumes
         titleAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         emailAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         emailAnimEnter.setStartOffset(250);
         passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         passwordAnimEnter.setStartOffset(250);
         loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        loginAnimEnter.setStartOffset(250*2);
+        loginAnimEnter.setStartOffset(250 * 2);
         signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        signupAnimEnter.setStartOffset(250*2);
+        signupAnimEnter.setStartOffset(250 * 2);
         facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        facebookAnimEnter.setStartOffset(250*2);
-    }
+        facebookAnimEnter.setStartOffset(250 * 2);
 
-    public void emailLogin(View v) {
 
-        // Removes verify password and username edittexts if visible
-        if (verifyPasswordEditText.getVisibility() == View.VISIBLE) {
-            verifyPasswordEditText.setVisibility(View.GONE);
-            usernameEditText.setVisibility(View.GONE);
-            signupButton.setBackgroundResource(R.drawable.signup_button);
-            loginButton.setBackgroundResource(R.drawable.login_button);
+        signupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signup(v);
+            }
+        });
 
-        } else { // Edittexts are hidden, do logic
-            Log.d(TAG, "Login clicked-doing login");
-            // Get inputs and check if fields are empty
-            // only execute login API when fields are all filled
-        }
-
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                emailLogin(v);
+            }
+        });
 
     }
 
@@ -133,86 +131,51 @@ public class SignupLogin extends AppCompatActivity {
             Log.d(TAG, "Signup clicked-doing signup");
             // Get inputs and check if fields are empty
             // only execute login API when fields are all filled
-        }
+            try {
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+                String verifyPassword = verifyPasswordEditText.getText().toString();
+                String username = usernameEditText.getText().toString();
 
 
-    }
-
-    public void facebookLogin(View v) {
-
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    String email = emailEditText.getText().toString();
-                    String password = passwordEditText.getText().toString();
-                    String verifyPassword = verifyPasswordEditText.getText().toString();
-                    String username = usernameEditText.getText().toString();
-
-                    // make API call only if the 2 passwords are the same
-                    // make a Toast and don't do anything if they don't match
-                    if (!password.equals(verifyPassword)) {
-                        Snackbar passwordMismatchSnackbar = Snackbar
-                                .make(view, "Passwords don't match, please try again.", Snackbar.LENGTH_LONG);
-                        passwordMismatchSnackbar.show();
-                        passwordEditText.setText("");
-                        verifyPasswordEditText.setText("");
-                    } else {
-                        final Snackbar signupErrorSnackbar = Snackbar
-                                .make(view, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
-                        APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                String userToken = "";
-
-                                //for each header in array Headers scan for Auth header
-                                for (Header header : headers) {
-                                    if (header.toString().contains("Auth"))
-                                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                                }
-
-                                sharedPref = getPreferences(Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("userToken", userToken);
-                                editor.putString("currentUser", response.toString());
-                                editor.apply();
-
-                                // Make an Intent to move on to the next activity
-                                Intent mainActivityIntent = new Intent(getApplicationContext(), SignupInitialSetup.class);
-                                startActivity(mainActivityIntent);
-
-                                finish();
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                                Log.e("com.example.easycourse", "status failure " + statusCode);
-                                Log.e("com.example.easycourse", res);
-                                signupErrorSnackbar.show();
-                            }
-                        });
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.e("com.example.easycourse", e.toString());
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                    Log.e("com.example.easycourse", e.toString());
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    Snackbar.make(v, "Check your email", Snackbar.LENGTH_SHORT).show();
+                    return;
                 }
-            }
-        });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    String email = emailEditText.getText().toString();
-                    String pwd = passwordEditText.getText().toString();
+                if (password.length() == 0) {
+                    Snackbar.make(v, "No password", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    final Snackbar loginErrorSnackbar = Snackbar
-                            .make(view, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+                if (password.length() < 6 || password.length() > 20) {
+                    Snackbar.make(v, "Make sure your password is between 6 and 20 characters long.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler() {
+                if (!verifyPassword.equals(password)) {
+                    Snackbar.make(v, "Your passwords don't match", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (username.length() < 6 || username.length() > 20) {
+                    Snackbar.make(v, "Make sure your username is between 6 and 20 characters long.", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+
+
+                // make API call only if the 2 passwords are the same
+                // make a Toast and don't do anything if they don't match
+                if (!password.equals(verifyPassword)) {
+                    Snackbar passwordMismatchSnackbar = Snackbar
+                            .make(v, "Passwords don't match, please try again.", Snackbar.LENGTH_LONG);
+                    passwordMismatchSnackbar.show();
+                    passwordEditText.setText("");
+                    verifyPasswordEditText.setText("");
+                } else {
+                    final Snackbar signupErrorSnackbar = Snackbar
+                            .make(v, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
+                    APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             String userToken = "";
@@ -223,7 +186,6 @@ public class SignupLogin extends AppCompatActivity {
                                     userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                             }
 
-                            // Store user at SharedPreferences
                             sharedPref = getPreferences(Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
@@ -231,7 +193,7 @@ public class SignupLogin extends AppCompatActivity {
                             editor.apply();
 
                             // Make an Intent to move on to the next activity
-                            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                            Intent mainActivityIntent = new Intent(getApplicationContext(), SignupInitialSetup.class);
                             startActivity(mainActivityIntent);
 
                             finish();
@@ -239,19 +201,91 @@ public class SignupLogin extends AppCompatActivity {
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            // Make a Snackbar to notify user with error
-                            loginErrorSnackbar.show();
+                            Log.e("com.example.easycourse", "status failure " + statusCode);
+                            Log.e("com.example.easycourse", res);
+                            signupErrorSnackbar.show();
                         }
                     });
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.e("com.example.easycourse", e.toString());
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                    Log.e("com.example.easycourse", e.toString());
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("com.example.easycourse", e.toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                Log.e("com.example.easycourse", e.toString());
             }
-        });
+        }
+    }
+
+    public void emailLogin(View v) {
+
+        // Removes verify password and username edittexts if visible
+        if (verifyPasswordEditText.getVisibility() == View.VISIBLE) {
+            verifyPasswordEditText.setVisibility(View.GONE);
+            usernameEditText.setVisibility(View.GONE);
+            signupButton.setBackgroundResource(R.drawable.signup_button);
+            loginButton.setBackgroundResource(R.drawable.login_button);
+
+        } else { // Edittexts are hidden, do logic
+            Log.d(TAG, "Login clicked-doing login");
+            // Get inputs and check if fields are empty
+            // only execute login API when fields are all filled
+            try {
+                String email = emailEditText.getText().toString();
+                String pwd = passwordEditText.getText().toString();
+
+                if (email.length() == 0 || pwd.length() == 0) {
+                    Snackbar.make(v, "No password", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+
+
+                final Snackbar loginErrorSnackbar = Snackbar
+                        .make(v, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+
+                APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        String userToken = "";
+
+                        //for each header in array Headers scan for Auth header
+                        for (Header header : headers) {
+                            if (header.toString().contains("Auth"))
+                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
+                        }
+
+                        // Store user at SharedPreferences
+                        sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("userToken", userToken);
+                        editor.putString("currentUser", response.toString());
+                        editor.apply();
+
+                        // Make an Intent to move on to the next activity
+                        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(mainActivityIntent);
+
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        // Make a Snackbar to notify user with error
+                        loginErrorSnackbar.show();
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("com.example.easycourse", e.toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                Log.e("com.example.easycourse", e.toString());
+            }
+        }
+    }
+
+    public void facebookLogin(View v) {
+        //implement facebooklogin here
     }
 
     @Override

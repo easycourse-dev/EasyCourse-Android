@@ -38,28 +38,36 @@ public class MainActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        // Tabs setup
-        BottomNavigationItem bottomNavigationItem = new BottomNavigationItem
-                ("Rooms", ContextCompat.getColor(this, R.color.colorAccent), R.drawable.ic_chatboxes);
-        BottomNavigationItem bottomNavigationItem1 = new BottomNavigationItem
-                ("User", ContextCompat.getColor(this, R.color.colorTabDefault), R.drawable.ic_contact_outline);
-        bottomNavigationView.addTab(bottomNavigationItem);
-        bottomNavigationView.addTab(bottomNavigationItem1);
+        int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
+        int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};
 
-        bottomNavigationView.setOnBottomNavigationItemClickListener(new OnBottomNavigationItemClickListener() {
-            @Override
-            public void onNavigationItemClick(int index) {
-                Toast.makeText(MainActivity.this, "Item " +index +" clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // BottomNavigationView setup
+        bottomNavigationView.disableShadow();
+        bottomNavigationView.isWithText(true);
+        bottomNavigationView.isColoredBackground(false);
+        bottomNavigationView.setItemActiveColorWithoutColoredBackground(ContextCompat.getColor(this, R.color.colorAccent));
 
         // Viewpager setup
         pagerAdapter.addFragment(new Rooms(), "Rooms");
         pagerAdapter.addFragment(new User(), "User");
         viewPager.setAdapter(pagerAdapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-        // Connect Viewpager with tab
-        ContextCompat.getColor(getApplicationContext(), R.color.colorAccent);
-        bottomNavigationView.setUpWithViewPager(viewPager , colorResources , imageResources);
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                bottomNavigationView.selectTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        bottomNavigationView.setUpWithViewPager(viewPager , tabColors , tabImages);
     }
 }

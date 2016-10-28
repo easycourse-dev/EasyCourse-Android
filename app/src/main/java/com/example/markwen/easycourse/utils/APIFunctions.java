@@ -1,7 +1,8 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -19,7 +20,7 @@ public class APIFunctions {
     static AsyncHttpClient client = new AsyncHttpClient();
     static final String URL = "http://zengjintaotest.com/api";
 
-
+    //API function for signup to server
     public static void signUp(Context context, String email, String password, String displayName, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         client.addHeader("isMobile","true");
         client.addHeader("Content-Type", "application/json");
@@ -38,11 +39,10 @@ public class APIFunctions {
         client.post(context, URL+"/signup/", body, "application/json", jsonHttpResponseHandler);
     }
 
+    //API function to login to server
     public static void login(Context context, String email, String password, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         client.addHeader("isMobile","true");
         client.addHeader("Content-Type", "application/json");
-
-        Log.e("com.example.easycourse", "email : "+email);
 
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("email", email);
@@ -51,5 +51,60 @@ public class APIFunctions {
         StringEntity body = new StringEntity(jsonParam.toString());
 
         client.post(context, URL+"/login", body, "application/json", jsonHttpResponseHandler);
+    }
+
+    //API function to logout user
+    public static boolean logout(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+        client.post(context, URL+"/logout", null, jsonHttpResponseHandler);
+
+        return true;
+    }
+
+    //API function to login to facebook with accessToken
+    public static void facebookLogin(Context context, String accessToken, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.addHeader("isMobile","true");
+        client.addHeader("Content-Type", "application/json");
+
+        client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
+    }
+
+    //API function to update user's university
+    public static boolean updateUser(Context context, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("university", universityID);
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/user/update", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
+    //API function to get university list
+    public static void getUniversities(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/univ", jsonHttpResponseHandler);
+    }
+
+    private static String getUserToken(Context context){
+        //Get userToken from shared preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String userToken = sharedPref.getString("userToken", null);
+
+        //Return empty if userToken is not found
+        if(userToken==null)
+            return "";
+        else
+            return userToken;
     }
 }

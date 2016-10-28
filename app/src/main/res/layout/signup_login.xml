@@ -137,24 +137,20 @@
                 android:textColor="@color/colorWhiteText"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                style="?android:attr/borderlessButtonStyle"
-                android:onClick="signup"/>
+                style="?android:attr/borderlessButtonStyle" />
 
+            <com.facebook.login.widget.LoginButton
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonFacebookLogin"
+                android:text="@string/facebook_login"
+                android:background="@drawable/facebook_login_button"
+                android:textColor="@color/colorWhiteText"
+                android:layout_marginTop="6dp"
+                android:layout_below="@+id/buttonLogin"
+                style="?android:attr/borderlessButtonStyle" />
 
         </RelativeLayout>
-
-        <Button
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonFacebookLogin"
-            android:text="@string/facebook_login"
-            android:background="@drawable/facebook_login_button"
-            android:textColor="@color/colorWhiteText"
-            android:layout_marginTop="6dp"
-            android:layout_gravity="center"
-            style="?android:attr/borderlessButtonStyle"
-            android:onClick="facebookLogin"/>
 
     </LinearLayout>
 

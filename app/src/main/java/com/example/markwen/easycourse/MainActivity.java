@@ -45,14 +45,13 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.disableShadow();
         bottomNavigationView.isWithText(true);
         bottomNavigationView.isColoredBackground(false);
-        bottomNavigationView.setItemActiveColorWithoutColoredBackground(ContextCompat.getColor(this, R.color.colorAccent));
+        bottomNavigationView.setItemActiveColorWithoutColoredBackground(ContextCompat.getColor(this, tabColors[0]));
 
         // Viewpager setup
         pagerAdapter.addFragment(new Rooms(), "Rooms");
         pagerAdapter.addFragment(new User(), "User");
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 

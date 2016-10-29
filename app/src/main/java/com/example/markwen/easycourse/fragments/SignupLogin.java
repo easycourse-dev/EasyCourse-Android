@@ -1,19 +1,24 @@
-package com.example.markwen.easycourse;
+package com.example.markwen.easycourse.fragments;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -21,7 +26,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
+import com.example.markwen.easycourse.MainActivity;
+import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -40,12 +46,13 @@ import java.io.UnsupportedEncodingException;
 import cz.msebera.android.httpclient.Header;
 
 /**
- * Created by Mark Wen on 10/18/2016.
+ * Created by noahrinehart on 10/29/16.
  */
 
-public class SignupLogin extends AppCompatActivity {
+public class SignupLogin extends Fragment {
 
     private static final String TAG = "SignupLogin";
+
 
     TextView titleTextView;
 
@@ -75,78 +82,82 @@ public class SignupLogin extends AppCompatActivity {
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
 
+    public SignupLogin() {
+    }
+
+
+    //http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
+    public static SignupLogin newInstance() {
+        return new SignupLogin();
+    }
+
+
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Facebook SDK setup
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(getApplication());
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        setContentView(R.layout.signup_login);
-        // Hide toolbar for this specific activity and null check
-        if (getSupportActionBar() != null)
-            getSupportActionBar().hide();
-
-        titleTextView = (TextView) findViewById(R.id.textViewTitle);
-        emailEditText = (EditText) findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
-
-        emailInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutEmail);
-        passwordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutPassword);
-        verifyPasswordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutVerifyPassword);
-        usernameInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutUsername);
+        FacebookSdk.sdkInitialize(getContext());
+        AppEventsLogger.activateApp(getActivity().getApplication());
+        View v = inflater.inflate(R.layout.signup_login, container, false);
 
 
-        signupButton = (Button) findViewById(R.id.buttonSignup);
-        loginButton = (Button) findViewById(R.id.buttonLogin);
+        titleTextView = (TextView) v.findViewById(R.id.textViewTitle);
+        emailEditText = (EditText) v.findViewById(R.id.editTextEmail);
+        passwordEditText = (EditText) v.findViewById(R.id.editTextPassword);
+        verifyPasswordEditText = (EditText) v.findViewById(R.id.editTextVerifyPassword);
+        usernameEditText = (EditText) v.findViewById(R.id.editTextUsername);
+
+        emailInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutEmail);
+        passwordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutPassword);
+        verifyPasswordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutVerifyPassword);
+        usernameInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutUsername);
+
+
+        signupButton = (Button) v.findViewById(R.id.buttonSignup);
+        loginButton = (Button) v.findViewById(R.id.buttonLogin);
         callbackManager = CallbackManager.Factory.create();
-        facebookButton = (LoginButton) findViewById(R.id.buttonFacebookLogin);
-        signupLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutSignup);
+        facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
+        signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 
         // Set username and verify passwords inially gone
         verifyPasswordInputLayout.setVisibility(View.GONE);
         usernameInputLayout.setVisibility(View.GONE);
 
         // Changing EditText background colors
-        emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        emailEditText.getBackground().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+        usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
 
         // Change EditText text color
-        emailEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        passwordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        verifyPasswordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        usernameEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
+        emailEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWhiteText));
+        passwordEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWhiteText));
+        verifyPasswordEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWhiteText));
+        usernameEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWhiteText));
 
         // Add textWatchers to EditTexts's
-        emailEditText.addTextChangedListener(new SignupLoginTextWatcher(emailEditText));
-        passwordEditText.addTextChangedListener(new SignupLoginTextWatcher(passwordEditText));
-        verifyPasswordEditText.addTextChangedListener(new SignupLoginTextWatcher(verifyPasswordEditText));
-        usernameEditText.addTextChangedListener(new SignupLoginTextWatcher(usernameEditText));
-
+        emailEditText.addTextChangedListener(new SignupLogin.SignupLoginTextWatcher(emailEditText));
+        passwordEditText.addTextChangedListener(new SignupLogin.SignupLoginTextWatcher(passwordEditText));
+        verifyPasswordEditText.addTextChangedListener(new SignupLogin.SignupLoginTextWatcher(verifyPasswordEditText));
+        usernameEditText.addTextChangedListener(new SignupLogin.SignupLoginTextWatcher(usernameEditText));
 
 
         // Animations for views when activity starts/resumes
-        titleAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        emailAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        titleAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
+        emailAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         emailAnimEnter.setStartOffset(250);
-        passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        passwordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         passwordAnimEnter.setStartOffset(250);
-        verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         verifyPasswordAnimEnter.setStartOffset(250);
-        usernameAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        usernameAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         usernameAnimEnter.setStartOffset(250);
-        loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        loginAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         loginAnimEnter.setStartOffset(250 * 2);
-        signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        signupAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         signupAnimEnter.setStartOffset(250 * 2);
-        facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        facebookAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
-
-        startAnimations();
 
 
         signupButton.setOnClickListener(new View.OnClickListener() {
@@ -163,7 +174,12 @@ public class SignupLogin extends AppCompatActivity {
             }
         });
 
+        startAnimations();
+
+        return v;
     }
+
+
 
     public void signup(View v) {
 
@@ -185,13 +201,13 @@ public class SignupLogin extends AppCompatActivity {
                 String verifyPassword = verifyPasswordEditText.getText().toString();
                 String username = usernameEditText.getText().toString();
 
-                if(!validateEmail())
+                if (!validateEmail())
                     return;
-                if(!validatePassword())
+                if (!validatePassword())
                     return;
-                if(!validateVerifyPassword())
+                if (!validateVerifyPassword())
                     return;
-                if(!validateUsername())
+                if (!validateUsername())
                     return;
 
 
@@ -206,7 +222,7 @@ public class SignupLogin extends AppCompatActivity {
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
                             .make(v, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
-                    APIFunctions.signUp(getApplicationContext(), email, password, username, new JsonHttpResponseHandler() {
+                    APIFunctions.signUp(getContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             String userToken = "";
@@ -217,17 +233,13 @@ public class SignupLogin extends AppCompatActivity {
                                     userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                             }
 
-                            sharedPref = getPreferences(Context.MODE_PRIVATE);
+                            sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
                             editor.apply();
 
-                            // Make an Intent to move on to the next activity
-                            Intent mainActivityIntent = new Intent(getApplicationContext(), SignupInitialSetup.class);
-                            startActivity(mainActivityIntent);
-
-                            finish();
+                            gotoSignupChooseCourses();
                         }
 
                         @Override
@@ -245,7 +257,7 @@ public class SignupLogin extends AppCompatActivity {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }
-        };
+        }
 
         facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             final Snackbar fbLoginErrorSnackbar = Snackbar
@@ -253,8 +265,8 @@ public class SignupLogin extends AppCompatActivity {
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.i("com.example.easycourse", loginResult.getAccessToken().getToken().toString());
-                APIFunctions.facebookLogin(getApplicationContext(), loginResult.getAccessToken().getToken().toString(), new JsonHttpResponseHandler() {
+                Log.i("com.example.easycourse", loginResult.getAccessToken().getToken());
+                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         Log.i("com.example.easycourse", "Step: 2");
@@ -262,23 +274,19 @@ public class SignupLogin extends AppCompatActivity {
                         String userToken = "";
 
                         //for each header in array Headers scan for Auth header
-                        for(Header header: headers){
-                            if(header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                        for (Header header : headers) {
+                            if (header.toString().contains("Auth"))
+                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                         }
 
                         // Store user at SharedPreferences
-                        sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
-                        editor.commit();
+                        editor.apply();
 
-                        // Make an Intent to move on to the next activity
-                        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(mainActivityIntent);
-
-                        finish();
+                        gotoSignupChooseCourses();
                     }
 
                     @Override
@@ -303,7 +311,7 @@ public class SignupLogin extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
@@ -325,15 +333,15 @@ public class SignupLogin extends AppCompatActivity {
                 String email = emailEditText.getText().toString();
                 String pwd = passwordEditText.getText().toString();
 
-                if(!validateEmail())
+                if (!validateEmail())
                     return;
-                if(!validatePassword())
+                if (!validatePassword())
                     return;
 
                 final Snackbar loginErrorSnackbar = Snackbar
                         .make(v, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
 
-                APIFunctions.login(getApplicationContext(), email, pwd, new JsonHttpResponseHandler() {
+                APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         String userToken = "";
@@ -345,17 +353,17 @@ public class SignupLogin extends AppCompatActivity {
                         }
 
                         // Store user at SharedPreferences
-                        sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
                         editor.apply();
 
                         // Make an Intent to move on to the next activity
-                        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
                         startActivity(mainActivityIntent);
 
-                        finish();
+                        getActivity().finish();
                     }
 
                     @Override
@@ -374,8 +382,14 @@ public class SignupLogin extends AppCompatActivity {
         }
     }
 
-    public void facebookLogin(View v) {
-        //implement facebooklogin here
+    // Call this function when going to SignupChooseUniversity
+    public void gotoSignupChooseCourses() {
+        // Switch fragment to SignupChooseUniversity
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
+        transaction.commit();
     }
 
 
@@ -472,6 +486,7 @@ public class SignupLogin extends AppCompatActivity {
         return true;
     }
 
+
     // TextWatcher to show error when typing out email/password ..etc
     public class SignupLoginTextWatcher implements TextWatcher {
 
@@ -482,10 +497,12 @@ public class SignupLogin extends AppCompatActivity {
         }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -505,6 +522,4 @@ public class SignupLogin extends AppCompatActivity {
             }
         }
     }
-
-
 }

@@ -12,7 +12,7 @@ public class SignupInitialSetup extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.signup_initial_setup);
+        //setContentView(R.layout.signup_initial_setup);
         // Hide toolbar for this specific activity
         getSupportActionBar().hide();
     }

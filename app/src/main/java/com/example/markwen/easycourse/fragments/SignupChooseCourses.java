@@ -39,6 +39,7 @@ public class SignupChooseCourses extends Fragment {
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance());
+        transaction.addToBackStack("SignupChooseCourses");
         transaction.commit();
     }
 

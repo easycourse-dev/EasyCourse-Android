@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,14 +98,8 @@ public class SignupLogin extends Fragment {
 
         FacebookSdk.sdkInitialize(getContext());
         AppEventsLogger.activateApp(getActivity().getApplication());
-        return inflater.inflate(R.layout.signup_login, container, false);
-    }
+        View v = inflater.inflate(R.layout.signup_login, container, false);
 
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        View v = getView();
 
         titleTextView = (TextView) v.findViewById(R.id.textViewTitle);
         emailEditText = (EditText) v.findViewById(R.id.editTextEmail);
@@ -181,6 +176,7 @@ public class SignupLogin extends Fragment {
 
         startAnimations();
 
+        return v;
     }
 
 

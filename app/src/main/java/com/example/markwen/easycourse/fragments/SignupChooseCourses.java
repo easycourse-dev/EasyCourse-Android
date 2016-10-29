@@ -2,6 +2,8 @@ package com.example.markwen.easycourse.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,10 @@ import com.example.markwen.easycourse.R;
 public class SignupChooseCourses extends Fragment {
     public SignupChooseCourses() {}
 
+    public static SignupChooseCourses newInstance() {
+        return new SignupChooseCourses();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,5 +31,14 @@ public class SignupChooseCourses extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.signup_choose_courses, container, false);
+    }
+
+    // Call this function when going to SignupChooseCourses
+    public void gotoSignupChooseLanguage() {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance());
+        transaction.commit();
     }
 }

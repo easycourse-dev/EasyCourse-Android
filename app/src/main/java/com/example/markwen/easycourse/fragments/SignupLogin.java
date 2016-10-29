@@ -169,6 +169,7 @@ public class SignupLogin extends Fragment {
             @Override
             public void onClick(View v) {
                 signup(v);
+//                temp();
             }
         });
 
@@ -182,6 +183,14 @@ public class SignupLogin extends Fragment {
         startAnimations();
 
     }
+
+//    public void temp() {
+//        FragmentManager manager = getActivity().getSupportFragmentManager();
+//        FragmentTransaction transaction = manager.beginTransaction();
+//        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+//        transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
+//        transaction.commit();
+//    }
 
 
     public void signup(View v) {
@@ -242,13 +251,7 @@ public class SignupLogin extends Fragment {
                             editor.putString("currentUser", response.toString());
                             editor.apply();
 
-
-                            // Switch fragment to SignupChooseUniversity
-                            FragmentManager manager = getActivity().getSupportFragmentManager();
-                            FragmentTransaction transaction = manager.beginTransaction();
-                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                            transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
-                            transaction.commit();
+                            gotoSignupChooseCourses();
                         }
 
                         @Override
@@ -295,11 +298,7 @@ public class SignupLogin extends Fragment {
                         editor.putString("currentUser", response.toString());
                         editor.apply();
 
-                        // Make an Intent to move on to the next activity
-                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-                        startActivity(mainActivityIntent);
-
-                        getActivity().finish();
+                        gotoSignupChooseCourses();
                     }
 
                     @Override
@@ -393,6 +392,16 @@ public class SignupLogin extends Fragment {
                 Log.e("com.example.easycourse", e.toString());
             }
         }
+    }
+
+    // Call this function when going to SignupChooseUniversity
+    public void gotoSignupChooseCourses() {
+        // Switch fragment to SignupChooseUniversity
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
+        transaction.commit();
     }
 
 

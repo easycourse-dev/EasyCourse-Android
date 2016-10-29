@@ -1,10 +1,10 @@
 package com.example.markwen.easycourse;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -90,7 +90,7 @@ public class SignupLogin extends AppCompatActivity {
                                         userToken = header.toString().substring(header.toString().indexOf(":")+2);
                                 }
 
-                                sharedPref = getPreferences(Context.MODE_PRIVATE);
+                                sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("userToken", userToken);
                                 editor.putString("currentUser", response.toString());
@@ -143,7 +143,7 @@ public class SignupLogin extends AppCompatActivity {
                             }
 
                             // Store user at SharedPreferences
-                            sharedPref = getPreferences(Context.MODE_PRIVATE);
+                            sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());

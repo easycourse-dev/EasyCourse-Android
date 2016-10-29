@@ -52,6 +52,9 @@ public class SignupChooseLanguage extends Fragment {
     public SignupChooseLanguage() {
     }
 
+    //TODO: Save and post data
+
+
     public static SignupChooseLanguage newInstance() {
         return new SignupChooseLanguage();
     }
@@ -61,10 +64,6 @@ public class SignupChooseLanguage extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        languageList = new ArrayList<>();
-//        // Add demo languages
-//        languageList.add(new Language("English"));
-//        languageList.add(new Language("Chinese"));
         languageList = new ArrayList<>();
         languageAdapter = new SignupChooseLanguageAdapter(languageList);
 

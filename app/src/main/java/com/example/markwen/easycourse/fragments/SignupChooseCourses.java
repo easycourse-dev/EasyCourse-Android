@@ -4,17 +4,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.Course;
+import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
+
+import java.util.ArrayList;
 
 /**
  * Created by Mark Wen on 10/18/2016.
  */
 
 public class SignupChooseCourses extends Fragment {
+    private RecyclerView mRecyclerView;
+    private SignupChooseCoursesAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+
     public SignupChooseCourses() {}
 
     public static SignupChooseCourses newInstance() {
@@ -24,6 +34,11 @@ public class SignupChooseCourses extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ArrayList<Course> courses = new ArrayList<>();
+        courses.add(new Course("CS17700","Programming With Multimedia Objects"));
+        courses.add(new Course("CS18000","Problem Solving And Object-Oriented Programming"));
+
+        mAdapter = new SignupChooseCoursesAdapter(courses);
     }
 
     @Override
@@ -31,6 +46,13 @@ public class SignupChooseCourses extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.signup_choose_courses, container, false);
+
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.choose_courses_recycler_view);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
 
         return rootView;
     }

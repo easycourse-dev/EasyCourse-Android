@@ -13,8 +13,10 @@ import com.example.markwen.easycourse.R;
  */
 
 public class SignupChooseUniversity extends Fragment {
-    public SignupChooseUniversity() {
+    public SignupChooseUniversity() {}
 
+    public static SignupChooseUniversity newInstance() {
+        return new SignupChooseUniversity();
     }
 
     @Override

@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -81,13 +83,14 @@ public class SignupLogin extends Fragment {
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
 
+    public SignupLogin() {
+    }
+
 
     //http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public static SignupLogin newInstance() {
         return new SignupLogin();
     }
-
-
 
 
     @Nullable
@@ -182,6 +185,7 @@ public class SignupLogin extends Fragment {
 
     }
 
+
     public void signup(View v) {
 
         // Brings in verify password and username edittexts if not visible
@@ -240,11 +244,13 @@ public class SignupLogin extends Fragment {
                             editor.putString("currentUser", response.toString());
                             editor.apply();
 
-                            // Make an Intent to move on to the next activity
-                            Intent mainActivityIntent = new Intent(getContext(), SignupInitialSetup.class);
-                            startActivity(mainActivityIntent);
 
-                            getActivity().finish();
+                            // Switch fragment to SignupChooseUniversity
+                            FragmentManager manager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = manager.beginTransaction();
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
+                            transaction.commit();
                         }
 
                         @Override

@@ -44,13 +44,11 @@ import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.Header;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
-
 /**
  * Created by noahrinehart on 10/29/16.
  */
 
-public class SignupLogin extends Fragment{
+public class SignupLogin extends Fragment {
 
     private static final String TAG = "SignupLogin";
 
@@ -140,7 +138,6 @@ public class SignupLogin extends Fragment{
         usernameEditText.addTextChangedListener(new SignupLogin.SignupLoginTextWatcher(usernameEditText));
 
 
-
         // Animations for views when activity starts/resumes
         titleAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         emailAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
@@ -197,13 +194,13 @@ public class SignupLogin extends Fragment{
                 String verifyPassword = verifyPasswordEditText.getText().toString();
                 String username = usernameEditText.getText().toString();
 
-                if(!validateEmail())
+                if (!validateEmail())
                     return;
-                if(!validatePassword())
+                if (!validatePassword())
                     return;
-                if(!validateVerifyPassword())
+                if (!validateVerifyPassword())
                     return;
-                if(!validateUsername())
+                if (!validateUsername())
                     return;
 
 
@@ -265,8 +262,8 @@ public class SignupLogin extends Fragment{
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.i("com.example.easycourse", loginResult.getAccessToken().getToken().toString());
-                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken().toString(), new JsonHttpResponseHandler() {
+                Log.i("com.example.easycourse", loginResult.getAccessToken().getToken());
+                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         Log.i("com.example.easycourse", "Step: 2");
@@ -274,9 +271,9 @@ public class SignupLogin extends Fragment{
                         String userToken = "";
 
                         //for each header in array Headers scan for Auth header
-                        for(Header header: headers){
-                            if(header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":")+2);
+                        for (Header header : headers) {
+                            if (header.toString().contains("Auth"))
+                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                         }
 
                         // Store user at SharedPreferences
@@ -284,7 +281,7 @@ public class SignupLogin extends Fragment{
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
-                        editor.commit();
+                        editor.apply();
 
                         // Make an Intent to move on to the next activity
                         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
@@ -337,9 +334,9 @@ public class SignupLogin extends Fragment{
                 String email = emailEditText.getText().toString();
                 String pwd = passwordEditText.getText().toString();
 
-                if(!validateEmail())
+                if (!validateEmail())
                     return;
-                if(!validatePassword())
+                if (!validatePassword())
                     return;
 
                 final Snackbar loginErrorSnackbar = Snackbar
@@ -491,10 +488,12 @@ public class SignupLogin extends Fragment{
         }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {

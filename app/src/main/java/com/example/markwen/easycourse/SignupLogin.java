@@ -137,6 +137,8 @@ public class SignupLogin extends AppCompatActivity {
         facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
 
+        startAnimations();
+
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,7 +155,7 @@ public class SignupLogin extends AppCompatActivity {
         });
 
     }
-    
+
     public void signup(View v) {
 
         // Brings in verify password and username edittexts if not visible
@@ -307,22 +309,19 @@ public class SignupLogin extends AppCompatActivity {
         //implement facebooklogin here
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            titleTextView.startAnimation(titleAnimEnter);
-            emailInputLayout.startAnimation(emailAnimEnter);
-            passwordInputLayout.startAnimation(passwordAnimEnter);
-            // If signup info visible, show animation
-            if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
-                verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);
-                usernameInputLayout.startAnimation(usernameAnimEnter);
-            }
-            loginButton.startAnimation(loginAnimEnter);
-            signupButton.startAnimation(signupAnimEnter);
-            facebookButton.startAnimation(facebookAnimEnter);
+
+    private void startAnimations() {
+        titleTextView.startAnimation(titleAnimEnter);
+        emailInputLayout.startAnimation(emailAnimEnter);
+        passwordInputLayout.startAnimation(passwordAnimEnter);
+        // If signup info visible, show animation
+        if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
+            verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);
+            usernameInputLayout.startAnimation(usernameAnimEnter);
         }
+        loginButton.startAnimation(loginAnimEnter);
+        signupButton.startAnimation(signupAnimEnter);
+        facebookButton.startAnimation(facebookAnimEnter);
     }
 
     // Validates the email for inconsistencies

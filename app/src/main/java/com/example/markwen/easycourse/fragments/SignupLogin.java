@@ -82,6 +82,14 @@ public class SignupLogin extends Fragment {
     Animation facebookAnimEnter;
 
 
+    //http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
+    public static SignupLogin newInstance() {
+        return new SignupLogin();
+    }
+
+
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

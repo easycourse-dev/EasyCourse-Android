@@ -69,6 +69,8 @@ public class SignupLogin extends AppCompatActivity {
     Animation titleAnimEnter;
     Animation emailAnimEnter;
     Animation passwordAnimEnter;
+    Animation verifyPasswordAnimEnter;
+    Animation usernameAnimEnter;
     Animation loginAnimEnter;
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
@@ -133,12 +135,18 @@ public class SignupLogin extends AppCompatActivity {
         emailAnimEnter.setStartOffset(250);
         passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         passwordAnimEnter.setStartOffset(250);
+        verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        verifyPasswordAnimEnter.setStartOffset(250);
+        usernameAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+        usernameAnimEnter.setStartOffset(250);
         loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         loginAnimEnter.setStartOffset(250 * 2);
         signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         signupAnimEnter.setStartOffset(250 * 2);
         facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
+
+        startAnimations();
 
 
         signupButton.setOnClickListener(new View.OnClickListener() {
@@ -156,8 +164,6 @@ public class SignupLogin extends AppCompatActivity {
         });
 
     }
-
-    // http://www.androidhive.info/2015/09/android-material-design-floating-labels-for-edittext/
 
     public void signup(View v) {
 
@@ -372,17 +378,19 @@ public class SignupLogin extends AppCompatActivity {
         //implement facebooklogin here
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            titleTextView.startAnimation(titleAnimEnter);
-            emailInputLayout.startAnimation(emailAnimEnter);
-            passwordInputLayout.startAnimation(passwordAnimEnter);
-            loginButton.startAnimation(loginAnimEnter);
-            signupButton.startAnimation(signupAnimEnter);
-            facebookButton.startAnimation(facebookAnimEnter);
+
+    private void startAnimations() {
+        titleTextView.startAnimation(titleAnimEnter);
+        emailInputLayout.startAnimation(emailAnimEnter);
+        passwordInputLayout.startAnimation(passwordAnimEnter);
+        // If signup info visible, show animation
+        if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
+            verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);
+            usernameInputLayout.startAnimation(usernameAnimEnter);
         }
+        loginButton.startAnimation(loginAnimEnter);
+        signupButton.startAnimation(signupAnimEnter);
+        facebookButton.startAnimation(facebookAnimEnter);
     }
 
     // Validates the email for inconsistencies
@@ -497,7 +505,6 @@ public class SignupLogin extends AppCompatActivity {
             }
         }
     }
-
 
 
 }

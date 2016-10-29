@@ -11,5 +11,7 @@
     <string name="log_in_button">Log In</string>
     <string name="sign_up_button">Sign Up</string>
     <string name="chooseUniversityTitle">Choose Your University</string>
+    <string name="chooseCoursesTitle">Choose Your Courses</string>
     <string name="facebook_app_id">1837346176551754</string>
+    <string name="chooseCoursesHint">e.g. ECON251</string>
 </resources>

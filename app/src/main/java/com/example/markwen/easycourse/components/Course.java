@@ -12,10 +12,19 @@ public class Course {
     private String description  = "";
     private int creditHours = 0;
     private String universityId  = "";
+    private boolean isSelected = false;
 
     public Course(String name, String title){
         this.name = name;
         this.title = title;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     public String getId() {

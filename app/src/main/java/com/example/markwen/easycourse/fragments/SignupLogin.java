@@ -27,8 +27,6 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.SignupInitialSetup;
-import com.example.markwen.easycourse.SignupLoginActivity;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;

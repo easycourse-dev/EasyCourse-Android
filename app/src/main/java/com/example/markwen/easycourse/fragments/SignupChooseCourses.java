@@ -13,9 +13,7 @@ import com.example.markwen.easycourse.R;
  */
 
 public class SignupChooseCourses extends Fragment {
-    public SignupChooseCourses() {
-
-    }
+    public SignupChooseCourses() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

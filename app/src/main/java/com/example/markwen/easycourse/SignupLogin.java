@@ -153,9 +153,7 @@ public class SignupLogin extends AppCompatActivity {
         });
 
     }
-
-    // http://www.androidhive.info/2015/09/android-material-design-floating-labels-for-edittext/
-
+    
     public void signup(View v) {
 
         // Brings in verify password and username edittexts if not visible
@@ -439,7 +437,6 @@ public class SignupLogin extends AppCompatActivity {
             }
         }
     }
-
 
 
 }

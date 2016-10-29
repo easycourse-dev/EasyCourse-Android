@@ -34,7 +34,6 @@ public class SignupChooseUniversity extends Fragment {
     }
 
 
-
     // Call this function when going to SignupChooseCourses
     public void gotoSignupChooseCourses() {
         FragmentManager manager = getActivity().getSupportFragmentManager();

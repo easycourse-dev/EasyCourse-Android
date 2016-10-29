@@ -169,7 +169,6 @@ public class SignupLogin extends Fragment {
             @Override
             public void onClick(View v) {
                 signup(v);
-//                temp();
             }
         });
 
@@ -184,13 +183,6 @@ public class SignupLogin extends Fragment {
 
     }
 
-//    public void temp() {
-//        FragmentManager manager = getActivity().getSupportFragmentManager();
-//        FragmentTransaction transaction = manager.beginTransaction();
-//        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-//        transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
-//        transaction.commit();
-//    }
 
 
     public void signup(View v) {

@@ -41,4 +41,13 @@ public class SignupChooseCourses extends Fragment {
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance());
         transaction.commit();
     }
+
+    // Call this function when going back to SignupChooseUniversity
+    public void goBackSignupChooseUniversity() {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+        transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance());
+        transaction.commit();
+    }
 }

@@ -38,11 +38,19 @@ public class SignupChooseLanguage extends Fragment {
         return inflater.inflate(R.layout.signup_choose_language, container, false);
     }
 
-    // Call this function when going to mainActivity
+    // Call this function when going to mainActivity, maybe call getActivity.finish();???
     public void gotoMain() {
         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
         startActivity(mainActivityIntent);
     }
 
+    // Call this function when going back to SignupChooseUniversity
+    public void goBackSignupChooseCourses() {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+        transaction.replace(R.id.activity_signuplogin_container, SignupChooseCourses.newInstance());
+        transaction.commit();
+    }
 
 }

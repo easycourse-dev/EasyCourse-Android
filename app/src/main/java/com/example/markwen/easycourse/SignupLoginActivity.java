@@ -52,6 +52,7 @@ public class SignupLoginActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signuplogin);
+
         // Hide toolbar for this specific activity and null check
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
@@ -59,7 +60,7 @@ public class SignupLoginActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance());
+            transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance(), "SignupLogin");
             transaction.commit();
         }
     }

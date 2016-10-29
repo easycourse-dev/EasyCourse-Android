@@ -8,6 +8,8 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -22,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.example.markwen.easycourse.fragments.SignupLogin;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -43,9 +46,9 @@ import cz.msebera.android.httpclient.Header;
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class SignupLogin extends AppCompatActivity {
+public class SignupLoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "SignupLogin";
+    private static final String TAG = "SignupLoginActivity";
 
     TextView titleTextView;
 
@@ -79,89 +82,96 @@ public class SignupLogin extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Facebook SDK setup
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(getApplication());
+//        FacebookSdk.sdkInitialize(getApplicationContext());
+//        AppEventsLogger.activateApp(getApplication());
 
-        setContentView(R.layout.signup_login);
+        setContentView(R.layout.activity_signuplogin);
         // Hide toolbar for this specific activity and null check
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        titleTextView = (TextView) findViewById(R.id.textViewTitle);
-        emailEditText = (EditText) findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
+        if(savedInstanceState == null) {
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.activity_signuplogin_container, new SignupLogin());
+            transaction.commit();
+        }
 
-        emailInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutEmail);
-        passwordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutPassword);
-        verifyPasswordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutVerifyPassword);
-        usernameInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutUsername);
-
-
-        signupButton = (Button) findViewById(R.id.buttonSignup);
-        loginButton = (Button) findViewById(R.id.buttonLogin);
-        callbackManager = CallbackManager.Factory.create();
-        facebookButton = (LoginButton) findViewById(R.id.buttonFacebookLogin);
-        signupLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutSignup);
-
-        // Set username and verify passwords inially gone
-        verifyPasswordInputLayout.setVisibility(View.GONE);
-        usernameInputLayout.setVisibility(View.GONE);
-
-        // Changing EditText background colors
-        emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-
-        // Change EditText text color
-        emailEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        passwordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        verifyPasswordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-        usernameEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
-
-        // Add textWatchers to EditTexts's
-        emailEditText.addTextChangedListener(new SignupLoginTextWatcher(emailEditText));
-        passwordEditText.addTextChangedListener(new SignupLoginTextWatcher(passwordEditText));
-        verifyPasswordEditText.addTextChangedListener(new SignupLoginTextWatcher(verifyPasswordEditText));
-        usernameEditText.addTextChangedListener(new SignupLoginTextWatcher(usernameEditText));
-
-
-
-        // Animations for views when activity starts/resumes
-        titleAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        emailAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        emailAnimEnter.setStartOffset(250);
-        passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        passwordAnimEnter.setStartOffset(250);
-        verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        verifyPasswordAnimEnter.setStartOffset(250);
-        usernameAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        usernameAnimEnter.setStartOffset(250);
-        loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        loginAnimEnter.setStartOffset(250 * 2);
-        signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        signupAnimEnter.setStartOffset(250 * 2);
-        facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
-        facebookAnimEnter.setStartOffset(250 * 2);
-
-        startAnimations();
-
-
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signup(v);
-            }
-        });
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                emailLogin(v);
-            }
-        });
+//        titleTextView = (TextView) findViewById(R.id.textViewTitle);
+//        emailEditText = (EditText) findViewById(R.id.editTextEmail);
+//        passwordEditText = (EditText) findViewById(R.id.editTextPassword);
+//        verifyPasswordEditText = (EditText) findViewById(R.id.editTextVerifyPassword);
+//        usernameEditText = (EditText) findViewById(R.id.editTextUsername);
+//
+//        emailInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutEmail);
+//        passwordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutPassword);
+//        verifyPasswordInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutVerifyPassword);
+//        usernameInputLayout = (TextInputLayout) findViewById(R.id.inputLayoutUsername);
+//
+//
+//        signupButton = (Button) findViewById(R.id.buttonSignup);
+//        loginButton = (Button) findViewById(R.id.buttonLogin);
+//        callbackManager = CallbackManager.Factory.create();
+//        facebookButton = (LoginButton) findViewById(R.id.buttonFacebookLogin);
+//        signupLinearLayout = (LinearLayout) findViewById(R.id.linearLayoutSignup);
+//
+//        // Set username and verify passwords inially gone
+//        verifyPasswordInputLayout.setVisibility(View.GONE);
+//        usernameInputLayout.setVisibility(View.GONE);
+//
+//        // Changing EditText background colors
+//        emailEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+//        passwordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+//        verifyPasswordEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+//        usernameEditText.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+//
+//        // Change EditText text color
+//        emailEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
+//        passwordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
+//        verifyPasswordEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
+//        usernameEditText.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhiteText));
+//
+//        // Add textWatchers to EditTexts's
+//        emailEditText.addTextChangedListener(new SignupLoginTextWatcher(emailEditText));
+//        passwordEditText.addTextChangedListener(new SignupLoginTextWatcher(passwordEditText));
+//        verifyPasswordEditText.addTextChangedListener(new SignupLoginTextWatcher(verifyPasswordEditText));
+//        usernameEditText.addTextChangedListener(new SignupLoginTextWatcher(usernameEditText));
+//
+//
+//
+//        // Animations for views when activity starts/resumes
+//        titleAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        emailAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        emailAnimEnter.setStartOffset(250);
+//        passwordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        passwordAnimEnter.setStartOffset(250);
+//        verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        verifyPasswordAnimEnter.setStartOffset(250);
+//        usernameAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        usernameAnimEnter.setStartOffset(250);
+//        loginAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        loginAnimEnter.setStartOffset(250 * 2);
+//        signupAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        signupAnimEnter.setStartOffset(250 * 2);
+//        facebookAnimEnter = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_move_in);
+//        facebookAnimEnter.setStartOffset(250 * 2);
+//
+//        startAnimations();
+//
+//
+//        signupButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                signup(v);
+//            }
+//        });
+//
+//        loginButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                emailLogin(v);
+//            }
+//        });
 
     }
 
@@ -245,7 +255,7 @@ public class SignupLogin extends AppCompatActivity {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }
-        };
+        }
 
         facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             final Snackbar fbLoginErrorSnackbar = Snackbar

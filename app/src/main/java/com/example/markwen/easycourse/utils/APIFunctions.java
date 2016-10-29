@@ -145,6 +145,24 @@ public class APIFunctions {
         return true;
     }
 
+    //API function to report a user
+    public static boolean reportUser(Context context, String targetUser, String reason, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("targetUser", targetUser);
+        jsonParam.put("reason", reason);
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/report", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
     private static String getUserToken(Context context){
         //Get userToken from shared preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);

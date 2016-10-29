@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="library-0.1">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.hanks.animatecheckbox/library/0.1/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.hanks.animatecheckbox/library/0.1/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.hanks.animatecheckbox/library/0.1/6fd5f672076efa49b4c176037f8cda203b3a315a/library-0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

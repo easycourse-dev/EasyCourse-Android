@@ -13,11 +13,20 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/chooseUniversityTitle"
+            android:text="@string/chooseLanguageTitle"
             android:gravity="center"
             android:textSize="25sp"
             android:textColor="@color/colorWhiteText"
             android:layout_marginTop="80dp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/choose_languages_recycler_view"
+            android:layout_marginTop="80dp"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+        </android.support.v7.widget.RecyclerView>
 
     </LinearLayout>
 

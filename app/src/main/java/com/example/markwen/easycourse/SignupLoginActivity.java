@@ -24,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.example.markwen.easycourse.fragments.SignupChooseLanguage;
+import com.example.markwen.easycourse.fragments.SignupChooseUniversity;
 import com.example.markwen.easycourse.fragments.SignupLogin;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
@@ -60,7 +62,7 @@ public class SignupLoginActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance(), "SignupLogin");
+            transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance(), "SignupLogin");
             transaction.commit();
         }
     }

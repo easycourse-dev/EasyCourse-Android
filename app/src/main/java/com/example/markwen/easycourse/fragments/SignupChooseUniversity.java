@@ -31,7 +31,7 @@ public class SignupChooseUniversity extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = getView();
+        View v  = inflater.inflate(R.layout.signup_choose_university, container, false);
 
 
 

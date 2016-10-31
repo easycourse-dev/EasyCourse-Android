@@ -34,8 +34,10 @@
             android:id="@+id/choose_courses_recycler_view"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
+            android:layout_gravity="center"
+            android:scrollbars="vertical"
+            android:scrollbarThumbVertical="@android:color/darker_gray"
+            android:scrollbarSize="3dp">
         </android.support.v7.widget.RecyclerView>
 
     </LinearLayout>

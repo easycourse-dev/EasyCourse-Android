@@ -129,7 +129,6 @@ public class SignupChooseCourses extends Fragment {
                 Log.e("com.example.easycourse","success "+response.toString());
                 int startPosition = courses.size();
                 try {
-                    //TODO: Animate when loading more courses
                     for(int i = 0; i < response.length(); i++) {
                         JSONObject courseJSON = (JSONObject) response.get(i);
                         Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"));

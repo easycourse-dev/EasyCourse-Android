@@ -25,7 +25,7 @@
             android:layout_marginTop="50dp"
             android:layout_gravity="center"
             android:textColor="@color/colorWhiteText"
-            android:id="@+id/editChooseCourses"
+            android:id="@+id/edit_choose_courses"
             android:hint="@string/chooseCoursesHint"
             android:textSize="16sp"
             android:inputType="text"/>

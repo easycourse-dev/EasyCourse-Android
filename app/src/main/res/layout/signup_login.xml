@@ -139,16 +139,32 @@
                 android:layout_alignParentEnd="true"
                 style="?android:attr/borderlessButtonStyle" />
 
-            <com.facebook.login.widget.LoginButton
-                android:layout_width="300dp"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/buttonFacebookLogin"
-                android:text="@string/facebook_login"
-                android:background="@drawable/facebook_login_button"
-                android:textColor="@color/colorWhiteText"
                 android:layout_marginTop="6dp"
                 android:layout_below="@+id/buttonLogin"
-                style="?android:attr/borderlessButtonStyle" />
+                >
+
+                <com.facebook.login.widget.LoginButton
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/buttonFacebookLogin"
+                    android:visibility="invisible"/>
+
+                <Button
+                    android:id="@+id/fbThemeButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/facebook_login"
+                    android:textColor="@color/colorWhiteText"
+                    android:background="@drawable/facebook_login_button"
+                    android:onClick="fbThemeButtonOnClick"
+                    style="?android:attr/borderlessButtonStyle" />
+
+            </FrameLayout>
+
+
 
         </RelativeLayout>
 

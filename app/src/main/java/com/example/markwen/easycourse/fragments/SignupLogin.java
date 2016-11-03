@@ -119,6 +119,10 @@ public class SignupLogin extends Fragment {
         facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
         signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 
+        // Set facebookButton styles
+        facebookButton.setBackgroundResource(R.drawable.facebook_login_button);
+        facebookButton.setPadding(0, 15, 0, 15);
+
         // Set username and verify passwords inially gone
         verifyPasswordInputLayout.setVisibility(View.GONE);
         usernameInputLayout.setVisibility(View.GONE);

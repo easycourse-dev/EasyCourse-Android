@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.Rooms;
 import com.example.markwen.easycourse.fragments.User;
+import com.example.markwen.easycourse.models.UserSetup;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationItem;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 import com.luseen.luseenbottomnavigation.BottomNavigation.OnBottomNavigationItemClickListener;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ViewPager viewPager;
     private ViewPagerAdapter pagerAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

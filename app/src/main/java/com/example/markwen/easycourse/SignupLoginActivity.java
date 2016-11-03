@@ -24,7 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.example.markwen.easycourse.fragments.SignupChooseLanguage;
+import com.example.markwen.easycourse.fragments.SignupChooseUniversity;
 import com.example.markwen.easycourse.fragments.SignupLogin;
+import com.example.markwen.easycourse.models.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -48,10 +51,16 @@ import cz.msebera.android.httpclient.Header;
 
 public class SignupLoginActivity extends AppCompatActivity {
 
+    public UserSetup userSetup;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signuplogin);
+
+        // Setup userSetup model to hold data
+        userSetup = new UserSetup();
 
         // Hide toolbar for this specific activity and null check
         if (getSupportActionBar() != null)
@@ -60,7 +69,7 @@ public class SignupLoginActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance(), "SignupLogin");
+            transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance(), "SignupLogin");
             transaction.commit();
         }
     }

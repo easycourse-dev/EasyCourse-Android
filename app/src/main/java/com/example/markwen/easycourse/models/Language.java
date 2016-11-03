@@ -8,6 +8,7 @@ public class Language {
 
     private String name;
     private int code;
+    private boolean isChecked;
 
     public Language(String name) {
         this.name = name;
@@ -16,6 +17,7 @@ public class Language {
     public Language(String name, int code) {
         this.name = name;
         this.code = code;
+        this.isChecked = false;
     }
 
     public String getName() {
@@ -34,4 +36,11 @@ public class Language {
         this.code = code;
     }
 
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
 }

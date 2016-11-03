@@ -41,15 +41,14 @@ public class SignupChooseUniversity extends Fragment {
         v.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    return true;
-                }
-                return false;
+                return keyCode == KeyEvent.KEYCODE_BACK;
             }
         });
 
         return inflater.inflate(R.layout.signup_choose_university, container, false);
     }
+
+
 
 
     // Call this function when going to SignupChooseCourses
@@ -61,6 +60,5 @@ public class SignupChooseUniversity extends Fragment {
         transaction.addToBackStack("SignupChooseUniversity");
         transaction.commit();
     }
-
 
 }

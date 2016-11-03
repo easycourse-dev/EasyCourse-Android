@@ -12,5 +12,8 @@
     <string name="sign_up_button">Sign Up</string>
     <string name="chooseUniversityTitle">Choose Your University</string>
     <string name="chooseLanguageTitle">Choose Your Language(s)</string>
+    <string name="signupNext">Next</string>
+    <string name="signupPrev">Back</string>
+    <string name="signupFinish">Finish</string>
     <string name="facebook_app_id">1837346176551754</string>
 </resources>

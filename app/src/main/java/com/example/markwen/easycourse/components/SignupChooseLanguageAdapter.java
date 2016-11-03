@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * Created by noahrinehart on 10/29/16.
  */
 
-public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChooseLanguageAdapter.LanguageViewHolder>{
+public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChooseLanguageAdapter.LanguageViewHolder>{
 
     private ArrayList<Language> languageList = new ArrayList<>();
 
@@ -51,14 +51,19 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
     @Override
     public void onBindViewHolder(final LanguageViewHolder languageViewHolder, int i) {
         languageViewHolder.languageTextView.setText(languageList.get(i).getName());
+        final Language language = languageList.get(i);
 
         languageViewHolder.languageLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(languageViewHolder.languageCheckBox.isChecked())
+                if(languageViewHolder.languageCheckBox.isChecked()) {
                     languageViewHolder.languageCheckBox.setChecked(false);
-                else
+                    language.setChecked(false);
+                }
+                else {
                     languageViewHolder.languageCheckBox.setChecked(true);
+                    language.setChecked(true);
+                }
             }
         });
     }
@@ -71,5 +76,9 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    public ArrayList<Language> getLanguageList(){
+        return languageList;
     }
 }

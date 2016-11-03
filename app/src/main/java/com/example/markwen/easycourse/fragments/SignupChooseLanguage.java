@@ -5,21 +5,27 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.SignupLoginActivity;
 import com.example.markwen.easycourse.components.SignupChooseLanguageAdapter;
 import com.example.markwen.easycourse.models.Language;
+import com.example.markwen.easycourse.models.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -46,8 +52,12 @@ public class SignupChooseLanguage extends Fragment {
     SignupChooseLanguageAdapter languageAdapter;
     LinearLayoutManager languageLayoutManager;
 
+    Button nextButton;
+    Button prevButton;
+
     ArrayList<Language> languageList;
 
+    UserSetup userSetup;
 
     public SignupChooseLanguage() {
     }
@@ -69,6 +79,8 @@ public class SignupChooseLanguage extends Fragment {
 
         fetchLanguages();
 
+        userSetup = ((SignupLoginActivity) getActivity()).userSetup;
+
     }
 
     @Override
@@ -85,9 +97,56 @@ public class SignupChooseLanguage extends Fragment {
         languageRecyclerView.setLayoutManager(languageLayoutManager);
         languageRecyclerView.setAdapter(languageAdapter);
 
+        nextButton = (Button) v.findViewById(R.id.buttonChooseLanguageNext);
+        prevButton = (Button) v.findViewById(R.id.buttonChooseLanguagePrev);
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int[] languageCodes = getLanguageCodes();
+                if (languageCodes != null) {
+                    userSetup.setLanguageCodeArray(languageCodes);
+                    postSignupData(userSetup);
+                } else {
+                    Log.d(TAG, "No language selected!");
+                    Snackbar.make(v, "No language selected!", Snackbar.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         return v;
     }
 
+    @Nullable
+    private int[] getLanguageCodes() {
+        ArrayList<Language> languages = languageAdapter.getLanguageList();
+        ArrayList<Integer> checkedLanguages = new ArrayList<>();
+        boolean oneChecked = false;
+        for (Language language : languages) {
+            if (language.isChecked()) {
+                checkedLanguages.add(language.getCode());
+                oneChecked = true;
+            }
+        }
+        int[] languageCodes = new int[checkedLanguages.size()];
+
+        for (int i = 0; i < checkedLanguages.size(); i++) {
+            if (checkedLanguages.get(i) != null) {
+                languageCodes[i] = checkedLanguages.get(i);
+            }
+        }
+        if (oneChecked)
+            return languageCodes;
+        return null;
+    }
 
     public void fetchLanguages() {
 
@@ -121,6 +180,49 @@ public class SignupChooseLanguage extends Fragment {
             }
         });
     }
+
+    // Posts the signupData
+    public void postSignupData(UserSetup userSetup) {
+        try {
+            //Post University
+            APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "Successfully posted university id");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    // Make a Snackbar to notify user with error
+                    Log.d(TAG, "Failed to post university id");
+                    return;
+                }
+            });
+
+            APIFunctions.setCoursesAndLanguages(getContext(), userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "Successfully posted courses and languages");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    // Make a Snackbar to notify user with error
+                    Log.d(TAG, "Failed to post courses and languages");
+                    return;
+                }
+            });
+
+            Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+            startActivity(mainActivityIntent);
+            getActivity().finish();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     // Call this function when going to mainActivity, maybe call getActivity.finish();???
     public void gotoMain() {

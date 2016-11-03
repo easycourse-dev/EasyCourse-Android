@@ -16,4 +16,5 @@
     <string name="signupPrev">Back</string>
     <string name="signupFinish">Finish</string>
     <string name="facebook_app_id">1837346176551754</string>
+    <string name="chooseCoursesHint">e.g. ECON251</string>
 </resources>

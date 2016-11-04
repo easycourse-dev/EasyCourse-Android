@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
@@ -59,11 +60,7 @@ public class SignupChooseLanguage extends Fragment {
 
     UserSetup userSetup;
 
-    public SignupChooseLanguage() {
-    }
-
-    //TODO: Save and post data
-
+    public SignupChooseLanguage() {}
 
     public static SignupChooseLanguage newInstance() {
         return new SignupChooseLanguage();
@@ -81,6 +78,7 @@ public class SignupChooseLanguage extends Fragment {
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
 
+        fillLanguages();
     }
 
     @Override
@@ -118,7 +116,7 @@ public class SignupChooseLanguage extends Fragment {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                goBackSignupChooseCourses();
             }
         });
 
@@ -154,7 +152,6 @@ public class SignupChooseLanguage extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    Log.d(TAG, response.toString());
                     languageList.clear();
                     Iterator languages = response.keys();
                     while (languages.hasNext()) {
@@ -163,7 +160,6 @@ public class SignupChooseLanguage extends Fragment {
                         String name = obj.getString("name");
                         int code = obj.getInt("code");
                         Language language = new Language(name, code);
-                        Log.d(TAG, language.getName() + language.getCode());
                         languageList.add(language);
                     }
                     languageAdapter.notifyDataSetChanged();
@@ -179,6 +175,20 @@ public class SignupChooseLanguage extends Fragment {
                 Log.e(TAG, res);
             }
         });
+    }
+
+    public void fillLanguages(){
+        //TODO: Fill languages from signupUser
+        int[] languages = userSetup.getLanguageCodeArray();
+        if(languages == null) return;
+        ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
+        for (int i = 0; i < languages.length; i++) {
+            for(Language language : languageArrayList) {
+                if(language.getCode() == languages[i]){
+                    language.setChecked(true);
+                }
+            }
+        }
     }
 
     // Posts the signupData
@@ -223,12 +233,6 @@ public class SignupChooseLanguage extends Fragment {
         }
     }
 
-
-    // Call this function when going to mainActivity, maybe call getActivity.finish();???
-    public void gotoMain() {
-        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-        startActivity(mainActivityIntent);
-    }
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseCourses() {

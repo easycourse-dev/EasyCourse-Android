@@ -81,4 +81,8 @@ public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupC
     public ArrayList<Language> getLanguageList(){
         return languageList;
     }
+
+    public void setLanguageList(ArrayList<Language> languageList) {
+        this.languageList = languageList;
+    }
 }

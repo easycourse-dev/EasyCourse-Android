@@ -1,16 +1,13 @@
 package com.example.markwen.easycourse.fragments;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.nfc.Tag;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
@@ -29,14 +25,11 @@ import com.example.markwen.easycourse.models.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
@@ -60,7 +53,8 @@ public class SignupChooseLanguage extends Fragment {
 
     UserSetup userSetup;
 
-    public SignupChooseLanguage() {}
+    public SignupChooseLanguage() {
+    }
 
     public static SignupChooseLanguage newInstance() {
         return new SignupChooseLanguage();
@@ -70,6 +64,9 @@ public class SignupChooseLanguage extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Sets screen to portrait
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         languageList = new ArrayList<>();
         languageAdapter = new SignupChooseLanguageAdapter(languageList);
@@ -79,6 +76,8 @@ public class SignupChooseLanguage extends Fragment {
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
 
         fillLanguages();
+
+
     }
 
     @Override
@@ -177,14 +176,15 @@ public class SignupChooseLanguage extends Fragment {
         });
     }
 
-    public void fillLanguages(){
+    public void fillLanguages() {
         //TODO: Fill languages from signupUser
+        if (userSetup == null) return;
         int[] languages = userSetup.getLanguageCodeArray();
-        if(languages == null) return;
+        if (languages == null) return;
         ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
         for (int i = 0; i < languages.length; i++) {
-            for(Language language : languageArrayList) {
-                if(language.getCode() == languages[i]){
+            for (Language language : languageArrayList) {
+                if (language.getCode() == languages[i]) {
                     language.setChecked(true);
                 }
             }

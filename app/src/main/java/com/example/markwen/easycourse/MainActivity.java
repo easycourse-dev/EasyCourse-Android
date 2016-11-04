@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ViewPager viewPager;
     private ViewPagerAdapter pagerAdapter;
-
+    private UserSetup userSetup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        //Get data from signup, may be null, fields may be null
+        Intent intentFromSignup = getIntent();
+        userSetup=intentFromSignup.getParcelableExtra("UserSetup");
+
 
         int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
         int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};

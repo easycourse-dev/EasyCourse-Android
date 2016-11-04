@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components;
+package com.example.markwen.easycourse.models;
 
 /**
  * Created by nisarg on 29/10/16.

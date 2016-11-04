@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.fragments;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -224,8 +225,13 @@ public class SignupChooseLanguage extends Fragment {
             });
 
             Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+            mainActivityIntent.putExtra("UserSetup", (Parcelable) userSetup);
             startActivity(mainActivityIntent);
             getActivity().finish();
+
+
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {

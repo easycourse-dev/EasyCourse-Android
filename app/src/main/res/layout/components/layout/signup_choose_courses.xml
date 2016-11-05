@@ -1,7 +1,6 @@
-<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/colorPrimary">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,32 +12,31 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/chooseCoursesTitle"
+            android:layout_marginTop="80dp"
             android:gravity="center"
-            android:textSize="25sp"
+            android:text="@string/chooseCoursesTitle"
             android:textColor="@color/colorWhiteText"
-            android:layout_marginTop="80dp"/>
+            android:textSize="25sp" />
 
         <EditText
+            android:id="@+id/edit_choose_courses"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:hint="@string/chooseCoursesTitle"
+            android:inputType="text"
             android:textColor="@color/colorWhiteText"
-            android:id="@+id/edit_choose_courses"
-            android:hint="@string/chooseCoursesHint"
-            android:textSize="16sp"
-            android:inputType="text"/>
+            android:textSize="16sp" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/choose_courses_recycler_view"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:scrollbars="vertical"
+            android:scrollbarSize="3dp"
             android:scrollbarThumbVertical="@android:color/darker_gray"
-            android:scrollbarSize="3dp">
-        </android.support.v7.widget.RecyclerView>
+            android:scrollbars="vertical" />
 
     </LinearLayout>
 

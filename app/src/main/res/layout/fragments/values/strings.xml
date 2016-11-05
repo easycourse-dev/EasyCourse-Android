@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="appName">EasyCourse</string>
+
+    <!--Signup-->
     <string name="email">Email</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
@@ -13,11 +15,13 @@
     <string name="chooseUniversityTitle">Choose Your University</string>
     <string name="chooseCoursesTitle">Choose Your Courses</string>
     <string name="chooseLanguageTitle">Choose Your Language(s)</string>
+    <string name="chooseItemPlaceholder">No items!</string>
+    <string name="chooseCoursesItemPlaceholder">CS 17700...</string>
+    <string name="chooseCourseItemDescriptionPlaceholder">Problem Solving And Object-Oriented Programming</string>
     <string name="signupNext">Next</string>
     <string name="signupPrev">Back</string>
     <string name="signupFinish">Finish</string>
+
+
     <string name="facebook_app_id">1837346176551754</string>
-    <string name="choose_your_university_search_hint">Choose your university</string>
-    <string name="search_university_hint">e.g. Purdue University</string>
-    <string name="chooseCoursesHint">e.g. ECON251</string>
 </resources>

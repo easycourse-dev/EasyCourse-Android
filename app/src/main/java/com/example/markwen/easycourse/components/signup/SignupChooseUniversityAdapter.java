@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components;
+package com.example.markwen.easycourse.components.signup;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;

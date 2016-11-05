@@ -2,7 +2,9 @@ package com.example.markwen.easycourse.models.main;
 
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -27,6 +29,32 @@ public class Message extends RealmObject {
     private boolean isToUser = true;
     private Date createdAt;
 
+    public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, float imageWidth, float imageHeight, String toRoom, Date createdAt) {
+        this.id = id;
+        this.remoteId = remoteId;
+        this.senderId = senderId;
+        this.text = text;
+        this.imageUrl = imageUrl;
+        this.imageData = imageData;
+        this.successSent = successSent;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.toRoom = toRoom;
+        this.createdAt = createdAt;
+    }
+
+    public static void updateMessageToRealm(Message message, Realm realm) {
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(message);
+        realm.commitTransaction();
+    }
+
+    public static boolean isMessageInRealm(Message message, Realm realm) {
+        RealmResults<Message> results = realm.where(Message.class)
+                .equalTo("id", message.getId())
+                .findAll();
+        return results.size() != 0;
+    }
 
     public String getId() {
         return id;

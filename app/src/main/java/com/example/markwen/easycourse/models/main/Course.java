@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.models.main;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -19,6 +21,29 @@ public class Course extends RealmObject {
     private int creditHours;
     private String universityID;
 
+    public Course(String id, String coursename, byte[] coursePicture, String coursePictureUrl, String title, String courseDescription, int creditHours, String universityID) {
+        this.id = id;
+        this.coursename = coursename;
+        this.coursePicture = coursePicture;
+        this.coursePictureUrl = coursePictureUrl;
+        this.title = title;
+        this.courseDescription = courseDescription;
+        this.creditHours = creditHours;
+        this.universityID = universityID;
+    }
+
+    public static void updateCourseToRealm(Course course, Realm realm) {
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(course);
+        realm.commitTransaction();
+    }
+
+    public static boolean isCourseInRealm(Course course, Realm realm) {
+        RealmResults<Course> results = realm.where(Course.class)
+                .equalTo("id", course.getId())
+                .findAll();
+        return results.size() != 0;
+    }
 
     public String getId() {
         return id;

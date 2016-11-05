@@ -2,8 +2,10 @@ package com.example.markwen.easycourse.models.main;
 
 import java.util.List;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -40,6 +42,33 @@ public class Room extends RealmObject {
     //System
     private boolean isSystem;
 
+
+    public Room(String id, String roomname, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
+        this.id = id;
+        this.roomname = roomname;
+        this.messageList = messageList;
+        this.courseID = courseID;
+        this.courseName = courseName;
+        this.university = university;
+        this.memberList = memberList;
+        this.memberCounts = memberCounts;
+        this.language = language;
+        this.founderID = founderID;
+        this.isSystem = isSystem;
+    }
+
+    public static void updateRoomToRealm(Room room, Realm realm) {
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(room);
+        realm.commitTransaction();
+    }
+
+    public static boolean isRoomInRealm(Room room, Realm realm) {
+        RealmResults<Room> results = realm.where(Room.class)
+                .equalTo("id", room.getId())
+                .findAll();
+        return results.size() != 0;
+    }
 
     public boolean isToUser() {
         return isToUser;

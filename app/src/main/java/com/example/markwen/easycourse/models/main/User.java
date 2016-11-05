@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.models.main;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -19,6 +21,27 @@ public class User extends RealmObject {
 
     private int friendStatus = 0;
 
+    public User(String id, String username, byte[] profilePicture, String profilePictureUrl, String email, String universityID) {
+        this.id = id;
+        this.username = username;
+        this.profilePicture = profilePicture;
+        this.profilePictureUrl = profilePictureUrl;
+        this.email = email;
+        this.universityID = universityID;
+    }
+
+    public static void updateUserToRealm(User user, Realm realm) {
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(user);
+        realm.commitTransaction();
+    }
+
+    public static boolean isUserInRealm(User user, Realm realm) {
+        RealmResults<User> results = realm.where(User.class)
+                .equalTo("id", user.getId())
+                .findAll();
+        return results.size() != 0;
+    }
 
     public String getId() {
         return id;

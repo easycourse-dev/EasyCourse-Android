@@ -45,6 +45,18 @@ public class Course extends RealmObject {
         return results.size() != 0;
     }
 
+    public static void deleteCourseFromRealm(final Course course, Realm realm) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<Course> results = realm.where(Course.class)
+                        .equalTo("id", course.getId())
+                        .findAll();
+                results.deleteAllFromRealm();
+            }
+        });
+    }
+
     public String getId() {
         return id;
     }

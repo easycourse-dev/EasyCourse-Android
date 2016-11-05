@@ -43,6 +43,18 @@ public class User extends RealmObject {
         return results.size() != 0;
     }
 
+    public static void deleteUserFromRealm(final User user, Realm realm) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<User> results = realm.where(User.class)
+                        .equalTo("id", user.getId())
+                        .findAll();
+                results.deleteAllFromRealm();
+            }
+        });
+    }
+
     public String getId() {
         return id;
     }

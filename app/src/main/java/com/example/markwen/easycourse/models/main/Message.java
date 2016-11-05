@@ -56,6 +56,18 @@ public class Message extends RealmObject {
         return results.size() != 0;
     }
 
+    public static void deleteMessageFromRealm(final Message message, Realm realm) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<Message> results = realm.where(Message.class)
+                        .equalTo("id", message.getId())
+                        .findAll();
+                results.deleteAllFromRealm();
+            }
+        });
+    }
+
     public String getId() {
         return id;
     }

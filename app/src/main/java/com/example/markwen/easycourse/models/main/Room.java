@@ -70,6 +70,19 @@ public class Room extends RealmObject {
         return results.size() != 0;
     }
 
+    public static void deleteRoomFromRealm(final Room room, Realm realm) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<Room> results = realm.where(Room.class)
+                        .equalTo("id", room.getId())
+                        .findAll();
+                results.deleteAllFromRealm();
+            }
+        });
+    }
+
+
     public boolean isToUser() {
         return isToUser;
     }

@@ -33,6 +33,18 @@ public class University extends RealmObject {
         return results.size() != 0;
     }
 
+    public static void deleteUniversityFromRealm(final University university, Realm realm) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<University> results = realm.where(University.class)
+                        .equalTo("id", university.getId())
+                        .findAll();
+                results.deleteAllFromRealm();
+            }
+        });
+    }
+
     public String getId() {
         return id;
     }

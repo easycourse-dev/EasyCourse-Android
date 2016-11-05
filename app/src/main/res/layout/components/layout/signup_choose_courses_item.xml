@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:maxLines="1"
-                android:text=" Niuy vySdsdsdsdsdsdsdsds" />
+                android:text="@string/chooseItemPlaceholder" />
 
         </LinearLayout>
 
@@ -44,10 +44,12 @@
             android:id="@+id/course_check_box"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:enabled="false"
             android:padding="16dp"
-            app:animDuration="200"
+            app:animDuration="0"
             app:checkedColor="@color/colorAccent"
             app:lineColor="#fff"
             app:lineWidth="1.2dp"

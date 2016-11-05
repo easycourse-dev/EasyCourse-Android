@@ -14,9 +14,10 @@ public class Course {
     private String universityId  = "";
     private boolean isSelected = false;
 
-    public Course(String name, String title){
+    public Course(String name, String title, String id) {
         this.name = name;
         this.title = title;
+        this.id = id;
     }
 
     public boolean isSelected() {

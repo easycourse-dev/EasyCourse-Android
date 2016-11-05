@@ -12,12 +12,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.models.Course;
+import com.example.markwen.easycourse.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
+import com.example.markwen.easycourse.models.Course;
+import com.example.markwen.easycourse.models.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -34,13 +38,24 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class SignupChooseCourses extends Fragment {
-    private RecyclerView mRecyclerView;
-    private SignupChooseCoursesAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
-    private EndlessRecyclerViewScrollListener mOnScrollListener;
-    private ArrayList<Course> courses = new ArrayList<>();
 
-    public SignupChooseCourses() {}
+    private static final String TAG = "SignupChooseCourses";
+
+    RecyclerView courseRecyclerView;
+    SignupChooseCoursesAdapter coursesAdapter;
+    LinearLayoutManager coursesLayoutManager;
+    EndlessRecyclerViewScrollListener coursesOnScrollListener;
+    ArrayList<Course> courses = new ArrayList<>();
+
+    Button nextButton;
+    Button prevButton;
+
+    TextView checkedCoursesTextView;
+
+    UserSetup userSetup;
+
+    public SignupChooseCourses() {
+    }
 
     public static SignupChooseCourses newInstance() {
         return new SignupChooseCourses();
@@ -50,33 +65,39 @@ public class SignupChooseCourses extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        userSetup = ((SignupLoginActivity) getActivity()).userSetup;
 
-        mAdapter = new SignupChooseCoursesAdapter(courses);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.signup_choose_courses, container, false);
 
-        final EditText searchCoursesEditText = (EditText)rootView.findViewById(R.id.edit_choose_courses);
+        final EditText searchCoursesEditText = (EditText) rootView.findViewById(R.id.edit_choose_courses);
+        nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
+        prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
 
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        checkedCoursesTextView = (TextView) rootView.findViewById(R.id.textViewSelectedCourses);
+        coursesAdapter = new SignupChooseCoursesAdapter(courses, checkedCoursesTextView);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.choose_courses_recycler_view);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        coursesLayoutManager = new LinearLayoutManager(getContext());
+        coursesLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-        mOnScrollListener = new EndlessRecyclerViewScrollListener(mLayoutManager) {
+        courseRecyclerView = (RecyclerView) rootView.findViewById(R.id.choose_courses_recycler_view);
+        courseRecyclerView.setLayoutManager(coursesLayoutManager);
+        courseRecyclerView.setHasFixedSize(true);
+
+        coursesOnScrollListener = new EndlessRecyclerViewScrollListener(coursesLayoutManager, coursesAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 loadMoreCourses(searchCoursesEditText.getText().toString(), page, view);
             }
         };
 
-        mRecyclerView.addOnScrollListener(mOnScrollListener);
-        mRecyclerView.setAdapter(mAdapter);
+        courseRecyclerView.addOnScrollListener(coursesOnScrollListener);
+        courseRecyclerView.setAdapter(coursesAdapter);
 
         searchCoursesEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,19 +113,17 @@ public class SignupChooseCourses extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 int pageOffset = 0;
-                Log.e("com.example.easycourse",editable.toString());
-                APIFunctions.searchCourse(rootView.getContext(),editable.toString(), 20, 0, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler(){
+                APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        Log.e("com.example.easycourse","success "+response.toString());
                         try {
                             courses.clear();
-                            for(int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < response.length(); i++) {
                                 JSONObject course = (JSONObject) response.get(i);
-                                courses.add(new Course(course.getString("name"), course.getString("title")));
+                                courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
                             }
-                            mAdapter.notifyDataSetChanged();
-                            mOnScrollListener.resetState();
+                            coursesAdapter.notifyDataSetChanged();
+                            coursesOnScrollListener.resetState();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -113,29 +132,48 @@ public class SignupChooseCourses extends Fragment {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        Log.e("com.example.easycourse","failure"+t.toString());
+                        Log.e("com.example.easycourse", "failure" + t.toString());
                     }
                 });
             }
         });
 
+        if (prevButton != null)
+            prevButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveToUserSetup();
+                    goBackSignupChooseUniversity();
+                }
+            });
+
+        if (nextButton != null)
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveToUserSetup();
+                    gotoSignupChooseLanguage();
+                }
+            });
+
+
         return rootView;
     }
 
-    public void loadMoreCourses(String searchQuery, int skip, RecyclerView view){
-        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler(){
+    public void loadMoreCourses(String searchQuery, int skip, RecyclerView view) {
+        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.e("com.example.easycourse","success "+response.toString());
+                Log.e("com.example.easycourse", "success " + response.toString());
                 int startPosition = courses.size();
                 try {
-                    for(int i = 0; i < response.length(); i++) {
+                    for (int i = 0; i < response.length(); i++) {
                         JSONObject courseJSON = (JSONObject) response.get(i);
-                        Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"));
-                        if(!courses.contains(courseObj))
+                        Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
+                        if (!courses.contains(courseObj))
                             courses.add(courseObj);
                     }
-                    mAdapter.notifyItemRangeInserted(startPosition, 20);
+                    coursesAdapter.notifyItemRangeInserted(startPosition, 20);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -143,13 +181,24 @@ public class SignupChooseCourses extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                Log.e("com.example.easycourse","failure"+t.toString());
+                Log.e("com.example.easycourse", "failure" + t.toString());
             }
         });
     }
 
+    public void saveToUserSetup() {
+        ArrayList<Course> checkedCourses = coursesAdapter.getCheckedCourseList();
+        String[] courseStringList = new String[checkedCourses.size()];
+        for (int i = 0; i < courseStringList.length; i++) {
+            courseStringList[i] = checkedCourses.get(i).getId();
+        }
+        userSetup.setCourseCodeArray(courseStringList);
+    }
+
+
     // Call this function when going to SignupChooseCourses
     public void gotoSignupChooseLanguage() {
+        saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);

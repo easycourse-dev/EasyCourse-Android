@@ -18,11 +18,12 @@ import java.util.ArrayList;
  * Created by noahrinehart on 10/29/16.
  */
 
-public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChooseLanguageAdapter.LanguageViewHolder>{
+public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChooseLanguageAdapter.LanguageViewHolder> {
 
     private ArrayList<Language> languageList = new ArrayList<>();
+    private ArrayList<Language> checkedLanguageList = new ArrayList<>();
 
-    public SignupChooseLanguageAdapter(ArrayList<Language> coursesList){
+    public SignupChooseLanguageAdapter(ArrayList<Language> coursesList) {
         this.languageList = coursesList;
     }
 
@@ -34,9 +35,9 @@ public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupC
 
         LanguageViewHolder(View itemView) {
             super(itemView);
-            languageCardView = (CardView)itemView.findViewById(R.id.cardViewSingleItem);
-            languageTextView = (TextView)itemView.findViewById(R.id.textViewSingleItem);
-            languageCheckBox = (AnimateCheckBox)itemView.findViewById(R.id.checkBoxSingleItem);
+            languageCardView = (CardView) itemView.findViewById(R.id.cardViewSingleItem);
+            languageTextView = (TextView) itemView.findViewById(R.id.textViewSingleItem);
+            languageCheckBox = (AnimateCheckBox) itemView.findViewById(R.id.checkBoxSingleItem);
             languageLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutSingleItem);
         }
     }
@@ -56,13 +57,14 @@ public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupC
         languageViewHolder.languageLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(languageViewHolder.languageCheckBox.isChecked()) {
+                if (languageViewHolder.languageCheckBox.isChecked()) {
                     languageViewHolder.languageCheckBox.setChecked(false);
                     language.setChecked(false);
-                }
-                else {
+                    checkedLanguageList.remove(language);
+                } else {
                     languageViewHolder.languageCheckBox.setChecked(true);
                     language.setChecked(true);
+                    checkedLanguageList.add(language);
                 }
             }
         });
@@ -78,11 +80,11 @@ public class    SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupC
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public ArrayList<Language> getLanguageList(){
+    public ArrayList<Language> getLanguageList() {
         return languageList;
     }
 
-    public void setLanguageList(ArrayList<Language> languageList) {
-        this.languageList = languageList;
+    public ArrayList<Language> getCheckedLanguageList() {
+        return checkedLanguageList;
     }
 }

@@ -19,15 +19,21 @@ import java.util.ArrayList;
  * Created by nisarg on 29/10/16.
  */
 
-public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChooseCoursesAdapter.CourseViewHolder>{
+public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChooseCoursesAdapter.CourseViewHolder> {
+
+    private static final String TAG = "SignupChooseCoursesAdap";
 
     private ArrayList<Course> coursesList = new ArrayList<>();
+    private ArrayList<Course> checkedCourseList = new ArrayList<>();
 
-    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList){
+    private TextView checkedCoursesTextView;
+
+    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList, TextView checkedCoursesTextView) {
         this.coursesList = coursesList;
+        this.checkedCoursesTextView = checkedCoursesTextView;
     }
 
-    public static class CourseViewHolder extends RecyclerView.ViewHolder{
+    static class CourseViewHolder extends RecyclerView.ViewHolder {
         RelativeLayout courseHolder;
         CardView courseCardView;
         TextView nameTextView;
@@ -36,14 +42,16 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
 
         CourseViewHolder(View itemView) {
             super(itemView);
-            courseHolder = (RelativeLayout)itemView.findViewById(R.id.course_holder_layout);
-            courseCardView = (CardView)itemView.findViewById(R.id.course_card_view);
-            nameTextView = (TextView)itemView.findViewById(R.id.name_text);
-            titleTextView = (TextView)itemView.findViewById(R.id.title_text);
-            courseCheckBox = (AnimateCheckBox)itemView.findViewById(R.id.course_check_box);
+            courseHolder = (RelativeLayout) itemView.findViewById(R.id.course_holder_layout);
+            courseCardView = (CardView) itemView.findViewById(R.id.course_card_view);
+            nameTextView = (TextView) itemView.findViewById(R.id.name_text);
+            titleTextView = (TextView) itemView.findViewById(R.id.title_text);
+            courseCheckBox = (AnimateCheckBox) itemView.findViewById(R.id.course_check_box);
+            courseCheckBox.setClickable(false);
+            courseCheckBox.setEnabled(false);
+            this.setIsRecyclable(false);
         }
     }
-
 
 
     @Override
@@ -53,19 +61,34 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         return courseViewHolder;
     }
 
+
     @Override
-    public void onBindViewHolder(final CourseViewHolder courseViewHolder, int i) {
-        courseViewHolder.nameTextView.setText(coursesList.get(i).getName());
-        courseViewHolder.titleTextView.setText(coursesList.get(i).getTitle());
-        final int index = i;
+    public void onBindViewHolder(final CourseViewHolder courseViewHolder, final int i) {
+        final Course course = coursesList.get(i);
+        courseViewHolder.nameTextView.setText(course.getName());
+        courseViewHolder.titleTextView.setText(course.getTitle());
+        //Fixes weird problems
+        courseViewHolder.courseHolder.setOnClickListener(null);
+        courseViewHolder.courseCheckBox.setChecked(course.isSelected());
+
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("com.example.easycourse", "Clicked "+ index);
-                if(courseViewHolder.courseCheckBox.isChecked())
-                    courseViewHolder.courseCheckBox.setChecked(false);
-                else
-                    courseViewHolder.courseCheckBox.setChecked(true);
+                Log.e("com.example.easycourse", "Clicked " + courseViewHolder.getAdapterPosition());
+                if (!courseViewHolder.nameTextView.getText().equals(course.getName())) return;
+                if (course.isSelected()) {
+                    course.setSelected(false);
+                    courseViewHolder.courseCheckBox.setChecked(course.isSelected());
+                    checkedCourseList.remove(course);
+                    changeTextView();
+
+
+                } else {
+                    course.setSelected(true);
+                    courseViewHolder.courseCheckBox.setChecked(course.isSelected());
+                    checkedCourseList.add(course);
+                    changeTextView();
+                }
             }
         });
     }
@@ -78,5 +101,25 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    private void changeTextView() {
+        if (checkedCourseList.size() == 0) {
+            checkedCoursesTextView.setText("");
+        } else if (checkedCourseList.size() == 1) {
+            checkedCoursesTextView.setText(checkedCourseList.get(0).getName());
+        } else {
+            int i;
+            String newText = "";
+            for (i = 0; i < checkedCourseList.size() - 1; i++) {
+                newText += checkedCourseList.get(i).getName() + ", ";
+            }
+            newText += checkedCourseList.get(i).getName();
+            checkedCoursesTextView.setText(newText);
+        }
+    }
+
+    public ArrayList<Course> getCheckedCourseList() {
+        return checkedCourseList;
     }
 }

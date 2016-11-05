@@ -13,7 +13,7 @@
     <string name="log_in_button">Log In</string>
     <string name="sign_up_button">Sign Up</string>
     <string name="chooseUniversityTitle">Choose Your University</string>
-    <string name="chooseCoursesTitle">Choose Your Courses</string>
+    <string name="chooseCoursesTitle">Choose Your Course(s)</string>
     <string name="chooseLanguageTitle">Choose Your Language(s)</string>
     <string name="chooseItemPlaceholder">No items!</string>
     <string name="chooseCoursesItemPlaceholder">CS 17700...</string>

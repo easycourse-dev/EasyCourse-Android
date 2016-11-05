@@ -28,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -89,7 +88,7 @@ public class SignupChooseUniversity extends Fragment {
             @Override
             public void onClick(View v) {
                 String universityId = getUniversityId();
-                if (universityId != null) {
+                if (universityId != null && userSetup != null) {
                     userSetup.setUniversityID(universityId);
                     gotoSignupChooseCourses();
                 } else {
@@ -156,8 +155,10 @@ public class SignupChooseUniversity extends Fragment {
 
 
     // Call this function when going to SignupChooseCourses
-
     public void gotoSignupChooseCourses() {
+        String unId = userSetup.getUniversityID();
+        if (unId != null)
+            Log.d(TAG, "Passing: " + unId);
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);

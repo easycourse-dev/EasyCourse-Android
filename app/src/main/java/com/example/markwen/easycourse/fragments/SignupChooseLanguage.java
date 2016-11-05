@@ -3,7 +3,6 @@ package com.example.markwen.easycourse.fragments;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -125,25 +124,18 @@ public class SignupChooseLanguage extends Fragment {
 
     @Nullable
     private int[] getLanguageCodes() {
-        ArrayList<Language> languages = languageAdapter.getLanguageList();
-        ArrayList<Integer> checkedLanguages = new ArrayList<>();
-        boolean oneChecked = false;
-        for (Language language : languages) {
-            if (language.isChecked()) {
-                checkedLanguages.add(language.getCode());
-                oneChecked = true;
-            }
-        }
-        int[] languageCodes = new int[checkedLanguages.size()];
+        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
 
+        if (checkedLanguages.size() == 0)
+            return null;
+
+        int[] languageCodes = new int[checkedLanguages.size()];
         for (int i = 0; i < checkedLanguages.size(); i++) {
             if (checkedLanguages.get(i) != null) {
-                languageCodes[i] = checkedLanguages.get(i);
+                languageCodes[i] = checkedLanguages.get(i).getCode();
             }
         }
-        if (oneChecked)
-            return languageCodes;
-        return null;
+        return languageCodes;
     }
 
     private void fetchLanguages() {
@@ -219,13 +211,10 @@ public class SignupChooseLanguage extends Fragment {
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                     // Make a Snackbar to notify user with error
                     Log.d(TAG, "Failed to post courses and languages");
-                    return;
                 }
             });
 
             goToMainActivity();
-
-
 
 
         } catch (JSONException e) {
@@ -238,7 +227,7 @@ public class SignupChooseLanguage extends Fragment {
     // Function to go to MainActivity
     private void goToMainActivity() {
         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-        mainActivityIntent.putExtra("UserSetup", (Parcelable) userSetup);
+        mainActivityIntent.putExtra("UserSetup", userSetup);
         startActivity(mainActivityIntent);
         getActivity().finish();
     }

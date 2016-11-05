@@ -21,8 +21,8 @@ public class UserSetup implements Parcelable {
         universityID = in.readString();
         languageCodeArray = new int[in.readInt()];
         in.readIntArray(languageCodeArray);
-//        courseCodeArray = new String[in.readInt()];
-//        in.readStringArray(courseCodeArray);
+        courseCodeArray = new String[in.readInt()];
+        in.readStringArray(courseCodeArray);
     }
 
     @Nullable
@@ -63,8 +63,8 @@ public class UserSetup implements Parcelable {
         dest.writeString(universityID);
         dest.writeInt(languageCodeArray.length);
         dest.writeIntArray(languageCodeArray);
-//        dest.writeInt(courseCodeArray.length);
-//        dest.writeStringArray(courseCodeArray);
+        dest.writeInt(courseCodeArray.length);
+        dest.writeStringArray(courseCodeArray);
     }
     public static final Parcelable.Creator<UserSetup> CREATOR
             = new Parcelable.Creator<UserSetup>() {

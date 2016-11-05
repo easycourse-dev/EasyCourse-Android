@@ -2,31 +2,20 @@ package com.example.markwen.easycourse;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.Rooms;
 import com.example.markwen.easycourse.fragments.User;
 import com.example.markwen.easycourse.models.UserSetup;
-import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationItem;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
-import com.luseen.luseenbottomnavigation.BottomNavigation.OnBottomNavigationItemClickListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private BottomNavigationView bottomNavigationView;
     private ViewPager viewPager;
@@ -45,7 +34,13 @@ public class MainActivity extends AppCompatActivity {
         //Get data from signup, may be null, fields may be null
         Intent intentFromSignup = getIntent();
         userSetup=intentFromSignup.getParcelableExtra("UserSetup");
-
+        if (userSetup != null) {
+            Log.d(TAG, userSetup.getUniversityID());
+            if (userSetup.getCourseCodeArray().length != 0)
+                Log.d(TAG, userSetup.getCourseCodeArray()[0]);
+            if (userSetup.getLanguageCodeArray().length != 0)
+                Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
+        }
 
         int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
         int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};

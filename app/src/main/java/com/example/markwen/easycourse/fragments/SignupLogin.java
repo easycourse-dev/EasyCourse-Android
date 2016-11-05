@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -123,6 +123,8 @@ public class SignupLogin extends Fragment {
         facebookThemeButton = (Button) v.findViewById(R.id.fbThemeButton);
         facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
         facebookButton.setFragment(this);
+        facebookButton.setReadPermissions("email");
+        facebookButton.setReadPermissions(Arrays.asList("user_status"));
         callbackManager = CallbackManager.Factory.create();
         signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 

@@ -1,16 +1,13 @@
 package com.example.markwen.easycourse.fragments;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.nfc.Tag;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
@@ -29,12 +25,10 @@ import com.example.markwen.easycourse.models.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -62,9 +56,6 @@ public class SignupChooseLanguage extends Fragment {
     public SignupChooseLanguage() {
     }
 
-    //TODO: Save and post data
-
-
     public static SignupChooseLanguage newInstance() {
         return new SignupChooseLanguage();
     }
@@ -73,6 +64,9 @@ public class SignupChooseLanguage extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Sets screen to portrait
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         languageList = new ArrayList<>();
         languageAdapter = new SignupChooseLanguageAdapter(languageList);
@@ -80,6 +74,9 @@ public class SignupChooseLanguage extends Fragment {
         fetchLanguages();
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
+
+        fillLanguages();
+
 
     }
 
@@ -118,7 +115,7 @@ public class SignupChooseLanguage extends Fragment {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                goBackSignupChooseCourses();
             }
         });
 
@@ -127,34 +124,26 @@ public class SignupChooseLanguage extends Fragment {
 
     @Nullable
     private int[] getLanguageCodes() {
-        ArrayList<Language> languages = languageAdapter.getLanguageList();
-        ArrayList<Integer> checkedLanguages = new ArrayList<>();
-        boolean oneChecked = false;
-        for (Language language : languages) {
-            if (language.isChecked()) {
-                checkedLanguages.add(language.getCode());
-                oneChecked = true;
-            }
-        }
-        int[] languageCodes = new int[checkedLanguages.size()];
+        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
 
+        if (checkedLanguages.size() == 0)
+            return null;
+
+        int[] languageCodes = new int[checkedLanguages.size()];
         for (int i = 0; i < checkedLanguages.size(); i++) {
             if (checkedLanguages.get(i) != null) {
-                languageCodes[i] = checkedLanguages.get(i);
+                languageCodes[i] = checkedLanguages.get(i).getCode();
             }
         }
-        if (oneChecked)
-            return languageCodes;
-        return null;
+        return languageCodes;
     }
 
-    public void fetchLanguages() {
+    private void fetchLanguages() {
 
         APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    Log.d(TAG, response.toString());
                     languageList.clear();
                     Iterator languages = response.keys();
                     while (languages.hasNext()) {
@@ -163,7 +152,6 @@ public class SignupChooseLanguage extends Fragment {
                         String name = obj.getString("name");
                         int code = obj.getInt("code");
                         Language language = new Language(name, code);
-                        Log.d(TAG, language.getName() + language.getCode());
                         languageList.add(language);
                     }
                     languageAdapter.notifyDataSetChanged();
@@ -179,6 +167,20 @@ public class SignupChooseLanguage extends Fragment {
                 Log.e(TAG, res);
             }
         });
+    }
+
+    public void fillLanguages() {
+        if (userSetup == null) return;
+        int[] languages = userSetup.getLanguageCodeArray();
+        if (languages == null) return;
+        ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
+        for (int i = 0; i < languages.length; i++) {
+            for (Language language : languageArrayList) {
+                if (language.getCode() == languages[i]) {
+                    language.setChecked(true);
+                }
+            }
+        }
     }
 
     // Posts the signupData
@@ -209,13 +211,12 @@ public class SignupChooseLanguage extends Fragment {
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                     // Make a Snackbar to notify user with error
                     Log.d(TAG, "Failed to post courses and languages");
-                    return;
                 }
             });
 
-            Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-            startActivity(mainActivityIntent);
-            getActivity().finish();
+            goToMainActivity();
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -223,12 +224,14 @@ public class SignupChooseLanguage extends Fragment {
         }
     }
 
-
-    // Call this function when going to mainActivity, maybe call getActivity.finish();???
-    public void gotoMain() {
+    // Function to go to MainActivity
+    private void goToMainActivity() {
         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+        mainActivityIntent.putExtra("UserSetup", userSetup);
         startActivity(mainActivityIntent);
+        getActivity().finish();
     }
+
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseCourses() {

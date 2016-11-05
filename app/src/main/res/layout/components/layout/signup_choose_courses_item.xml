@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/course_card_view"
     android:layout_width="fill_parent"
     android:layout_height="82dp"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    card_view:cardElevation="2dp"
     card_view:cardCornerRadius="0dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    card_view:cardElevation="2dp">
+
     <RelativeLayout
+        android:id="@+id/course_holder_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding = "16dp"
-        android:id="@+id/course_holder_layout"
         android:background="?android:selectableItemBackground"
         android:clickable="true"
+        android:padding="16dp">
 
-        >
         <LinearLayout
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_centerVertical="true">
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/name_text"
                 style="@style/Base.TextAppearance.AppCompat.Body1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="CS17700" />
+                android:text="@string/chooseCoursesItemPlaceholder" />
 
             <TextView
                 android:id="@+id/title_text"
                 style="@style/Base.TextAppearance.AppCompat.Caption"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="marquee"
                 android:maxLines="1"
-                android:text="Problem Solving And Object-Oriented Programming Niuy vySdsdsdsdsdsdsdsds"
-                android:ellipsize="marquee"/>
+                android:text="@string/chooseItemPlaceholder" />
 
         </LinearLayout>
+
         <com.hanks.library.AnimateCheckBox
             android:id="@+id/course_check_box"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:enabled="false"
             android:padding="16dp"
-            app:animDuration="200"
+            app:animDuration="0"
             app:checkedColor="@color/colorAccent"
             app:lineColor="#fff"
             app:lineWidth="1.2dp"
-            app:unCheckColor="#e0e0e0"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            />
+            app:unCheckColor="#e0e0e0" />
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

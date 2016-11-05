@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components;
+package com.example.markwen.easycourse.models;
 
 /**
  * Created by nisarg on 29/10/16.
@@ -14,9 +14,10 @@ public class Course {
     private String universityId  = "";
     private boolean isSelected = false;
 
-    public Course(String name, String title){
+    public Course(String name, String title, String id) {
         this.name = name;
         this.title = title;
+        this.id = id;
     }
 
     public boolean isSelected() {

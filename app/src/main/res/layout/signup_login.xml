@@ -147,19 +147,18 @@
                 >
 
                 <com.facebook.login.widget.LoginButton
-                    android:layout_width="300dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:id="@+id/buttonFacebookLogin"
-                    android:visibility="invisible"/>
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/fbThemeButton"
-                    android:layout_width="fill_parent"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:text="@string/facebook_login"
                     android:textColor="@color/colorWhiteText"
                     android:background="@drawable/facebook_login_button"
-                    android:onClick="fbThemeButtonOnClick"
                     style="?android:attr/borderlessButtonStyle" />
 
             </FrameLayout>

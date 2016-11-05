@@ -68,6 +68,7 @@ public class SignupLogin extends Fragment {
 
     Button signupButton;
     Button loginButton;
+    Button facebookThemeButton;
     LoginButton facebookButton;
     CallbackManager callbackManager;
     LinearLayout signupLinearLayout;
@@ -115,13 +116,11 @@ public class SignupLogin extends Fragment {
 
         signupButton = (Button) v.findViewById(R.id.buttonSignup);
         loginButton = (Button) v.findViewById(R.id.buttonLogin);
-        callbackManager = CallbackManager.Factory.create();
+        facebookThemeButton = (Button) v.findViewById(R.id.fbThemeButton);
         facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
+        callbackManager = CallbackManager.Factory.create();
         signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 
-        // Set facebookButton styles
-        facebookButton.setBackgroundResource(R.drawable.facebook_login_button);
-        facebookButton.setPadding(0, 15, 0, 15);
 
         // Set username and verify passwords inially gone
         verifyPasswordInputLayout.setVisibility(View.GONE);
@@ -175,6 +174,13 @@ public class SignupLogin extends Fragment {
             @Override
             public void onClick(View v) {
                 emailLogin(v);
+            }
+        });
+
+        facebookThemeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                facebookButton.performClick();
             }
         });
 
@@ -408,7 +414,7 @@ public class SignupLogin extends Fragment {
         }
         loginButton.startAnimation(loginAnimEnter);
         signupButton.startAnimation(signupAnimEnter);
-        facebookButton.startAnimation(facebookAnimEnter);
+        facebookThemeButton.startAnimation(facebookAnimEnter);
     }
 
     // Validates the email for inconsistencies

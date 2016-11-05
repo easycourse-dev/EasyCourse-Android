@@ -25,23 +25,8 @@ public class Message extends RealmObject {
 
     private String toRoom;
     private boolean isToUser = true;
-    //TODO: Realm date?
     private Date createdAt;
 
-    public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, float imageWidth, float imageHeight, String toRoom, boolean isToUser, Date createdAt) {
-        this.id = id;
-        this.remoteId = remoteId;
-        this.senderId = senderId;
-        this.text = text;
-        this.imageUrl = imageUrl;
-        this.imageData = imageData;
-        this.successSent = successSent;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
-        this.toRoom = toRoom;
-        this.isToUser = isToUser;
-        this.createdAt = createdAt;
-    }
 
     public String getId() {
         return id;

@@ -40,24 +40,6 @@ public class Room extends RealmObject {
     //System
     private boolean isSystem;
 
-    public Room(boolean isToUser, boolean isJoinIn, String id, String roomname, RealmList<Message> messageList, int unread, boolean silent, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isPublic, boolean isSystem) {
-        this.isToUser = isToUser;
-        this.isJoinIn = isJoinIn;
-        this.id = id;
-        this.roomname = roomname;
-        this.messageList = messageList;
-        this.unread = unread;
-        this.silent = silent;
-        this.courseID = courseID;
-        this.courseName = courseName;
-        this.university = university;
-        this.memberList = memberList;
-        this.memberCounts = memberCounts;
-        this.language = language;
-        this.founderID = founderID;
-        this.isPublic = isPublic;
-        this.isSystem = isSystem;
-    }
 
     public boolean isToUser() {
         return isToUser;

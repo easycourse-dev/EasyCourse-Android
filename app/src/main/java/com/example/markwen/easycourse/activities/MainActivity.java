@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -19,22 +21,25 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private BottomNavigationView bottomNavigationView;
-    private ViewPager viewPager;
-    private ViewPagerAdapter pagerAdapter;
-    private UserSetup userSetup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Checking if there is a user currently logged in
+        // if there is, remain in MainActivity
+        // if not, show SignupLoginActivity
+        checkUserLogin();
+
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         //Get data from signup, may be null, fields may be null
         Intent intentFromSignup = getIntent();
-        userSetup=intentFromSignup.getParcelableExtra("UserSetup");
+        UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
             Log.d(TAG, userSetup.getUniversityID());
             if (userSetup.getCourseCodeArray().length != 0)
@@ -72,6 +77,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        bottomNavigationView.setUpWithViewPager(viewPager , tabColors , tabImages);
+        bottomNavigationView.setUpWithViewPager(viewPager, tabColors , tabImages);
+    }
+
+    private void checkUserLogin() {
+        // launch a different activity
+        Intent launchIntent = new Intent();
+        // Use SharedPreferences to get users
+        SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+
+        String userToken = sharedPref.getString("userToken", "no userToken");
+        String currentUser = sharedPref.getString("currentUser", "no currentUser");
+
+        if (userToken == "no userToken" && currentUser == "no currentUser") {
+            launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
+            startActivity(launchIntent);
+            finish();
+        }
     }
 }

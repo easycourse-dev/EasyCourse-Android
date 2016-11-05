@@ -29,6 +29,10 @@ public class Message extends RealmObject {
     private boolean isToUser = true;
     private Date createdAt;
 
+    public Message() {
+
+    }
+
     public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, float imageWidth, float imageHeight, String toRoom, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;

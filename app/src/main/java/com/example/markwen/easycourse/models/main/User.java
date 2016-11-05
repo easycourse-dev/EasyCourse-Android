@@ -21,6 +21,10 @@ public class User extends RealmObject {
 
     private int friendStatus = 0;
 
+    public User() {
+
+    }
+
     public User(String id, String username, byte[] profilePicture, String profilePictureUrl, String email, String universityID) {
         this.id = id;
         this.username = username;

@@ -13,13 +13,13 @@
             android:name=".activities.SignupLoginActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".activities.MainActivity">
         </activity>
 
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for

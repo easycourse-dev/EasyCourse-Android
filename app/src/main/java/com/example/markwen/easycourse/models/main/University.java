@@ -15,6 +15,10 @@ public class University extends RealmObject {
     private String id;
     private String name;
 
+    public University() {
+
+    }
+
     public University(String id, String name) {
         this.id = id;
         this.name = name;

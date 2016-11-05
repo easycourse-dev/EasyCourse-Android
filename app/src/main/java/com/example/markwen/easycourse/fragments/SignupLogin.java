@@ -209,7 +209,7 @@ public class SignupLogin extends Fragment {
                                 }
 
                                 // Store user at SharedPreferences
-                                sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                                sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("userToken", userToken);
                                 editor.putString("currentUser", response.toString());
@@ -307,7 +307,7 @@ public class SignupLogin extends Fragment {
                                     userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                             }
 
-                            sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
@@ -377,7 +377,7 @@ public class SignupLogin extends Fragment {
                         }
 
                         // Store user at SharedPreferences
-                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
@@ -396,10 +396,7 @@ public class SignupLogin extends Fragment {
                         loginErrorSnackbar.show();
                     }
                 });
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
-            } catch (UnsupportedEncodingException e) {
+            } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }

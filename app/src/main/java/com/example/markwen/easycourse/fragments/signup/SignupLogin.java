@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.fragments;
+package com.example.markwen.easycourse.fragments.signup;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,8 +25,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;

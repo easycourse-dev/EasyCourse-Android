@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse;
+package com.example.markwen.easycourse.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,10 +7,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
-import com.example.markwen.easycourse.fragments.Rooms;
-import com.example.markwen.easycourse.fragments.User;
-import com.example.markwen.easycourse.models.UserSetup;
+import com.example.markwen.easycourse.fragments.main.Rooms;
+import com.example.markwen.easycourse.fragments.main.User;
+import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

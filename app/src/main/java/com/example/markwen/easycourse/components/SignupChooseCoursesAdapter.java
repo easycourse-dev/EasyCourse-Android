@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.models.Course;
+import com.example.markwen.easycourse.models.signup.Course;
 import com.hanks.library.AnimateCheckBox;
 
 import java.util.ArrayList;

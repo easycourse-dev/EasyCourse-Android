@@ -38,6 +38,8 @@ public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupCh
             uniTextView = (TextView) itemView.findViewById(R.id.textViewSingleItem);
             uniCheckBox = (AnimateCheckBox) itemView.findViewById(R.id.checkBoxSingleItem);
             uniLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutSingleItem);
+            uniCheckBox.setEnabled(false);
+            uniCheckBox.setClickable(false);
         }
     }
 

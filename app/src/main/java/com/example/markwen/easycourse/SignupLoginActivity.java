@@ -5,28 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.markwen.easycourse.fragments.SignupChooseCourses;
-
-import com.example.markwen.easycourse.fragments.SignupChooseLanguage;
 import com.example.markwen.easycourse.fragments.SignupChooseUniversity;
-import com.example.markwen.easycourse.fragments.SignupLogin;
 import com.example.markwen.easycourse.models.UserSetup;
-import com.example.markwen.easycourse.utils.APIFunctions;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -52,11 +32,8 @@ public class SignupLoginActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-<<<<<<< HEAD
+
             transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance(), "SignupLogin");
-=======
-            transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance(), "SignupLogin");
->>>>>>> origin
             transaction.commit();
         }
     }

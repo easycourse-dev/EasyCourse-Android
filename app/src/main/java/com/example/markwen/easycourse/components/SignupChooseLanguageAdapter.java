@@ -39,6 +39,8 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
             languageTextView = (TextView) itemView.findViewById(R.id.textViewSingleItem);
             languageCheckBox = (AnimateCheckBox) itemView.findViewById(R.id.checkBoxSingleItem);
             languageLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutSingleItem);
+            languageCheckBox.setClickable(false);
+            languageCheckBox.setEnabled(false);
         }
     }
 

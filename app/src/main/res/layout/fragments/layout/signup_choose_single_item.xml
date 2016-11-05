@@ -32,6 +32,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:clickable="false"
+            android:enabled="false"
             app:animDuration="0"
             app:checkedColor="@color/colorAccent"
             app:lineColor="#fff"

@@ -140,43 +140,29 @@
                 android:text="@string/sign_up_button"
                 android:textColor="@color/colorWhiteText" />
 
-<<<<<<< HEAD
-            <com.facebook.login.widget.LoginButton
-                android:id="@+id/buttonFacebookLogin"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/buttonLogin"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/facebook_login_button"
-                android:text="@string/facebook_login"
-                android:textColor="@color/colorWhiteText" />
-=======
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
                 android:layout_below="@+id/buttonLogin"
-                >
+                android:layout_marginTop="6dp">
 
                 <com.facebook.login.widget.LoginButton
+                    android:id="@+id/buttonFacebookLogin"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/buttonFacebookLogin"
-                    android:visibility="invisible"/>
+                    android:visibility="invisible" />
 
                 <Button
                     android:id="@+id/fbThemeButton"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/facebook_login"
-                    android:textColor="@color/colorWhiteText"
                     android:background="@drawable/facebook_login_button"
-                    android:onClick="fbThemeButtonOnClick"
-                    style="?android:attr/borderlessButtonStyle" />
+                    android:text="@string/facebook_login"
+                    android:textColor="@color/colorWhiteText" />
 
             </FrameLayout>
->>>>>>> origin
 
         </RelativeLayout>
 

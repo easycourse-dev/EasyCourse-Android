@@ -193,17 +193,16 @@ public class SignupLogin extends Fragment {
         });
 
         facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            // final Snackbar fbLoginErrorSnackbar = Snackbar
-                    // .make(facebookThemeButton.getRootView(), "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+             final Snackbar fbLoginErrorSnackbar = Snackbar
+                     .make(v, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
 
             @Override
             public void onSuccess(LoginResult loginResult) {
+                fbLoginErrorSnackbar.show();
 
                 APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        Log.i("com.example.easycourse", "Step: 2");
-
                         String userToken = "";
 
                         //for each header in array Headers scan for Auth header
@@ -231,8 +230,8 @@ public class SignupLogin extends Fragment {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                         // Make a Snackbar to notify user with error
-                        // fbLoginErrorSnackbar.show();
-                        Toast.makeText(getContext(), res, Toast.LENGTH_LONG).show();
+                         fbLoginErrorSnackbar.show();
+//                        Toast.makeText(getContext(), res, Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -245,7 +244,7 @@ public class SignupLogin extends Fragment {
             @Override
             public void onError(FacebookException error) {
                 // Make a Snackbar to notify user with error
-                // fbLoginErrorSnackbar.show();
+                fbLoginErrorSnackbar.show();
                 Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
             }
         });

@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
@@ -129,7 +128,7 @@ public class SignupLogin extends Fragment {
         signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 
 
-        // Set username and verify passwords inially gone
+        // Set username and verify passwords initially gone
         verifyPasswordInputLayout.setVisibility(View.GONE);
         usernameInputLayout.setVisibility(View.GONE);
 
@@ -187,68 +186,67 @@ public class SignupLogin extends Fragment {
         // Connect facebookThemeButton with facebookButton
         facebookThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 facebookButton.performClick();
-            }
-        });
+                facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                    final Snackbar fbLoginErrorSnackbar = Snackbar
+                            .make(v, "Facebook log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+                    final Snackbar fbLoginCancelSnackbar = Snackbar
+                            .make(v, "Facebook log in cancelled.", Snackbar.LENGTH_LONG);
 
-        facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            // final Snackbar fbLoginErrorSnackbar = Snackbar
-                    // .make(facebookThemeButton.getRootView(), "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
-
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.e("com.example.easycourse", loginResult.getAccessToken().getToken());
-                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        Log.i("com.example.easycourse", "Step: 2");
+                    public void onSuccess(LoginResult loginResult) {
 
-                        String userToken = "";
+                        APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                String userToken = "";
 
-                        //for each header in array Headers scan for Auth header
-                        for (Header header : headers) {
-                            if (header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                        }
+                                //for each header in array Headers scan for Auth header
+                                for (Header header : headers) {
+                                    if (header.toString().contains("Auth"))
+                                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
+                                }
 
-                        // Store user at SharedPreferences
-                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("userToken", userToken);
-                        editor.putString("currentUser", response.toString());
-                        editor.apply();
+                                // Store user at SharedPreferences
+                                sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("userToken", userToken);
+                                editor.putString("currentUser", response.toString());
+                                editor.apply();
 
-                        // Make an Intent to move on to the next activity
-                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-                        startActivity(mainActivityIntent);
+                                // Make an Intent to move on to the next activity
+                                Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                                startActivity(mainActivityIntent);
 
-                        getActivity().finish();
+                                getActivity().finish();
 
-                        // gotoSignupChooseCourses();
+                                // gotoSignupChooseCourses();
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                                // Make a Snackbar to notify user with error
+                                fbLoginErrorSnackbar.show();
+                            }
+                        });
                     }
 
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    public void onCancel() {
+                        fbLoginCancelSnackbar.show();
+                    }
+
+                    @Override
+                    public void onError(FacebookException error) {
                         // Make a Snackbar to notify user with error
-                        // fbLoginErrorSnackbar.show();
-                        Toast.makeText(getContext(), res, Toast.LENGTH_LONG).show();
+                        fbLoginErrorSnackbar.show();
                     }
                 });
             }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                // Make a Snackbar to notify user with error
-                // fbLoginErrorSnackbar.show();
-                Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
-            }
         });
+
+
 
         startAnimations();
 

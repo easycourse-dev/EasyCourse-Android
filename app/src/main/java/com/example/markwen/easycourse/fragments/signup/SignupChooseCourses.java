@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.fragments;
+package com.example.markwen.easycourse.fragments.signup;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,11 +17,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.SignupLoginActivity;
+import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
-import com.example.markwen.easycourse.models.Course;
-import com.example.markwen.easycourse.models.UserSetup;
+import com.example.markwen.easycourse.models.signup.Course;
+import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 

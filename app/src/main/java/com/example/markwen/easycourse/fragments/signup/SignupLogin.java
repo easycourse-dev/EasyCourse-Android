@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.fragments;
+package com.example.markwen.easycourse.fragments.signup;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,8 +25,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -209,7 +209,7 @@ public class SignupLogin extends Fragment {
                                 }
 
                                 // Store user at SharedPreferences
-                                sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                                sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("userToken", userToken);
                                 editor.putString("currentUser", response.toString());
@@ -307,7 +307,7 @@ public class SignupLogin extends Fragment {
                                     userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                             }
 
-                            sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                            sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
@@ -377,7 +377,7 @@ public class SignupLogin extends Fragment {
                         }
 
                         // Store user at SharedPreferences
-                        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
@@ -396,7 +396,10 @@ public class SignupLogin extends Fragment {
                         loginErrorSnackbar.show();
                     }
                 });
-            } catch (JSONException | UnsupportedEncodingException e) {
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("com.example.easycourse", e.toString());
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }

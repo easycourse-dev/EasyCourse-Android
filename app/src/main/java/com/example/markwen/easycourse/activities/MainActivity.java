@@ -1,21 +1,18 @@
-package com.example.markwen.easycourse;
+package com.example.markwen.easycourse.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
-import com.example.markwen.easycourse.fragments.Rooms;
-import com.example.markwen.easycourse.fragments.User;
-import com.example.markwen.easycourse.models.UserSetup;
+import com.example.markwen.easycourse.fragments.main.Rooms;
+import com.example.markwen.easycourse.fragments.main.User;
+import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
-
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,9 +26,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        checkUserLogin();
-
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
@@ -79,24 +73,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         bottomNavigationView.setUpWithViewPager(viewPager , tabColors , tabImages);
-    }
-
-    private void checkUserLogin() {
-        // launch a different activity
-        Intent launchIntent = new Intent();
-        // Use SharedPreferences to get users
-        SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-
-        String userToken = sharedPref.getString("userToken", "no userToken");
-        String currentUser = sharedPref.getString("currentUser", "no currentUser");
-
-        Log.e("userToken: ", userToken);
-        Log.e("currentUser: ", currentUser);
-
-        if (userToken == "no userToken" && currentUser == "no currentUser") {
-            launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
-            startActivity(launchIntent);
-            finish();
-        }
     }
 }

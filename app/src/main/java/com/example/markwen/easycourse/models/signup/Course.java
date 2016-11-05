@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.models;
+package com.example.markwen.easycourse.models.signup;
 
 /**
  * Created by nisarg on 29/10/16.

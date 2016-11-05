@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.models.University;
+import com.example.markwen.easycourse.models.signup.University;
 import com.hanks.library.AnimateCheckBox;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupCh
         this.universityList = universityList;
     }
 
-    public static class UniversityViewHolder extends RecyclerView.ViewHolder {
+    static class UniversityViewHolder extends RecyclerView.ViewHolder {
         CardView uniCardView;
         TextView uniTextView;
         AnimateCheckBox uniCheckBox;

@@ -16,9 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.SignupLoginActivity;
+import com.example.markwen.easycourse.activities.MainActivity;
+import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.SignupChooseLanguageAdapter;
 import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;

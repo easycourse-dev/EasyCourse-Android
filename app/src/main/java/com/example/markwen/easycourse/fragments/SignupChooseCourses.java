@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.SignupLoginActivity;
+import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;

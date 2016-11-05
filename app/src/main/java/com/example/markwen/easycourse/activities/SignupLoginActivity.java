@@ -1,10 +1,11 @@
-package com.example.markwen.easycourse;
+package com.example.markwen.easycourse.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.SignupLogin;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 

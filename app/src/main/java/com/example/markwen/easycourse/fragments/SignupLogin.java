@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
@@ -92,14 +93,17 @@ public class SignupLogin extends Fragment {
         return new SignupLogin();
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getContext());
+        AppEventsLogger.activateApp(getActivity().getApplication());
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        FacebookSdk.sdkInitialize(getContext());
-        AppEventsLogger.activateApp(getActivity().getApplication());
-        View v = inflater.inflate(R.layout.signup_login, container, false);
+        final View v = inflater.inflate(R.layout.signup_login, container, false);
 
 
         titleTextView = (TextView) v.findViewById(R.id.textViewTitle);
@@ -118,6 +122,7 @@ public class SignupLogin extends Fragment {
         loginButton = (Button) v.findViewById(R.id.buttonLogin);
         facebookThemeButton = (Button) v.findViewById(R.id.fbThemeButton);
         facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
+        facebookButton.setFragment(this);
         callbackManager = CallbackManager.Factory.create();
         signupLinearLayout = (LinearLayout) v.findViewById(R.id.linearLayoutSignup);
 
@@ -177,10 +182,69 @@ public class SignupLogin extends Fragment {
             }
         });
 
+        // Connect facebookThemeButton with facebookButton
         facebookThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 facebookButton.performClick();
+            }
+        });
+
+        facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            // final Snackbar fbLoginErrorSnackbar = Snackbar
+                    // .make(facebookThemeButton.getRootView(), "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.e("com.example.easycourse", loginResult.getAccessToken().getToken());
+                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        Log.i("com.example.easycourse", "Step: 2");
+
+                        String userToken = "";
+
+                        //for each header in array Headers scan for Auth header
+                        for (Header header : headers) {
+                            if (header.toString().contains("Auth"))
+                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
+                        }
+
+                        // Store user at SharedPreferences
+                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("userToken", userToken);
+                        editor.putString("currentUser", response.toString());
+                        editor.apply();
+
+                        // Make an Intent to move on to the next activity
+                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                        startActivity(mainActivityIntent);
+
+                        getActivity().finish();
+
+                        // gotoSignupChooseCourses();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        // Make a Snackbar to notify user with error
+                        // fbLoginErrorSnackbar.show();
+                        Toast.makeText(getContext(), res, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                // Make a Snackbar to notify user with error
+                // fbLoginErrorSnackbar.show();
+                Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -268,56 +332,6 @@ public class SignupLogin extends Fragment {
                 Log.e("com.example.easycourse", e.toString());
             }
         }
-
-        facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            final Snackbar fbLoginErrorSnackbar = Snackbar
-                    .make(facebookButton.getRootView(), "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
-
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.i("com.example.easycourse", loginResult.getAccessToken().getToken());
-                APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        Log.i("com.example.easycourse", "Step: 2");
-
-                        String userToken = "";
-
-                        //for each header in array Headers scan for Auth header
-                        for (Header header : headers) {
-                            if (header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                        }
-
-                        // Store user at SharedPreferences
-                        sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("userToken", userToken);
-                        editor.putString("currentUser", response.toString());
-                        editor.apply();
-
-                        gotoSignupChooseCourses();
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        // Make a Snackbar to notify user with error
-                        fbLoginErrorSnackbar.show();
-                    }
-                });
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                // Make a Snackbar to notify user with error
-                fbLoginErrorSnackbar.show();
-            }
-        });
     }
 
     @Override

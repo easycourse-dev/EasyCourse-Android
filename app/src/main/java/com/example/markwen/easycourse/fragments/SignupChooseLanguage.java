@@ -20,8 +20,8 @@ import com.example.markwen.easycourse.MainActivity;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.SignupLoginActivity;
 import com.example.markwen.easycourse.components.SignupChooseLanguageAdapter;
-import com.example.markwen.easycourse.models.Language;
-import com.example.markwen.easycourse.models.UserSetup;
+import com.example.markwen.easycourse.models.signup.Language;
+import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 

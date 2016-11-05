@@ -10,7 +10,7 @@ import android.util.Log;
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.Rooms;
 import com.example.markwen.easycourse.fragments.User;
-import com.example.markwen.easycourse.models.UserSetup;
+import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

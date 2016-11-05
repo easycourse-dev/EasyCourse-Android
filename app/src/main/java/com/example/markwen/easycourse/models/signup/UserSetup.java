@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.models;
+package com.example.markwen.easycourse.models.signup;
 
 import android.os.Parcel;
 import android.os.Parcelable;

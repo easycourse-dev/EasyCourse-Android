@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.models.Language;
+import com.example.markwen.easycourse.models.signup.Language;
 import com.hanks.library.AnimateCheckBox;
 
 import java.util.ArrayList;

@@ -9,6 +9,7 @@ import io.realm.Realm;
  */
 
 public class EasyCourse extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();

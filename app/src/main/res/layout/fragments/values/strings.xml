@@ -17,5 +17,7 @@
     <string name="signupPrev">Back</string>
     <string name="signupFinish">Finish</string>
     <string name="facebook_app_id">1837346176551754</string>
+    <string name="choose_your_university_search_hint">Choose your university</string>
+    <string name="search_university_hint">e.g. Purdue University</string>
     <string name="chooseCoursesHint">e.g. ECON251</string>
 </resources>

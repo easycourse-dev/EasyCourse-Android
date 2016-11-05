@@ -52,7 +52,7 @@ public class SignupLoginActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.activity_signuplogin_container, SignupChooseLanguage.newInstance(), "SignupLogin");
+            transaction.replace(R.id.activity_signuplogin_container, SignupChooseUniversity.newInstance(), "SignupLogin");
             transaction.commit();
         }
     }

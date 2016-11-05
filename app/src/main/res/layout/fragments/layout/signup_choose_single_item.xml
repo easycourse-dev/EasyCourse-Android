@@ -5,28 +5,28 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardViewLanguageItem"
+    android:id="@+id/cardViewSingleItem"
     card_view:cardElevation="2dp"
     card_view:cardCornerRadius="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/relativeLayoutLanguageItem"
+        android:id="@+id/relativeLayoutSingleItem"
         android:background="?android:selectableItemBackground"
         android:padding="16dp"
         android:clickable="true">
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Body1"
-            android:id="@+id/textViewLanguageItem"
+            android:id="@+id/textViewSingleItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="English" />
+            android:text="No languages" />
 
 
         <com.hanks.library.AnimateCheckBox
-            android:id="@+id/checkBoxLanguageItem"
+            android:id="@+id/checkBoxSingleItem"
             android:layout_width="25dp"
             android:layout_height="25dp"
             app:animDuration="200"

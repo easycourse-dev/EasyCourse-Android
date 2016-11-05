@@ -146,7 +146,7 @@ public class SignupChooseLanguage extends Fragment {
         return null;
     }
 
-    public void fetchLanguages() {
+    private void fetchLanguages() {
 
         APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override

@@ -1,64 +1,62 @@
-<!--<ScrollView xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--android:background="@color/colorPrimary">-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:orientation="vertical"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/chooseLanguageTitle"
+            android:layout_marginTop="60dp"
             android:gravity="center"
-            android:textSize="25sp"
+            android:text="@string/chooseLanguageTitle"
             android:textColor="@color/colorWhiteText"
-            android:layout_marginTop="60dp"/>
+            android:textSize="25sp" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/choose_languages_recycler_view"
-            android:layout_marginTop="60dp"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-        </android.support.v7.widget.RecyclerView>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="30dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal">
-            <Button
-                android:layout_width="147dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonChooseLanguagePrev"
-                android:text="@string/signupPrev"
-                android:background="@drawable/signup_button"
-                android:textColor="@color/colorWhiteText"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_marginRight="15dp"
-                android:layout_marginEnd="15dp"/>
-
-            <Button
-                android:layout_width="147dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonChooseLanguageNext"
-                android:text="@string/signupFinish"
-                android:background="@drawable/login_button"
-                android:textColor="@color/colorWhiteText"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_marginLeft="15dp"
-                android:layout_marginStart="15dp"/>
-        </LinearLayout>
-
-
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp" />
     </LinearLayout>
 
-<!--</ScrollView>-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonChooseLanguagePrev"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/signup_button"
+            android:text="@string/signupPrev"
+            android:textColor="@color/colorWhiteText" />
+
+        <Button
+            android:id="@+id/buttonChooseLanguageNext"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:background="@drawable/login_button"
+            android:text="@string/signupFinish"
+            android:textColor="@color/colorWhiteText" />
+    </LinearLayout>
+</RelativeLayout>
+

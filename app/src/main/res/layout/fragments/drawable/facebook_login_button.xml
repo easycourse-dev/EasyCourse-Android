@@ -5,6 +5,7 @@
             <solid android:color="@color/colorFacebook"/>
             <!--corners allow us to make the rounded corners button-->
             <corners android:radius="30dp" />
+            <padding android:top="15dp" android:bottom="15dp" />
         </shape>
     </item>
 </selector>

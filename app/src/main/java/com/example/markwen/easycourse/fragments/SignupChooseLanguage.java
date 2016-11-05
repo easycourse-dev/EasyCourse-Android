@@ -178,7 +178,6 @@ public class SignupChooseLanguage extends Fragment {
     }
 
     public void fillLanguages() {
-        //TODO: Fill languages from signupUser
         if (userSetup == null) return;
         int[] languages = userSetup.getLanguageCodeArray();
         if (languages == null) return;
@@ -224,10 +223,7 @@ public class SignupChooseLanguage extends Fragment {
                 }
             });
 
-            Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-            mainActivityIntent.putExtra("UserSetup", (Parcelable) userSetup);
-            startActivity(mainActivityIntent);
-            getActivity().finish();
+            goToMainActivity();
 
 
 
@@ -237,6 +233,14 @@ public class SignupChooseLanguage extends Fragment {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    // Function to go to MainActivity
+    private void goToMainActivity() {
+        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+        mainActivityIntent.putExtra("UserSetup", (Parcelable) userSetup);
+        startActivity(mainActivityIntent);
+        getActivity().finish();
     }
 
 

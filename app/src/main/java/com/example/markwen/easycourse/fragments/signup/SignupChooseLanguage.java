@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.fragments;
+package com.example.markwen.easycourse.fragments.signup;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;

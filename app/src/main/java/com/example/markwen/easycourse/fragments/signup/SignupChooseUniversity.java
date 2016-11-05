@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.fragments;
+package com.example.markwen.easycourse.fragments.signup;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

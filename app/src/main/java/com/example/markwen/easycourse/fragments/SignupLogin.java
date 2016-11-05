@@ -198,7 +198,7 @@ public class SignupLogin extends Fragment {
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.e("com.example.easycourse", loginResult.getAccessToken().getToken());
+
                 APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

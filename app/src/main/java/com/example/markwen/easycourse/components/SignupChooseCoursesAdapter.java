@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.hanks.library.AnimateCheckBox;
+import com.plumillonforge.android.chipview.Chip;
+import com.plumillonforge.android.chipview.ChipView;
 
 import java.util.ArrayList;
 
@@ -25,12 +27,13 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
 
     private ArrayList<Course> coursesList = new ArrayList<>();
     private ArrayList<Course> checkedCourseList = new ArrayList<>();
+    private ArrayList<Chip> checkedCourseChipList = new ArrayList<>();
 
-    private TextView checkedCoursesTextView;
+    private ChipView chooseCourseChipView;
 
-    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList, TextView checkedCoursesTextView) {
+    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList, ChipView chooseCourseChipView) {
         this.coursesList = coursesList;
-        this.checkedCoursesTextView = checkedCoursesTextView;
+        this.chooseCourseChipView = chooseCourseChipView;
     }
 
     static class CourseViewHolder extends RecyclerView.ViewHolder {
@@ -74,21 +77,17 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("com.example.easycourse", "Clicked " + courseViewHolder.getAdapterPosition());
                 if (!courseViewHolder.nameTextView.getText().equals(course.getName())) return;
                 if (course.isSelected()) {
                     course.setSelected(false);
                     courseViewHolder.courseCheckBox.setChecked(course.isSelected());
                     checkedCourseList.remove(course);
-                    changeTextView();
-
-
                 } else {
                     course.setSelected(true);
                     courseViewHolder.courseCheckBox.setChecked(course.isSelected());
                     checkedCourseList.add(course);
-                    changeTextView();
                 }
+                changeChipView();
             }
         });
     }
@@ -103,19 +102,20 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private void changeTextView() {
+    private void changeChipView() {
         if (checkedCourseList.size() == 0) {
-            checkedCoursesTextView.setText("");
+            checkedCourseChipList.clear();
+            chooseCourseChipView.setChipList(checkedCourseChipList);
         } else if (checkedCourseList.size() == 1) {
-            checkedCoursesTextView.setText(checkedCourseList.get(0).getName());
+            chooseCourseChipView.add(new Tag(checkedCourseList.get(0).getName()));
+            chooseCourseChipView.setChipList(checkedCourseChipList);
         } else {
-            int i;
-            String newText = "";
-            for (i = 0; i < checkedCourseList.size() - 1; i++) {
-                newText += checkedCourseList.get(i).getName() + ", ";
+            checkedCourseChipList.clear();
+
+            for (int i = 0; i < checkedCourseList.size() - 1; i++) {
+                checkedCourseChipList.add(new Tag(checkedCourseList.get(i).getName()));
             }
-            newText += checkedCourseList.get(i).getName();
-            checkedCoursesTextView.setText(newText);
+            chooseCourseChipView.setChipList(checkedCourseChipList);
         }
     }
 

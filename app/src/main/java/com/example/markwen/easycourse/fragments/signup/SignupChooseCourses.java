@@ -20,10 +20,13 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
+import com.example.markwen.easycourse.components.Tag;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.plumillonforge.android.chipview.Chip;
+import com.plumillonforge.android.chipview.ChipView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +49,7 @@ public class SignupChooseCourses extends Fragment {
     LinearLayoutManager coursesLayoutManager;
     EndlessRecyclerViewScrollListener coursesOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
+    ChipView chooseCourseChipView;
 
     Button nextButton;
     Button prevButton;
@@ -81,8 +85,9 @@ public class SignupChooseCourses extends Fragment {
         nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
 
-        checkedCoursesTextView = (TextView) rootView.findViewById(R.id.textViewSelectedCourses);
-        coursesAdapter = new SignupChooseCoursesAdapter(courses, checkedCoursesTextView);
+        chooseCourseChipView = (ChipView) rootView.findViewById(R.id.chipViewSelectedCourses);
+
+        coursesAdapter = new SignupChooseCoursesAdapter(courses, chooseCourseChipView);
 
         coursesLayoutManager = new LinearLayoutManager(getContext());
         coursesLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);

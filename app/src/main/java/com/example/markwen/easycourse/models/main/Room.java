@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.models.main;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -54,6 +55,7 @@ public class Room extends RealmObject {
         this.memberCounts = memberCounts;
         this.language = language;
         this.founderID = founderID;
+
         this.isSystem = isSystem;
     }
 
@@ -80,6 +82,12 @@ public class Room extends RealmObject {
                 results.deleteAllFromRealm();
             }
         });
+    }
+
+    public static ArrayList<Room> getRoomsFromRealm(Realm realm) {
+        RealmResults<Room> results = realm.where(Room.class)
+                .findAll();
+        return new ArrayList<>(results);
     }
 
 

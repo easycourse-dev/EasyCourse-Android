@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
-import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
+import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;

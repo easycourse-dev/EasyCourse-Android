@@ -75,6 +75,8 @@ public class SignupChooseCourses extends Fragment {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.signup_choose_courses, container, false);
 
+        final String chosenUniversity = userSetup.getUniversityID();
+
         final EditText searchCoursesEditText = (EditText) rootView.findViewById(R.id.edit_choose_courses);
         nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
@@ -92,7 +94,7 @@ public class SignupChooseCourses extends Fragment {
         coursesOnScrollListener = new EndlessRecyclerViewScrollListener(coursesLayoutManager, coursesAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMoreCourses(searchCoursesEditText.getText().toString(), page, view);
+                loadMoreCourses(searchCoursesEditText.getText().toString(), chosenUniversity, page, view);
             }
         };
 
@@ -112,8 +114,8 @@ public class SignupChooseCourses extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                int pageOffset = 0;
-                APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler() {
+
+                APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                         try {
@@ -160,8 +162,8 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
-    public void loadMoreCourses(String searchQuery, int skip, RecyclerView view) {
-        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, "57e2cb6854ad620011c82db4", new JsonHttpResponseHandler() {
+    public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, RecyclerView view) {
+        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.e("com.example.easycourse", "success " + response.toString());

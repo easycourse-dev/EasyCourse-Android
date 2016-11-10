@@ -21,6 +21,10 @@ public class Course extends RealmObject {
     private int creditHours;
     private String universityID;
 
+    public Course() {
+
+    }
+
     public Course(String id, String coursename, byte[] coursePicture, String coursePictureUrl, String title, String courseDescription, int creditHours, String universityID) {
         this.id = id;
         this.coursename = coursename;

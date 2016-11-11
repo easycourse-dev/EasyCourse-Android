@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardViewSingleItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="2dp">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutSingleItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
+        android:clickable="true"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textViewSingleItem"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/chooseItemPlaceholder" />
+
+
+        <com.hanks.library.AnimateCheckBox
+            android:id="@+id/checkBoxSingleItem"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:clickable="false"
+            android:enabled="false"
+            app:animDuration="0"
+            app:checkedColor="@color/colorAccent"
+            app:lineColor="#fff"
+            app:lineWidth="1.2dp"
+            app:unCheckColor="#e0e0e0" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

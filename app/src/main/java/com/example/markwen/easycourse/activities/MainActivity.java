@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         String userToken = sharedPref.getString("userToken", "no userToken");
         String currentUser = sharedPref.getString("currentUser", "no currentUser");
 
-        if (userToken == "no userToken" && currentUser == "no currentUser") {
+        if (userToken.equals("no userToken") && currentUser.equals("no currentUser")) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             finish();

@@ -86,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
         // Use SharedPreferences to get users
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
 
-        String userToken = sharedPref.getString("userToken", "no userToken");
-        String currentUser = sharedPref.getString("currentUser", "no currentUser");
+        String userToken = sharedPref.getString("userToken", null);
+        String currentUser = sharedPref.getString("currentUser", null);
 
-        if (userToken.equals("no userToken") && currentUser.equals("no currentUser")) {
+        if (userToken == null && currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             finish();

@@ -22,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
+    int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
+    int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
         checkUserLogin();
 
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -42,14 +46,11 @@ public class MainActivity extends AppCompatActivity {
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
             Log.d(TAG, userSetup.getUniversityID());
-            if (userSetup.getCourseCodeArray().length != 0)
+            if (userSetup.getCourseCodeArray() != null && userSetup.getCourseCodeArray().length != 0)
                 Log.d(TAG, userSetup.getCourseCodeArray()[0]);
-            if (userSetup.getLanguageCodeArray().length != 0)
+            if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
         }
-
-        int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
-        int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};
 
         // BottomNavigationView setup
         bottomNavigationView.disableShadow();
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        bottomNavigationView.setUpWithViewPager(viewPager, tabColors , tabImages);
+        bottomNavigationView.setUpWithViewPager(viewPager, tabColors, tabImages);
     }
 
     private void checkUserLogin() {

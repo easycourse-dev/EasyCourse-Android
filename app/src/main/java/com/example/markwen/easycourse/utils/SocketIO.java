@@ -1,5 +1,4 @@
 package com.example.markwen.easycourse.utils;
-
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;

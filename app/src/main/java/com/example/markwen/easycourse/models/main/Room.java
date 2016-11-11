@@ -47,6 +47,11 @@ public class Room extends RealmObject {
 
     }
 
+    public Room(String roomname, String courseName) {
+        this.roomname = roomname;
+        this.courseName = courseName;
+    }
+
     public Room(String id, String roomname, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
         this.id = id;
         this.roomname = roomname;

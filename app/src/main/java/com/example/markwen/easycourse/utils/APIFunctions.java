@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -165,7 +166,7 @@ public class APIFunctions {
 
     private static String getUserToken(Context context){
         //Get userToken from shared preferences
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String userToken = sharedPref.getString("userToken", null);
 
         //Return empty if userToken is not found

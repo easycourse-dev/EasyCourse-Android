@@ -142,8 +142,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                         .into(outgoingViewHolder.outgoingImageView);
 
                 //TODO: Fetch user name from senderId
-                outgoingViewHolder.outgoingName.setText(message.getSenderId());
-                //TODO: Remove excape charactors
+                outgoingViewHolder.outgoingName.setText(message.getText());
                 outgoingViewHolder.outgoingMessage.setText(message.getText());
                 break;
 

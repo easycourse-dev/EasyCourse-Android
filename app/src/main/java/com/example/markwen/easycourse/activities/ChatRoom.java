@@ -1,11 +1,15 @@
 package com.example.markwen.easycourse.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
@@ -46,6 +51,10 @@ public class ChatRoom extends AppCompatActivity {
     EditText messageEditText;
     ImageButton sendImageButton;
 
+    Toolbar toolbar;
+    TextView toolbarTitleTextView;
+    TextView toolbarSubtitleTextView;
+
     //TODO: Animate from roomsview
 
 
@@ -53,13 +62,22 @@ public class ChatRoom extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbarChatRoom);
+        toolbarTitleTextView = (TextView) findViewById(R.id.toolbarTitleChatRoom);
+        toolbarSubtitleTextView = (TextView) findViewById(R.id.toolbarSubtitleChatRoom);
+
+        setSupportActionBar(toolbar);
+        //TODO: fix back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         Intent intentFromRooms = getIntent();
-        CharSequence title = intentFromRooms.getStringExtra("UserSetup");
-        getSupportActionBar().setTitle(title);
+        String roomName = intentFromRooms.getStringExtra("Roomname");
+        String courseName = intentFromRooms.getStringExtra("CourseName");
+
+        toolbarTitleTextView.setText(roomName);
+        toolbarSubtitleTextView.setText(courseName);
 
         realm = Realm.getDefaultInstance();
 
@@ -97,15 +115,16 @@ public class ChatRoom extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = messageEditText.getText().toString();
                 if (!TextUtils.isEmpty(messageText)) {
-                    Message message = new Message("Noah Rinehart", messageText, "https://avatars0.githubusercontent.com/u/7402294?v=3&s=460", Calendar.getInstance().getTime());
+                    String fixed = messageText.replace("\\", "");
+                    Message message = new Message("Noah Rinehart", fixed, "https://avatars0.githubusercontent.com/u/7402294?v=3&s=460", Calendar.getInstance().getTime());
+                    //TODO: remove escape charactors
                     chatAdapter.getChatRoomList().add(message);
                     chatAdapter.notifyDataSetChanged();
-                    chatRecyclerView.scrollToPosition(messages.size()-1);
+                    chatRecyclerView.scrollToPosition(messages.size() - 1);
                     messageEditText.setText("");
                 }
             }
         });
-
     }
 
     //TODO: Realm integration

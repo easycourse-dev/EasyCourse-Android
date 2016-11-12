@@ -62,7 +62,8 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomRe
             @Override
             public void onClick(View view) {
                 Intent chatActivityIntent = new Intent(context, ChatRoom.class);
-                chatActivityIntent.putExtra("UserSetup", room.getRoomname());
+                chatActivityIntent.putExtra("Roomname", room.getRoomname());
+                chatActivityIntent.putExtra("CourseName", room.getCourseName());
                 context.startActivity(chatActivityIntent);
             }
         });

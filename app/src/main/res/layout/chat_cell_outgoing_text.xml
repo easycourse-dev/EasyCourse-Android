@@ -65,6 +65,7 @@
                     android:clickable="false"
                     android:contentDescription="Group Photo"
                     android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:src="@drawable/ic_person_black_24px" />
 
             </LinearLayout>

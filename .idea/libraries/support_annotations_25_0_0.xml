@@ -6,8 +6,11 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/AppData/Local/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/25.0.0/support-annotations-25.0.0-sources.jar!/" />
+<<<<<<< HEAD
       <root url="jar://$USER_HOME$/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/25.0.0/support-annotations-25.0.0-sources.jar!/" />
       <root url="jar://$USER_HOME$/AndroidSDK/extras/android/m2repository/com/android/support/support-annotations/25.0.0/support-annotations-25.0.0-sources.jar!/" />
+=======
+>>>>>>> chooseCoursesTags
     </SOURCES>
   </library>
 </component>

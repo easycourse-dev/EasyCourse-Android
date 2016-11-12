@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relativeIncomingChatCell"
+    android:id="@+id/linearIncomingChatCell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,33 +17,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:selectableItemBackground"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingTop="5dp"
         android:weightSum="5">
 
-        <ImageView
-            android:id="@+id/imageViewIncomingTextImage"
-            android:layout_width="48dp"
+
+
+        <TextView
+            android:id="@+id/textViewIncomingTextName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:clickable="false"
-            android:contentDescription="Group Photo"
-            android:src="@drawable/ic_person_black_24px" />
+            android:layout_marginLeft="36dp"
+            android:text="name" />
 
         <LinearLayout
-            android:id="@+id/linearLayoutIncomingChatRoom"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="3.67"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textViewIncomingTextName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="name" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewIncomingTextImage"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:clickable="false"
+                android:contentDescription="Group Photo"
+                android:paddingRight="5dp"
+                android:src="@drawable/ic_person_black_24px" />
+
 
             <TextView
                 android:id="@+id/textViewIncomingTextMessage"

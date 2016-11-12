@@ -33,6 +33,16 @@ public class Message extends RealmObject {
 
     }
 
+    //TODO: Testing constructor
+    public Message(String senderId, String text, String imageUrl, Date createdAt) {
+        this.senderId = senderId;
+        this.text = text;
+        this.imageUrl = imageUrl;
+        this.createdAt = createdAt;
+    }
+
+
+
     public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, float imageWidth, float imageHeight, String toRoom, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;

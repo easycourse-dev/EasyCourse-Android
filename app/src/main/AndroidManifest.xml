@@ -29,6 +29,7 @@
             android:name=".activities.ChatRoom"
             android:label="Chat"
             android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

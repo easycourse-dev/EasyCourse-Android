@@ -17,7 +17,7 @@ public class Room extends RealmObject {
     //When true, the room is one to one message
     private boolean isToUser = false;
 
-    //When user quits this room on another platform, this room will not be deleted.
+    //When fragment_user quits this room on another platform, this room will not be deleted.
     //Instead, chaning isJoinIn to false
     private boolean isJoinIn = false;
 

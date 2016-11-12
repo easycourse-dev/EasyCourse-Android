@@ -195,7 +195,7 @@ public class SignupChooseLanguage extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
+                    // Make a Snackbar to notify fragment_user with error
                     Log.d(TAG, "Failed to post university id");
                     return;
                 }
@@ -209,7 +209,7 @@ public class SignupChooseLanguage extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
+                    // Make a Snackbar to notify fragment_user with error
                     Log.d(TAG, "Failed to post courses and languages");
                 }
             });

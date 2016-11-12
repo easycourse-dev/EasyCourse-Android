@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.fragments.main;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,9 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoom;
-import com.example.markwen.easycourse.activities.MainActivity;
-import com.example.markwen.easycourse.components.ChatRoomRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.ChatRoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
 
@@ -52,7 +49,7 @@ public class Rooms extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
 
-//        rooms = fetchRoomsFromRealm();
+//        fragment_rooms = fetchRoomsFromRealm();
         rooms = new ArrayList<>();
         rooms.add(new Room("Computer Science", "CS240"));
         rooms.add(new Room("Geography", "EAPS120"));
@@ -64,7 +61,7 @@ public class Rooms extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.rooms, container, false);
+        View v = inflater.inflate(R.layout.fragment_rooms, container, false);
         roomsRecyclerView = (RecyclerView) v.findViewById(R.id.roomsRecyclerView);
         chatRoomAdapter = new ChatRoomRecyclerViewAdapter(rooms, getContext());
         roomsLinearManager = new LinearLayoutManager(getContext());

@@ -42,7 +42,7 @@ public class User extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.user, container, false);
+        View v = inflater.inflate(R.layout.fragment_user, container, false);
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +76,7 @@ public class User extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // Make a Snackbar to notify user with error
+                // Make a Snackbar to notify fragment_user with error
                 Snackbar.make(v, "Log out failed because of " + res, Snackbar.LENGTH_LONG).show();
             }
         });

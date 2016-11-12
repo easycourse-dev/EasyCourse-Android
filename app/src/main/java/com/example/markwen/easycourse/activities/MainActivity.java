@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.ViewPagerAdapter;
+import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
 import com.example.markwen.easycourse.fragments.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Checking if there is a user currently logged in
+        // Checking if there is a fragment_user currently logged in
         // if there is, remain in MainActivity
         // if not, show SignupLoginActivity
         checkUserLogin();

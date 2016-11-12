@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components;
+package com.example.markwen.easycourse.components.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,8 +48,8 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomRe
     @Override
     public ChatRoomRecyclerViewAdapter.ChatRoomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.chat_room_item, viewGroup, false);
-        ChatRoomRecyclerViewAdapter.ChatRoomViewHolder chatViewHolder = new ChatRoomRecyclerViewAdapter.ChatRoomViewHolder(v);
-        return chatViewHolder;
+        ChatRoomRecyclerViewAdapter.ChatRoomViewHolder chatRoomViewHolder = new ChatRoomRecyclerViewAdapter.ChatRoomViewHolder(v);
+        return chatRoomViewHolder;
     }
 
     @Override

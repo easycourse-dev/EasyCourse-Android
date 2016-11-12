@@ -208,7 +208,7 @@ public class SignupLogin extends Fragment {
                                         userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                                 }
 
-                                // Store user at SharedPreferences
+                                // Store fragment_user at SharedPreferences
                                 sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("userToken", userToken);
@@ -226,7 +226,7 @@ public class SignupLogin extends Fragment {
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                                // Make a Snackbar to notify user with error
+                                // Make a Snackbar to notify fragment_user with error
                                 fbLoginErrorSnackbar.show();
                             }
                         });
@@ -239,7 +239,7 @@ public class SignupLogin extends Fragment {
 
                     @Override
                     public void onError(FacebookException error) {
-                        // Make a Snackbar to notify user with error
+                        // Make a Snackbar to notify fragment_user with error
                         fbLoginErrorSnackbar.show();
                     }
                 });
@@ -376,7 +376,7 @@ public class SignupLogin extends Fragment {
                                 userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                         }
 
-                        // Store user at SharedPreferences
+                        // Store fragment_user at SharedPreferences
                         sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
@@ -392,7 +392,7 @@ public class SignupLogin extends Fragment {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        // Make a Snackbar to notify user with error
+                        // Make a Snackbar to notify fragment_user with error
                         loginErrorSnackbar.show();
                     }
                 });

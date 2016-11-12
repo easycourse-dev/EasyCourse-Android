@@ -1,7 +1,6 @@
 package com.example.markwen.easycourse.fragments.main;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +13,8 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.ArrayList;
 
@@ -31,7 +32,7 @@ public class Rooms extends Fragment {
     private Realm realm;
 
     private RecyclerView roomsRecyclerView;
-    private FloatingActionButton roomsFab;
+    private FloatingActionMenu roomsFab;
 
     private ChatRoomRecyclerViewAdapter chatRoomAdapter;
     private LinearLayoutManager roomsLinearManager;
@@ -73,7 +74,7 @@ public class Rooms extends Fragment {
         roomsRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
 
 
-        roomsFab = (FloatingActionButton) v.findViewById(R.id.roomsFab);
+        roomsFab = (FloatingActionMenu) v.findViewById(R.id.roomsFab);
         roomsFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

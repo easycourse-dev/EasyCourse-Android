@@ -1,4 +1,5 @@
 package com.example.markwen.easycourse.utils;
+
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -17,13 +18,16 @@ public class SocketIO {
     private String CHAT_SERVER_URL = "";
 
     private Socket mSocket;
-    {
+
+    public SocketIO() {
         try {
             mSocket = IO.socket(CHAT_SERVER_URL);
-        } catch (URISyntaxException e) {}
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void onConnect(Emitter.Listener onConnect){
+    public void onConnect(Emitter.Listener onConnect) {
         mSocket.on("connection", onConnect);
         mSocket.connect();
     }

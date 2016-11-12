@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
  * Created by noahrinehart on 11/5/16.
  */
 
-public class Util {
+public class BitmapUtil {
 
     public static byte[] bitmapToByteArray(Bitmap bmp) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

@@ -8,6 +8,7 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -121,9 +122,12 @@ public class SocketIO {
         socket.on("message", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                JSONArray jarr_args = new JSONArray();
+                jarr_args.put(args[0]);
+
                 JSONObject obj = null;
                 try {
-                    obj = new JSONObject(args[0].toString());
+                    obj = jarr_args.getJSONObject(0);
                 } catch (JSONException e) {
                     Log.e("com.example.easycourse", e.toString());
                 }
@@ -139,8 +143,8 @@ public class SocketIO {
                         byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
                         boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
                         String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
-                        float imageWidth = (Float) checkIfJsonExists(obj, "imageWidth", 0.0f);
-                        float imageHeight = (Float) checkIfJsonExists(obj, "imageHeight", 0.0f);
+                        double imageWidth = (Double) checkIfJsonExists(obj, "imageWidth", 0.0);
+                        double imageHeight = (Double) checkIfJsonExists(obj, "imageHeight", 0.0);
                         Date date = (Date) checkIfJsonExists(obj, "date", null);
 
                         Realm.init(context);
@@ -165,7 +169,7 @@ public class SocketIO {
             return defaultObj;
     }
 
-    public void sendMessage(String message, String roomId, String toUserId, String imageUrl, int imageWidth, int imageHeight) throws JSONException {
+    public void sendMessage(String message, String roomId, String toUserId, String imageUrl, float imageWidth, float imageHeight) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", UUID.randomUUID().toString());
         jsonParam.put("toRoom", roomId);

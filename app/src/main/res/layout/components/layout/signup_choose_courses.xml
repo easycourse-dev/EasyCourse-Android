@@ -27,28 +27,32 @@
                 android:textColor="@color/colorWhiteText"
                 android:textSize="25sp" />
 
-            <com.plumillonforge.android.chipview.ChipView
-                android:id="@+id/chipViewSelectedCourses"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginEnd="15dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="50dp"
-                app:chip_background="@color/colorAccent"/>
-
-            <EditText
-                android:id="@+id/edit_choose_courses"
+            <FrameLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_gravity="center"
-                android:hint="@string/chooseCoursesTitle"
-                android:inputType="text"
-                android:textColor="@color/colorAccent"
-                android:textColorHint="@color/colorWhiteText"
-                android:textSize="16sp" />
+                android:padding="5dp">
+
+                <EditText
+                    android:id="@+id/edit_choose_courses"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/chooseCoursesTitle"
+                    android:inputType="text"
+                    android:textColor="@color/colorAccent"
+                    android:textColorHint="@color/colorWhiteText"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/buttonClearEditText"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/ic_clear_white"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp" />
+
+            </FrameLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/choose_courses_recycler_view"

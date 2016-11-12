@@ -68,7 +68,4 @@ dependencies {
 
     // Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'
-
-    // Chips in chooseCourses
-    compile 'com.github.Plumillon:ChipView:1.2.0'
 }

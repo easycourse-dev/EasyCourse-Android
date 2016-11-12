@@ -2,7 +2,6 @@ package com.example.markwen.easycourse.components;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +11,6 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.hanks.library.AnimateCheckBox;
-import com.plumillonforge.android.chipview.Chip;
-import com.plumillonforge.android.chipview.ChipView;
 
 import java.util.ArrayList;
 
@@ -27,13 +24,9 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
 
     private ArrayList<Course> coursesList = new ArrayList<>();
     private ArrayList<Course> checkedCourseList = new ArrayList<>();
-    private ArrayList<Chip> checkedCourseChipList = new ArrayList<>();
 
-    private ChipView chooseCourseChipView;
-
-    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList, ChipView chooseCourseChipView) {
+    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList) {
         this.coursesList = coursesList;
-        this.chooseCourseChipView = chooseCourseChipView;
     }
 
     static class CourseViewHolder extends RecyclerView.ViewHolder {
@@ -87,7 +80,6 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
                     courseViewHolder.courseCheckBox.setChecked(course.isSelected());
                     checkedCourseList.add(course);
                 }
-                changeChipView();
             }
         });
     }
@@ -102,22 +94,6 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private void changeChipView() {
-        if (checkedCourseList.size() == 0) {
-            checkedCourseChipList.clear();
-            chooseCourseChipView.setChipList(checkedCourseChipList);
-        } else if (checkedCourseList.size() == 1) {
-            chooseCourseChipView.add(new Tag(checkedCourseList.get(0).getName()));
-            chooseCourseChipView.setChipList(checkedCourseChipList);
-        } else {
-            checkedCourseChipList.clear();
-
-            for (int i = 0; i < checkedCourseList.size() - 1; i++) {
-                checkedCourseChipList.add(new Tag(checkedCourseList.get(i).getName()));
-            }
-            chooseCourseChipView.setChipList(checkedCourseChipList);
-        }
-    }
 
     public ArrayList<Course> getCheckedCourseList() {
         return checkedCourseList;

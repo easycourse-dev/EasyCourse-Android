@@ -14,19 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
-import com.example.markwen.easycourse.components.Tag;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.plumillonforge.android.chipview.Chip;
-import com.plumillonforge.android.chipview.ChipView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,12 +45,10 @@ public class SignupChooseCourses extends Fragment {
     LinearLayoutManager coursesLayoutManager;
     EndlessRecyclerViewScrollListener coursesOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
-    ChipView chooseCourseChipView;
 
     Button nextButton;
     Button prevButton;
-
-    TextView checkedCoursesTextView;
+    Button clearEditTextButton;
 
     UserSetup userSetup;
 
@@ -84,10 +78,9 @@ public class SignupChooseCourses extends Fragment {
         final EditText searchCoursesEditText = (EditText) rootView.findViewById(R.id.edit_choose_courses);
         nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
+        clearEditTextButton = (Button)rootView.findViewById(R.id.buttonClearEditText);
 
-        chooseCourseChipView = (ChipView) rootView.findViewById(R.id.chipViewSelectedCourses);
-
-        coursesAdapter = new SignupChooseCoursesAdapter(courses, chooseCourseChipView);
+        coursesAdapter = new SignupChooseCoursesAdapter(courses);
 
         coursesLayoutManager = new LinearLayoutManager(getContext());
         coursesLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -119,29 +112,38 @@ public class SignupChooseCourses extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if (editable.toString().equals("")) {
+                    courses.clear();
+                    ArrayList<Course> checkedCourses = coursesAdapter.getCheckedCourseList();
+                    for (int i = 0; i < checkedCourses.size(); i++) {
+                        courses.add(checkedCourses.get(i));
+                    }
+                    coursesAdapter.notifyDataSetChanged();
+                    coursesOnScrollListener.resetState();
+                } else {
+                    APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                            try {
+                                courses.clear();
+                                for (int i = 0; i < response.length(); i++) {
+                                    JSONObject course = (JSONObject) response.get(i);
+                                    courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                                }
+                                coursesAdapter.notifyDataSetChanged();
+                                coursesOnScrollListener.resetState();
 
-                APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        try {
-                            courses.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject course = (JSONObject) response.get(i);
-                                courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            coursesAdapter.notifyDataSetChanged();
-                            coursesOnScrollListener.resetState();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        Log.e("com.example.easycourse", "failure" + t.toString());
-                    }
-                });
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                            Log.e("com.example.easycourse", "failure" + t.toString());
+                        }
+                    });
+                }
             }
         });
 
@@ -162,6 +164,15 @@ public class SignupChooseCourses extends Fragment {
                     gotoSignupChooseLanguage();
                 }
             });
+
+        if (clearEditTextButton != null) {
+            clearEditTextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    searchCoursesEditText.setText("");
+                }
+            });
+        }
 
 
         return rootView;

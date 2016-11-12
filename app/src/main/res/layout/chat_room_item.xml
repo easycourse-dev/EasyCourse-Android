@@ -15,7 +15,8 @@
         android:background="?android:selectableItemBackground"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:weightSum="5">
+        android:weightSum="5"
+        android:layout_gravity="center_vertical">
 
         <ImageView
             android:layout_width="48dp"

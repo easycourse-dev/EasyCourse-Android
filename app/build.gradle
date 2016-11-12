@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
@@ -51,4 +52,5 @@ dependencies {
 
     //Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'
+
 }

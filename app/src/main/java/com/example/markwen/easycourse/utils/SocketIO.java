@@ -170,6 +170,20 @@ public class SocketIO {
         });
     }
 
+    public boolean logout(){
+        final boolean[] logoutSuccess = {false};
+        socket.emit("logout", null, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if(obj.has("success")) {
+                    logoutSuccess[0] = true;
+                }
+            }
+        });
+        return logoutSuccess[0];
+    }
+
     private void saveMessageToRealm(JSONObject obj){
         if (obj != null) {
             Message message = null;

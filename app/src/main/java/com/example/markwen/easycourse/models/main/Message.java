@@ -83,6 +83,8 @@ public class Message extends RealmObject {
         });
     }
 
+
+
     public String getId() {
         return id;
     }

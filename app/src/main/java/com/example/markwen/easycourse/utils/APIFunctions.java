@@ -116,6 +116,7 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
+        //TODO: fix to api 15
         JSONArray jsonLanguageCodeArray = new JSONArray(languageCodeArray);
         JSONArray jsonCourseCodeArray = new JSONArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);

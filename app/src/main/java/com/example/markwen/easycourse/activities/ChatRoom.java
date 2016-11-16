@@ -1,40 +1,29 @@
 package com.example.markwen.easycourse.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.main.ChatRoomRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
-import com.example.markwen.easycourse.models.signup.UserSetup;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import io.realm.Realm;
 
@@ -54,6 +43,7 @@ public class ChatRoom extends AppCompatActivity {
     private ArrayList<Message> messages;
 
     ImageButton addImageButton;
+    //TODO: random hint
     EditText messageEditText;
     ImageButton sendImageButton;
 
@@ -74,20 +64,22 @@ public class ChatRoom extends AppCompatActivity {
         toolbarSubtitleTextView = (TextView) findViewById(R.id.toolbarSubtitleChatRoom);
 
         setSupportActionBar(toolbar);
-        //TODO: fix back button
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //TODO: Parse currentRoom
         Intent intentFromRooms = getIntent();
         String roomName = intentFromRooms.getStringExtra("Roomname");
         String courseName = intentFromRooms.getStringExtra("CourseName");
+        currentRoom = new Room(roomName, courseName);
 
         toolbarTitleTextView.setText(roomName);
         toolbarSubtitleTextView.setText(courseName);
 
         realm = Realm.getDefaultInstance();
+        Log.d(TAG, "path: " + realm.getPath());
 
-        //socketIO = new SocketIO();
+//        socketIO = new SocketIO(this, this);
 
         Message message1 = new Message("Noah Rinehart", "LOL", "https://avatars0.githubusercontent.com/u/7402294?v=3&s=460.jpg", Calendar.getInstance().getTime());
         message1.setToUser(false);
@@ -102,6 +94,13 @@ public class ChatRoom extends AppCompatActivity {
         messages.add(message2);
         messages.add(message3);
         messages.add(message4);
+
+
+
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(message1);
+        realm.commitTransaction();
+
 
 
         chatRecyclerView = (RecyclerView) findViewById(R.id.chatRecyclerView);
@@ -129,11 +128,20 @@ public class ChatRoom extends AppCompatActivity {
                     chatAdapter.notifyDataSetChanged();
                     chatRecyclerView.scrollToPosition(messages.size() - 1);
                     messageEditText.setText("");
-//                    try {
-////                        socketIO.sendMessage(fixed, currentRoom.getId(),n);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
+//                    socketIO.syncUser();
+//                    User curUser = User.getCurrentUser(realm);
+                    if (!messageEditText.getText().toString().trim().isEmpty()) {
+                        //TODO: fill out message
+                        Message msg = new Message();
+//                        try {
+//                            socketIO.sendMessage(messageText, currentRoom.getId(), curUser.getId(), null, 0, 0);
+//                            Message.updateMessageToRealm(msg, realm);
+//                        } catch (JSONException e) {
+//                            //TODO:Message not sent
+//                            e.printStackTrace();
+//                            Log.e(TAG, "message sent");
+//                        }
+                    }
                 }
             }
         });
@@ -144,5 +152,13 @@ public class ChatRoom extends AppCompatActivity {
     public ArrayList<Message> fetchMessagesFromRealm() {
         return null;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+//        socketIO.disconnect();
+    }
+
 
 }

@@ -67,7 +67,7 @@
             android:layout_height="match_parent"
             android:background="@drawable/ic_add_black_24px"
             android:contentDescription="@string/chatMessageAccessibility"
-            android:padding="5dp" />
+            android:layout_margin="5dp" />
 
         <EditText
             android:id="@+id/chatMessageEditText"
@@ -81,12 +81,12 @@
 
         <ImageButton
             android:id="@+id/chatSendImageButton"
-            android:layout_width="43dp"
-            android:layout_height="match_parent"
+            android:layout_width="33dp"
+            android:layout_height="33dp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/ic_send_black_24px"
             android:contentDescription="@string/chatMessageAccessibility"
-            android:padding="5dp" />
+            android:layout_margin="5dp" />
     </LinearLayout>
 
 </RelativeLayout>

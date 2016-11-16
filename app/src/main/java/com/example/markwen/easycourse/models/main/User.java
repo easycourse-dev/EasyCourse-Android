@@ -1,5 +1,7 @@
 package com.example.markwen.easycourse.models.main;
 
+import android.support.annotation.Nullable;
+
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -57,6 +59,11 @@ public class User extends RealmObject {
                 results.deleteAllFromRealm();
             }
         });
+    }
+
+    @Nullable
+    public static User getCurrentUser(Realm realm){
+        return null;
     }
 
     public String getId() {

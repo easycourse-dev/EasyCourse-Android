@@ -220,14 +220,14 @@ public class SocketIO {
                         courses[0] = new Course[courseArrayJSON.length()];
                         for (int i = 0; i < courseArrayJSON.length(); i++) {
                             String id = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "id", null);
-                            String coursename = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "name", null);
+                            String courseName = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "name", null);
                             byte[] coursePicture = (byte[]) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePicture", null);
                             String coursePictureUrl = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePictureUrl", null);
                             String title = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "title", null);
                             String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
                             int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", 0));
                             String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
-                            Course course = new Course(id,coursename,coursePicture,coursePictureUrl,title,courseDescription,creditHours,universityID);
+                            Course course = new Course(id,courseName,coursePicture,coursePictureUrl,title,courseDescription,creditHours,universityID);
                             courses[0][i] = course;
                         }
                     } catch (JSONException e) {

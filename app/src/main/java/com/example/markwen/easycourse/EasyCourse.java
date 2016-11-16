@@ -6,6 +6,7 @@ import com.facebook.stetho.Stetho;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -17,6 +18,10 @@ public class EasyCourse extends Application {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration
+                .Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)

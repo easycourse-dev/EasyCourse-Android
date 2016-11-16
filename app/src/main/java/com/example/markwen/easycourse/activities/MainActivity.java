@@ -16,6 +16,9 @@ import com.example.markwen.easycourse.fragments.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -88,8 +91,28 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
+        JSONObject currentUserObject;
+        JSONArray joinedCourses = new JSONArray();
 
-        if (userToken == null && currentUser == null) {
+        try {
+            // If user has no joined courses, bring the user to signup setup
+            currentUserObject = new JSONObject(currentUser);
+            joinedCourses = currentUserObject.getJSONArray("joinedCourse");
+        } catch (Throwable t) {
+
+        }
+        Log.e("joinedCourses", joinedCourses.toString());
+
+        /*
+            When syncUser is ready, add code below into the if statement:
+
+                 || joinedCourses.toString().equals("[]")
+
+            to make sure a user has joined courses.
+            If a user doesn't have joined courses, then bring the user back to signup setup.
+         */
+
+        if (userToken == null || currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             finish();

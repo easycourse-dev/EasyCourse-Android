@@ -69,7 +69,7 @@ dependencies {
     // Bottom TabBar
     compile 'com.github.armcha:LuseenBottomNavigation:1.8.2'
 
-    //Animated CheckBox
+    // Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'
 
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'

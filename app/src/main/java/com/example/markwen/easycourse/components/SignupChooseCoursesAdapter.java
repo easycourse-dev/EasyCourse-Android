@@ -2,7 +2,6 @@ package com.example.markwen.easycourse.components;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +25,8 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
     private ArrayList<Course> coursesList = new ArrayList<>();
     private ArrayList<Course> checkedCourseList = new ArrayList<>();
 
-    private TextView checkedCoursesTextView;
-
-    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList, TextView checkedCoursesTextView) {
+    public SignupChooseCoursesAdapter(ArrayList<Course> coursesList) {
         this.coursesList = coursesList;
-        this.checkedCoursesTextView = checkedCoursesTextView;
     }
 
     static class CourseViewHolder extends RecyclerView.ViewHolder {
@@ -74,20 +70,15 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("com.example.easycourse", "Clicked " + courseViewHolder.getAdapterPosition());
                 if (!courseViewHolder.nameTextView.getText().equals(course.getName())) return;
                 if (course.isSelected()) {
                     course.setSelected(false);
                     courseViewHolder.courseCheckBox.setChecked(course.isSelected());
                     checkedCourseList.remove(course);
-                    changeTextView();
-
-
                 } else {
                     course.setSelected(true);
                     courseViewHolder.courseCheckBox.setChecked(course.isSelected());
                     checkedCourseList.add(course);
-                    changeTextView();
                 }
             }
         });
@@ -103,21 +94,6 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private void changeTextView() {
-        if (checkedCourseList.size() == 0) {
-            checkedCoursesTextView.setText("");
-        } else if (checkedCourseList.size() == 1) {
-            checkedCoursesTextView.setText(checkedCourseList.get(0).getName());
-        } else {
-            int i;
-            String newText = "";
-            for (i = 0; i < checkedCourseList.size() - 1; i++) {
-                newText += checkedCourseList.get(i).getName() + ", ";
-            }
-            newText += checkedCourseList.get(i).getName();
-            checkedCoursesTextView.setText(newText);
-        }
-    }
 
     public ArrayList<Course> getCheckedCourseList() {
         return checkedCourseList;

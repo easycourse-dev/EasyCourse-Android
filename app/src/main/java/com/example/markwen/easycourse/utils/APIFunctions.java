@@ -2,8 +2,6 @@ package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -20,7 +18,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 public class APIFunctions {
 
     static AsyncHttpClient client = new AsyncHttpClient();
-    static final String URL = "http://zengjintaotest.com/api";
+    static final String URL = "https://zengjintaotest.com/api";
 
     //API function for signup to server
     public static void signUp(Context context, String email, String password, String displayName, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
@@ -164,7 +162,7 @@ public class APIFunctions {
         return true;
     }
 
-    private static String getUserToken(Context context){
+    public static String getUserToken(Context context){
         //Get userToken from shared preferences
         SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String userToken = sharedPref.getString("userToken", null);

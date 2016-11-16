@@ -29,7 +29,6 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.SocketIO;
-import com.github.nkzawa.emitter.Emitter;
 
 import org.json.JSONException;
 
@@ -88,7 +87,7 @@ public class ChatRoom extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
-        socketIO = new SocketIO();
+        //socketIO = new SocketIO();
 
         Message message1 = new Message("Noah Rinehart", "LOL", "https://avatars0.githubusercontent.com/u/7402294?v=3&s=460.jpg", Calendar.getInstance().getTime());
         message1.setToUser(false);
@@ -130,21 +129,15 @@ public class ChatRoom extends AppCompatActivity {
                     chatAdapter.notifyDataSetChanged();
                     chatRecyclerView.scrollToPosition(messages.size() - 1);
                     messageEditText.setText("");
-                    try {
-                        socketIO.sendMessage(fixed, currentRoom.getId());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+////                        socketIO.sendMessage(fixed, currentRoom.getId(),n);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         });
 
-        socketIO.onConnect(new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                //Is this to parse a new message?
-            }
-        });
     }
 
     //TODO: Realm integration

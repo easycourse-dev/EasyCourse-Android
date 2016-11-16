@@ -36,9 +36,8 @@ import io.socket.emitter.Emitter;
 public class SocketIO {
     private String CHAT_SERVER_URL = "https://zengjintaotest.com";
     private static final String TAG = "SocketIO";
-    
-    
-    
+
+
     private Context context;
     private Socket socket;
     private Activity that;
@@ -93,7 +92,7 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    if(obj.has("error")){
+                    if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
                         JSONObject msgObj = obj.getJSONObject("msg");
@@ -117,7 +116,7 @@ public class SocketIO {
                 }
 
                 JSONObject obj = (JSONObject) args[0];
-                if(obj.has("error")){
+                if (obj.has("error")) {
                     Log.e(TAG, obj.toString());
                 } else {
 
@@ -172,7 +171,7 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    if(obj.has("error")){
+                    if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
@@ -187,13 +186,13 @@ public class SocketIO {
         });
     }
 
-    public boolean logout(){
+    public boolean logout() {
         final boolean[] logoutSuccess = {false};
         socket.emit("logout", null, new Ack() {
             @Override
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
-                if(obj.has("success")) {
+                if (obj.has("success")) {
                     logoutSuccess[0] = true;
                 }
             }
@@ -227,7 +226,7 @@ public class SocketIO {
                             String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
                             int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", 0));
                             String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
-                            Course course = new Course(id,courseName,coursePicture,coursePictureUrl,title,courseDescription,creditHours,universityID);
+                            Course course = new Course(id, courseName, coursePicture, coursePictureUrl, title, courseDescription, creditHours, universityID);
                             courses[0][i] = course;
                         }
                     } catch (JSONException e) {
@@ -242,7 +241,7 @@ public class SocketIO {
         return courses[0];
     }
 
-    private void saveMessageToRealm(JSONObject obj){
+    private void saveMessageToRealm(JSONObject obj) {
         if (obj != null) {
             Message message = null;
             try {
@@ -273,12 +272,11 @@ public class SocketIO {
 
     private Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
         if (obj.has(searchQuery)) {
-            if(obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
+            if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
                 return obj.getString(searchQuery);
             else
                 return obj.get(searchQuery);
-        }
-        else
+        } else
             return defaultObj;
     }
 }

@@ -18,13 +18,21 @@ import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.models.signup.Course;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.UUID;
 
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 
 public class ChatRoom extends AppCompatActivity {
@@ -64,7 +72,7 @@ public class ChatRoom extends AppCompatActivity {
         toolbarSubtitleTextView = (TextView) findViewById(R.id.toolbarSubtitleChatRoom);
 
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null)
+        if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //TODO: Parse currentRoom
@@ -97,11 +105,6 @@ public class ChatRoom extends AppCompatActivity {
 
 
 
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(message1);
-        realm.commitTransaction();
-
-
 
         chatRecyclerView = (RecyclerView) findViewById(R.id.chatRecyclerView);
         chatAdapter = new ChatRecyclerViewAdapter(messages, this);
@@ -131,7 +134,7 @@ public class ChatRoom extends AppCompatActivity {
 //                    socketIO.syncUser();
 //                    User curUser = User.getCurrentUser(realm);
                     if (!messageEditText.getText().toString().trim().isEmpty()) {
-                        //TODO: fill out message
+                        //TODO: fill out message, animate
                         Message msg = new Message();
 //                        try {
 //                            socketIO.sendMessage(messageText, currentRoom.getId(), curUser.getId(), null, 0, 0);

@@ -18,10 +18,6 @@ public class EasyCourse extends Application {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration
-                .Builder()
-                .deleteRealmIfMigrationNeeded()
-                .build();
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -29,4 +25,6 @@ public class EasyCourse extends Application {
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
                         .build());
     }
+
+
 }

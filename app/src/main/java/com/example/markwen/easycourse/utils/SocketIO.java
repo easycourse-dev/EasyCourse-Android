@@ -88,8 +88,12 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    JSONObject msgObj = obj.getJSONObject("msg");
-                    saveMessageToRealm(msgObj);
+                    if(obj.has("error")){
+                        Log.e("com.example.easycourse", obj.toString());
+                    } else {
+                        JSONObject msgObj = obj.getJSONObject("msg");
+                        saveMessageToRealm(msgObj);
+                    }
                 } catch (JSONException e) {
                     Log.e("com.example.easycourse", e.toString());
                 }
@@ -108,45 +112,49 @@ public class SocketIO {
                 }
 
                 JSONObject obj = (JSONObject) args[0];
-                JSONObject userObj = null;
-                byte[] avatar = null;
-                String avatarUrlString = "";
+                if(obj.has("error")){
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
 
-                try {
-                    userObj = obj.getJSONObject("user");
-                    Log.e("com.example.easycourse", "" + userObj);
-                    avatarUrlString = userObj.getString("avatarUrl");
-                    URL avatarUrl = new URL(avatarUrlString);
-                    HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
-                    conn.setDoInput(true);
-                    conn.connect();
-                    conn.setUseCaches(false);
+                    JSONObject userObj = null;
+                    byte[] avatar = null;
+                    String avatarUrlString = "";
 
-                    InputStream is = conn.getInputStream();
-                    avatar = IOUtils.toByteArray(conn.getInputStream());
+                    try {
+                        userObj = obj.getJSONObject("user");
+                        Log.e("com.example.easycourse", "" + userObj);
+                        avatarUrlString = userObj.getString("avatarUrl");
+                        URL avatarUrl = new URL(avatarUrlString);
+                        HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                        conn.setDoInput(true);
+                        conn.connect();
+                        conn.setUseCaches(false);
 
-                } catch (MalformedURLException e) {
-                    Log.e("com.example.easycourse", e.toString());
-                } catch (JSONException e) {
-                    Log.e("com.example.easycourse", e.toString());
-                } catch (IOException e) {
-                    Log.e("com.example.easycourse", e.toString());
+                        InputStream is = conn.getInputStream();
+                        avatar = IOUtils.toByteArray(conn.getInputStream());
+
+                    } catch (MalformedURLException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    } catch (IOException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    User user = null;
+                    try {
+                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, avatarUrlString, userObj.getString("email"), userObj.getString("university"));
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Realm.init(context);
+                    Realm realm = Realm.getDefaultInstance();
+
+                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
+                    User.updateUserToRealm(user, realm);
+                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
                 }
-
-                User user = null;
-                try {
-                    user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, avatarUrlString, userObj.getString("email"), userObj.getString("university"));
-                } catch (JSONException e) {
-                    Log.e("com.example.easycourse", e.toString());
-                }
-
-                Realm.init(context);
-                Realm realm = Realm.getDefaultInstance();
-
-                Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
-                User.updateUserToRealm(user, realm);
-                Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
-
             }
         });
     }
@@ -159,9 +167,13 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    JSONArray msgArray = obj.getJSONArray("msg");
-                    for(int i = 0; i < msgArray.length(); i++){
-                        saveMessageToRealm(msgArray.getJSONObject(i));
+                    if(obj.has("error")){
+                        Log.e("com.example.easycourse", obj.toString());
+                    } else {
+                        JSONArray msgArray = obj.getJSONArray("msg");
+                        for (int i = 0; i < msgArray.length(); i++) {
+                            saveMessageToRealm(msgArray.getJSONObject(i));
+                        }
                     }
                 } catch (JSONException e) {
                     Log.e("com.example.easycourse", e.toString());

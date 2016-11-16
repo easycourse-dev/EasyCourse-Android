@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 
@@ -194,6 +195,47 @@ public class SocketIO {
             }
         });
         return logoutSuccess[0];
+    }
+
+    public Course[] searchCourses(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("text", searchQuery);
+        jsonParam.put("university", unversityId);
+        jsonParam.put("limit", limit);
+        jsonParam.put("skip", skip);
+
+        final Course[][] courses = {null};
+
+        socket.emit("searchCourse", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONArray courseArrayJSON = obj.getJSONArray("course");
+                        courses[0] = new Course[courseArrayJSON.length()];
+                        for (int i = 0; i < courseArrayJSON.length(); i++) {
+                            String id = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "id", null);
+                            String coursename = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "name", null);
+                            byte[] coursePicture = (byte[]) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePicture", null);
+                            String coursePictureUrl = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePictureUrl", null);
+                            String title = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "title", null);
+                            String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
+                            int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", 0));
+                            String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
+                            Course course = new Course(id,coursename,coursePicture,coursePictureUrl,title,courseDescription,creditHours,universityID);
+                            courses[0][i] = course;
+                        }
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return courses[0];
     }
 
     private void saveMessageToRealm(JSONObject obj){

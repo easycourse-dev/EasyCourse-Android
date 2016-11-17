@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 
 import org.apache.commons.io.IOUtils;
@@ -264,6 +265,48 @@ public class SocketIO {
         });
 
         return dropCourseSuccess[0];
+    }
+
+    public Room[] searchRooms(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("text", searchQuery);
+        jsonParam.put("university", unversityId);
+        jsonParam.put("limit", limit);
+        jsonParam.put("skip", skip);
+
+        final Room[][] rooms = {null};
+
+        socket.emit("searchRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONArray roomArrayJSON = obj.getJSONArray("room");
+                        rooms[0] = new Room[roomArrayJSON.length()];
+                        for (int i = 0; i < roomArrayJSON.length(); i++) {
+                            String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
+                            String roomname = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
+                            String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
+                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseID", null);
+                            String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", null));
+                            String courseDescription = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "description", null);
+                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
+                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", null);
+                            Room room = new Room(id,roomname,null,courseID,courseName,universityID,null,memberCounts,language,"",isSystem);
+                            rooms[0][i] = room;
+                        }
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return rooms[0];
     }
 
     private void saveMessageToRealm(JSONObject obj){

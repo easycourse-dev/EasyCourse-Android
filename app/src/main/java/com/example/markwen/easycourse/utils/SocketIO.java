@@ -238,6 +238,34 @@ public class SocketIO {
         return courses[0];
     }
 
+    public boolean dropCourse(String courseID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courseId", courseID);
+
+        final boolean[] dropCourseSuccess = {false};
+
+        socket.emit("dropCourse", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if(obj.has("error")){
+                    Log.e("com.example.easycourse", obj.toString());
+                } else{
+                    Log.e("com.example.easycourse", "dropCourse "+obj.toString());
+
+                    try {
+                        dropCourseSuccess[0] = obj.getBoolean("success");
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+                    syncUser();
+                }
+            }
+        });
+
+        return dropCourseSuccess[0];
+    }
+
     private void saveMessageToRealm(JSONObject obj){
         if (obj != null) {
             Message message = null;

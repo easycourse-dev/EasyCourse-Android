@@ -1,5 +1,8 @@
 package com.example.markwen.easycourse.models.main;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import io.realm.Realm;
@@ -61,10 +64,18 @@ public class User extends RealmObject {
         });
     }
 
-    @Nullable
-    public static User getCurrentUser(Realm realm){
-        return null;
+    public static User getCurrentUser(Activity activity, Realm realm) {
+        SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        String id = sharedPref.getString("userId", "");
+
+        RealmResults<User> results = realm.where(User.class)
+                .equalTo("id", id)
+                .findAll();
+
+        return results.first();
     }
+
+
 
     public String getId() {
         return id;

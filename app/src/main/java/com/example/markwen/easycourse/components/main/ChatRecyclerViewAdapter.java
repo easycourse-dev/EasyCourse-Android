@@ -182,6 +182,10 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         return chatList.size();
     }
 
+    public void addMessage(Message message) {
+        chatList.add(message);
+        this.notifyDataSetChanged();
+    }
 
     public ArrayList<Message> getChatRoomList() {
         return chatList;

@@ -19,7 +19,7 @@ import org.json.JSONObject;
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class SignupLoginActivity extends spCompatActivity {
+public class SignupLoginActivity extends AppCompatActivity {
 
     public UserSetup userSetup;
 

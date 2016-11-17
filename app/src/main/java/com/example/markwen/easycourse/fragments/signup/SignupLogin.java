@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -38,6 +39,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -173,7 +175,7 @@ public class SignupLogin extends Fragment {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(signupButton.getWindowToken(), 0);
                 signup(v);
             }
@@ -182,7 +184,7 @@ public class SignupLogin extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(loginButton.getWindowToken(), 0);
                 emailLogin(v);
             }
@@ -252,12 +254,10 @@ public class SignupLogin extends Fragment {
         });
 
 
-
         startAnimations();
 
         return v;
     }
-
 
 
     public void signup(View v) {
@@ -381,17 +381,22 @@ public class SignupLogin extends Fragment {
                                 userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                         }
 
+
                         // Store fragment_user at SharedPreferences
                         sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
+                        try {
+                            editor.putString("userId", response.getString("_id"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         editor.apply();
 
                         // Make an Intent to move on to the next activity
                         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
                         startActivity(mainActivityIntent);
-
                         getActivity().finish();
                     }
 
@@ -551,4 +556,5 @@ public class SignupLogin extends Fragment {
             }
         }
     }
+
 }

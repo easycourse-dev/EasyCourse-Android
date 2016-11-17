@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -294,7 +295,11 @@ public class SocketIO {
                             String courseDescription = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "description", null);
                             int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
                             boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", null);
-                            Room room = new Room(id,roomname,null,courseID,courseName,universityID,null,memberCounts,language,"",isSystem);
+
+                            RealmList<Message> messageList = new RealmList<Message>();
+                            RealmList<User> memberList = new RealmList<User>();
+
+                            Room room = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,"",isSystem);
                             rooms[0][i] = room;
                         }
                     } catch (JSONException e) {

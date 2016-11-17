@@ -28,6 +28,8 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
+import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
@@ -44,9 +46,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by noahrinehart on 10/29/16.
@@ -86,6 +92,10 @@ public class SignupLogin extends Fragment {
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
 
+    Realm realm;
+
+    User currentUser;
+
     public SignupLogin() {
     }
 
@@ -100,6 +110,8 @@ public class SignupLogin extends Fragment {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getContext());
         AppEventsLogger.activateApp(getActivity().getApplication());
+        realm = Realm.getDefaultInstance();
+        currentUser = new User();
     }
 
     @Nullable
@@ -207,28 +219,13 @@ public class SignupLogin extends Fragment {
                         APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                String userToken = "";
-
-                                //for each header in array Headers scan for Auth header
-                                for (Header header : headers) {
-                                    if (header.toString().contains("Auth"))
-                                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                                }
-
-                                // Store fragment_user at SharedPreferences
-                                sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("userToken", userToken);
-                                editor.putString("currentUser", response.toString());
-                                editor.apply();
+                                parseLoginResponse(statusCode, headers, response);
 
                                 // Make an Intent to move on to the next activity
                                 Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
                                 startActivity(mainActivityIntent);
 
                                 getActivity().finish();
-
-                                // gotoSignupChooseCourses();
                             }
 
                             @Override
@@ -373,26 +370,7 @@ public class SignupLogin extends Fragment {
                 APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        String userToken = "";
-
-                        //for each header in array Headers scan for Auth header
-                        for (Header header : headers) {
-                            if (header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                        }
-
-
-                        // Store fragment_user at SharedPreferences
-                        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("userToken", userToken);
-                        editor.putString("currentUser", response.toString());
-                        try {
-                            editor.putString("userId", response.getString("_id"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        editor.apply();
+                        parseLoginResponse(statusCode, headers, response);
 
                         // Make an Intent to move on to the next activity
                         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
@@ -415,6 +393,108 @@ public class SignupLogin extends Fragment {
             }
         }
     }
+
+    //TODO: Make async
+    //Parses response from login to realm and sharedprefs
+    public void parseLoginResponse(int statusCode, Header[] headers, JSONObject response) {
+        String userToken = "";
+
+        //for each header in array Headers scan for Auth header
+        for (Header header : headers) {
+            if (header.toString().contains("Auth"))
+                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
+        }
+        // Store fragment_user at SharedPreferences
+        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("userToken", userToken);
+        editor.putString("currentUser", response.toString());
+        try {
+            editor.putString("userId", response.getString("_id"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        editor.apply();
+
+
+        RealmList<Room> joinedRoomList = new RealmList<>();
+        RealmList<Course> joinedCourseList = new RealmList<>();
+        RealmList<Room> silentRoomList = new RealmList<>();
+
+        try {
+
+            currentUser.setId(response.getString("_id"));
+            currentUser.setEmail(response.getString("email"));
+            currentUser.setUsername(response.getString("displayName"));
+
+
+            JSONArray joinedRooms = response.getJSONArray("joinedRoom");
+            for (int i = 0; i < joinedRooms.length(); i++) {
+                JSONObject object = joinedRooms.getJSONObject(i);
+                Room room = new Room();
+                room.setId(object.getString("_id"));
+                room.setRoomname(object.getString("name"));
+                room.setCourseID(object.getString("course"));
+                room.setCourseName(object.getString("courseName"));
+                room.setPublic(object.getBoolean("isPublic"));
+                room.setSystem(object.getBoolean("isSystem"));
+                room.setLanguage(object.getInt("language"));
+                room.setMemberCounts(object.getInt("memberCounts"));
+                room.setMemberList(new RealmList<User>());
+                room.getMemberList().add(currentUser);
+                joinedRoomList.add(room);
+            }
+            JSONArray joinedCourses = response.getJSONArray("joinedCourse");
+            for (int i = 0; i < joinedRooms.length(); i++) {
+                JSONObject object = joinedCourses.getJSONObject(i);
+                Course course = new Course();
+                course.setId(object.getString("_id"));
+                course.setCoursename(object.getString("name"));
+                course.setTitle(object.getString("title"));
+                course.setCourseDescription(object.getString("description"));
+                course.setCreditHours(object.getInt("creditHours"));
+                course.setUniversityID(object.getString("university"));
+                joinedCourseList.add(course);
+            }
+
+            JSONArray silentRooms = response.getJSONArray("silentRoom");
+            for (int i = 0; i < silentRooms.length(); i++) {
+                JSONObject object = joinedRooms.getJSONObject(i);
+                Room room = new Room();
+                room.setId(object.getString("_id"));
+                room.setRoomname(object.getString("name"));
+                room.setCourseID(object.getString("course"));
+                room.setCourseName(object.getString("courseName"));
+                room.setPublic(object.getBoolean("isPublic"));
+                room.setSystem(object.getBoolean("isSystem"));
+                room.setLanguage(object.getInt("language"));
+                room.setMemberCounts(object.getInt("memberCounts"));
+                room.setMemberList(new RealmList<User>());
+                room.getMemberList().add(currentUser);
+                silentRoomList.add(room);
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        currentUser.setSilentRooms(silentRoomList);
+        currentUser.setJoinedCourses(joinedCourseList);
+        currentUser.setJoinedRooms(joinedRoomList);
+
+        realm.beginTransaction();
+        for(Room room : joinedRoomList) {
+            realm.copyToRealmOrUpdate(room);
+        }
+        for(Course course : joinedCourseList) {
+            realm.copyToRealmOrUpdate(course);
+        }
+        realm.copyToRealmOrUpdate(currentUser);
+        realm.commitTransaction();
+
+    }
+
 
     // Call this function when going to SignupChooseUniversity
     public void gotoSignupChooseCourses() {

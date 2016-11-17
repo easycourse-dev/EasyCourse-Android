@@ -1,8 +1,7 @@
 package com.example.markwen.easycourse.fragments.main;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,15 +13,11 @@ import android.view.ViewGroup;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
-import com.example.markwen.easycourse.models.main.Course;
-import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -43,7 +38,9 @@ public class Rooms extends Fragment {
 
     private ChatRoomRecyclerViewAdapter chatRoomAdapter;
     private LinearLayoutManager roomsLinearManager;
-    private ArrayList<Room> rooms;
+    private ArrayList<Room> roomList;
+
+    User currentUser;
 
 
     public Rooms() {
@@ -56,13 +53,9 @@ public class Rooms extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
+        currentUser = User.getCurrentUser(getActivity(), realm);
+        roomList = new ArrayList<>();
         addRooms();
-//        fragment_rooms = fetchRoomsFromRealm();
-        rooms = new ArrayList<>();
-        rooms.add(new Room("Computer Science", "CS240"));
-        rooms.add(new Room("Geography", "EAPS120"));
-        rooms.add(new Room("Linear Algebra", "MA265"));
-
     }
 
     @Override
@@ -71,7 +64,7 @@ public class Rooms extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_rooms, container, false);
         roomsRecyclerView = (RecyclerView) v.findViewById(R.id.roomsRecyclerView);
-        chatRoomAdapter = new ChatRoomRecyclerViewAdapter(rooms, getContext());
+        chatRoomAdapter = new ChatRoomRecyclerViewAdapter(roomList, getContext());
         roomsLinearManager = new LinearLayoutManager(getContext());
         roomsLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         roomsRecyclerView.setLayoutManager(roomsLinearManager);
@@ -92,21 +85,23 @@ public class Rooms extends Fragment {
         return v;
     }
 
+
+    public void createNewConversation() {
+    }
+
+    public void addRooms() {
+        RealmList<Room> rooms = currentUser.getJoinedRooms();
+        for (Room room : rooms) {
+            roomList.add(room);
+        }
+    }
+
+    //TODO: Check null realm everywhere else
     public ArrayList<Room> fetchRoomsFromRealm() {
         if (realm != null)
             return Room.getRoomsFromRealm(realm);
         Log.d(TAG, "Realm not initiated!");
         return null;
-    }
-
-    public void createNewConversation() {
-    }
-
-    public void addRooms(){
-        realm.beginTransaction();
-
-
-        realm.commitTransaction();
     }
 
 

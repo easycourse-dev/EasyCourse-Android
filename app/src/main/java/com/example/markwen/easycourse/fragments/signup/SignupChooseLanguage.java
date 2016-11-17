@@ -197,7 +197,6 @@ public class SignupChooseLanguage extends Fragment {
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                     // Make a Snackbar to notify fragment_user with error
                     Log.d(TAG, "Failed to post university id");
-                    return;
                 }
             });
 

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
@@ -23,6 +24,9 @@ public class User extends RealmObject {
     private String profilePictureUrl;
     private String email;
     private String universityID;
+    private RealmList<Course> joinedCourses;
+    private RealmList<Room> joinedRooms;
+    private RealmList<Room> silentRooms;
 
     private int friendStatus = 0;
 
@@ -64,6 +68,7 @@ public class User extends RealmObject {
         });
     }
 
+    @Nullable
     public static User getCurrentUser(Activity activity, Realm realm) {
         SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String id = sharedPref.getString("userId", "");
@@ -71,8 +76,9 @@ public class User extends RealmObject {
         RealmResults<User> results = realm.where(User.class)
                 .equalTo("id", id)
                 .findAll();
-
-        return results.first();
+        if(results.size() > 0)
+            return results.first();
+        return null;
     }
 
 
@@ -131,5 +137,29 @@ public class User extends RealmObject {
 
     public void setFriendStatus(int friendStatus) {
         this.friendStatus = friendStatus;
+    }
+
+    public RealmList<Course> getJoinedCourses() {
+        return joinedCourses;
+    }
+
+    public void setJoinedCourses(RealmList<Course> joinedCourses) {
+        this.joinedCourses = joinedCourses;
+    }
+
+    public RealmList<Room> getJoinedRooms() {
+        return joinedRooms;
+    }
+
+    public void setJoinedRooms(RealmList<Room> joinedRooms) {
+        this.joinedRooms = joinedRooms;
+    }
+
+    public RealmList<Room> getSilentRooms() {
+        return silentRooms;
+    }
+
+    public void setSilentRooms(RealmList<Room> silentRooms) {
+        this.silentRooms = silentRooms;
     }
 }

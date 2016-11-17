@@ -7,6 +7,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -22,6 +23,7 @@ public class Room extends RealmObject {
     private boolean isJoinIn = false;
 
     //Basic info of room
+    @PrimaryKey
     private String id;
     private String roomname;
     private RealmList<Message> messageList;

@@ -152,7 +152,6 @@ public class SocketIO {
                         Log.e(TAG, e.toString());
                     }
 
-                    Realm.init(context);
                     Realm realm = Realm.getDefaultInstance();
 
                     Log.e(TAG, "user in realm? " + User.isUserInRealm(user, realm));

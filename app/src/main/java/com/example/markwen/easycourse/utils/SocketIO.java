@@ -292,14 +292,14 @@ public class SocketIO {
                             String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseID", null);
                             String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
                             int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", null));
-                            String courseDescription = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "description", null);
+                            String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
                             int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
                             boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", null);
 
                             RealmList<Message> messageList = new RealmList<Message>();
                             RealmList<User> memberList = new RealmList<User>();
 
-                            Room room = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,"",isSystem);
+                            Room room = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
                             rooms[0][i] = room;
                         }
                     } catch (JSONException e) {

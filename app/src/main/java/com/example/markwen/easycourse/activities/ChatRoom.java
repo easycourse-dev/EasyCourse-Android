@@ -24,6 +24,7 @@ import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -161,4 +162,9 @@ public class ChatRoom extends AppCompatActivity {
     }
 
 
+    @Subscribe
+    public void onMessageReceived(Message message) {
+        chatAdapter.getChatRoomList().add(message);
+        chatAdapter.notifyDataSetChanged();
+    }
 }

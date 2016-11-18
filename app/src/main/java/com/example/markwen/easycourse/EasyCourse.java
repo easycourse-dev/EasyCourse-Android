@@ -2,7 +2,9 @@ package com.example.markwen.easycourse;
 
 import android.app.Application;
 
+import com.example.markwen.easycourse.services.MainBus;
 import com.facebook.stetho.Stetho;
+import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.realm.Realm;
@@ -24,7 +26,10 @@ public class EasyCourse extends Application {
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
                         .build());
+
     }
+
+    public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
 
 
 }

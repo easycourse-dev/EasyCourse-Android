@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 
 import org.apache.commons.io.IOUtils;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -238,6 +240,194 @@ public class SocketIO {
         });
 
         return courses[0];
+    }
+
+    public boolean dropCourse(String courseID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courseId", courseID);
+
+        final boolean[] dropCourseSuccess = {false};
+
+        socket.emit("dropCourse", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (obj.has("error")) {
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e("com.example.easycourse", "dropCourse " + obj.toString());
+
+                    try {
+                        dropCourseSuccess[0] = obj.getBoolean("success");
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+                    syncUser();
+                }
+            }
+        });
+
+        return dropCourseSuccess[0];
+    }
+
+    public Room[] searchRooms(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("text", searchQuery);
+        jsonParam.put("university", unversityId);
+        jsonParam.put("limit", limit);
+        jsonParam.put("skip", skip);
+
+        final Room[][] rooms = {null};
+
+        socket.emit("searchRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONArray roomArrayJSON = obj.getJSONArray("room");
+                        rooms[0] = new Room[roomArrayJSON.length()];
+                        for (int i = 0; i < roomArrayJSON.length(); i++) {
+                            String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
+                            String roomname = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
+                            String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
+                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
+                            String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", 0));
+                            String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
+                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
+                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
+
+                            RealmList<Message> messageList = new RealmList<Message>();
+                            RealmList<User> memberList = new RealmList<User>();
+
+                            Room room = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                            rooms[0][i] = room;
+                        }
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return rooms[0];
+    }
+
+    public Room joinRoom(String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
+        final Room[] room = {null};
+
+        socket.emit("joinRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONObject roomObjJSON = obj.getJSONObject("room");
+
+                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
+                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
+                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
+                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
+                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+
+                        RealmList<Message> messageList = new RealmList<Message>();
+                        RealmList<User> memberList = new RealmList<User>();
+
+                        room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return room[0];
+    }
+
+    public boolean quitRoom(String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
+        final boolean[] dropRoomSuccess = {false};
+
+        socket.emit("quitRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (obj.has("error")) {
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e("com.example.easycourse", "quitRoom " + obj.toString());
+
+                    try {
+                        dropRoomSuccess[0] = obj.getBoolean("success");
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+                    syncUser();
+                }
+            }
+        });
+
+        return dropRoomSuccess[0];
+    }
+
+    public Room createRoom(String name, String courseID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("name", name);
+        jsonParam.put("course", courseID);
+
+
+        final Room[] room = {null};
+
+        socket.emit("createRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONObject roomObjJSON = obj.getJSONObject("room");
+
+                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
+                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
+                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
+                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
+                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+
+                        RealmList<Message> messageList = new RealmList<Message>();
+                        RealmList<User> memberList = new RealmList<User>();
+
+                        room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return room[0];
     }
 
     private void saveMessageToRealm(JSONObject obj) {

@@ -71,11 +71,6 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
 
-        //TODO: Parse currentRoom
-        Intent intentFromRooms = getIntent();
-        String roomName = intentFromRooms.getStringExtra("Roomname");
-        String courseName = intentFromRooms.getStringExtra("CourseName");
-        currentRoom = new Room(roomName, courseName);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
@@ -89,7 +84,6 @@ public class ChatRoom extends AppCompatActivity {
         currentUser = User.getCurrentUser(this, realm);
 
 
-
         toolbar = (Toolbar) findViewById(R.id.toolbarChatRoom);
         toolbarTitleTextView = (TextView) findViewById(R.id.toolbarTitleChatRoom);
         toolbarSubtitleTextView = (TextView) findViewById(R.id.toolbarSubtitleChatRoom);
@@ -99,9 +93,28 @@ public class ChatRoom extends AppCompatActivity {
         sendImageButton = (ImageButton) findViewById(R.id.chatSendImageButton);
 
 
-        toolbarTitleTextView.setText(roomName);
-        toolbarSubtitleTextView.setText(courseName);
+        //TODO: Parse currentRoom, ensure current room exists
+        Intent intent = getIntent();
+        String roomName = intent.getStringExtra("Roomname");
+        String courseName = intent.getStringExtra("CourseName");
+        String roomId = intent.getStringExtra("roomId");
+        if (roomName != null) {
+            currentRoom = new Room(roomName, courseName);
 
+        } else {
+            RealmResults<Room> results = realm.where(Room.class)
+                    .equalTo("id", roomId)
+                    .findAll();
+            if (results.size() > 0) {
+                currentRoom = results.first();
+            }
+        }
+
+        //TODO: null room?
+        if (currentRoom != null) {
+            toolbarTitleTextView.setText(currentRoom.getRoomname());
+            toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        }
 
         setupChatRecyclerView();
 
@@ -148,18 +161,6 @@ public class ChatRoom extends AppCompatActivity {
 //        socketIO.syncUser();
 //    }
 
-    //TODO: Realm integration
-    public ArrayList<Message> fetchMessagesFromRealm() {
-        return null;
-    }
-
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        socketIO.disconnect();
-    }
 
 
     @Subscribe

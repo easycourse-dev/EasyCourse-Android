@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.services;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Message;
 
 /**
@@ -57,12 +59,18 @@ public class NotificationService extends Service {
     }
 
     public void showMessageNotification(Message message) {
+
+        Intent i = new Intent(this, ChatRoom.class);
+        i.putExtra("roomId", message.getId());
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(message.getText())
                 //TODO: Change to sender name not id
                 //TODO: add intent to go to right room
-                .setContentText("Sent by: " + message.getSenderId());
+                .setContentText("Sent by: " + message.getSenderId())
+                .setContentIntent(pendingIntent);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(Integer.parseInt(message.getId()), mBuilder.build());

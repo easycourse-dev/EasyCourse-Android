@@ -357,6 +357,34 @@ public class SocketIO {
         return room[0];
     }
 
+    public boolean quitRoom(String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
+        final boolean[] dropRoomSuccess = {false};
+
+        socket.emit("quitRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if(obj.has("error")){
+                    Log.e("com.example.easycourse", obj.toString());
+                } else{
+                    Log.e("com.example.easycourse", "quitRoom "+obj.toString());
+
+                    try {
+                        dropRoomSuccess[0] = obj.getBoolean("success");
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+                    syncUser();
+                }
+            }
+        });
+
+        return dropRoomSuccess[0];
+    }
+
     private void saveMessageToRealm(JSONObject obj){
         if (obj != null) {
             Message message = null;

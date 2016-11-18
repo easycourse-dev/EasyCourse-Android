@@ -342,7 +342,6 @@ public class SocketIO {
                         RealmList<User> memberList = new RealmList<User>();
 
                         room[0] = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
-
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", e.toString());
                     }
@@ -383,6 +382,50 @@ public class SocketIO {
         });
 
         return dropRoomSuccess[0];
+    }
+
+    public Room createRoom(String name, String courseID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("name", name);
+        jsonParam.put("course", courseID);
+
+
+        final Room[] room = {null};
+
+        socket.emit("createRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONObject roomObjJSON = obj.getJSONObject("room");
+
+                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
+                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
+                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
+                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
+                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+
+                        RealmList<Message> messageList = new RealmList<Message>();
+                        RealmList<User> memberList = new RealmList<User>();
+
+                        room[0] = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                } else{
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return room[0];
     }
 
     private void saveMessageToRealm(JSONObject obj){

@@ -289,12 +289,12 @@ public class SocketIO {
                             String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
                             String roomname = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
                             String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
-                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseID", null);
+                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
                             String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
-                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", null));
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", 0));
                             String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
                             int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
-                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", null);
+                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
 
                             RealmList<Message> messageList = new RealmList<Message>();
                             RealmList<User> memberList = new RealmList<User>();
@@ -312,6 +312,49 @@ public class SocketIO {
         });
 
         return rooms[0];
+    }
+
+    public Room joinRoom(String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
+        final Room[] room = {null};
+
+        socket.emit("joinRoom", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONObject roomObjJSON = obj.getJSONObject("room");
+
+                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
+                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
+                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
+                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
+                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+
+                        RealmList<Message> messageList = new RealmList<Message>();
+                        RealmList<User> memberList = new RealmList<User>();
+
+                        room[0] = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
+
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Log.e("com.example.easycourse", obj.toString());
+                } else{
+                    Log.e("com.example.easycourse", obj.toString());
+                }
+            }
+        });
+
+        return room[0];
     }
 
     private void saveMessageToRealm(JSONObject obj){

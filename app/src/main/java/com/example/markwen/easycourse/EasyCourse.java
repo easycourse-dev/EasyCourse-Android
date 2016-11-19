@@ -1,7 +1,12 @@
 package com.example.markwen.easycourse;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.services.MainBus;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.stetho.Stetho;
@@ -10,6 +15,7 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -18,7 +24,6 @@ import io.realm.RealmConfiguration;
 public class EasyCourse extends Application {
 
     public SocketIO socketIO;
-
     private static EasyCourse appInstance = null;
 
     @Override

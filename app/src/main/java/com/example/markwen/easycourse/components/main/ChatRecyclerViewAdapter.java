@@ -1,10 +1,7 @@
 package com.example.markwen.easycourse.components.main;
 
-/**
- * Created by noahrinehart on 11/12/16.
- */
-
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,27 +17,30 @@ import com.example.markwen.easycourse.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import io.realm.RealmRecyclerViewAdapter;
+import io.realm.RealmResults;
+
+
 /**
- * Created by noahrinehart on 11/5/16.
+ * Created by noahrinehart on 11/19/16.
  */
 
-public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, RecyclerView.ViewHolder> {
+
 
     private final int INCOMING = 0, OUTGOING = 1;
 
-    private ArrayList<Message> chatList = new ArrayList<>();
     private Context context;
 
-    public ChatRecyclerViewAdapter(ArrayList<Message> chatList, Context context) {
-        this.chatList = chatList;
+    public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
+        super(context, messages, true);
         this.context = context;
     }
 
-    private static class IncomingChatViewHolder extends RecyclerView.ViewHolder {
+    private class IncomingChatViewHolder extends RecyclerView.ViewHolder {
         LinearLayout incomingLinearLayout;
         TextView incomingTime;
         ImageView incomingImageView;
@@ -57,7 +57,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    private static class OutgoingChatViewHolder extends RecyclerView.ViewHolder {
+    private class OutgoingChatViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout outgoingLinearLayout;
         TextView outgoingTime;
@@ -75,25 +75,79 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-
         RecyclerView.ViewHolder viewHolder;
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
 
         switch (viewType) {
             case OUTGOING:
                 View outgoingView = inflater.inflate(R.layout.chat_cell_outgoing_text, viewGroup, false);
-                viewHolder = new OutgoingChatViewHolder(outgoingView);
+                viewHolder = new ChatRecyclerViewAdapter.OutgoingChatViewHolder(outgoingView);
                 break;
             default:
                 View incomingView = inflater.inflate(R.layout.chat_cell_incoming_text, viewGroup, false);
-                viewHolder = new IncomingChatViewHolder(incomingView);
+                viewHolder = new ChatRecyclerViewAdapter.IncomingChatViewHolder(incomingView);
                 break;
         }
         return viewHolder;
     }
 
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        Message prevMessage = null;
+        Message message = getData().get(position);
+        if (position != 0)
+            prevMessage = getData().get(position - 1);
+
+
+        switch (viewHolder.getItemViewType()) {
+            case OUTGOING:
+                final ChatRecyclerViewAdapter.OutgoingChatViewHolder outgoingViewHolder = (ChatRecyclerViewAdapter.OutgoingChatViewHolder) viewHolder;
+
+                String reportDateOutgoing = getTimeString(message, prevMessage);
+                if (reportDateOutgoing != null) {
+                    outgoingViewHolder.outgoingTime.setVisibility(View.VISIBLE);
+                    outgoingViewHolder.outgoingTime.setText(reportDateOutgoing);
+                } else {
+                    outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
+                }
+
+                //TODO: Set image from local data
+                Glide.with(context)
+                        .load(message.getImageUrl()).fitCenter()
+                        .into(outgoingViewHolder.outgoingImageView);
+
+                //TODO: Fetch user name from senderId
+                outgoingViewHolder.outgoingName.setText(message.getText());
+                outgoingViewHolder.outgoingMessage.setText(message.getText());
+                break;
+
+            case INCOMING:
+                ChatRecyclerViewAdapter.IncomingChatViewHolder incomingViewHolder = (ChatRecyclerViewAdapter.IncomingChatViewHolder) viewHolder;
+
+                String reportDateIncoming = getTimeString(message, prevMessage);
+                if (reportDateIncoming != null) {
+                    incomingViewHolder.incomingTime.setVisibility(View.VISIBLE);
+                    incomingViewHolder.incomingTime.setText(reportDateIncoming);
+                } else {
+                    incomingViewHolder.incomingTime.setVisibility(View.GONE);
+                }
+
+                //TODO: Set image from local data
+                Glide.with(context)
+                        .load(message.getImageUrl()).fitCenter()
+                        .into(incomingViewHolder.incomingImageView);
+
+                //TODO: Fetch user name from senderId
+                incomingViewHolder.incomingName.setText(message.getSenderId());
+                incomingViewHolder.incomingMessage.setText(message.getText());
+                break;
+        }
+    }
+
+    @Nullable
     private String getTimeString(Message message, Message prevMessage) {
         if (prevMessage == null) return null;
         Date messageDate = message.getCreatedAt();
@@ -117,78 +171,12 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder chatViewHolder, int i) {
-        Message prevMessage = null;
-        Message message = chatList.get(i);
-        if (i != 0)
-            prevMessage = chatList.get(i - 1);
-
-
-        switch (chatViewHolder.getItemViewType()) {
-            case OUTGOING:
-                final OutgoingChatViewHolder outgoingViewHolder = (OutgoingChatViewHolder) chatViewHolder;
-
-                String reportDateOutgoing = getTimeString(message, prevMessage);
-                if (reportDateOutgoing != null) {
-                    outgoingViewHolder.outgoingTime.setVisibility(View.VISIBLE);
-                    outgoingViewHolder.outgoingTime.setText(reportDateOutgoing);
-                } else {
-                    outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
-                }
-
-                //TODO: Set image from local data
-                Glide.with(context)
-                        .load(message.getImageUrl()).fitCenter()
-                        .into(outgoingViewHolder.outgoingImageView);
-
-                //TODO: Fetch user name from senderId
-                outgoingViewHolder.outgoingName.setText(message.getText());
-                outgoingViewHolder.outgoingMessage.setText(message.getText());
-                break;
-
-            case INCOMING:
-                IncomingChatViewHolder incomingViewHolder = (IncomingChatViewHolder) chatViewHolder;
-
-                String reportDateIncoming = getTimeString(message, prevMessage);
-                if (reportDateIncoming != null) {
-                    incomingViewHolder.incomingTime.setVisibility(View.VISIBLE);
-                    incomingViewHolder.incomingTime.setText(reportDateIncoming);
-                } else {
-                    incomingViewHolder.incomingTime.setVisibility(View.GONE);
-                }
-
-                //TODO: Set image from local data
-                Glide.with(context)
-                        .load(message.getImageUrl()).fitCenter()
-                        .into(incomingViewHolder.incomingImageView);
-
-                //TODO: Fetch user name from senderId
-                incomingViewHolder.incomingName.setText(message.getSenderId());
-                incomingViewHolder.incomingMessage.setText(message.getText());
-                break;
-        }
-    }
-
-    @Override
     public int getItemViewType(int i) {
-        final Message message = chatList.get(i);
+        final Message message = getData().get(i);
         if (message.isToUser())
             return OUTGOING;
         return INCOMING;
     }
 
-    @Override
-    public int getItemCount() {
-        return chatList.size();
-    }
 
-    public void addMessage(Message message) {
-        chatList.add(message);
-        this.notifyDataSetChanged();
-    }
-
-    public ArrayList<Message> getChatRoomList() {
-        return chatList;
-    }
 }
-

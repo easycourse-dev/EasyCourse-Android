@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
@@ -20,6 +22,8 @@ import com.example.markwen.easycourse.models.signup.UserSetup;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,15 +32,21 @@ public class MainActivity extends AppCompatActivity {
 
     Realm realm;
 
-    AHBottomNavigation bottomNavigation;
+//    @BindView(R.id.toolbarActivityMain)
+//    Toolbar toolbar;
+    @BindView(R.id.viewpagerMain)
     ViewPager viewPager;
-
-    int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
-    int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};
+    @BindView(R.id.bottomNavigationMain)
+    AHBottomNavigation bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+
+        ButterKnife.bind(this);
 
         // Checking if there is a fragment_user currently logged in
         // if there is, remain in MainActivity
@@ -45,11 +55,12 @@ public class MainActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
-        setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottomNavigation);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+
+//        setSupportActionBar(toolbar);
+//        if(getSupportActionBar() != null)
+//            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         //Get data from signup, may be null, fields may be null
@@ -68,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         // Add items
         AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
         AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
+
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
         // Customize Buttom Navigation

@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.components.main;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,21 +14,28 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Room;
 
-import io.realm.RealmBasedRecyclerViewAdapter;
+import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
-import io.realm.RealmViewHolder;
+
 
 /**
  * Created by noahrinehart on 11/19/16.
  */
 
-public class RoomRealmRecyclerView extends RealmBasedRecyclerViewAdapter<Room, RealmViewHolder> {
+public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
 
-    public RoomRealmRecyclerView(Context context, RealmResults<Room> rooms, boolean autoUpdate, boolean animateIdType) {
-        super(context, rooms, autoUpdate, animateIdType);
+    private Context context;
+    private RealmResults<Room> rooms;
+
+
+    public RoomRecyclerViewAdapter(Context context, RealmResults<Room> rooms) {
+        super(context, rooms, true);
+        this.context = context;
+        this.rooms = rooms;
     }
 
-    private class RoomViewHolder extends RealmViewHolder {
+
+    private class RoomViewHolder extends RecyclerView.ViewHolder{
         CardView roomCardView;
         LinearLayout roomLinearLayout;
         TextView roomNameTextView;
@@ -40,29 +48,29 @@ public class RoomRealmRecyclerView extends RealmBasedRecyclerViewAdapter<Room, R
             roomCourseTextView = (TextView) itemView.findViewById(R.id.textViewChatRoomCourse);
             roomCardView = (CardView) itemView.findViewById(R.id.cardViewChatRoom);
         }
+
     }
 
     @Override
-    public RoomRealmRecyclerView.RoomViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.chat_room_item, viewGroup, false);
-        RoomRealmRecyclerView.RoomViewHolder roomViewHolder = new RoomRealmRecyclerView.RoomViewHolder(v);
+        RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = new RoomRecyclerViewAdapter.RoomViewHolder(v);
         return roomViewHolder;
     }
 
     @Override
-    public void onBindRealmViewHolder(RealmViewHolder viewHolder, int position) {
-        final Room room = realmResults.get(position);
-        RoomRealmRecyclerView.RoomViewHolder roomViewHolder = (RoomRealmRecyclerView.RoomViewHolder) viewHolder;
-        roomViewHolder.roomNameTextView.setText(room.getRoomname());
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        final Room room = rooms.get(position);
+        RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
+        roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
 
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent chatActivityIntent = new Intent(getContext(), ChatRoom.class);
-                chatActivityIntent.putExtra("Roomname", room.getRoomname());
-                chatActivityIntent.putExtra("CourseName", room.getCourseName());
-                getContext().startActivity(chatActivityIntent);
+                Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+                chatActivityIntent.putExtra("roomId", room.getId());
+                context.startActivity(chatActivityIntent);
             }
         });
     }

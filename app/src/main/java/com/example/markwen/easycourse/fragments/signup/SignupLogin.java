@@ -46,9 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
@@ -433,7 +431,7 @@ public class SignupLogin extends Fragment {
                 JSONObject object = joinedRooms.getJSONObject(i);
                 Room room = new Room();
                 room.setId(object.getString("_id"));
-                room.setRoomname(object.getString("name"));
+                room.setRoomName(object.getString("name"));
                 room.setCourseID(object.getString("course"));
                 room.setCourseName(object.getString("courseName"));
                 room.setPublic(object.getBoolean("isPublic"));
@@ -462,7 +460,7 @@ public class SignupLogin extends Fragment {
                 JSONObject object = joinedRooms.getJSONObject(i);
                 Room room = new Room();
                 room.setId(object.getString("_id"));
-                room.setRoomname(object.getString("name"));
+                room.setRoomName(object.getString("name"));
                 room.setCourseID(object.getString("course"));
                 room.setCourseName(object.getString("courseName"));
                 room.setPublic(object.getBoolean("isPublic"));

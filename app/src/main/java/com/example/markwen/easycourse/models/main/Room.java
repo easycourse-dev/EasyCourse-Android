@@ -1,5 +1,10 @@
 package com.example.markwen.easycourse.models.main;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +30,7 @@ public class Room extends RealmObject {
     //Basic info of room
     @PrimaryKey
     private String id;
-    private String roomname;
+    private String roomName;
     private RealmList<Message> messageList;
     private int unread = 0;
     private boolean silent = false;
@@ -49,14 +54,14 @@ public class Room extends RealmObject {
 
     }
 
-    public Room(String roomname, String courseName) {
-        this.roomname = roomname;
+    public Room(String roomName, String courseName) {
+        this.roomName = roomName;
         this.courseName = courseName;
     }
 
-    public Room(String id, String roomname, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
+    public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
         this.id = id;
-        this.roomname = roomname;
+        this.roomName = roomName;
         this.messageList = messageList;
         this.courseID = courseID;
         this.courseName = courseName;
@@ -100,6 +105,16 @@ public class Room extends RealmObject {
         return new ArrayList<>(results);
     }
 
+    @Nullable
+    public static Room getRoomById(Activity activity, Realm realm, String id) {
+        RealmResults<Room> results = realm.where(Room.class)
+                .equalTo("id", id)
+                .findAll();
+        if(results.size() > 0)
+            return results.first();
+        return null;
+    }
+
 
     public boolean isToUser() {
         return isToUser;
@@ -125,12 +140,12 @@ public class Room extends RealmObject {
         this.id = id;
     }
 
-    public String getRoomname() {
-        return roomname;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomname(String roomname) {
-        this.roomname = roomname;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public List<Message> getMessageList() {

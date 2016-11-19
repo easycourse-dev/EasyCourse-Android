@@ -82,7 +82,6 @@ public class User extends RealmObject {
     }
 
 
-
     public String getId() {
         return id;
     }

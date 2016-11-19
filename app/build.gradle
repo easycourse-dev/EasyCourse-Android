@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
-
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 25
@@ -79,11 +79,12 @@ dependencies {
     //otto
     compile 'com.squareup:otto:1.3.8'
 
-    //Realm recyclerview
-    compile 'com.github.thorbenprimke:realm-recyclerview:0.9.23'
     compile 'org.jetbrains:annotations-java5:15.0'
 
     //Butterknife
     compile 'com.jakewharton:butterknife:8.4.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+
+    //Realm
+    compile 'io.realm:android-adapters:1.4.0'
 }

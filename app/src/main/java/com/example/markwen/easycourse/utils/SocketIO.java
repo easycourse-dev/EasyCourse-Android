@@ -63,7 +63,7 @@ public class SocketIO {
         socket.on("connect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                syncUser();
+//                syncUser();
                 Log.e(TAG, "connected");
             }
         });

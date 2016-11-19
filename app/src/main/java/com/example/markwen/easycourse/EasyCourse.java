@@ -3,6 +3,7 @@ package com.example.markwen.easycourse;
 import android.app.Application;
 
 import com.example.markwen.easycourse.services.MainBus;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.stetho.Stetho;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
@@ -16,6 +17,10 @@ import io.realm.RealmConfiguration;
 
 public class EasyCourse extends Application {
 
+    public SocketIO socketIO;
+
+    private static EasyCourse appInstance = null;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,9 +32,19 @@ public class EasyCourse extends Application {
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
                         .build());
 
+        appInstance = this;
+
+        socketIO = new SocketIO(this);
     }
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
 
 
+    public SocketIO getSocketIO() {
+        return socketIO;
+    }
+
+    public static EasyCourse getAppInstance() {
+        return appInstance;
+    }
 }

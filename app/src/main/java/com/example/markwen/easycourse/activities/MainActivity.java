@@ -19,9 +19,13 @@ import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import io.realm.Realm;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
+    Realm realm;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -36,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         // if there is, remain in MainActivity
         // if not, show SignupLoginActivity
         checkUserLogin();
+
+        realm = Realm.getDefaultInstance();
 
         setContentView(R.layout.activity_main);
         if(getSupportActionBar() != null)
@@ -118,5 +124,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(launchIntent);
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 }

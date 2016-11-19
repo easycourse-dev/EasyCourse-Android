@@ -15,27 +15,30 @@ import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.utils.SocketIO;
 
 /**
  * Created by noahrinehart on 11/17/16.
  */
 
-public class NotificationService extends Service {
+public class MainService extends Service {
 
-    private static final String TAG = "NotificationService";
+    private static final String TAG = "MainService";
 
     MainBus bus;
+    SocketIO socketIO;
 
     @Override
     public void onCreate() {
         bus = EasyCourse.bus;
         bus.register(this);
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "NotificationService started");
+        Log.d(TAG, "MainService started");
         WakefulBroadcastReceiver.completeWakefulIntent(intent);
         //Start listening for messages
 
@@ -50,12 +53,7 @@ public class NotificationService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "NotificationService destroyed");
-    }
-
-
-    public void spreadMessage(Message message) {
-        bus.post(message);
+        Log.d(TAG, "MainService destroyed");
     }
 
     public void showMessageNotification(Message message) {

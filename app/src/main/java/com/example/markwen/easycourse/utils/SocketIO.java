@@ -42,11 +42,9 @@ public class SocketIO {
 
     private Context context;
     private Socket socket;
-    private Activity that;
 
-    public SocketIO(final Activity that, Context context) {
+    public SocketIO(Context context) {
         this.context = context;
-        this.that = that;
 
         IO.Options opts = new IO.Options();
         //opts.forceNew = true;

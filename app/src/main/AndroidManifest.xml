@@ -36,7 +36,7 @@
                 android:value=".activities.MainActivity" />
         </activity>
 
-        <receiver android:name=".services.NotificationBroadcastReciever">
+        <receiver android:name=".services.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -53,7 +53,7 @@
             android:value="@string/facebook_app_id" />
 
         <service
-            android:name=".services.NotificationService"
+            android:name=".services.MainService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

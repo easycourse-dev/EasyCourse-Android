@@ -15,8 +15,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.RoomRealmRecyclerView;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -36,34 +38,36 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class ChatRoom extends AppCompatActivity {
 
     private static final String TAG = "ChatRoom";
 
-    private Room currentRoom;
-    private User currentUser;
+    Room currentRoom;
+    User currentUser;
 
-    private Realm realm;
-    private SocketIO socketIO;
+    Realm realm;
+    SocketIO socketIO;
 
-    private RecyclerView chatRecyclerView;
 
-    private ChatRecyclerViewAdapter chatAdapter;
-    private LinearLayoutManager chatLinearManager;
-    private ArrayList<Message> messages;
+    ChatRecyclerViewAdapter chatAdapter;
+    LinearLayoutManager chatLinearManager;
+    ArrayList<Message> messages;
 
-    ImageButton addImageButton;
-    //TODO: random hint
-    EditText messageEditText;
-    ImageButton sendImageButton;
 
-    Toolbar toolbar;
-    TextView toolbarTitleTextView;
-    TextView toolbarSubtitleTextView;
+    @BindView(R.id.toolbarChatRoom) Toolbar toolbar;
+    @BindView(R.id.toolbarTitleChatRoom) TextView toolbarTitleTextView;
+    @BindView(R.id.toolbarSubtitleChatRoom) TextView toolbarSubtitleTextView;
+    @BindView(R.id.chatRecyclerView) RecyclerView chatRecyclerView;
+    @BindView(R.id.chatAddImageButton) ImageButton addImageButton;
+    @BindView(R.id.chatMessageEditText) EditText messageEditText;
+    @BindView(R.id.chatSendImageButton) ImageButton sendImageButton;
 
     //TODO: Animate from roomsview
     @Override
@@ -78,20 +82,11 @@ public class ChatRoom extends AppCompatActivity {
 
 
         realm = Realm.getDefaultInstance();
-        Log.d(TAG, "path: " + realm.getPath());
 
-        socketIO = new SocketIO(this, this);
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
         currentUser = User.getCurrentUser(this, realm);
 
-
-        toolbar = (Toolbar) findViewById(R.id.toolbarChatRoom);
-        toolbarTitleTextView = (TextView) findViewById(R.id.toolbarTitleChatRoom);
-        toolbarSubtitleTextView = (TextView) findViewById(R.id.toolbarSubtitleChatRoom);
-        chatRecyclerView = (RecyclerView) findViewById(R.id.chatRecyclerView);
-        addImageButton = (ImageButton) findViewById(R.id.chatAddImageButton);
-        messageEditText = (EditText) findViewById(R.id.chatMessageEditText);
-        sendImageButton = (ImageButton) findViewById(R.id.chatSendImageButton);
-
+        ButterKnife.bind(this);
 
         //TODO: Parse currentRoom, ensure current room exists
         Intent intent = getIntent();
@@ -162,10 +157,9 @@ public class ChatRoom extends AppCompatActivity {
 //    }
 
 
-
-    @Subscribe
-    public void onMessageReceived(Message message) {
-        chatAdapter.getChatRoomList().add(message);
-        chatAdapter.notifyDataSetChanged();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 }

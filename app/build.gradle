@@ -40,7 +40,7 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
-
+    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
 
     // AsyncHTTPClient
     compile 'com.loopj.android:android-async-http:1.4.9'
@@ -53,8 +53,8 @@ dependencies {
     // Facebook SDK
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 
-    // Bottom TabBar
-    compile 'com.github.armcha:LuseenBottomNavigation:1.8.2'
+    // Bottom Navigation Bar
+    compile 'com.aurelhubert:ahbottomnavigation:2.0.1'
 
     // Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'

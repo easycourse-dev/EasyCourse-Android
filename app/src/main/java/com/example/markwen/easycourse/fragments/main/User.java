@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
@@ -72,6 +72,8 @@ public class User extends Fragment {
 
                 // Go back to SignupLoginActivity
                 startActivity(new Intent(getContext(), SignupLoginActivity.class));
+                // Logout from Facebook
+                LoginManager.getInstance().logOut();
             }
 
             @Override

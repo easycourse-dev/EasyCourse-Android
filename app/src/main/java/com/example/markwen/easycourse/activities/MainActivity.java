@@ -9,12 +9,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
 import com.example.markwen.easycourse.fragments.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
-import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     Realm realm;
 
-    private BottomNavigationView bottomNavigationView;
+    AHBottomNavigation bottomNavigation;
+    ViewPager viewPager;
 
     int[] tabColors = {R.color.colorAccent, R.color.colorTabDefault};
     int[] tabImages = {R.drawable.ic_chatboxes, R.drawable.ic_contact_outline};
@@ -44,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
 
         setContentView(R.layout.activity_main);
-        if(getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottomNavigation);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         //Get data from signup, may be null, fields may be null
@@ -61,17 +63,29 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
         }
 
-        // BottomNavigationView setup
-        bottomNavigationView.disableShadow();
-        bottomNavigationView.isWithText(true);
-        bottomNavigationView.isColoredBackground(false);
-        bottomNavigationView.setItemActiveColorWithoutColoredBackground(ContextCompat.getColor(this, tabColors[0]));
+
+        // Buttom Navigation
+        // Add items
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
+        bottomNavigation.addItem(item1);
+        bottomNavigation.addItem(item2);
+        // Customize Buttom Navigation
+        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+        // Set colors
+        bottomNavigation.setAccentColor(ContextCompat.getColor(this, R.color.colorAccent));
+        bottomNavigation.setInactiveColor(ContextCompat.getColor(this, R.color.colorTabDefault));
+        // Set background color
+        bottomNavigation.setDefaultBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        bottomNavigation.setTranslucentNavigationEnabled(true);
 
         // Viewpager setup
         pagerAdapter.addFragment(new Rooms(), "Rooms");
         pagerAdapter.addFragment(new User(), "User");
         viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(bottomNavigation.getCurrentItem());
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -79,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                bottomNavigationView.selectTab(position);
+                bottomNavigation.setCurrentItem(position);
             }
 
             @Override
@@ -87,7 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        bottomNavigationView.setUpWithViewPager(viewPager, tabColors, tabImages);
+
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                viewPager.setCurrentItem(position, true);
+                return true;
+            }
+        });
     }
 
     private void checkUserLogin() {

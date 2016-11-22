@@ -17,6 +17,10 @@ import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.utils.SocketIO;
 
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
+
 /**
  * Created by noahrinehart on 11/17/16.
  */
@@ -25,14 +29,22 @@ public class MainService extends Service {
 
     private static final String TAG = "MainService";
 
-    MainBus bus;
-    SocketIO socketIO;
+    private Realm realm;
+    private RealmChangeListener messageListener;
+    private SocketIO socketIO;
 
     @Override
     public void onCreate() {
-        bus = EasyCourse.bus;
-        bus.register(this);
+        realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        messageListener = new RealmChangeListener<RealmResults<Message>>() {
+            @Override
+            public void onChange(RealmResults<Message> messages) {
+                // ... do something with the updated messages
+                for(Message message : messages) {
+                    showMessageNotification(message);
+                }
+            }};
     }
 
 
@@ -54,6 +66,8 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "MainService destroyed");
+        realm.removeAllChangeListeners();
+        realm.close();
     }
 
     public void showMessageNotification(Message message) {

@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     Realm realm;
 
-//    @BindView(R.id.toolbarActivityMain)
-//    Toolbar toolbar;
+    @BindView(R.id.toolbarMain)
+    Toolbar toolbar;
     @BindView(R.id.viewpagerMain)
     ViewPager viewPager;
     @BindView(R.id.bottomNavigationMain)
@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("LOL");
 //        if(getSupportActionBar() != null)
 //            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());

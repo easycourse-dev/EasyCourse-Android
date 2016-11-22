@@ -4,16 +4,29 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpagerMain"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarMain"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNavigationMain"/>
+        android:layout_below="@+id/toolbarMain">
 
-    <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
-        android:id="@+id/bottomNavigationMain"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom" />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpagerMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottomNavigationMain" />
 
+        <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
+            android:id="@+id/bottomNavigationMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -72,7 +72,7 @@ dependencies {
     //Apache
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 
-    //stetho for debuggin
+    //stetho for debugging
     compile 'com.facebook.stetho:stetho:1.4.1'
     compile 'com.uphyca:stetho_realm:2.0.0'
 

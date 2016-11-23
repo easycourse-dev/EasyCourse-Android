@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -54,15 +56,9 @@ public class MainActivity extends AppCompatActivity {
         checkUserLogin();
 
         realm = Realm.getDefaultInstance();
-
-
-
-
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("LOL");
-//        if(getSupportActionBar() != null)
-//            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        setupNavigation();
 
         //Get data from signup, may be null, fields may be null
         Intent intentFromSignup = getIntent();
@@ -77,6 +73,50 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Buttom Navigation
+
+    }
+
+    private void checkUserLogin() {
+        // launch a different activity
+        Intent launchIntent = new Intent();
+        // Use SharedPreferences to get users
+        SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+
+        String userToken = sharedPref.getString("userToken", null);
+        String currentUser = sharedPref.getString("currentUser", null);
+        JSONObject currentUserObject;
+        JSONArray joinedCourses = new JSONArray();
+
+        try {
+            // If user has no joined courses, bring the user to signup setup
+            currentUserObject = new JSONObject(currentUser);
+            joinedCourses = currentUserObject.getJSONArray("joinedCourse");
+        } catch (Throwable t) {
+
+        }
+        Log.e("joinedCourses", joinedCourses.toString());
+
+        /*
+            When syncUser is ready, add code below into the if statement:
+
+                 || joinedCourses.toString().equals("[]")
+
+            to make sure a user has joined courses.
+            If a user doesn't have joined courses, then bring the user back to signup setup.
+         */
+
+        if (userToken == null || currentUser == null) {
+            launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
+            startActivity(launchIntent);
+            finish();
+        }
+    }
+
+    private void setupNavigation() {
+
+        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+
         // Add items
         AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
         AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
@@ -122,42 +162,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    private void checkUserLogin() {
-        // launch a different activity
-        Intent launchIntent = new Intent();
-        // Use SharedPreferences to get users
-        SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-
-        String userToken = sharedPref.getString("userToken", null);
-        String currentUser = sharedPref.getString("currentUser", null);
-        JSONObject currentUserObject;
-        JSONArray joinedCourses = new JSONArray();
-
-        try {
-            // If user has no joined courses, bring the user to signup setup
-            currentUserObject = new JSONObject(currentUser);
-            joinedCourses = currentUserObject.getJSONArray("joinedCourse");
-        } catch (Throwable t) {
-
-        }
-        Log.e("joinedCourses", joinedCourses.toString());
-
-        /*
-            When syncUser is ready, add code below into the if statement:
-
-                 || joinedCourses.toString().equals("[]")
-
-            to make sure a user has joined courses.
-            If a user doesn't have joined courses, then bring the user back to signup setup.
-         */
-
-        if (userToken == null || currentUser == null) {
-            launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
-            startActivity(launchIntent);
-            finish();
-        }
     }
 
     @Override

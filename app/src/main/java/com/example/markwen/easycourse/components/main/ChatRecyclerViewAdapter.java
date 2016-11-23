@@ -30,7 +30,6 @@ import io.realm.RealmResults;
 
 public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, RecyclerView.ViewHolder> {
 
-
     private final int INCOMING = 0, OUTGOING = 1;
 
     private Context context;

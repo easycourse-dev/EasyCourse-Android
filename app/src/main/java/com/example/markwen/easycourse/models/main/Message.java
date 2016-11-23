@@ -30,7 +30,6 @@ public class Message extends RealmObject {
     private Date createdAt;
 
     public Message() {
-
     }
 
     //TODO: Testing constructor

@@ -4,12 +4,17 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbarMain"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@color/colorPrimary"
-        app:layout_scrollFlags="scroll|enterAlways|snap" />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_scrollFlags="scroll|enterAlways|snap">
+
+
+    </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,6 +32,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true" />
-
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

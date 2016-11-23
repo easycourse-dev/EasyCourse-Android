@@ -45,6 +45,7 @@ public class MainService extends Service {
                     showMessageNotification(message);
                 }
             }};
+        //Setup public listener
     }
 
 
@@ -52,9 +53,6 @@ public class MainService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "MainService started");
         WakefulBroadcastReceiver.completeWakefulIntent(intent);
-        //Start listening for messages
-
-        // If we get killed, after returning from here, restart
         return START_STICKY;
     }
 

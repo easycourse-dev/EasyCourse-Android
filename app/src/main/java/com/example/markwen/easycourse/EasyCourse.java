@@ -38,7 +38,6 @@ public class EasyCourse extends Application {
                         .build());
 
         appInstance = this;
-
         socketIO = new SocketIO(this);
     }
 

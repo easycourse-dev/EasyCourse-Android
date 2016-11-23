@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -20,6 +21,8 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
+
+import org.json.JSONException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,34 +63,32 @@ public class ChatRoom extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-
         ButterKnife.bind(this);
-
-        chatRecyclerView = (RecyclerView) findViewById(R.id.chatRecyclerView);
 
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         currentUser = User.getCurrentUser(this, realm);
 
-//        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        handleIntent();
+        handleIntent();
 
         setupChatRecyclerView();
 
-//        sendImageButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String messageText = messageEditText.getText().toString();
-//                if (!TextUtils.isEmpty(messageText)) {
-////                    sendTextMessage(messageText);
-//                    messageEditText.setText("");
-//                }
-//            }
-//        });
+        sendImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String messageText = messageEditText.getText().toString();
+                if (!TextUtils.isEmpty(messageText)) {
+                    boolean sent = sendTextMessage(messageText);
+                    if(sent)
+                    messageEditText.setText("");
+                }
+            }
+        });
     }
 
     private void handleIntent() {
@@ -96,8 +97,10 @@ public class ChatRoom extends AppCompatActivity {
         currentRoom = Room.getRoomById(this, realm, roomId);
         if (currentRoom == null) {
             Log.d(TAG, "current room not found!");
+            Toast.makeText(this,"Current room not found!", Toast.LENGTH_SHORT).show();
             this.finish();
         }
+        //TODO: Get course title
         toolbarTitleTextView.setText(currentRoom.getRoomName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
     }
@@ -133,6 +136,16 @@ public class ChatRoom extends AppCompatActivity {
 //        chatRecyclerView.scrollToPosition(messages.size() - 1);
 //        socketIO.syncUser();
 //    }
+
+    public boolean sendTextMessage(String message){
+        try {
+            EasyCourse.getAppInstance().socketIO.sendMessage(message, currentRoom.getId(), currentUser.getId(), null, 0, 0);
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
 
     @Override

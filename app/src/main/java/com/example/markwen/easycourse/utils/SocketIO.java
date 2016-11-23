@@ -36,7 +36,7 @@ import io.socket.emitter.Emitter;
 
 
 public class SocketIO {
-    private String CHAT_SERVER_URL = "https://zengjintaotest.com";
+    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
     private static final String TAG = "SocketIO";
 
 

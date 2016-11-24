@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,9 @@ import butterknife.ButterKnife;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    public static final String KEY_PREF_NOTIFICATIONS = "prefNotifications";
+    public static final String KEY_PREF_VIBRATE = "prefVibrate";
+    public static final String KEY_PREF_SOUND = "prefSound";
 
     @BindView(R.id.toolbarSettings)
     Toolbar toolbar;
@@ -44,12 +49,25 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragment {
 
+
+        Preference prefNotification;
+        Preference prefVibrate;
+        Preference prefSound;
+
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
+
+            prefNotification = getPreferenceManager().findPreference(KEY_PREF_NOTIFICATIONS);
+            prefVibrate = getPreferenceManager().findPreference(KEY_PREF_VIBRATE);
+            prefSound = getPreferenceScreen().findPreference(KEY_PREF_SOUND);
+
+
         }
 
 
     }
+
 }

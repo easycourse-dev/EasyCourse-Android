@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -14,6 +16,7 @@ import android.util.Log;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.SettingsActivity;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.utils.SocketIO;
 
@@ -69,6 +72,13 @@ public class MainService extends Service {
     }
 
     public void showMessageNotification(Message message) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean notificationPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS, true);
+        boolean vibratePref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_VIBRATE, true);
+        boolean soundPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SOUND, true);
+
+        if(!notificationPref) return;
 
         Intent i = new Intent(this, ChatRoom.class);
         i.putExtra("roomId", message.getId());

@@ -67,18 +67,6 @@ public class MainActivity extends AppCompatActivity {
         socketIO.syncUser();
 
 
-        realm.beginTransaction();
-        RealmResults<Message> results = realm.where(Message.class).findAll();
-        Message msg = results.first();
-        RealmResults<Room> resultsRoom = realm.where(Room.class).equalTo("id", msg.getToRoom()).findAll();
-        Room room = resultsRoom.first();
-        room.getMessageList().add(msg);
-        realm.copyToRealmOrUpdate(room);
-        realm.commitTransaction();
-
-
-
-
         setSupportActionBar(toolbar);
         toolbar.showOverflowMenu();
 

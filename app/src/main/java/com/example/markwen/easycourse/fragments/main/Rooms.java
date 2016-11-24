@@ -45,6 +45,8 @@ public class Rooms extends Fragment {
     public Rooms() {
     }
 
+    //TODO: realm listener to change time and bold text
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

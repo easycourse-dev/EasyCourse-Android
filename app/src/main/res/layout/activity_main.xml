@@ -4,34 +4,37 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbarMain"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:clickable="true"
-        android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_scrollFlags="scroll|enterAlways|snap">
-
-
-    </android.support.v7.widget.Toolbar>
-
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbarMain">
+        android:orientation="vertical">
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewpagerMain"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarMain"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/bottomNavigationMain" />
+            android:layout_height="?actionBarSize"
+            android:background="@color/colorPrimary"
+            android:clickable="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:layout_scrollFlags="scroll|enterAlways|snap"/>
 
-        <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
-            android:id="@+id/bottomNavigationMain"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
+            android:layout_height="match_parent">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/viewpagerMain"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/bottomNavigationMain" />
+
+            <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
+                android:id="@+id/bottomNavigationMain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+    </LinearLayout>
+
+
 </android.support.design.widget.CoordinatorLayout>

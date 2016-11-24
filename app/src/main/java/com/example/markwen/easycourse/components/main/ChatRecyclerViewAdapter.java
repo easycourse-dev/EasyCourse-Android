@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 
@@ -39,38 +41,40 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         this.context = context;
     }
 
-    private class IncomingChatViewHolder extends RecyclerView.ViewHolder {
+    class IncomingChatViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.linearIncomingChatCell)
         LinearLayout incomingLinearLayout;
+        @BindView(R.id.textViewIncomingTextTime)
         TextView incomingTime;
+        @BindView(R.id.imageViewIncomingTextImage)
         ImageView incomingImageView;
+        @BindView(R.id.textViewIncomingTextName)
         TextView incomingName;
+        @BindView(R.id.textViewIncomingTextMessage)
         TextView incomingMessage;
 
         IncomingChatViewHolder(View itemView) {
             super(itemView);
-            incomingLinearLayout = (LinearLayout) itemView.findViewById(R.id.linearIncomingChatCell);
-            incomingTime = (TextView) itemView.findViewById(R.id.textViewIncomingTextTime);
-            incomingImageView = (ImageView) itemView.findViewById(R.id.imageViewIncomingTextImage);
-            incomingName = (TextView) itemView.findViewById(R.id.textViewIncomingTextName);
-            incomingMessage = (TextView) itemView.findViewById(R.id.textViewIncomingTextMessage);
+            ButterKnife.bind(this, itemView);
         }
     }
 
-    private class OutgoingChatViewHolder extends RecyclerView.ViewHolder {
+    class OutgoingChatViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.linearOutgoingChatCell)
         LinearLayout outgoingLinearLayout;
+        @BindView(R.id.textViewOutgoingTextTime)
         TextView outgoingTime;
+        @BindView(R.id.imageViewOutgoingTextImage)
         ImageView outgoingImageView;
+        @BindView(R.id.textViewOutgoingTextName)
         TextView outgoingName;
+        @BindView(R.id.textViewOutgoingTextMessage)
         TextView outgoingMessage;
 
         OutgoingChatViewHolder(View itemView) {
             super(itemView);
-            outgoingLinearLayout = (LinearLayout) itemView.findViewById(R.id.linearOutgoingChatCell);
-            outgoingTime = (TextView) itemView.findViewById(R.id.textViewOutgoingTextTime);
-            outgoingImageView = (ImageView) itemView.findViewById(R.id.imageViewOutgoingTextImage);
-            outgoingName = (TextView) itemView.findViewById(R.id.textViewOutgoingTextName);
-            outgoingMessage = (TextView) itemView.findViewById(R.id.textViewOutgoingTextMessage);
+            ButterKnife.bind(this, itemView);
         }
     }
 

@@ -12,10 +12,23 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.utils.DateUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 
 /**
@@ -35,18 +48,21 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
 
-    private class RoomViewHolder extends RecyclerView.ViewHolder{
+    class RoomViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.cardViewChatRoom)
         CardView roomCardView;
+        @BindView(R.id.linearLayoutChatRoom)
         LinearLayout roomLinearLayout;
+        @BindView(R.id.textViewChatRoomName)
         TextView roomNameTextView;
+        @BindView(R.id.textViewChatRoomCourse)
         TextView roomCourseTextView;
+        @BindView(R.id.textViewChatTime)
+        TextView roomTimeTextView;
 
         RoomViewHolder(View itemView) {
             super(itemView);
-            roomLinearLayout = (LinearLayout) itemView.findViewById(R.id.linearLayoutChatRoom);
-            roomNameTextView = (TextView) itemView.findViewById(R.id.textViewChatRoomName);
-            roomCourseTextView = (TextView) itemView.findViewById(R.id.textViewChatRoomCourse);
-            roomCardView = (CardView) itemView.findViewById(R.id.cardViewChatRoom);
+            ButterKnife.bind(this, itemView);
         }
 
     }
@@ -73,7 +89,28 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 context.startActivity(chatActivityIntent);
             }
         });
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
+        if(messages.size() > 0)
+            roomViewHolder.roomTimeTextView.setText(getMessageTime(messages.get(0)));
     }
 
+    private String getMessageTime(Message message) {
+        if(message == null)return null;
+        Date messageDate = message.getCreatedAt();
+        if(messageDate == null) return null;
+        Date now = new Date();
+        long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, now);
+        if (diffInMinutes <= 1) {
+            //If within a minute
+            return "Just Now";
+        } else if (diffInMinutes <= 1440) {
+            DateFormat df = new SimpleDateFormat("hh:mm a", Locale.US);
+            return df.format(messageDate);
+        } else {
+            DateFormat df = new SimpleDateFormat("MMMM dd,yy", Locale.US);
+            return df.format(messageDate);
 
+        }
+    }
 }

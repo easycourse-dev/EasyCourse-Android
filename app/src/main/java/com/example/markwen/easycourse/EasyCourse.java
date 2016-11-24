@@ -23,7 +23,7 @@ import io.realm.RealmResults;
 
 public class EasyCourse extends Application {
 
-    public SocketIO socketIO;
+    private SocketIO socketIO;
     private static EasyCourse appInstance = null;
 
     @Override
@@ -38,10 +38,15 @@ public class EasyCourse extends Application {
                         .build());
 
         appInstance = this;
-        socketIO = new SocketIO(this);
+        createSockeIO();
     }
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
+
+
+    public void createSockeIO() {
+        socketIO = new SocketIO(this);
+    }
 
 
     public SocketIO getSocketIO() {

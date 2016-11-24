@@ -22,6 +22,8 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
 import com.example.markwen.easycourse.fragments.main.User;
+import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.SocketIO;
 
@@ -31,6 +33,7 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,8 +63,20 @@ public class MainActivity extends AppCompatActivity {
         checkUserLogin();
 
         realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().socketIO;
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
         socketIO.syncUser();
+
+
+        realm.beginTransaction();
+        RealmResults<Message> results = realm.where(Message.class).findAll();
+        Message msg = results.first();
+        RealmResults<Room> resultsRoom = realm.where(Room.class).equalTo("id", msg.getToRoom()).findAll();
+        Room room = resultsRoom.first();
+        room.getMessageList().add(msg);
+        realm.copyToRealmOrUpdate(room);
+        realm.commitTransaction();
+
+
 
 
         setSupportActionBar(toolbar);
@@ -79,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
             if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
         }
-        Intent i = new Intent(this, SettingsActivity.class);
-        startActivity(i);
     }
 
     private void checkUserLogin() {
@@ -195,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(socketIO != null)
+        if (socketIO != null)
             socketIO.syncUser();
     }
 

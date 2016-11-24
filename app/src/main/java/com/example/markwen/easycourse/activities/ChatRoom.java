@@ -69,6 +69,7 @@ public class ChatRoom extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         currentUser = User.getCurrentUser(this, realm);
+        socketIO.syncUser();
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
@@ -83,9 +84,8 @@ public class ChatRoom extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = messageEditText.getText().toString();
                 if (!TextUtils.isEmpty(messageText)) {
-                    boolean sent = sendTextMessage(messageText);
-                    if(sent)
-                    messageEditText.setText("");
+                    if(sendTextMessage(messageText))
+                        messageEditText.setText("");
                 }
             }
         });
@@ -107,7 +107,7 @@ public class ChatRoom extends AppCompatActivity {
 
     //TODO: private messages
     private void setupChatRecyclerView() {
-        messages = realm.where(Message.class).findAll();
+        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAll();
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(this, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
         chatRecyclerView.setHasFixedSize(true);
@@ -117,36 +117,32 @@ public class ChatRoom extends AppCompatActivity {
         chatRecyclerView.setLayoutManager(chatLinearManager);
     }
 
-//    private void sendTextMessage(String messageText){
-//        String fixed = messageText.replace("\\", "");
-//        Message message;
-//        try{
-//            //Recieve message from socketIO
-//            if(currentRoom.isToUser()){
-//                socketIO.sendMessage(fixed, null, currentRoom.getId(), null, 0, 0);
-//            }else {
-//                socketIO.sendMessage(fixed, currentRoom.getId(), null, null, 0, 0);
-//            }
-//            message = new Message();
-//        }catch (JSONException e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "sendTextMessage: error");
-//        }
-//        chatAdapter.addMessage(message);
-//        chatRecyclerView.scrollToPosition(messages.size() - 1);
-//        socketIO.syncUser();
-//    }
-
-    public boolean sendTextMessage(String message){
-        try {
-            EasyCourse.getAppInstance().socketIO.sendMessage(message, currentRoom.getId(), currentUser.getId(), null, 0, 0);
+    private boolean sendTextMessage(String messageText){
+        String fixed = messageText.replace("\\", "");
+        try{
+            //Recieve message from socketIO
+            if(currentRoom.isToUser()){
+                socketIO.sendMessage(fixed, null, currentRoom.getId(), null, 0, 0);
+            }else {
+                socketIO.sendMessage(fixed, currentRoom.getId(), null, null, 0, 0);
+            }
         }catch (JSONException e) {
             e.printStackTrace();
+            Log.e(TAG, "sendTextMessage: error");
             return false;
         }
+        chatRecyclerView.scrollToPosition(messages.size() - 1);
+        socketIO.syncUser();
         return true;
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(socketIO != null)
+            socketIO.syncUser();
+    }
 
     @Override
     protected void onDestroy() {

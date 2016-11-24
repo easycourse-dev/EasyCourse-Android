@@ -50,6 +50,7 @@ public class User extends RealmObject {
     }
 
     public static boolean isUserInRealm(User user, Realm realm) {
+        if(user == null) return false;
         RealmResults<User> results = realm.where(User.class)
                 .equalTo("id", user.getId())
                 .findAll();

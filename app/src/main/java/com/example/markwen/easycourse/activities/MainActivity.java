@@ -10,16 +10,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
 import com.example.markwen.easycourse.fragments.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
+import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     Realm realm;
+    SocketIO socketIO;
 
     @BindView(R.id.toolbarMain)
     Toolbar toolbar;
@@ -47,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-
         ButterKnife.bind(this);
 
         // Checking if there is a fragment_user currently logged in
@@ -56,7 +60,12 @@ public class MainActivity extends AppCompatActivity {
         checkUserLogin();
 
         realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().socketIO;
+        socketIO.syncUser();
+
+
         setSupportActionBar(toolbar);
+        toolbar.showOverflowMenu();
 
         setupNavigation();
 
@@ -70,10 +79,8 @@ public class MainActivity extends AppCompatActivity {
             if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
         }
-
-
-        // Buttom Navigation
-
+        Intent i = new Intent(this, SettingsActivity.class);
+        startActivity(i);
     }
 
     private void checkUserLogin() {
@@ -162,6 +169,34 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "Options clicked");
+        switch (item.getItemId()) {
+            case R.id.actionSettingsMain:
+                Log.d(TAG, "Settings clicked");
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(socketIO != null)
+            socketIO.syncUser();
     }
 
     @Override

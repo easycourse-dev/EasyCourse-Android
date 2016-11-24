@@ -116,6 +116,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 //TODO: Set image from local data
                 Glide.with(context)
                         .load(message.getImageUrl()).fitCenter()
+                        .placeholder(R.drawable.ic_person_black_24px)
                         .into(outgoingViewHolder.outgoingImageView);
 
                 //TODO: Fetch user name from senderId
@@ -137,6 +138,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 //TODO: Set image from local data
                 Glide.with(context)
                         .load(message.getImageUrl()).fitCenter()
+                        .placeholder(R.drawable.ic_person_black_24px)
                         .into(incomingViewHolder.incomingImageView);
 
                 //TODO: Fetch user name from senderId

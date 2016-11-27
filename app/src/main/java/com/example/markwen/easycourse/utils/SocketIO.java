@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.example.markwen.easycourse.models.main.Course;
@@ -75,7 +76,9 @@ public class SocketIO {
         socket.on("disconnect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                //TODO: do something when disconnected
+                Snackbar disconnectSnackbar = Snackbar
+                        .make(that.findViewById(android.R.id.content), "Network Connection Lost.", Snackbar.LENGTH_LONG);
+                disconnectSnackbar.show();
                 Log.e("com.example.easycourse", "disconnected");
             }
         });

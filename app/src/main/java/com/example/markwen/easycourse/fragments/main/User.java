@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
+import com.example.markwen.easycourse.activities.UserProfile;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -34,6 +36,7 @@ public class User extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
+    RelativeLayout cardProfile;
 
     public User() {
     }
@@ -51,6 +54,15 @@ public class User extends Fragment {
 
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
+        cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
+
+        cardProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(view.getContext(), UserProfile.class);
+                startActivity(i);
+            }
+        });
 
         SharedPreferences sharedPref = v.getContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String currentUser = sharedPref.getString("currentUser", null);

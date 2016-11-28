@@ -42,21 +42,21 @@ public class SocketIO {
 
     private Context context;
     private Socket socket;
+    private Activity that;
 
-    public SocketIO(Context context) {
+    public SocketIO(final Activity that, Context context) throws URISyntaxException {
         this.context = context;
+        this.that = that;
 
         IO.Options opts = new IO.Options();
         //opts.forceNew = true;
         opts.query = "token=" + APIFunctions.getUserToken(context);
-        try {
-            socket = IO.socket(CHAT_SERVER_URL, opts);
-        } catch (URISyntaxException e) {
-            Log.e(TAG, "not connecting " + e.toString());
-        }
+        socket = IO.socket(CHAT_SERVER_URL, opts);
         socket.connect();
         this.publicListener();
     }
+
+    //public socket on listeners
 
     public void publicListener() {
         socket.connect();
@@ -75,8 +75,33 @@ public class SocketIO {
                 saveMessageToRealm(obj);
             }
         });
+
+        socket.on("disconnect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                //TODO: do something when disconnected
+                Log.e("com.example.easycourse", "disconnected");
+            }
+        });
+
+        socket.on("reconnect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                syncUser();
+                Log.e("com.example.easycourse", "reconnected");
+            }
+        });
+
+        socket.on("reconnectAttempt", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                //TODO: do something when reconnectAttempt
+                Log.e("com.example.easycourse", "reconnectAttempt");
+            }
+        });
     }
 
+    //sends a message to user/room
     public void sendMessage(String message, String roomId, String toUserId, String imageUrl, float imageWidth, float imageHeight) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", UUID.randomUUID().toString());
@@ -105,6 +130,7 @@ public class SocketIO {
         });
     }
 
+    //syncs realm database
     public void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
@@ -127,7 +153,7 @@ public class SocketIO {
                     try {
                         userObj = obj.getJSONObject("user");
                         Log.d(TAG, "" + userObj);
-                        if(userObj.has("avatarUrl")) {
+                        if (userObj.has("avatarUrl")) {
                             avatarUrlString = userObj.getString("avatarUrl");
                             URL avatarUrl = new URL(avatarUrlString);
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
@@ -170,6 +196,7 @@ public class SocketIO {
         });
     }
 
+    //saves list of messages to realm
     public void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("updatedTime", System.currentTimeMillis() / 1000);
@@ -248,6 +275,7 @@ public class SocketIO {
         return courses[0];
     }
 
+    //convert and save JSON message object to realm
     public boolean dropCourse(String courseID) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courseId", courseID);
@@ -436,6 +464,63 @@ public class SocketIO {
         return room[0];
     }
 
+
+    public void getUserInfo(String userID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("userId", userID);
+
+        socket.emit("getUserInfo", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+
+                JSONObject obj = (JSONObject) args[0];
+                if (obj.has("error")) {
+                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e("com.example.easycourse", "getUserInfo" + obj.toString());
+                    JSONObject userObj = null;
+                    byte[] avatar = null;
+                    String avatarUrlString = "";
+
+                    try {
+                        userObj = obj.getJSONObject("user");
+                        Log.e("com.example.easycourse", "" + userObj);
+                        avatarUrlString = userObj.getString("avatarUrl");
+                        URL avatarUrl = new URL(avatarUrlString);
+                        HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                        conn.setDoInput(true);
+                        conn.connect();
+                        conn.setUseCaches(false);
+
+                        InputStream is = conn.getInputStream();
+                        avatar = IOUtils.toByteArray(conn.getInputStream());
+
+                    } catch (MalformedURLException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    } catch (IOException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    User user = null;
+                    try {
+                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), null, null, null, null);
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", e.toString());
+                    }
+
+                    Realm.init(context);
+                    Realm realm = Realm.getDefaultInstance();
+
+                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
+                    User.updateUserToRealm(user, realm);
+                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
+                }
+            }
+        });
+    }
+
     private void saveMessageToRealm(JSONObject obj) {
         if (obj != null) {
             Message message = null;
@@ -465,6 +550,7 @@ public class SocketIO {
         }
     }
 
+    //check if JSON value exists, returns default if not
     private Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
         if (obj.has(searchQuery)) {
             if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)

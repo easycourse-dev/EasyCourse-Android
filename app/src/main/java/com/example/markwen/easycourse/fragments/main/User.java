@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
@@ -18,6 +20,7 @@ import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -29,6 +32,8 @@ import cz.msebera.android.httpclient.Header;
 public class User extends Fragment {
 
     Button logoutButton;
+    ImageView avatarImage;
+    TextView textViewUsername;
 
     public User() {
     }
@@ -43,6 +48,20 @@ public class User extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.user, container, false);
+
+        textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
+        avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
+
+        SharedPreferences sharedPref = v.getContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        String currentUser = sharedPref.getString("currentUser", null);
+        JSONObject currentUserObject;
+
+        try {
+            currentUserObject = new JSONObject(currentUser);
+            textViewUsername.setText(currentUserObject.getString("displayName"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);
         logoutButton.setOnClickListener(new View.OnClickListener() {

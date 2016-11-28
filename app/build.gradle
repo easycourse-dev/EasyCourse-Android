@@ -72,5 +72,8 @@ dependencies {
     // Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'
 
+    //Circle Avatar
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }

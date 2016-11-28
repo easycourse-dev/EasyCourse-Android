@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.components.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
 
 import java.text.DateFormat;
@@ -22,6 +24,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 
@@ -35,10 +38,14 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     private final int INCOMING = 0, OUTGOING = 1;
 
     private Context context;
+    private Activity activity;
+    private Realm realm;
 
     public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
         super(context, messages, true);
         this.context = context;
+        this.activity = (Activity)context;
+        realm = Realm.getDefaultInstance();
     }
 
     class IncomingChatViewHolder extends RecyclerView.ViewHolder {
@@ -117,14 +124,12 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
 
-                //TODO: Set image from local data
                 Glide.with(context)
                         .load(message.getImageUrl()).fitCenter()
                         .placeholder(R.drawable.ic_person_black_24px)
                         .into(outgoingViewHolder.outgoingImageView);
 
-                //TODO: Fetch user name from senderId
-                outgoingViewHolder.outgoingName.setText(message.getText());
+                outgoingViewHolder.outgoingName.setText(User.getCurrentUser(this.activity, this.realm).getUsername());
                 outgoingViewHolder.outgoingMessage.setText(message.getText());
                 break;
 
@@ -139,14 +144,14 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     incomingViewHolder.incomingTime.setVisibility(View.GONE);
                 }
 
-                //TODO: Set image from local data
                 Glide.with(context)
                         .load(message.getImageUrl()).fitCenter()
                         .placeholder(R.drawable.ic_person_black_24px)
                         .into(incomingViewHolder.incomingImageView);
 
-                //TODO: Fetch user name from senderId
-                incomingViewHolder.incomingName.setText(message.getSenderId());
+                String username = User.getUserFromRealm(this.realm, message.getSenderId()).getUsername();
+                if (username != null)
+                    incomingViewHolder.incomingName.setText(username);
                 incomingViewHolder.incomingMessage.setText(message.getText());
                 break;
         }

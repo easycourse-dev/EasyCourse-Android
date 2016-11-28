@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.services.MainBus;
@@ -12,6 +13,9 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.stetho.Stetho;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -22,6 +26,8 @@ import io.realm.RealmResults;
  */
 
 public class EasyCourse extends Application {
+
+    private static final String TAG = "EasyCourse";
 
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
@@ -43,9 +49,12 @@ public class EasyCourse extends Application {
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
 
-
     public void createSockeIO() {
-        socketIO = new SocketIO(this);
+        try {
+            socketIO = new SocketIO(this);
+        } catch (URISyntaxException e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
 
@@ -56,4 +65,17 @@ public class EasyCourse extends Application {
     public static EasyCourse getAppInstance() {
         return appInstance;
     }
+
+
+    public static boolean isConnected() {
+        String command = "ping -c 1 https://zengjintaotest.com/api";
+        try {
+            return (Runtime.getRuntime().exec(command).waitFor() == 0);
+        } catch (InterruptedException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
 }

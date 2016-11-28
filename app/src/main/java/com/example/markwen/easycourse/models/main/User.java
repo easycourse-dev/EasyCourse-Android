@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import org.jetbrains.annotations.Contract;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -49,12 +51,24 @@ public class User extends RealmObject {
         realm.commitTransaction();
     }
 
+    @Contract("null, _ -> false")
     public static boolean isUserInRealm(User user, Realm realm) {
-        if(user == null) return false;
+        if (user == null) return false;
         RealmResults<User> results = realm.where(User.class)
                 .equalTo("id", user.getId())
                 .findAll();
         return results.size() != 0;
+    }
+
+    @Nullable
+    public static User getUserFromRealm(Realm realm, String id) {
+        RealmResults<User> results = realm.where(User.class)
+                .equalTo("id", id)
+                .findAll();
+        if (results.size() > 0)
+            return results.first();
+        else
+            return null;
     }
 
     public static void deleteUserFromRealm(final User user, Realm realm) {
@@ -77,7 +91,7 @@ public class User extends RealmObject {
         RealmResults<User> results = realm.where(User.class)
                 .equalTo("id", id)
                 .findAll();
-        if(results.size() > 0)
+        if (results.size() > 0)
             return results.first();
         return null;
     }

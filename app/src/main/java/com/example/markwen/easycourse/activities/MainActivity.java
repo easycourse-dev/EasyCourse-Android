@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -12,18 +13,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
 import com.example.markwen.easycourse.fragments.main.User;
-import com.example.markwen.easycourse.models.main.Message;
-import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.SocketIO;
 
@@ -33,7 +31,6 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     ViewPager viewPager;
     @BindView(R.id.bottomNavigationMain)
     AHBottomNavigation bottomNavigation;
+    @BindView(R.id.coordinatorMain)
+    CoordinatorLayout coordinatorMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
         // if there is, remain in MainActivity
         // if not, show SignupLoginActivity
         checkUserLogin();
+
+        //Checks for internet, displays snackbar if not found
+        checkForInternet();
+
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -81,6 +84,20 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, userSetup.getCourseCodeArray()[0]);
             if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
+        }
+    }
+
+    private void checkForInternet() {
+        if(!EasyCourse.isConnected()) {
+            final Snackbar snackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction("Retry", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(EasyCourse.isConnected())
+                        snackbar.dismiss();
+                }
+            });
+            snackbar.show();
         }
     }
 
@@ -198,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (socketIO != null)
             socketIO.syncUser();
+        checkForInternet();
     }
 
     @Override

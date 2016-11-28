@@ -84,7 +84,7 @@ public class ChatRoom extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = messageEditText.getText().toString();
                 if (!TextUtils.isEmpty(messageText)) {
-                    if(sendTextMessage(messageText))
+                    if (sendTextMessage(messageText))
                         messageEditText.setText("");
                 }
             }
@@ -94,10 +94,10 @@ public class ChatRoom extends AppCompatActivity {
     private void handleIntent() {
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("roomId");
-        currentRoom = Room.getRoomById(this, realm, roomId);
-        if (currentRoom == null) {
+        this.currentRoom = Room.getRoomById(this, realm, roomId);
+        if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
-            Toast.makeText(this,"Current room not found!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
             this.finish();
         }
         //TODO: Get course title
@@ -117,20 +117,21 @@ public class ChatRoom extends AppCompatActivity {
         chatRecyclerView.setLayoutManager(chatLinearManager);
     }
 
-    private boolean sendTextMessage(String messageText){
+    private boolean sendTextMessage(String messageText) {
         String fixed = messageText.replace("\\", "");
-        try{
+        try {
             //Recieve message from socketIO
-            if(currentRoom.isToUser()){
-                socketIO.sendMessage(fixed, null, currentRoom.getId(), null, 0, 0);
-            }else {
-                socketIO.sendMessage(fixed, currentRoom.getId(), null, null, 0, 0);
+            if (this.currentRoom.isToUser()) {
+                socketIO.sendMessage(fixed, null, this.currentRoom.getId(), null, 0, 0);
+            } else {
+                socketIO.sendMessage(fixed, this.currentRoom.getId(), null, null, 0, 0);
             }
-        }catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "sendTextMessage: error");
             return false;
         }
+        chatRecyclerViewAdapter.notifyDataSetChanged();
         chatRecyclerView.scrollToPosition(messages.size() - 1);
         socketIO.syncUser();
         return true;
@@ -140,7 +141,7 @@ public class ChatRoom extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(socketIO != null)
+        if (socketIO != null)
             socketIO.syncUser();
     }
 

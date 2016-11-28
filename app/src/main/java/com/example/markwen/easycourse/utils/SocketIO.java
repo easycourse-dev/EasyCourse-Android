@@ -150,22 +150,13 @@ public class SocketIO {
                     User user = null;
 
                     try {
-                        user = new User();
-                        if (userObj.has("_id"))
-                            user.setId(userObj.getString("_id"));
-                        if (userObj.has("displayName"))
-                            user.setUsername(userObj.getString("displayName"));
-                        if (avatar != null)
-                            user.setProfilePicture(avatar);
-                        if (avatarUrlString != null)
-                            user.setProfilePictureUrl(avatarUrlString);
-                        if (userObj.has("email"))
-                            user.setEmail(userObj.getString("email"));
-                        if (userObj.has("university"))
-                            user.setUniversityID(userObj.getString("university"));
+                        String id = (String) checkIfJsonExists(userObj, "_id", null);
+                        String username = (String) checkIfJsonExists(userObj, "displayName", null);
+                        String email = (String) checkIfJsonExists(userObj, "email", null);
+                        String university = (String) checkIfJsonExists(userObj, "university", null);
+
+                        user = new User(id, username, avatar, avatarUrlString, email, university);
                     } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (NullPointerException e) {
                         Log.e(TAG, e.toString());
                     }
                     Realm realm = Realm.getDefaultInstance();

@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name=".activities.UserProfile"
-            android:windowSoftInputMode="adjustPan"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
             android:parentActivityName=".activities.MainActivity">
         </activity>

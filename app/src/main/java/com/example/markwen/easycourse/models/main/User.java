@@ -59,6 +59,10 @@ public class User extends RealmObject {
         });
     }
 
+    public User getByPrimaryKey(Realm realm, String id) {
+        return realm.where(getClass()).equalTo("id", id).findFirst();
+    }
+
     public String getId() {
         return id;
     }

@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfile;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -26,19 +27,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
 
 /**
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class User extends Fragment {
+public class UserFragment extends Fragment {
 
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
     RelativeLayout cardProfile;
 
-    public User() {
+    User user = new User();
+    Realm realm;
+
+    public UserFragment() {
     }
 
     @Override
@@ -68,9 +73,14 @@ public class User extends Fragment {
         String currentUser = sharedPref.getString("currentUser", null);
         JSONObject currentUserObject;
 
+        Realm.init(v.getContext());
+        realm = Realm.getDefaultInstance();
+
         try {
             currentUserObject = new JSONObject(currentUser);
-            textViewUsername.setText(currentUserObject.getString("displayName"));
+            Log.e("com.example.easycourse", currentUserObject.toString());
+            user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
+            textViewUsername.setText(user.getUsername());
         } catch (JSONException e) {
             e.printStackTrace();
         }

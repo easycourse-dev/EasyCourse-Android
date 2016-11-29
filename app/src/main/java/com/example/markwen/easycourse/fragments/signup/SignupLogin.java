@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -41,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import cz.msebera.android.httpclient.Header;
@@ -340,7 +342,7 @@ public class SignupLogin extends Fragment {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void emailLogin(View v) {
+    public void emailLogin(final View v) {
 
         // Removes verify password and username edittexts if visible
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
@@ -382,6 +384,13 @@ public class SignupLogin extends Fragment {
                         editor.putString("userToken", userToken);
                         editor.putString("currentUser", response.toString());
                         editor.apply();
+
+                        try {
+                            SocketIO socketIO = new SocketIO(getActivity(), v.getContext());
+                            socketIO.syncUser();
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
 
                         // Make an Intent to move on to the next activity
                         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);

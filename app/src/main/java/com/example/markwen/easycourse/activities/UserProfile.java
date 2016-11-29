@@ -90,12 +90,12 @@ public class UserProfile extends AppCompatActivity {
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                realm.beginTransaction();
-                user.setUsername(editTextUsername.getText().toString());
-                realm.copyToRealmOrUpdate(user);
-                realm.commitTransaction();
+                try {
+                    socket.syncUser(editTextUsername.getText().toString(), null);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.e("com.example.easycourse", user.getUsername());
-                socket.syncUser();
                 toggleProfileEdit();
             }
         });
@@ -114,8 +114,9 @@ public class UserProfile extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
         } else {
-            textViewUsername.setVisibility(View.VISIBLE);
+            textViewUsername.setText(editTextUsername.getText());
             editTextUsername.setVisibility(View.GONE);
+            textViewUsername.setVisibility(View.VISIBLE);
             saveChangesButton.hide();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editTextUsername.getWindowToken(),

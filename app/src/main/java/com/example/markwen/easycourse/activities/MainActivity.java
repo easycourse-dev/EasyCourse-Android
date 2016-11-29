@@ -14,11 +14,15 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.Rooms;
-import com.example.markwen.easycourse.fragments.main.User;
+import com.example.markwen.easycourse.fragments.main.UserFragment;
 import com.example.markwen.easycourse.models.signup.UserSetup;
+import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.URISyntaxException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Viewpager setup
         pagerAdapter.addFragment(new Rooms(), "Rooms");
-        pagerAdapter.addFragment(new User(), "User");
+        pagerAdapter.addFragment(new UserFragment(), "User");
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(bottomNavigation.getCurrentItem());
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -97,6 +101,15 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        try {
+            SocketIO socketIO = new SocketIO(this, getApplicationContext());
+            socketIO.getUserInfo("5808237e5e6c6300115a381c");
+        } catch (URISyntaxException e) {
+            Log.e("com.example.easycourse", e.toString());
+        } catch (JSONException e) {
+            Log.e("com.example.easycourse", e.toString());
+        }
     }
 
     private void checkUserLogin() {

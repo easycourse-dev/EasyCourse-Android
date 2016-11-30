@@ -1,11 +1,14 @@
 package com.example.markwen.easycourse.fragments.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +68,11 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(view.getContext(), UserProfile.class);
-                startActivity(i);
+                Pair<View, String> p1 = Pair.create((View)avatarImage, "avatar");
+                Pair<View, String> p2 = Pair.create((View)textViewUsername, "username");
+                ActivityOptionsCompat options = ActivityOptionsCompat.
+                        makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
+                startActivity(i, options.toBundle());
             }
         });
 

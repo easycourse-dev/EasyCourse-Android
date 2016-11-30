@@ -11,6 +11,8 @@
         <item name="colorControlNormal">#FFF</item>
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
+
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
 </resources>

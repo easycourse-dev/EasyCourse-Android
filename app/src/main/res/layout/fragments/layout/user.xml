@@ -24,15 +24,17 @@
                 android:padding="16dp"
                 >
                 <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatarImage"
+                    android:transitionName="avatar"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:src="@drawable/ic_account_circle_black_48dp"
                     android:layout_alignParentTop="true"
                     android:tint="@color/cardview_dark_background"
-                    android:id="@+id/avatarImage"
                     />
                 <TextView
                     android:id="@+id/textViewUsername"
+                    android:transitionName="username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"

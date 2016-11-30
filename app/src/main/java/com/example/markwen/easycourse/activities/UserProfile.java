@@ -118,6 +118,7 @@ public class UserProfile extends AppCompatActivity {
             }
         });
 
+        editAvatarButton.show();
         editAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

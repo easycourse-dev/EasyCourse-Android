@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,13 +27,20 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
+import cz.msebera.android.httpclient.Header;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
 /**
@@ -46,6 +55,7 @@ public class UserProfile extends AppCompatActivity {
     ImageButton editUsernameButton;
     FloatingActionButton saveChangesButton;
     FloatingActionButton editAvatarButton;
+    CircleImageView avatarImage;
 
     boolean isInEditMode = false;
 
@@ -76,6 +86,7 @@ public class UserProfile extends AppCompatActivity {
         editTextUsername = (EditText) findViewById(R.id.editTextUsername);
         saveChangesButton = (FloatingActionButton) findViewById(R.id.saveChangesButton);
         editAvatarButton = (FloatingActionButton) findViewById(R.id.editAvatarButton);
+        avatarImage = (CircleImageView) findViewById(R.id.avatarImage);
         saveChangesButton.hide();
 
         editUsernameButton = (ImageButton) findViewById(R.id.editUsernameButton);
@@ -98,6 +109,8 @@ public class UserProfile extends AppCompatActivity {
             currentUserObject = new JSONObject(currentUser);
             Log.e("com.example.easycourse", currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -184,7 +197,29 @@ public class UserProfile extends AppCompatActivity {
 
         String path = getImagePath(originalUri);
         Log.e("com.example.easycourse", path);
-
+        try {
+            APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.e("com.example.easycourse", response.toString());
+                    try {
+                        socket.syncUser(null, response.getString("url"));
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", response.toString());
+                    }
+                }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e("com.example.easycourse", res.toString());
+                }
+            });
+        } catch (JSONException e) {
+            Log.e("com.example.easycourse", e.toString());
+        } catch (UnsupportedEncodingException e) {
+            Log.e("com.example.easycourse", e.toString());
+        } catch (FileNotFoundException e) {
+            Log.e("com.example.easycourse", e.toString());
+        }
     }
     /**
      * helper to retrieve the path of an image URI
@@ -222,15 +257,15 @@ public class UserProfile extends AppCompatActivity {
     }
 
     private void openGallery(){
-        if (Build.VERSION.SDK_INT <19){
+        if (Build.VERSION.SDK_INT <19 || true){
             Intent intent = new Intent();
-            intent.setType("image/jpeg");
+            intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"),GALLERY_INTENT_CALLED);
         } else {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/jpeg");
+            intent.setType("image/*");
             startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);
         }
     }

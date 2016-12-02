@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -88,6 +90,9 @@ public class UserFragment extends Fragment {
             Log.e("com.example.easycourse", currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
             textViewUsername.setText(user.getUsername());
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

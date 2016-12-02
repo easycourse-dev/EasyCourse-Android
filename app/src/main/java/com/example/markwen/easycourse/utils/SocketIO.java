@@ -167,10 +167,10 @@ public class SocketIO {
                         HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                         conn.setDoInput(true);
                         conn.connect();
-                        conn.setUseCaches(false);
+                        //conn.setUseCaches(false);
 
                         InputStream is = conn.getInputStream();
-                        avatar = IOUtils.toByteArray(conn.getInputStream());
+                        avatar = IOUtils.toByteArray(is);
 
                     } catch (MalformedURLException e) {
                         Log.e("com.example.easycourse", e.toString());

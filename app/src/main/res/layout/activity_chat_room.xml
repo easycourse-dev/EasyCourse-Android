@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".activities.ChatRoom"
+    android:id="@+id/relativeLayoutChatRoom">
 
     <!--TODO: Hide scrollbar-->
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbarChatRoom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/appbarChatRoom">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbarChatRoom"
@@ -50,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/chatLinearEditBox"
-            android:layout_below="@id/appbarChatRoom"
+        android:layout_below="@id/appbarChatRoom"
         android:paddingBottom="8dp" />
 
     <LinearLayout
@@ -65,9 +66,9 @@
             android:id="@+id/chatAddImageButton"
             android:layout_width="43dp"
             android:layout_height="match_parent"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_add_black_24px"
-            android:contentDescription="@string/chatMessageAccessibility"
-            android:layout_margin="5dp" />
+            android:contentDescription="@string/chatMessageAccessibility" />
 
         <EditText
             android:id="@+id/chatMessageEditText"
@@ -84,9 +85,9 @@
             android:layout_width="33dp"
             android:layout_height="33dp"
             android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_send_black_24px"
-            android:contentDescription="@string/chatMessageAccessibility"
-            android:layout_margin="5dp" />
+            android:contentDescription="@string/chatMessageAccessibility" />
     </LinearLayout>
 
 </RelativeLayout>

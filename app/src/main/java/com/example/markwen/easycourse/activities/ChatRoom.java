@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,8 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 
@@ -29,6 +32,8 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import static com.example.markwen.easycourse.EasyCourse.bus;
+
 public class ChatRoom extends AppCompatActivity {
 
     private static final String TAG = "ChatRoom";
@@ -36,6 +41,8 @@ public class ChatRoom extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;
+    Snackbar disconnectSnackbar;
+
 
     Room currentRoom;
     User currentUser;
@@ -89,6 +96,11 @@ public class ChatRoom extends AppCompatActivity {
                 }
             }
         });
+
+        //Setup snackbar for disconnect
+        disconnectSnackbar = Snackbar.make(findViewById(R.id.relativeLayoutChatRoom), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+
+        bus.register(this);
     }
 
     private void handleIntent() {
@@ -149,5 +161,17 @@ public class ChatRoom extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
+    }
+
+    @Subscribe
+    public void disconnectEvent(Event.DisconnectEvent event) {
+        disconnectSnackbar.show();
+    }
+
+    @Subscribe
+    public void reconnectEvent(Event.ReconnectEvent event) {
+        if(disconnectSnackbar != null) {
+            disconnectSnackbar.dismiss();
+        }
     }
 }

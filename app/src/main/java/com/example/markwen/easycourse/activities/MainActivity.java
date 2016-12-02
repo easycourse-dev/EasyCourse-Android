@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -23,10 +22,11 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
-import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +35,8 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmResults;
+
+import static com.example.markwen.easycourse.EasyCourse.bus;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;
+    Snackbar disconnectSnackbar;
 
     @BindView(R.id.toolbarMain)
     Toolbar toolbar;
@@ -78,10 +80,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
 //            socketIO.joinRoom("57e2cdea8b59ae00115a8fc5");
-            socketIO.getAllMessage();
+//            socketIO.getAllMessage();
         } catch (JSONException e) {
             e.printStackTrace();
-        }catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -90,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         toolbar.showOverflowMenu();
 
         setupNavigation();
+
+        //Setup snackbar for disconnect
+        disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+
+        bus.register(this);
 
         //Get data from signup, may be null, fields may be null
         Intent intentFromSignup = getIntent();
@@ -123,9 +130,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }, 100);
 //    }
-
-
-
 
 
     private void checkUserLogin() {
@@ -250,4 +254,17 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         realm.close();
     }
+
+    @Subscribe
+    public void disconnectEvent(Event.DisconnectEvent event) {
+        disconnectSnackbar.show();
+    }
+
+    @Subscribe
+    public void reconnectEvent(Event.ReconnectEvent event) {
+        if(disconnectSnackbar != null) {
+            disconnectSnackbar.dismiss();
+        }
+    }
+
 }

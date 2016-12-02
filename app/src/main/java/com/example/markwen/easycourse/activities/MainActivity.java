@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
 //            socketIO.joinRoom("57e2cdea8b59ae00115a8fc5");
-//            socketIO.getAllMessage();
+            socketIO.getAllMessage();
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {

@@ -30,6 +30,7 @@ import org.json.JSONException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
@@ -91,8 +92,11 @@ public class ChatRoom extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = messageEditText.getText().toString();
                 if (!TextUtils.isEmpty(messageText)) {
-                    if (sendTextMessage(messageText))
+                    if (sendTextMessage(messageText)) {
                         messageEditText.setText("");
+                        chatRecyclerViewAdapter.notifyDataSetChanged();
+                        chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount()+1);
+                    }
                 }
             }
         });
@@ -127,6 +131,13 @@ public class ChatRoom extends AppCompatActivity {
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         chatLinearManager.setStackFromEnd(true);
         chatRecyclerView.setLayoutManager(chatLinearManager);
+
+        messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
+            @Override
+            public void onChange(RealmResults<Message> element) {
+                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+            }
+        });
     }
 
     private boolean sendTextMessage(String messageText) {
@@ -143,8 +154,6 @@ public class ChatRoom extends AppCompatActivity {
             Log.e(TAG, "sendTextMessage: error");
             return false;
         }
-        chatRecyclerViewAdapter.notifyDataSetChanged();
-        chatRecyclerView.scrollToPosition(messages.size() - 1);
         socketIO.syncUser();
         return true;
     }

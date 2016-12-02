@@ -565,8 +565,8 @@ public class SocketIO {
                 byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
                 boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
                 String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
-                double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", 0.0));
-                double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", 0.0));
+                double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
+                double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
                 Date date = (Date) checkIfJsonExists(obj, "date", null);
 
                 Realm realm = Realm.getDefaultInstance();

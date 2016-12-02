@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -27,6 +26,8 @@ import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -44,9 +45,11 @@ public class SocketIO {
 
     private Context context;
     private Socket socket;
+    private Realm realm;
 
     public SocketIO(Context context) throws URISyntaxException {
         this.context = context;
+        this.realm = Realm.getDefaultInstance();
 
         IO.Options opts = new IO.Options();
         //opts.forceNew = true;
@@ -200,11 +203,14 @@ public class SocketIO {
         });
     }
 
-    //TODO: get latest message from realm and put in lastupdatetime
     //saves list of messages to realm
-    public void getHistMessage() throws JSONException {
+    private void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("lastUpdateTime", System.currentTimeMillis());
+        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+        if(list.size() < 1) return;
+        Message message = list.first();
+        long time = message.getCreatedAt().getTime();
+        jsonParam.put("lastUpdateTime", time);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
@@ -288,7 +294,7 @@ public class SocketIO {
                             String coursePictureUrl = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePictureUrl", null);
                             String title = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "title", null);
                             String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
-                            int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", 0));
+                            int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", "0"));
                             String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
                             Course course = new Course(id, courseName, coursePicture, coursePictureUrl, title, courseDescription, creditHours, universityID);
                             courses[0][i] = course;
@@ -357,9 +363,9 @@ public class SocketIO {
                             String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
                             String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
                             String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
-                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", 0));
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", "0"));
                             String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
-                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
+                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", "0"));
                             boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
 
                             RealmList<Message> messageList = new RealmList<>();
@@ -399,9 +405,9 @@ public class SocketIO {
                         String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
                         String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
                         String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
-                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", "0"));
                         String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
-                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", "0"));
                         boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
 
                         RealmList<Message> messageList = new RealmList<>();
@@ -471,9 +477,9 @@ public class SocketIO {
                         String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
                         String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
                         String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
-                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", "0"));
                         String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
-                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", "0"));
                         boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
 
                         RealmList<Message> messageList = new RealmList<>();

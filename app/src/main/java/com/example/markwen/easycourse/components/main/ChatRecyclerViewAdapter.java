@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,8 @@ import io.realm.RealmResults;
 
 public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, RecyclerView.ViewHolder> {
 
+    private static final String TAG = "ChatRecyclerViewAdapter";
+
     private final int INCOMING = 0, OUTGOING = 1;
 
     private Context context;
@@ -44,7 +47,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
         super(context, messages, true);
         this.context = context;
-        this.activity = (Activity)context;
+        this.activity = (Activity) context;
         realm = Realm.getDefaultInstance();
     }
 
@@ -124,12 +127,17 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
 
-                Glide.with(context)
-                        .load(message.getImageUrl()).fitCenter()
-                        .placeholder(R.drawable.ic_person_black_24px)
-                        .into(outgoingViewHolder.outgoingImageView);
+                if (context != null)
+                    Glide.with(context)
+                            .load(message.getImageUrl()).fitCenter()
+                            .placeholder(R.drawable.ic_person_black_24px)
+                            .into(outgoingViewHolder.outgoingImageView);
 
-                outgoingViewHolder.outgoingName.setText(User.getCurrentUser(this.activity, this.realm).getUsername());
+                try {
+                    outgoingViewHolder.outgoingName.setText(User.getCurrentUser(this.activity, this.realm).getUsername());
+                } catch (NullPointerException e) {
+                    Log.e(TAG, e.toString());
+                }
                 outgoingViewHolder.outgoingMessage.setText(message.getText());
                 break;
 
@@ -144,12 +152,18 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     incomingViewHolder.incomingTime.setVisibility(View.GONE);
                 }
 
-                Glide.with(context)
-                        .load(message.getImageUrl()).fitCenter()
-                        .placeholder(R.drawable.ic_person_black_24px)
-                        .into(incomingViewHolder.incomingImageView);
+                if (context != null)
+                    Glide.with(context)
+                            .load(message.getImageUrl()).fitCenter()
+                            .placeholder(R.drawable.ic_person_black_24px)
+                            .into(incomingViewHolder.incomingImageView);
 
-                String username = User.getUserFromRealm(this.realm, message.getSenderId()).getUsername();
+                String username = null;
+                try {
+                    username = User.getUserFromRealm(this.realm, message.getSenderId()).getUsername();
+                } catch (NullPointerException e) {
+                    Log.e(TAG, e.toString());
+                }
                 if (username != null)
                     incomingViewHolder.incomingName.setText(username);
                 incomingViewHolder.incomingMessage.setText(message.getText());
@@ -161,9 +175,9 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     private String getTimeString(Message message, Message prevMessage) {
         if (prevMessage == null) return null;
         Date messageDate = message.getCreatedAt();
-        if(messageDate == null) return null;
+        if (messageDate == null) return null;
         Date prevMessageDate = prevMessage.getCreatedAt();
-        if(prevMessageDate == null) return null;
+        if (prevMessageDate == null) return null;
         long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
         if (diffInMinutes >= 1) {
             //If today

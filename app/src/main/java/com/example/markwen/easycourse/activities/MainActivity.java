@@ -13,7 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -79,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-//            socketIO.joinRoom("57e2cdea8b59ae00115a8fc5");
-            socketIO.getAllMessage();
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
@@ -107,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, userSetup.getCourseCodeArray()[0]);
             if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
                 Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
+        }
+        try {
+            socketIO.getAllMessage();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

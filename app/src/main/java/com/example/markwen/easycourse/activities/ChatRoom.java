@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -90,14 +92,19 @@ public class ChatRoom extends AppCompatActivity {
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String messageText = messageEditText.getText().toString();
-                if (!TextUtils.isEmpty(messageText)) {
-                    if (sendTextMessage(messageText)) {
-                        messageEditText.setText("");
-                        chatRecyclerViewAdapter.notifyDataSetChanged();
-                        chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount()+1);
-                    }
+                finalSendMessage();
+            }
+        });
+
+        messageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                boolean handled = false;
+                if (i == EditorInfo.IME_ACTION_SEND) {
+                    finalSendMessage();
+                    handled = true;
                 }
+                return handled;
             }
         });
 
@@ -105,6 +112,17 @@ public class ChatRoom extends AppCompatActivity {
         disconnectSnackbar = Snackbar.make(findViewById(R.id.relativeLayoutChatRoom), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
 
         bus.register(this);
+    }
+
+    private void finalSendMessage() {
+        String messageText = messageEditText.getText().toString();
+        if (!TextUtils.isEmpty(messageText)) {
+            if (sendTextMessage(messageText)) {
+                messageEditText.setText("");
+                chatRecyclerViewAdapter.notifyDataSetChanged();
+                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount()+1);
+            }
+        }
     }
 
     private void handleIntent() {

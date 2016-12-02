@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
@@ -38,20 +39,22 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
     private static final String TAG = "ChatRecyclerViewAdapter";
 
-    private final int INCOMING = 0, OUTGOING = 1;
+    private final int INCOMING_TEXT = 0, INCOMING_PIC = 1, OUTGOING_TEXT = 2, OUTGOING_PIC = 3;
 
     private Context context;
     private Activity activity;
     private Realm realm;
+    private User curUser;
 
     public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
         super(context, messages, true);
         this.context = context;
         this.activity = (Activity) context;
         realm = Realm.getDefaultInstance();
+        this.curUser = User.getCurrentUser(this.activity, this.realm);
     }
 
-    class IncomingChatViewHolder extends RecyclerView.ViewHolder {
+    class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.linearIncomingChatCell)
         LinearLayout incomingLinearLayout;
         @BindView(R.id.textViewIncomingTextTime)
@@ -63,13 +66,33 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         @BindView(R.id.textViewIncomingTextMessage)
         TextView incomingMessage;
 
-        IncomingChatViewHolder(View itemView) {
+        IncomingChatTextViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
     }
 
-    class OutgoingChatViewHolder extends RecyclerView.ViewHolder {
+    class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.linearIncomingPicCell)
+        LinearLayout incomingPicLinearLayout;
+        @BindView(R.id.textViewIncomingPicTime)
+        LinearLayout incomingPicTime;
+        @BindView(R.id.imageViewIncomingUserImage)
+        ImageView incomingPicUserView;
+        @BindView(R.id.textViewIncomingPicName)
+        TextView incomingPicName;
+        @BindView(R.id.imageViewIncomingPicImage)
+        ImageView incomingPicImageView;
+
+
+        IncomingChatPictureViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.linearOutgoingChatCell)
         LinearLayout outgoingLinearLayout;
@@ -82,7 +105,27 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         @BindView(R.id.textViewOutgoingTextMessage)
         TextView outgoingMessage;
 
-        OutgoingChatViewHolder(View itemView) {
+        OutgoingChatTextViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.linearOutgoingPicCell)
+        LinearLayout incomingPicLinearLayout;
+        @BindView(R.id.textViewOutgoingPicTime)
+        LinearLayout incomingPicTime;
+        @BindView(R.id.imageViewOutgoingUserImage)
+        ImageView incomingPicUserView;
+        @BindView(R.id.textViewOutgoingPicName)
+        TextView incomingPicName;
+        @BindView(R.id.imageViewOutgoingPicImage)
+        ImageView incomingPicImageView;
+
+
+        OutgoingChatPictureViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -95,13 +138,13 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
 
         switch (viewType) {
-            case OUTGOING:
+            case OUTGOING_TEXT:
                 View outgoingView = inflater.inflate(R.layout.chat_cell_outgoing_text, viewGroup, false);
-                viewHolder = new ChatRecyclerViewAdapter.OutgoingChatViewHolder(outgoingView);
+                viewHolder = new OutgoingChatTextViewHolder(outgoingView);
                 break;
             default:
                 View incomingView = inflater.inflate(R.layout.chat_cell_incoming_text, viewGroup, false);
-                viewHolder = new ChatRecyclerViewAdapter.IncomingChatViewHolder(incomingView);
+                viewHolder = new IncomingChatTextViewHolder(incomingView);
                 break;
         }
         return viewHolder;
@@ -116,8 +159,8 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
 
         switch (viewHolder.getItemViewType()) {
-            case OUTGOING:
-                final ChatRecyclerViewAdapter.OutgoingChatViewHolder outgoingViewHolder = (ChatRecyclerViewAdapter.OutgoingChatViewHolder) viewHolder;
+            case OUTGOING_TEXT: {
+                final OutgoingChatTextViewHolder outgoingViewHolder = (OutgoingChatTextViewHolder) viewHolder;
 
                 String reportDateOutgoing = getTimeString(message, prevMessage);
                 if (reportDateOutgoing != null) {
@@ -126,23 +169,29 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 } else {
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
-
-                if (context != null)
-                    Glide.with(context)
-                            .load(message.getImageUrl()).fitCenter()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(outgoingViewHolder.outgoingImageView);
-
                 try {
-                    outgoingViewHolder.outgoingName.setText(User.getCurrentUser(this.activity, this.realm).getUsername());
+                    if (context != null)
+                        Glide.with(context)
+                                .load(this.curUser.getProfilePictureUrl()).fitCenter()
+                                .placeholder(R.drawable.ic_person_black_24px)
+                                .into(outgoingViewHolder.outgoingImageView);
+
+
+                    outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
+                    outgoingViewHolder.outgoingMessage.setText(message.getText());
                 } catch (NullPointerException e) {
                     Log.e(TAG, e.toString());
                 }
-                outgoingViewHolder.outgoingMessage.setText(message.getText());
                 break;
+            }
 
-            case INCOMING:
-                ChatRecyclerViewAdapter.IncomingChatViewHolder incomingViewHolder = (ChatRecyclerViewAdapter.IncomingChatViewHolder) viewHolder;
+            case OUTGOING_PIC: {
+                break;
+            }
+
+
+            case INCOMING_TEXT: {
+                IncomingChatTextViewHolder incomingViewHolder = (IncomingChatTextViewHolder) viewHolder;
 
                 String reportDateIncoming = getTimeString(message, prevMessage);
                 if (reportDateIncoming != null) {
@@ -152,22 +201,28 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     incomingViewHolder.incomingTime.setVisibility(View.GONE);
                 }
 
-                if (context != null)
-                    Glide.with(context)
-                            .load(message.getImageUrl()).fitCenter()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(incomingViewHolder.incomingImageView);
+                User thisUser = User.getUserFromRealm(this.realm, message.getSenderId());
 
-                String username = null;
                 try {
-                    username = User.getUserFromRealm(this.realm, message.getSenderId()).getUsername();
+                    if (context != null)
+                        Glide.with(context)
+                                .load(thisUser.getProfilePictureUrl()).fitCenter()
+                                .placeholder(R.drawable.ic_person_black_24px)
+                                .into(incomingViewHolder.incomingImageView);
+
+                    if (thisUser.getUsername() != null)
+                        incomingViewHolder.incomingName.setText(thisUser.getUsername());
+                    incomingViewHolder.incomingMessage.setText(message.getText());
                 } catch (NullPointerException e) {
                     Log.e(TAG, e.toString());
                 }
-                if (username != null)
-                    incomingViewHolder.incomingName.setText(username);
-                incomingViewHolder.incomingMessage.setText(message.getText());
                 break;
+            }
+
+            case INCOMING_PIC: {
+
+                break;
+            }
         }
     }
 
@@ -199,9 +254,17 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     @Override
     public int getItemViewType(int i) {
         final Message message = getData().get(i);
-        if (message.isToUser())
-            return OUTGOING;
-        return INCOMING;
+        if (message.isToUser()) {
+            if (message.getImageUrl() != null)
+                return OUTGOING_PIC;
+            else
+                return OUTGOING_TEXT;
+        } else {
+            if (message.getImageUrl() != null)
+                return INCOMING_PIC;
+            else
+                return INCOMING_TEXT;
+        }
     }
 
 

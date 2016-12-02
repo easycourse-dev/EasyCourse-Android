@@ -15,7 +15,9 @@ import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -70,15 +72,16 @@ public class EasyCourse extends Application {
 
 
 
-    public static boolean isConnected() {
-        String command = "ping -c 1 https://zengjintaotest.com/api";
+    public boolean isInternetAvailable() {
         try {
-            return (Runtime.getRuntime().exec(command).waitFor() == 0);
-        } catch (InterruptedException e) {
-            return false;
-        } catch (IOException e) {
+            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
+            return !ipAddr.toString().equals("");
+
+        } catch (UnknownHostException e) {
+            Log.e(TAG, e.toString());
             return false;
         }
+
     }
 
 }

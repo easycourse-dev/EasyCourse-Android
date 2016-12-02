@@ -32,6 +32,7 @@ public class EasyCourse extends Application {
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -62,9 +63,11 @@ public class EasyCourse extends Application {
         return socketIO;
     }
 
+
     public static EasyCourse getAppInstance() {
         return appInstance;
     }
+
 
 
     public static boolean isConnected() {

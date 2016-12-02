@@ -25,9 +25,9 @@ import io.realm.RealmResults;
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class Rooms extends Fragment {
+public class RoomsFragment extends Fragment {
 
-    private static final String TAG = "Rooms";
+    private static final String TAG = "RoomsFragment";
 
 
     private Realm realm;
@@ -42,7 +42,7 @@ public class Rooms extends Fragment {
     RealmResults<Room> rooms;
 
 
-    public Rooms() {
+    public RoomsFragment() {
     }
 
     //TODO: realm listener to change time and bold text

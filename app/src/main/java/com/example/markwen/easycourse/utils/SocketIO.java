@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.eventbus.Event;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -55,13 +57,13 @@ public class SocketIO {
     }
 
     //public socket on listeners
-
-    public void publicListener() {
+    private void publicListener() {
         socket.connect();
         socket.on("connect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 syncUser();
+                EasyCourse.bus.post(new Event.ConnectEvent());
                 Log.d(TAG, "connected");
             }
         });
@@ -71,14 +73,16 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 saveMessageToRealm(obj);
+                EasyCourse.bus.post(new Event.MessageEvent());
+                Log.d(TAG, "message");
             }
         });
 
         socket.on("disconnect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                //TODO: do something when disconnected
-                Log.e("com.example.easycourse", "disconnected");
+                EasyCourse.bus.post(new Event.DisconnectEvent());
+                Log.e(TAG, "disconnected");
             }
         });
 
@@ -86,15 +90,16 @@ public class SocketIO {
             @Override
             public void call(Object... args) {
                 syncUser();
-                Log.e("com.example.easycourse", "reconnected");
+                EasyCourse.bus.post(new Event.ReconnectEvent());
+                Log.e(TAG, "reconnected");
             }
         });
 
         socket.on("reconnectAttempt", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                //TODO: do something when reconnectAttempt
-                Log.e("com.example.easycourse", "reconnectAttempt");
+                EasyCourse.bus.post(new Event.ReconnectAttemptEvent());
+                Log.e(TAG, "reconnectAttempt");
             }
         });
     }
@@ -185,6 +190,7 @@ public class SocketIO {
                     }
                     Realm realm = Realm.getDefaultInstance();
 
+
                     Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
                     Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
@@ -194,15 +200,41 @@ public class SocketIO {
         });
     }
 
+    //TODO: get latest message from realm and put in lastupdatetime
     //saves list of messages to realm
     public void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("updatedTime", System.currentTimeMillis() / 1000);
+        jsonParam.put("lastUpdateTime", System.currentTimeMillis());
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
+                    Log.d(TAG, obj.toString());
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
+                    } else {
+                        JSONArray msgArray = obj.getJSONArray("msg");
+                        for (int i = 0; i < msgArray.length(); i++) {
+                            saveMessageToRealm(msgArray.getJSONObject(i));
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+    }
+
+    public void getAllMessage() throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("lastUpdateTime", 1);
+        socket.emit("getHistMessage", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject obj = (JSONObject) args[0];
+                    Log.d(TAG, obj.toString());
                     if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
@@ -498,14 +530,16 @@ public class SocketIO {
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", e.toString());
                     } catch (IOException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
 
                     User user = null;
                     try {
                         user = new User(userObj.getString("_id"), userObj.getString("displayName"), null, null, null, null);
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, e.toString());
                     }
 
                     Realm.init(context);
@@ -521,9 +555,9 @@ public class SocketIO {
 
     private void saveMessageToRealm(JSONObject obj) {
         if (obj != null) {
-            Message message = null;
+            Message message;
             try {
-                String id = (String) checkIfJsonExists(obj, "id", null);
+                String id = (String) checkIfJsonExists(obj, "_id", null);
                 String remoteId = (String) checkIfJsonExists(obj, "id", null);
                 String senderId = (String) checkIfJsonExists(obj, "sender", null);
                 String text = (String) checkIfJsonExists(obj, "text", null);

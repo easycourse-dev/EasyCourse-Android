@@ -64,7 +64,6 @@ public class SignupChooseCourses extends Fragment {
         super.onCreate(savedInstanceState);
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
-
     }
 
     @Override

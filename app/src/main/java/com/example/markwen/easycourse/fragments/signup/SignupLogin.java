@@ -48,6 +48,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -61,25 +63,41 @@ public class SignupLogin extends Fragment {
     private static final String TAG = "SignupLogin";
 
 
+    @BindView(R.id.textViewTitle)
     TextView titleTextView;
 
+    @BindView(R.id.editTextEmail)
     EditText emailEditText;
+    @BindView(R.id.editTextPassword)
     EditText passwordEditText;
+    @BindView(R.id.editTextVerifyPassword)
     EditText verifyPasswordEditText;
+    @BindView(R.id.editTextUsername)
     EditText usernameEditText;
 
+    @BindView(R.id.inputLayoutEmail)
     TextInputLayout emailInputLayout;
+    @BindView(R.id.inputLayoutPassword)
     TextInputLayout passwordInputLayout;
+    @BindView(R.id.inputLayoutVerifyPassword)
     TextInputLayout verifyPasswordInputLayout;
+    @BindView(R.id.inputLayoutUsername)
     TextInputLayout usernameInputLayout;
 
+
+    @BindView(R.id.buttonSignup)
     Button signupButton;
+    @BindView(R.id.buttonLogin)
     Button loginButton;
+    @BindView(R.id.fbThemeButton)
     Button facebookThemeButton;
+    @BindView(R.id.buttonFacebookLogin)
     LoginButton facebookButton;
+
     CallbackManager callbackManager;
     LinearLayout signupLinearLayout;
     SharedPreferences sharedPref;
+
 
     Animation titleAnimEnter;
     Animation emailAnimEnter;
@@ -117,23 +135,9 @@ public class SignupLogin extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.signup_login, container, false);
 
-
-        titleTextView = (TextView) v.findViewById(R.id.textViewTitle);
-        emailEditText = (EditText) v.findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) v.findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) v.findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) v.findViewById(R.id.editTextUsername);
-
-        emailInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutEmail);
-        passwordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutPassword);
-        verifyPasswordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutVerifyPassword);
-        usernameInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutUsername);
+        ButterKnife.bind(this, v);
 
 
-        signupButton = (Button) v.findViewById(R.id.buttonSignup);
-        loginButton = (Button) v.findViewById(R.id.buttonLogin);
-        facebookThemeButton = (Button) v.findViewById(R.id.fbThemeButton);
-        facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
         facebookButton.setFragment(this);
         facebookButton.setReadPermissions("email");
         facebookButton.setReadPermissions(Arrays.asList("user_status"));
@@ -295,7 +299,7 @@ public class SignupLogin extends Fragment {
                     verifyPasswordEditText.setText("");
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
-                            .make(v, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
+                            .make(v, "UserFragment could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
                     APIFunctions.signUp(getContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -392,7 +396,7 @@ public class SignupLogin extends Fragment {
         }
     }
 
-    //TODO: Make async
+
     //Parses response from login to realm and sharedprefs
     public void parseLoginResponse(int statusCode, Header[] headers, JSONObject response) {
         String userToken = "";
@@ -482,10 +486,10 @@ public class SignupLogin extends Fragment {
         currentUser.setJoinedRooms(joinedRoomList);
 
         realm.beginTransaction();
-        for(Room room : joinedRoomList) {
+        for (Room room : joinedRoomList) {
             realm.copyToRealmOrUpdate(room);
         }
-        for(Course course : joinedCourseList) {
+        for (Course course : joinedCourseList) {
             realm.copyToRealmOrUpdate(course);
         }
         realm.copyToRealmOrUpdate(currentUser);

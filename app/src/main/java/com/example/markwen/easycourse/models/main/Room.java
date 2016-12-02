@@ -43,7 +43,7 @@ public class Room extends RealmObject {
     private int memberCounts;
     private int language;
 
-    //User built room
+    //UserFragment built room
     private String founderID;
     private boolean isPublic = false;
 

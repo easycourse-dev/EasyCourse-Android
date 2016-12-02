@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -20,17 +21,21 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
-import com.example.markwen.easycourse.fragments.main.Rooms;
-import com.example.markwen.easycourse.fragments.main.User;
+import com.example.markwen.easycourse.fragments.main.RoomsFragment;
+import com.example.markwen.easycourse.fragments.main.UserFragment;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        //Binds all the views
         ButterKnife.bind(this);
 
         // Checking if there is a fragment_user currently logged in
@@ -61,13 +67,23 @@ public class MainActivity extends AppCompatActivity {
         // if not, show SignupLoginActivity
         checkUserLogin();
 
-        //Checks for internet, displays snackbar if not found
-        checkForInternet();
+//        Checks for internet, displays snackbar if not found
+//        checkForInternet();
 
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         socketIO.syncUser();
+
+        try {
+            socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
+//            socketIO.joinRoom("57e2cdea8b59ae00115a8fc5");
+            socketIO.getAllMessage();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
 
         setSupportActionBar(toolbar);
@@ -87,19 +103,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForInternet() {
-        if(!EasyCourse.isConnected()) {
-            final Snackbar snackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction("Retry", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(EasyCourse.isConnected())
-                        snackbar.dismiss();
-                }
-            });
-            snackbar.show();
-        }
-    }
+//    private void checkForInternet() {
+//        final Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                boolean connected = EasyCourse.isConnected();
+//                if(!connected) {
+//                    final Snackbar snackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+//                    snackbar.setAction("Retry", new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            if(EasyCourse.isConnected())
+//                                snackbar.dismiss();
+//                        }
+//                    });
+//                    snackbar.show();
+//                }
+//            }
+//        }, 100);
+//    }
+
+
+
+
 
     private void checkUserLogin() {
         // launch a different activity
@@ -141,10 +168,9 @@ public class MainActivity extends AppCompatActivity {
 
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-
         // Add items
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("RoomsFragment", R.drawable.ic_chatboxes);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("UserFragment", R.drawable.ic_contact_outline);
 
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
@@ -158,8 +184,8 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setTranslucentNavigationEnabled(true);
 
         // Viewpager setup
-        pagerAdapter.addFragment(new Rooms(), "Rooms");
-        pagerAdapter.addFragment(new User(), "User");
+        pagerAdapter.addFragment(new RoomsFragment(), "Rooms");
+        pagerAdapter.addFragment(new UserFragment(), "User");
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(bottomNavigation.getCurrentItem());
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -215,7 +241,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (socketIO != null)
             socketIO.syncUser();
-        checkForInternet();
+
+//        checkForInternet();
     }
 
     @Override

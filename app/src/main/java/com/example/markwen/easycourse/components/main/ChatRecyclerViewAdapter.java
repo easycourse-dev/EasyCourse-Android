@@ -161,7 +161,9 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     private String getTimeString(Message message, Message prevMessage) {
         if (prevMessage == null) return null;
         Date messageDate = message.getCreatedAt();
+        if(messageDate == null) return null;
         Date prevMessageDate = prevMessage.getCreatedAt();
+        if(prevMessageDate == null) return null;
         long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
         if (diffInMinutes >= 1) {
             //If today

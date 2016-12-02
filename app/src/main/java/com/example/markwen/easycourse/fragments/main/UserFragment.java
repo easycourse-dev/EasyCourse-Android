@@ -26,11 +26,11 @@ import cz.msebera.android.httpclient.Header;
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class User extends Fragment {
+public class UserFragment extends Fragment {
 
     Button logoutButton;
 
-    public User() {
+    public UserFragment() {
     }
 
     @Override

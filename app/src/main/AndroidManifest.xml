@@ -62,7 +62,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".activities.SettingsActivity"></activity>
-    </application>
+        <activity android:name=".activities.SettingsActivity">
 
+        </activity>
+    </application>
 </manifest>

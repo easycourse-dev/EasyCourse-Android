@@ -134,7 +134,6 @@ public class ChatRoom extends AppCompatActivity {
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
             this.finish();
         }
-        //TODO: Get course title
         toolbarTitleTextView.setText(currentRoom.getRoomName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
     }

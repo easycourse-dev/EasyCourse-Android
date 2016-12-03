@@ -166,7 +166,9 @@ public class MainActivity extends AppCompatActivity {
         if (userToken == null || currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
-            finish();
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
+                MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
+            }
         }
     }
 

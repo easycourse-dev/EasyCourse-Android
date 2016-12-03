@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,6 +60,8 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         TextView roomCourseTextView;
         @BindView(R.id.textViewChatTime)
         TextView roomTimeTextView;
+//        @BindView(R.id.imageViewChatRoom)
+//        ImageView roomImageView;
 
         RoomViewHolder(View itemView) {
             super(itemView);
@@ -89,16 +92,25 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 context.startActivity(chatActivityIntent);
             }
         });
+
+//        roomViewHolder.roomImageView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+//                chatActivityIntent.putExtra("roomId", room.getId());
+//                context.startActivity(chatActivityIntent);
+//            }
+//        });
         Realm realm = Realm.getDefaultInstance();
         List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
-        if(messages.size() > 0)
+        if (messages.size() > 0)
             roomViewHolder.roomTimeTextView.setText(getMessageTime(messages.get(0)));
     }
 
     private String getMessageTime(Message message) {
-        if(message == null)return null;
+        if (message == null) return null;
         Date messageDate = message.getCreatedAt();
-        if(messageDate == null) return null;
+        if (messageDate == null) return null;
         Date now = new Date();
         long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, now);
         if (diffInMinutes <= 1) {

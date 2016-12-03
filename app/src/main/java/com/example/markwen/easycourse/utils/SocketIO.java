@@ -76,7 +76,7 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 saveMessageToRealm(obj);
-                EasyCourse.bus.post(new Event.MessageEvent());
+                //Bus event sent in saveMessageToRealm
                 Log.d(TAG, "message");
             }
         });
@@ -206,11 +206,14 @@ public class SocketIO {
     //saves list of messages to realm
     private void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-        if(list.size() < 1) return;
-        Message message = list.first();
-        long time = message.getCreatedAt().getTime();
-        jsonParam.put("lastUpdateTime", time);
+        //TODO: find time last on app
+//        Realm realm = Realm.getDefaultInstance();
+//        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+//        if(list.size() < 1) return;
+//        Message message = list.first();
+//        long time = message.getCreatedAt().getTime();
+//        jsonParam.put("lastUpdateTime", time);
+        jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
@@ -580,6 +583,7 @@ public class SocketIO {
                 message = new Message(id, remoteId, senderId, text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
                 Log.d(TAG, "message in realm? " + Message.isMessageInRealm(message, realm));
                 Message.updateMessageToRealm(message, realm);
+                EasyCourse.bus.post(new Event.MessageEvent(message));
                 Log.d(TAG, "message in realm? " + Message.isMessageInRealm(message, realm));
                 realm.close();
             } catch (JSONException e) {

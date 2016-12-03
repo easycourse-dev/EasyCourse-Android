@@ -12,12 +12,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -121,7 +120,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         ImageView incomingPicUserView;
         @BindView(R.id.textViewOutgoingPicName)
         TextView incomingPicName;
-        @BindView(R.id.imageViewOutgoingPicImage)
+        @BindView(R.id.imageViewOutgoingImage)
         ImageView incomingPicImageView;
 
 
@@ -170,9 +169,9 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
                 try {
-                    if (context != null)
-                        Glide.with(context)
-                                .load(this.curUser.getProfilePictureUrl()).fitCenter()
+                    if(!this.curUser.getProfilePictureUrl().isEmpty())
+                        Picasso.with(context)
+                                .load(this.curUser.getProfilePictureUrl()).centerInside()
                                 .placeholder(R.drawable.ic_person_black_24px)
                                 .into(outgoingViewHolder.outgoingImageView);
 
@@ -204,9 +203,9 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 User thisUser = User.getUserFromRealm(this.realm, message.getSenderId());
 
                 try {
-                    if (context != null)
-                        Glide.with(context)
-                                .load(thisUser.getProfilePictureUrl()).fitCenter()
+                    if(!this.curUser.getProfilePictureUrl().isEmpty())
+                        Picasso.with(context)
+                                .load(thisUser.getProfilePictureUrl()).centerInside()
                                 .placeholder(R.drawable.ic_person_black_24px)
                                 .into(incomingViewHolder.incomingImageView);
 

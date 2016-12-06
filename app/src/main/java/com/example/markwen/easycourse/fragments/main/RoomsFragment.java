@@ -52,7 +52,7 @@ public class RoomsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
 
-
+        
     }
 
     @Override

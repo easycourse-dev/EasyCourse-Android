@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.components.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
@@ -8,13 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
 
 import java.text.DateFormat;
@@ -26,7 +28,6 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -52,16 +53,18 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     class RoomViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.cardViewChatRoom)
         CardView roomCardView;
-        @BindView(R.id.linearLayoutChatRoom)
-        LinearLayout roomLinearLayout;
+        @BindView(R.id.relativeLayoutChatRoom)
+        RelativeLayout roomRelativeLayout;
         @BindView(R.id.textViewChatRoomName)
         TextView roomNameTextView;
         @BindView(R.id.textViewChatRoomCourse)
         TextView roomCourseTextView;
-        @BindView(R.id.textViewChatTime)
-        TextView roomTimeTextView;
-//        @BindView(R.id.imageViewChatRoom)
-//        ImageView roomImageView;
+        @BindView(R.id.textViewChatRoomLastMessage)
+        TextView roomLastMessageTextView;
+        @BindView(R.id.textViewChatRoomLastTime)
+        TextView roomLastTimeTextView;
+        @BindView(R.id.imageViewChatRoom)
+        ImageView roomImageView;
 
         RoomViewHolder(View itemView) {
             super(itemView);
@@ -87,24 +90,30 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent chatActivityIntent = new Intent(context, ChatRoom.class);
-                chatActivityIntent.putExtra("roomId", room.getId());
-                context.startActivity(chatActivityIntent);
+                startChatRoom(room);
             }
         });
 
-//        roomViewHolder.roomImageView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent chatActivityIntent = new Intent(context, ChatRoom.class);
-//                chatActivityIntent.putExtra("roomId", room.getId());
-//                context.startActivity(chatActivityIntent);
-//            }
-//        });
+
+
+
+        //TODO: Add Usernames
         Realm realm = Realm.getDefaultInstance();
-        List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
-        if (messages.size() > 0)
-            roomViewHolder.roomTimeTextView.setText(getMessageTime(messages.get(0)));
+        List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
+        Message message;
+        User curUser = User.getCurrentUser((Activity)this.context, realm);
+        String name = "";
+        if (messages.get(0) != null) {
+            if(messages.get(0).getCreatedAt() != null) {
+                message = messages.get(0);
+            }
+            else {
+                message = messages.get(messages.size()-1);
+            }
+
+            roomViewHolder.roomLastMessageTextView.setText(message.getText());
+            roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
+        }
     }
 
     private String getMessageTime(Message message) {
@@ -120,9 +129,15 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             DateFormat df = new SimpleDateFormat("hh:mm a", Locale.US);
             return df.format(messageDate);
         } else {
-            DateFormat df = new SimpleDateFormat("MMMM dd,yy", Locale.US);
+            DateFormat df = new SimpleDateFormat("mm dd", Locale.US);
             return df.format(messageDate);
 
         }
+    }
+
+    private void startChatRoom(Room room) {
+        Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+        chatActivityIntent.putExtra("roomId", room.getId());
+        context.startActivity(chatActivityIntent);
     }
 }

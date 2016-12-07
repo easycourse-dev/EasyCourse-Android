@@ -21,13 +21,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -576,7 +578,17 @@ public class SocketIO {
                 String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
-                Date date = (Date) checkIfJsonExists(obj, "date", null);
+                String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+                String dateInString = "2014-10-05T15:23:01Z";
+                Date date = null;
+                try {
+                    date = formatter.parse(dateInString.replaceAll("Z$", "+0000"));
+
+                } catch (ParseException e) {
+                    Log.e(TAG, "saveMessageToRealm: parseException", e);
+                }
 
                 Realm realm = Realm.getDefaultInstance();
 

@@ -11,6 +11,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +39,8 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+
+import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -79,7 +87,7 @@ public class UserFragment extends Fragment {
         });
 
         SharedPreferences sharedPref = v.getContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", null);
+        String currentUser = sharedPref.getString("currentUser", "");
         JSONObject currentUserObject;
 
         Realm.init(v.getContext());

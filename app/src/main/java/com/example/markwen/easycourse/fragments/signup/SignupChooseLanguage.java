@@ -19,7 +19,7 @@ import android.widget.Button;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
-import com.example.markwen.easycourse.components.SignupChooseLanguageAdapter;
+import com.example.markwen.easycourse.components.signup.SignupChooseLanguageAdapter;
 import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -195,9 +195,8 @@ public class SignupChooseLanguage extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
+                    // Make a Snackbar to notify fragment_user with error
                     Log.d(TAG, "Failed to post university id");
-                    return;
                 }
             });
 
@@ -209,7 +208,7 @@ public class SignupChooseLanguage extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
+                    // Make a Snackbar to notify fragment_user with error
                     Log.d(TAG, "Failed to post courses and languages");
                 }
             });

@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.markwen.easycourse.fragments.main.UserFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="400dp">
+        <Button
+            android:text="@string/log_out_button_text"
+            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:id="@+id/buttonLogout"
+            android:background="@drawable/logout_button"
+            android:textColor="@color/colorWhiteText"
+            style="?android:attr/borderlessButtonStyle" />
+    </RelativeLayout>
+</LinearLayout>

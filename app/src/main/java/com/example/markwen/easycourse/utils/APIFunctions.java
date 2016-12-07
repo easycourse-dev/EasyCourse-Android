@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -15,10 +16,13 @@ import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+
+
 public class APIFunctions {
 
     static AsyncHttpClient client = new AsyncHttpClient();
     static final String URL = "https://zengjintaotest.com/api";
+    private static final String TAG = "APIFunctions";
 
     //API function for signup to server
     public static void signUp(Context context, String email, String password, String displayName, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
@@ -53,7 +57,7 @@ public class APIFunctions {
         client.post(context, URL+"/login", body, "application/json", jsonHttpResponseHandler);
     }
 
-    //API function to logout fragment_user
+    //API function to logout user
     public static boolean logout(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -74,7 +78,7 @@ public class APIFunctions {
         client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
     }
 
-    //API function to update fragment_user's university
+    //API function to update user's university
     public static boolean updateUser(Context context, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -87,7 +91,7 @@ public class APIFunctions {
         jsonParam.put("university", universityID);
         StringEntity body = new StringEntity(jsonParam.toString());
 
-        client.post(context, URL+"/fragment_user/update", body, "application/json", jsonHttpResponseHandler);
+        client.post(context, URL+"/user/update", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 
@@ -106,7 +110,7 @@ public class APIFunctions {
         client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
     }
 
-    //API function to set courses and languages in fragment_user's profile
+    //API function to set courses and languages in  user's profile
     public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -116,9 +120,8 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
-        //TODO: fix to api 15
-        JSONArray jsonLanguageCodeArray = new JSONArray(languageCodeArray);
-        JSONArray jsonCourseCodeArray = new JSONArray(courseCodeArray);
+        JSONArray jsonLanguageCodeArray = getJsonArrayFromIntArray(languageCodeArray);
+        JSONArray jsonCourseCodeArray = getJsonArrayFromStringArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);
         jsonParam.put("course", jsonCourseCodeArray);
         StringEntity body = new StringEntity(jsonParam.toString());
@@ -126,6 +129,8 @@ public class APIFunctions {
         client.post(context, URL+"/choosecourse", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
+
+
 
     //API function to turn on or off push notifications for a room
     public static boolean setSilentRoom(Context context, String roomID, boolean silentBoolean, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
@@ -145,7 +150,7 @@ public class APIFunctions {
         return true;
     }
 
-    //API function to report a fragment_user
+    //API function to report a user
     public static boolean reportUser(Context context, String targetUser, String reason, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -173,5 +178,31 @@ public class APIFunctions {
             return "";
         else
             return userToken;
+    }
+
+    private static JSONArray getJsonArrayFromIntArray(int[] arr) {
+        JSONArray jsonLanguageCodeArray = new JSONArray();
+
+        try {
+            for (int i = 0; i < arr.length; i++) {
+                jsonLanguageCodeArray.put(i,arr[i]);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
+        return jsonLanguageCodeArray;
+    }
+
+    private static JSONArray getJsonArrayFromStringArray(String[] arr) {
+        JSONArray jsonLanguageCodeArray = new JSONArray();
+
+        try {
+            for (int i = 0; i < arr.length; i++) {
+                jsonLanguageCodeArray.put(i,arr[i]);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+        }
+        return jsonLanguageCodeArray;
     }
 }

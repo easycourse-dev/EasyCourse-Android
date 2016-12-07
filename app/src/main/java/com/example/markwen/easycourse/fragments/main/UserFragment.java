@@ -78,7 +78,7 @@ public class UserFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // Make a Snackbar to notify fragment_user with error
+                // Make a Snackbar to notify user with error
                 Snackbar.make(v, "Log out failed because of " + res, Snackbar.LENGTH_LONG).show();
             }
         });

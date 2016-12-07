@@ -17,7 +17,7 @@ import android.widget.Button;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
-import com.example.markwen.easycourse.components.SignupChooseUniversityAdapter;
+import com.example.markwen.easycourse.components.signup.SignupChooseUniversityAdapter;
 import com.example.markwen.easycourse.models.signup.University;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;

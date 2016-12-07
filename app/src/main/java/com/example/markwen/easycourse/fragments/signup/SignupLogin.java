@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -27,6 +28,9 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
+import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -37,13 +41,18 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by noahrinehart on 10/29/16.
@@ -54,25 +63,41 @@ public class SignupLogin extends Fragment {
     private static final String TAG = "SignupLogin";
 
 
+    @BindView(R.id.textViewTitle)
     TextView titleTextView;
 
+    @BindView(R.id.editTextEmail)
     EditText emailEditText;
+    @BindView(R.id.editTextPassword)
     EditText passwordEditText;
+    @BindView(R.id.editTextVerifyPassword)
     EditText verifyPasswordEditText;
+    @BindView(R.id.editTextUsername)
     EditText usernameEditText;
 
+    @BindView(R.id.inputLayoutEmail)
     TextInputLayout emailInputLayout;
+    @BindView(R.id.inputLayoutPassword)
     TextInputLayout passwordInputLayout;
+    @BindView(R.id.inputLayoutVerifyPassword)
     TextInputLayout verifyPasswordInputLayout;
+    @BindView(R.id.inputLayoutUsername)
     TextInputLayout usernameInputLayout;
 
+
+    @BindView(R.id.buttonSignup)
     Button signupButton;
+    @BindView(R.id.buttonLogin)
     Button loginButton;
+    @BindView(R.id.fbThemeButton)
     Button facebookThemeButton;
+    @BindView(R.id.buttonFacebookLogin)
     LoginButton facebookButton;
+
     CallbackManager callbackManager;
     LinearLayout signupLinearLayout;
     SharedPreferences sharedPref;
+
 
     Animation titleAnimEnter;
     Animation emailAnimEnter;
@@ -82,6 +107,10 @@ public class SignupLogin extends Fragment {
     Animation loginAnimEnter;
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
+
+    Realm realm;
+
+    User currentUser;
 
     public SignupLogin() {
     }
@@ -97,6 +126,8 @@ public class SignupLogin extends Fragment {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getContext());
         AppEventsLogger.activateApp(getActivity().getApplication());
+        realm = Realm.getDefaultInstance();
+        currentUser = new User();
     }
 
     @Nullable
@@ -104,23 +135,9 @@ public class SignupLogin extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.signup_login, container, false);
 
-
-        titleTextView = (TextView) v.findViewById(R.id.textViewTitle);
-        emailEditText = (EditText) v.findViewById(R.id.editTextEmail);
-        passwordEditText = (EditText) v.findViewById(R.id.editTextPassword);
-        verifyPasswordEditText = (EditText) v.findViewById(R.id.editTextVerifyPassword);
-        usernameEditText = (EditText) v.findViewById(R.id.editTextUsername);
-
-        emailInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutEmail);
-        passwordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutPassword);
-        verifyPasswordInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutVerifyPassword);
-        usernameInputLayout = (TextInputLayout) v.findViewById(R.id.inputLayoutUsername);
+        ButterKnife.bind(this, v);
 
 
-        signupButton = (Button) v.findViewById(R.id.buttonSignup);
-        loginButton = (Button) v.findViewById(R.id.buttonLogin);
-        facebookThemeButton = (Button) v.findViewById(R.id.fbThemeButton);
-        facebookButton = (LoginButton) v.findViewById(R.id.buttonFacebookLogin);
         facebookButton.setFragment(this);
         facebookButton.setReadPermissions("email");
         facebookButton.setReadPermissions(Arrays.asList("user_status"));
@@ -172,6 +189,8 @@ public class SignupLogin extends Fragment {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(signupButton.getWindowToken(), 0);
                 signup(v);
             }
         });
@@ -179,6 +198,8 @@ public class SignupLogin extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(loginButton.getWindowToken(), 0);
                 emailLogin(v);
             }
         });
@@ -200,33 +221,18 @@ public class SignupLogin extends Fragment {
                         APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                String userToken = "";
-
-                                //for each header in array Headers scan for Auth header
-                                for (Header header : headers) {
-                                    if (header.toString().contains("Auth"))
-                                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                                }
-
-                                // Store user at SharedPreferences
-                                sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("userToken", userToken);
-                                editor.putString("currentUser", response.toString());
-                                editor.apply();
+                                parseLoginResponse(statusCode, headers, response);
 
                                 // Make an Intent to move on to the next activity
                                 Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
                                 startActivity(mainActivityIntent);
 
                                 getActivity().finish();
-
-                                // gotoSignupChooseCourses();
                             }
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                                // Make a Snackbar to notify user with error
+                                // Make a Snackbar to notify fragment_user with error
                                 fbLoginErrorSnackbar.show();
                             }
                         });
@@ -239,7 +245,7 @@ public class SignupLogin extends Fragment {
 
                     @Override
                     public void onError(FacebookException error) {
-                        // Make a Snackbar to notify user with error
+                        // Make a Snackbar to notify fragment_user with error
                         fbLoginErrorSnackbar.show();
                     }
                 });
@@ -247,12 +253,10 @@ public class SignupLogin extends Fragment {
         });
 
 
-
         startAnimations();
 
         return v;
     }
-
 
 
     public void signup(View v) {
@@ -295,7 +299,7 @@ public class SignupLogin extends Fragment {
                     verifyPasswordEditText.setText("");
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
-                            .make(v, "User could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
+                            .make(v, "UserFragment could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
                     APIFunctions.signUp(getContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -368,31 +372,17 @@ public class SignupLogin extends Fragment {
                 APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        String userToken = "";
-
-                        //for each header in array Headers scan for Auth header
-                        for (Header header : headers) {
-                            if (header.toString().contains("Auth"))
-                                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-                        }
-
-                        // Store user at SharedPreferences
-                        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("userToken", userToken);
-                        editor.putString("currentUser", response.toString());
-                        editor.apply();
+                        parseLoginResponse(statusCode, headers, response);
 
                         // Make an Intent to move on to the next activity
                         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
                         startActivity(mainActivityIntent);
-
                         getActivity().finish();
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        // Make a Snackbar to notify user with error
+                        // Make a Snackbar to notify fragment_user with error
                         loginErrorSnackbar.show();
                     }
                 });
@@ -405,6 +395,108 @@ public class SignupLogin extends Fragment {
             }
         }
     }
+
+
+    //Parses response from login to realm and sharedprefs
+    public void parseLoginResponse(int statusCode, Header[] headers, JSONObject response) {
+        String userToken = "";
+
+        //for each header in array Headers scan for Auth header
+        for (Header header : headers) {
+            if (header.toString().contains("Auth"))
+                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
+        }
+        // Store fragment_user at SharedPreferences
+        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("userToken", userToken);
+        editor.putString("currentUser", response.toString());
+        try {
+            editor.putString("userId", response.getString("_id"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        editor.apply();
+
+
+        RealmList<Room> joinedRoomList = new RealmList<>();
+        RealmList<Course> joinedCourseList = new RealmList<>();
+        RealmList<Room> silentRoomList = new RealmList<>();
+
+        try {
+
+            currentUser.setId(response.getString("_id"));
+            currentUser.setEmail(response.getString("email"));
+            currentUser.setUsername(response.getString("displayName"));
+
+
+            JSONArray joinedRooms = response.getJSONArray("joinedRoom");
+            for (int i = 0; i < joinedRooms.length(); i++) {
+                JSONObject object = joinedRooms.getJSONObject(i);
+                Room room = new Room();
+                room.setId(object.getString("_id"));
+                room.setRoomName(object.getString("name"));
+                room.setCourseID(object.getString("course"));
+                room.setCourseName(object.getString("courseName"));
+                room.setPublic(object.getBoolean("isPublic"));
+                room.setSystem(object.getBoolean("isSystem"));
+                room.setLanguage(object.getInt("language"));
+                room.setMemberCounts(object.getInt("memberCounts"));
+                room.setMemberList(new RealmList<User>());
+                room.getMemberList().add(currentUser);
+                joinedRoomList.add(room);
+            }
+            JSONArray joinedCourses = response.getJSONArray("joinedCourse");
+            for (int i = 0; i < joinedRooms.length(); i++) {
+                JSONObject object = joinedCourses.getJSONObject(i);
+                Course course = new Course();
+                course.setId(object.getString("_id"));
+                course.setCoursename(object.getString("name"));
+                course.setTitle(object.getString("title"));
+                course.setCourseDescription(object.getString("description"));
+                course.setCreditHours(object.getInt("creditHours"));
+                course.setUniversityID(object.getString("university"));
+                joinedCourseList.add(course);
+            }
+
+            JSONArray silentRooms = response.getJSONArray("silentRoom");
+            for (int i = 0; i < silentRooms.length(); i++) {
+                JSONObject object = joinedRooms.getJSONObject(i);
+                Room room = new Room();
+                room.setId(object.getString("_id"));
+                room.setRoomName(object.getString("name"));
+                room.setCourseID(object.getString("course"));
+                room.setCourseName(object.getString("courseName"));
+                room.setPublic(object.getBoolean("isPublic"));
+                room.setSystem(object.getBoolean("isSystem"));
+                room.setLanguage(object.getInt("language"));
+                room.setMemberCounts(object.getInt("memberCounts"));
+                room.setMemberList(new RealmList<User>());
+                room.getMemberList().add(currentUser);
+                silentRoomList.add(room);
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        currentUser.setSilentRooms(silentRoomList);
+        currentUser.setJoinedCourses(joinedCourseList);
+        currentUser.setJoinedRooms(joinedRoomList);
+
+        realm.beginTransaction();
+        for (Room room : joinedRoomList) {
+            realm.copyToRealmOrUpdate(room);
+        }
+        for (Course course : joinedCourseList) {
+            realm.copyToRealmOrUpdate(course);
+        }
+        realm.copyToRealmOrUpdate(currentUser);
+        realm.commitTransaction();
+
+    }
+
 
     // Call this function when going to SignupChooseUniversity
     public void gotoSignupChooseCourses() {
@@ -546,4 +638,5 @@ public class SignupLogin extends Fragment {
             }
         }
     }
+
 }

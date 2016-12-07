@@ -1,6 +1,14 @@
 package com.example.markwen.easycourse.models.main;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
+
+import org.jetbrains.annotations.Contract;
+
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
@@ -18,6 +26,9 @@ public class User extends RealmObject {
     private String profilePictureUrl;
     private String email;
     private String universityID;
+    private RealmList<Course> joinedCourses;
+    private RealmList<Room> joinedRooms;
+    private RealmList<Room> silentRooms;
 
     private int friendStatus = 0;
 
@@ -40,11 +51,24 @@ public class User extends RealmObject {
         realm.commitTransaction();
     }
 
+    @Contract("null, _ -> false")
     public static boolean isUserInRealm(User user, Realm realm) {
+        if (user == null) return false;
         RealmResults<User> results = realm.where(User.class)
                 .equalTo("id", user.getId())
                 .findAll();
         return results.size() != 0;
+    }
+
+    @Nullable
+    public static User getUserFromRealm(Realm realm, String id) {
+        RealmResults<User> results = realm.where(User.class)
+                .equalTo("id", id)
+                .findAll();
+        if (results.size() > 0)
+            return results.first();
+        else
+            return null;
     }
 
     public static void deleteUserFromRealm(final User user, Realm realm) {
@@ -58,6 +82,20 @@ public class User extends RealmObject {
             }
         });
     }
+
+    @Nullable
+    public static User getCurrentUser(Activity activity, Realm realm) {
+        SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        String id = sharedPref.getString("userId", "");
+
+        RealmResults<User> results = realm.where(User.class)
+                .equalTo("id", id)
+                .findAll();
+        if (results.size() > 0)
+            return results.first();
+        return null;
+    }
+
 
     public String getId() {
         return id;
@@ -113,5 +151,29 @@ public class User extends RealmObject {
 
     public void setFriendStatus(int friendStatus) {
         this.friendStatus = friendStatus;
+    }
+
+    public RealmList<Course> getJoinedCourses() {
+        return joinedCourses;
+    }
+
+    public void setJoinedCourses(RealmList<Course> joinedCourses) {
+        this.joinedCourses = joinedCourses;
+    }
+
+    public RealmList<Room> getJoinedRooms() {
+        return joinedRooms;
+    }
+
+    public void setJoinedRooms(RealmList<Room> joinedRooms) {
+        this.joinedRooms = joinedRooms;
+    }
+
+    public RealmList<Room> getSilentRooms() {
+        return silentRooms;
+    }
+
+    public void setSilentRooms(RealmList<Room> silentRooms) {
+        this.silentRooms = silentRooms;
     }
 }

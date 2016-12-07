@@ -53,7 +53,7 @@ public class APIFunctions {
         client.post(context, URL+"/login", body, "application/json", jsonHttpResponseHandler);
     }
 
-    //API function to logout user
+    //API function to logout fragment_user
     public static boolean logout(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -74,7 +74,7 @@ public class APIFunctions {
         client.get(context, URL+"/facebook/token/?access_token="+accessToken, jsonHttpResponseHandler);
     }
 
-    //API function to update user's university
+    //API function to update fragment_user's university
     public static boolean updateUser(Context context, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -87,7 +87,7 @@ public class APIFunctions {
         jsonParam.put("university", universityID);
         StringEntity body = new StringEntity(jsonParam.toString());
 
-        client.post(context, URL+"/user/update", body, "application/json", jsonHttpResponseHandler);
+        client.post(context, URL+"/fragment_user/update", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 
@@ -106,7 +106,7 @@ public class APIFunctions {
         client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
     }
 
-    //API function to set courses and languages in user's profile
+    //API function to set courses and languages in fragment_user's profile
     public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
@@ -116,6 +116,7 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
+        //TODO: fix to api 15
         JSONArray jsonLanguageCodeArray = new JSONArray(languageCodeArray);
         JSONArray jsonCourseCodeArray = new JSONArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);
@@ -144,7 +145,7 @@ public class APIFunctions {
         return true;
     }
 
-    //API function to report a user
+    //API function to report a fragment_user
     public static boolean reportUser(Context context, String targetUser, String reason, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found

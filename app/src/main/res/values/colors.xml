@@ -8,4 +8,5 @@
     <color name="colorWhiteText">#FFFFFF</color>
     <color name="colorFacebook">#3A5992</color>
     <color name="colorLogout">#F44336</color>
+    <color name="white">#FFF</color>
 </resources>

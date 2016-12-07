@@ -18,7 +18,7 @@ import android.widget.EditText;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.EndlessRecyclerViewScrollListener;
-import com.example.markwen.easycourse.components.SignupChooseCoursesAdapter;
+import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -64,7 +64,6 @@ public class SignupChooseCourses extends Fragment {
         super.onCreate(savedInstanceState);
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
-
     }
 
     @Override

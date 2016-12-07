@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         try {
-            SocketIO socketIO = new SocketIO(this, getApplicationContext());
+            SocketIO socketIO = new SocketIO(getApplicationContext());
             socketIO.getUserInfo("5808237e5e6c6300115a381c");
         } catch (URISyntaxException e) {
             Log.e("com.example.easycourse", e.toString());

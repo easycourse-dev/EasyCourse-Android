@@ -580,11 +580,11 @@ public class SocketIO {
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
-                String dateInString = "2014-10-05T15:23:01Z";
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+
                 Date date = null;
                 try {
-                    date = formatter.parse(dateInString.replaceAll("Z$", "+0000"));
+                    date = formatter.parse(dateString);
 
                 } catch (ParseException e) {
                     Log.e(TAG, "saveMessageToRealm: parseException", e);

@@ -78,7 +78,7 @@
                 android:ellipsize="end"
                 android:lines="1"
                 android:maxLength="20"
-                android:maxWidth="150dp"
+                android:maxWidth="100dp"
                 android:text="@string/textViewTest"
                 android:textSize="16sp"
                 android:textStyle="italic" />

@@ -169,15 +169,16 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
                 try {
-                    if(!this.curUser.getProfilePictureUrl().isEmpty())
+                    if(this.curUser != null && !this.curUser.getProfilePictureUrl().isEmpty()) {
                         Picasso.with(context)
                                 .load(this.curUser.getProfilePictureUrl()).centerInside()
                                 .placeholder(R.drawable.ic_person_black_24px)
                                 .into(outgoingViewHolder.outgoingImageView);
 
 
-                    outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
-                    outgoingViewHolder.outgoingMessage.setText(message.getText());
+                        outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
+                        outgoingViewHolder.outgoingMessage.setText(message.getText());
+                    }
                 } catch (NullPointerException e) {
                     Log.e(TAG, e.toString());
                 }

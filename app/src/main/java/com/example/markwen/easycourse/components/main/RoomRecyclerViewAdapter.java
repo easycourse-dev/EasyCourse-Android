@@ -95,24 +95,23 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         });
 
 
-
-
         //TODO: Add Usernames
         Realm realm = Realm.getDefaultInstance();
         List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
         Message message;
-        User curUser = User.getCurrentUser((Activity)this.context, realm);
+        User curUser = User.getCurrentUser((Activity) this.context, realm);
         String name = "";
-        if (messages.get(0) != null) {
-            if(messages.get(0).getCreatedAt() != null) {
-                message = messages.get(0);
-            }
-            else {
-                message = messages.get(messages.size()-1);
-            }
+        if (messages.size() > 0) {
+            if (messages.get(0) != null) {
+                if (messages.get(0).getCreatedAt() != null) {
+                    message = messages.get(0);
+                } else {
+                    message = messages.get(messages.size() - 1);
+                }
 
-            roomViewHolder.roomLastMessageTextView.setText(message.getText());
-            roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
+                roomViewHolder.roomLastMessageTextView.setText(message.getText());
+                roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
+            }
         }
     }
 

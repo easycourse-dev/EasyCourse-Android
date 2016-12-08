@@ -35,7 +35,6 @@ import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -124,7 +123,6 @@ public class SignupLogin extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getContext());
         AppEventsLogger.activateApp(getActivity().getApplication());
         realm = Realm.getDefaultInstance();
         currentUser = new User();

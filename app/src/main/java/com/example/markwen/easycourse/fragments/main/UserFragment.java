@@ -21,6 +21,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -28,7 +29,11 @@ import cz.msebera.android.httpclient.Header;
 
 public class UserFragment extends Fragment {
 
+    private static final String TAG = "UserFragment";
+
     Button logoutButton;
+
+    Realm realm;
 
     public UserFragment() {
     }
@@ -36,6 +41,8 @@ public class UserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        realm = Realm.getDefaultInstance();
     }
 
     @Override
@@ -68,6 +75,16 @@ public class UserFragment extends Fragment {
                 editor.putString("currentUser", null);
                 editor.apply();
 
+                // Clear Realm
+                try {
+                    if (realm != null)
+                        realm.beginTransaction();
+                    realm.deleteAll();
+                    realm.commitTransaction();
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onSuccess: ", e);
+                }
+
                 Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
 
                 // Go back to SignupLoginActivity
@@ -82,5 +99,12 @@ public class UserFragment extends Fragment {
                 Snackbar.make(v, "Log out failed because of " + res, Snackbar.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

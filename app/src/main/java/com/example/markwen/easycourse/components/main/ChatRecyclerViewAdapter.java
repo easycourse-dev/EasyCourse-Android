@@ -1,16 +1,23 @@
 package com.example.markwen.easycourse.components.main;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Message;
@@ -68,6 +75,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         IncomingChatTextViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            Linkify.addLinks(incomingMessage, Linkify.ALL);
         }
     }
 
@@ -107,6 +115,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         OutgoingChatTextViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            Linkify.addLinks(outgoingMessage, Linkify.ALL);
         }
     }
 
@@ -152,7 +161,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         Message prevMessage = null;
-        Message message = getData().get(position);
+        final Message message = getData().get(position);
         if (position != 0)
             prevMessage = getData().get(position - 1);
 
@@ -168,22 +177,34 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 } else {
                     outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
                 }
-                try {
-                    if(this.curUser != null && !this.curUser.getProfilePictureUrl().isEmpty()) {
-                        Picasso.with(context)
-                                .load(this.curUser.getProfilePictureUrl()).centerInside()
-                                .placeholder(R.drawable.ic_person_black_24px)
-                                .into(outgoingViewHolder.outgoingImageView);
+
+                if (this.curUser != null) {
+                    try {
+                        if (!this.curUser.getProfilePictureUrl().isEmpty())
+                            Picasso.with(context)
+                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .placeholder(R.drawable.ic_person_black_24px)
+                                    .into(outgoingViewHolder.outgoingImageView);
 
 
-                        outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
-                        outgoingViewHolder.outgoingMessage.setText(message.getText());
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, e.toString());
                     }
-                } catch (NullPointerException e) {
-                    Log.e(TAG, e.toString());
+                    outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
+                    outgoingViewHolder.outgoingMessage.setText(message.getText());
+
                 }
+
+                outgoingViewHolder.outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return showPopup(outgoingViewHolder.outgoingLinearLayout, outgoingViewHolder.outgoingMessage, message);
+                    }
+                });
                 break;
+
             }
+
 
             case OUTGOING_PIC: {
                 break;
@@ -203,18 +224,20 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
                 User thisUser = User.getUserFromRealm(this.realm, message.getSenderId());
 
-                try {
-                    if(!this.curUser.getProfilePictureUrl().isEmpty())
-                        Picasso.with(context)
-                                .load(thisUser.getProfilePictureUrl()).centerInside()
-                                .placeholder(R.drawable.ic_person_black_24px)
-                                .into(incomingViewHolder.incomingImageView);
+                if (thisUser != null) {
+                    try {
+                        if (thisUser.getProfilePictureUrl() != null)
+                            Picasso.with(context)
+                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .placeholder(R.drawable.ic_person_black_24px)
+                                    .into(incomingViewHolder.incomingImageView);
 
-                    if (thisUser.getUsername() != null)
-                        incomingViewHolder.incomingName.setText(thisUser.getUsername());
+
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, e.toString());
+                    }
+                    incomingViewHolder.incomingName.setText(thisUser.getUsername());
                     incomingViewHolder.incomingMessage.setText(message.getText());
-                } catch (NullPointerException e) {
-                    Log.e(TAG, e.toString());
                 }
                 break;
             }
@@ -225,6 +248,36 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
             }
         }
     }
+
+    private boolean showPopup(LinearLayout linearLayout, TextView textView, final Message message) {
+        if(message.getText() == null) return false;
+
+        PopupMenu popup = new PopupMenu(this.context, linearLayout);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.itemPopupCopy:
+                        //Copy item to clipboard
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText(message.getText(), message.getText());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                    case R.id.itemPopupDelete:
+                        //Delete item from realm
+                        return true;
+                }
+                return false;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.chat_message_popup, popup.getMenu());
+        popup.show();
+        return false;
+    }
+
 
     @Nullable
     private String getTimeString(Message message, Message prevMessage) {

@@ -509,29 +509,31 @@ public class SocketIO {
                     Log.e(TAG, obj.toString());
                 } else {
                     Log.e(TAG, "getUserInfo" + obj.toString());
-                    JSONObject userObj = null;
-                    byte[] avatar = null;
-                    String avatarUrlString = "";
+                        JSONObject userObj = null;
+                        byte[] avatar = null;
+                        String avatarUrlString = "";
 
                     try {
+
                         userObj = obj.getJSONObject("user");
-                        Log.e(TAG, "" + userObj);
-                        avatarUrlString = userObj.getString("avatarUrl");
-                        URL avatarUrl = new URL(avatarUrlString);
-                        HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
-                        conn.setDoInput(true);
-                        conn.connect();
-                        conn.setUseCaches(false);
-
-                        InputStream is = conn.getInputStream();
-                        avatar = IOUtils.toByteArray(conn.getInputStream());
-
+                        if (userObj.has("avatarUrl")) {
+                            Log.e(TAG, "" + userObj);
+                            avatarUrlString = userObj.getString("avatarUrl");
+                            URL avatarUrl = new URL(avatarUrlString);
+                            HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                            conn.setDoInput(true);
+                            conn.connect();
+                            conn.setUseCaches(false);
+                            avatar = IOUtils.toByteArray(conn.getInputStream());
+                        }
                     } catch (MalformedURLException e) {
                         Log.e(TAG, e.toString());
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     } catch (IOException e) {
                         Log.e(TAG, e.toString());
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, "no avatarUrl", e);
                     }
 
                     User user = null;
@@ -546,9 +548,9 @@ public class SocketIO {
                     Realm.init(context);
                     Realm realm = Realm.getDefaultInstance();
 
-                    Log.e(TAG, "user in realm? " + User.isUserInRealm(user, realm));
+                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
-                    Log.e(TAG, "user in realm? " + User.isUserInRealm(user, realm));
+                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                 }
             }
         });

@@ -33,6 +33,10 @@
     <!--Menu-->
     <string name="action_settings">Settings</string>
 
+    <!--Popup-->
+    <string name="popupCopy">Copy</string>
+    <string name="popupDelete">Delete</string>
+
     <!--Settings-->
     <string name="notificationsSettings">Notifications</string>
     <string name="vibrateSettings">Vibrate</string>

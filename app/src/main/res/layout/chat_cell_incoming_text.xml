@@ -49,8 +49,8 @@
                 android:id="@+id/textViewIncomingTextMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:background="@drawable/cell_incoming_message"
-                android:clickable="false"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
         </LinearLayout>

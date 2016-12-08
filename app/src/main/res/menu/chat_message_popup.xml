@@ -3,6 +3,6 @@
     <item android:id="@+id/itemPopupCopy"
         android:title="@string/popupCopy"/>
 
-    <item android:id="@+id/itemPopupDelete"
-        android:title="@string/popupDelete" />
+    <!--<item android:id="@+id/itemPopupDelete"-->
+        <!--android:title="@string/popupDelete" />-->
 </menu>

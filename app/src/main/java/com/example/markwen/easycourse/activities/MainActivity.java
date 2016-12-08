@@ -190,8 +190,8 @@ public class MainActivity extends AppCompatActivity {
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add items
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("RoomsFragment", R.drawable.ic_chatboxes);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("UserFragment", R.drawable.ic_contact_outline);
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
 
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);

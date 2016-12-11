@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Settings clicked");
                 Intent i = new Intent(this, SettingsActivity.class);
                 startActivity(i);
+                realm.close();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

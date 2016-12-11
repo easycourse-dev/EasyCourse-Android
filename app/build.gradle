@@ -89,4 +89,7 @@ dependencies {
 
     //Realm
     compile 'io.realm:android-adapters:1.4.0'
+
+    //Dialogs
+    compile 'com.afollestad.material-dialogs:core:0.9.1.0'
 }

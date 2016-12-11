@@ -100,7 +100,7 @@ public class UserFragment extends Fragment {
 
         try {
             currentUserObject = new JSONObject(currentUser);
-            Log.e("com.example.easycourse", currentUserObject.toString());
+            Log.d(TAG, currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
             textViewUsername.setText(user.getUsername());
             if(user.getProfilePicture() != null) {

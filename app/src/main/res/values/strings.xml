@@ -37,6 +37,12 @@
     <string name="popupCopy">Copy</string>
     <string name="popupDelete">Delete</string>
 
+    <!--Dialogs-->
+    <string-array name="addImageDialog">
+        <item>Choose an image</item>
+        <item>Take an image</item>
+    </string-array>
+
     <!--Settings-->
     <string name="notificationsSettings">Notifications</string>
     <string name="vibrateSettings">Vibrate</string>

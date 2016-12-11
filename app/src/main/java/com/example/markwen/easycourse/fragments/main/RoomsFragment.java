@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.fragments.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
@@ -70,13 +72,20 @@ public class RoomsFragment extends Fragment {
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).findAll();
-        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(getContext(), rooms);
+        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms);
         roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
         roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
         roomRecyclerView.setHasFixedSize(true);
         LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         roomRecyclerView.setLayoutManager(chatLinearManager);
+    }
+
+    public void startChatRoom(Room room) {
+        Intent chatActivityIntent = new Intent(getContext(), ChatRoom.class);
+        chatActivityIntent.putExtra("roomId", room.getId());
+        getActivity().startActivity(chatActivityIntent);
+        realm.close();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.components.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -39,12 +41,14 @@ import io.realm.Sort;
 
 public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
 
+    private RoomsFragment fragment;
     private Context context;
     private RealmResults<Room> rooms;
 
 
-    public RoomRecyclerViewAdapter(Context context, RealmResults<Room> rooms) {
+    public RoomRecyclerViewAdapter(RoomsFragment fragment, Context context, RealmResults<Room> rooms) {
         super(context, rooms, true);
+        this.fragment = fragment;
         this.context = context;
         this.rooms = rooms;
     }
@@ -90,7 +94,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startChatRoom(room);
+                fragment.startChatRoom(room);
             }
         });
 
@@ -132,11 +136,5 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             return df.format(messageDate);
 
         }
-    }
-
-    private void startChatRoom(Room room) {
-        Intent chatActivityIntent = new Intent(context, ChatRoom.class);
-        chatActivityIntent.putExtra("roomId", room.getId());
-        context.startActivity(chatActivityIntent);
     }
 }

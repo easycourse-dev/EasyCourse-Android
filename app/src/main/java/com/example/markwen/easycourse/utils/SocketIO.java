@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
@@ -139,6 +140,16 @@ public class SocketIO {
     }
 
     //syncs realm database
+    public void syncUser(String displayName, String avatarUrl) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        if(displayName != null)
+            jsonParam.put("displayName", displayName);
+        if(avatarUrl != null)
+            jsonParam.put("avatarUrl", avatarUrl);
+        socket.emit("syncUser", jsonParam);
+        syncUser();
+    }
+
     public void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override

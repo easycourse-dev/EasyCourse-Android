@@ -83,6 +83,10 @@ public class User extends RealmObject {
         });
     }
 
+    public User getByPrimaryKey(Realm realm, String id) {
+        return realm.where(getClass()).equalTo("id", id).findFirst();
+    }
+
     @Nullable
     public static User getCurrentUser(Activity activity, Realm realm) {
         SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
@@ -95,7 +99,6 @@ public class User extends RealmObject {
             return results.first();
         return null;
     }
-
 
     public String getId() {
         return id;

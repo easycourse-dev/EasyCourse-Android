@@ -12,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -165,6 +167,26 @@ public class APIFunctions {
         StringEntity body = new StringEntity(jsonParam.toString());
 
         client.post(context, URL+"/report", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
+    public static boolean uploadImage(Context context, File image, String fileName, String uploadType, String roomID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+        client.addHeader("type",uploadType);
+        if(uploadType.equals("message"))
+            client.addHeader("room",roomID);
+
+        RequestParams params = new RequestParams();
+        params.put("img", image);
+        params.put("fileName", fileName);
+        params.put("mimeType", "image/jpg");
+
+        client.post(context, URL+"/uploadimage", params, jsonHttpResponseHandler);
         return true;
     }
 

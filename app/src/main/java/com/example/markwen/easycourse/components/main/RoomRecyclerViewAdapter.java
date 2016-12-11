@@ -134,7 +134,6 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         } else {
             DateFormat df = new SimpleDateFormat("mm dd", Locale.US);
             return df.format(messageDate);
-
         }
     }
 }

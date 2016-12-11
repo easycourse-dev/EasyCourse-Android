@@ -29,6 +29,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -360,16 +361,20 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         Date prevMessageDate = prevMessage.getCreatedAt();
         if (prevMessageDate == null) return null;
         long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
-        if (diffInMinutes >= 1) {
+        if (diffInMinutes >= 5) {
             //If today
-            if (DateUtils.isToday(messageDate) && DateUtils.isToday(prevMessageDate)) {
+            if (DateUtils.isToday(messageDate)) {
                 //Exclude date in time
+                TimeZone UTC = TimeZone.getTimeZone("UTC");
                 DateFormat df = new SimpleDateFormat("h:mm a", Locale.US);
+                df.setTimeZone(UTC);
                 return df.format(messageDate);
 
             } else {
                 //Include date in time
-                DateFormat df = new SimpleDateFormat("MM:dd:yy hh:mm a", Locale.US);
+                TimeZone UTC = TimeZone.getTimeZone("UTC");
+                DateFormat df = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.US);
+                df.setTimeZone(UTC);
                 return df.format(messageDate);
             }
 

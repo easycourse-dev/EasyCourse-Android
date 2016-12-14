@@ -183,7 +183,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     try {
                         if (!this.curUser.getProfilePictureUrl().isEmpty())
                             Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
                                     .placeholder(R.drawable.ic_person_black_24px)
                                     .into(outgoingViewHolder.outgoingImageView);
 
@@ -222,13 +222,13 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     try {
                         if (!this.curUser.getProfilePictureUrl().isEmpty())
                             Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
                                     .placeholder(R.drawable.ic_person_black_24px)
                                     .into(outgoingViewHolder.outgoingPicUserView);
 
                         if (!message.getImageUrl().isEmpty()) {
                             Picasso.with(context)
-                                    .load(message.getImageUrl()).centerInside()
+                                    .load(message.getImageUrl()).resize(36,36).centerInside()
                                     .into(outgoingViewHolder.outgoingPicImageView);
                         }
 
@@ -268,7 +268,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     try {
                         if (thisUser.getProfilePictureUrl() != null)
                             Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
                                     .placeholder(R.drawable.ic_person_black_24px)
                                     .into(incomingViewHolder.incomingImageView);
 
@@ -300,13 +300,13 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                     try {
                         if (thisUser.getProfilePictureUrl() != null)
                             Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).centerInside()
+                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
                                     .placeholder(R.drawable.ic_person_black_24px)
                                     .into(incomingViewHolder.incomingPicUserView);
 
                         if (!message.getImageUrl().isEmpty()) {
                             Picasso.with(context)
-                                    .load(message.getImageUrl()).centerInside()
+                                    .load(message.getImageUrl()).resize(36,36).centerInside()
                                     .into(incomingViewHolder.incomingPicImageView);
                         }
 

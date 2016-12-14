@@ -66,7 +66,6 @@ public class SignupLogin extends Fragment {
 
     @BindView(R.id.textViewTitle)
     TextView titleTextView;
-
     @BindView(R.id.editTextEmail)
     EditText emailEditText;
     @BindView(R.id.editTextPassword)

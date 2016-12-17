@@ -73,9 +73,10 @@ public class UserProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userprofile);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         try {
             socket = new SocketIO(this, getApplicationContext());
         } catch (URISyntaxException e) {
@@ -109,8 +110,12 @@ public class UserProfile extends AppCompatActivity {
             currentUserObject = new JSONObject(currentUser);
             Log.e("com.example.easycourse", currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-            avatarImage.setImageBitmap(bm);
+            if (user.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+                avatarImage.setImageBitmap(bm);
+            } else {
+                avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -139,20 +144,20 @@ public class UserProfile extends AppCompatActivity {
                         Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
 
-                        Activity activity = new Activity();
-                        Context context = view.getContext();
-                        while (context instanceof ContextWrapper) {
-                            if (context instanceof Activity) {
-                                activity = (Activity)context;
-                            }
-                            context = ((ContextWrapper)context).getBaseContext();
+                    Activity activity = new Activity();
+                    Context context = view.getContext();
+                    while (context instanceof ContextWrapper) {
+                        if (context instanceof Activity) {
+                            activity = (Activity) context;
                         }
+                        context = ((ContextWrapper) context).getBaseContext();
+                    }
 
-                        ActivityCompat.requestPermissions(activity,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
-                } else{
+                } else {
                     openGallery();
                 }
 
@@ -163,9 +168,9 @@ public class UserProfile extends AppCompatActivity {
 
     }
 
-    public void toggleProfileEdit(){
+    public void toggleProfileEdit() {
         isInEditMode = !isInEditMode;
-        if(isInEditMode){
+        if (isInEditMode) {
             textViewUsername.setVisibility(View.GONE);
             editTextUsername.setVisibility(View.VISIBLE);
             saveChangesButton.show();
@@ -198,7 +203,7 @@ public class UserProfile extends AppCompatActivity {
         String path = getImagePath(originalUri);
         Log.e("com.example.easycourse", path);
         try {
-            APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler(){
+            APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.e("com.example.easycourse", response.toString());
@@ -208,6 +213,7 @@ public class UserProfile extends AppCompatActivity {
                         Log.e("com.example.easycourse", response.toString());
                     }
                 }
+
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                     Log.e("com.example.easycourse", res.toString());
@@ -221,14 +227,15 @@ public class UserProfile extends AppCompatActivity {
             Log.e("com.example.easycourse", e.toString());
         }
     }
+
     /**
      * helper to retrieve the path of an image URI
      */
-    public String getImagePath(Uri uri){
+    public String getImagePath(Uri uri) {
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
         cursor.moveToFirst();
         String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":")+1);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
         cursor.close();
 
         cursor = getContentResolver().query(
@@ -256,12 +263,12 @@ public class UserProfile extends AppCompatActivity {
         }
     }
 
-    private void openGallery(){
-        if (Build.VERSION.SDK_INT <19 || true){
+    private void openGallery() {
+        if (Build.VERSION.SDK_INT < 19 || true) {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"),GALLERY_INTENT_CALLED);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_INTENT_CALLED);
         } else {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);

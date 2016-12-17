@@ -36,7 +36,6 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -67,7 +66,6 @@ public class SignupLogin extends Fragment {
 
     @BindView(R.id.textViewTitle)
     TextView titleTextView;
-
     @BindView(R.id.editTextEmail)
     EditText emailEditText;
     @BindView(R.id.editTextPassword)
@@ -126,7 +124,6 @@ public class SignupLogin extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getContext());
         AppEventsLogger.activateApp(getActivity().getApplication());
         realm = Realm.getDefaultInstance();
         currentUser = new User();
@@ -234,7 +231,7 @@ public class SignupLogin extends Fragment {
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                                // Make a Snackbar to notify fragment_user with error
+                                // Make a Snackbar to notify user with error
                                 fbLoginErrorSnackbar.show();
                             }
                         });
@@ -247,7 +244,7 @@ public class SignupLogin extends Fragment {
 
                     @Override
                     public void onError(FacebookException error) {
-                        // Make a Snackbar to notify fragment_user with error
+                        // Make a Snackbar to notify user with error
                         fbLoginErrorSnackbar.show();
                     }
                 });
@@ -391,7 +388,7 @@ public class SignupLogin extends Fragment {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        // Make a Snackbar to notify fragment_user with error
+                        // Make a Snackbar to notify user with error
                         loginErrorSnackbar.show();
                     }
                 });
@@ -415,7 +412,7 @@ public class SignupLogin extends Fragment {
             if (header.toString().contains("Auth"))
                 userToken = header.toString().substring(header.toString().indexOf(":") + 2);
         }
-        // Store fragment_user at SharedPreferences
+        // Store user at SharedPreferences
         sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("userToken", userToken);

@@ -15,6 +15,7 @@
         android:textSize="12sp" />
 
     <LinearLayout
+        android:baselineAligned="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -51,7 +52,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/cell_incoming_message"
-                    android:clickable="false"
                     android:text="Sample Message"
                     android:textColor="@color/white"
                     android:textSize="16sp" />

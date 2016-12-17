@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.realm;
+package com.example.markwen.easycourse.utils;
 
 import com.example.markwen.easycourse.models.main.Message;
 import com.squareup.otto.Subscribe;

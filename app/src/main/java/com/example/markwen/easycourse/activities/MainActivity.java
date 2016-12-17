@@ -18,26 +18,27 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.fragments.main.UserFragment;
-import com.example.markwen.easycourse.models.signup.UserSetup;
-import com.example.markwen.easycourse.utils.SocketIO;
-
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.coordinatorMain)
     CoordinatorLayout coordinatorMain;
 
+
+    //TODO: add all realm stuff to asynctask
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,13 +71,10 @@ public class MainActivity extends AppCompatActivity {
         //Binds all the views
         ButterKnife.bind(this);
 
-        // Checking if there is a fragment_user currently logged in
+        // Checking if there is a user currently logged in
         // if there is, remain in MainActivity
         // if not, show SignupLoginActivity
         checkUserLogin();
-
-//        Checks for internet, displays snackbar if not found
-//        checkForInternet();
 
 
         realm = Realm.getDefaultInstance();
@@ -104,39 +104,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intentFromSignup = getIntent();
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
-            Log.d(TAG, userSetup.getUniversityID());
-            if (userSetup.getCourseCodeArray() != null && userSetup.getCourseCodeArray().length != 0)
-                Log.d(TAG, userSetup.getCourseCodeArray()[0]);
-            if (userSetup.getLanguageCodeArray() != null && userSetup.getLanguageCodeArray().length != 0)
-                Log.d(TAG, Integer.toString(userSetup.getLanguageCodeArray()[0]));
+            parseSetupIntent(userSetup);
         }
-        try {
-            socketIO.getAllMessage();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
-//    private void checkForInternet() {
-//        final Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                boolean connected = EasyCourse.isConnected();
-//                if(!connected) {
-//                    final Snackbar snackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-//                    snackbar.setAction("Retry", new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            if(EasyCourse.isConnected())
-//                                snackbar.dismiss();
-//                        }
-//                    });
-//                    snackbar.show();
-//                }
-//            }
-//        }, 100);
-//    }
+    }
 
 
     private void checkUserLogin() {
@@ -177,13 +148,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void parseSetupIntent(UserSetup userSetup) {
+        if (userSetup == null) return;
+        try {
+
+            APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess: updateUser");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e(TAG, "onFailure: updateuser", t);
+                }
+            });
+
+
+            APIFunctions.setCoursesAndLanguages(this, userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess: setCoursesAndLanguages");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e(TAG, "onFailure: setCoursesAndLanguages", t);
+                }
+            });
+
+
+        } catch (JSONException e) {
+            Log.e(TAG, "JSONexception in parsing usersetup", e);
+        } catch (UnsupportedEncodingException e) {
+            Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
+        }
+    }
+
     private void setupNavigation() {
 
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add items
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("RoomsFragment", R.drawable.ic_chatboxes);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("UserFragment", R.drawable.ic_contact_outline);
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
 
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
@@ -251,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Settings clicked");
                 Intent i = new Intent(this, SettingsActivity.class);
                 startActivity(i);
+                realm.close();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -280,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void reconnectEvent(Event.ReconnectEvent event) {
-        if(disconnectSnackbar != null) {
+        if (disconnectSnackbar != null) {
             disconnectSnackbar.dismiss();
         }
     }

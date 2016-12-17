@@ -40,6 +40,7 @@ import org.json.JSONObject;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 
+
 import cz.msebera.android.httpclient.Header;
 
 /**
@@ -47,6 +48,8 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class UserFragment extends Fragment {
+
+    private static final String TAG = "UserFragment";
 
     Button logoutButton;
     ImageView avatarImage;
@@ -62,6 +65,8 @@ public class UserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        realm = Realm.getDefaultInstance();
     }
 
     @Override
@@ -95,11 +100,15 @@ public class UserFragment extends Fragment {
 
         try {
             currentUserObject = new JSONObject(currentUser);
-            Log.e("com.example.easycourse", currentUserObject.toString());
+            Log.d(TAG, currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
             textViewUsername.setText(user.getUsername());
-            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-            avatarImage.setImageBitmap(bm);
+            if(user.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+                avatarImage.setImageBitmap(bm);
+            }else {
+                avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -129,6 +138,16 @@ public class UserFragment extends Fragment {
                 editor.putString("currentUser", null);
                 editor.apply();
 
+                // Clear Realm
+                try {
+                    if (realm != null)
+                        realm.beginTransaction();
+                    realm.deleteAll();
+                    realm.commitTransaction();
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onSuccess: ", e);
+                }
+
                 Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
 
                 // Go back to SignupLoginActivity
@@ -143,5 +162,12 @@ public class UserFragment extends Fragment {
                 Snackbar.make(v, "Log out failed because of " + res, Snackbar.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

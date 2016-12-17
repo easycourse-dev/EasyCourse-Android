@@ -78,7 +78,7 @@ public class UserProfile extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
         try {
-            socket = new SocketIO(this, getApplicationContext());
+            socket = new SocketIO(getApplicationContext());
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

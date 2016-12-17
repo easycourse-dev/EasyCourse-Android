@@ -1,11 +1,18 @@
 package com.example.markwen.easycourse.models.main;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -17,12 +24,13 @@ public class Room extends RealmObject {
     private boolean isToUser = false;
 
     //When user quits this room on another platform, this room will not be deleted.
-    //Instead, chaning isJoinIn to false
+    //Instead, chaningg isJoinIn to false
     private boolean isJoinIn = false;
 
     //Basic info of room
+    @PrimaryKey
     private String id;
-    private String roomname;
+    private String roomName;
     private RealmList<Message> messageList;
     private int unread = 0;
     private boolean silent = false;
@@ -35,7 +43,7 @@ public class Room extends RealmObject {
     private int memberCounts;
     private int language;
 
-    //User built room
+    //UserFragment built room
     private String founderID;
     private boolean isPublic = false;
 
@@ -46,9 +54,14 @@ public class Room extends RealmObject {
 
     }
 
-    public Room(String id, String roomname, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
+    public Room(String roomName, String courseName) {
+        this.roomName = roomName;
+        this.courseName = courseName;
+    }
+
+    public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
         this.id = id;
-        this.roomname = roomname;
+        this.roomName = roomName;
         this.messageList = messageList;
         this.courseID = courseID;
         this.courseName = courseName;
@@ -57,6 +70,7 @@ public class Room extends RealmObject {
         this.memberCounts = memberCounts;
         this.language = language;
         this.founderID = founderID;
+
         this.isSystem = isSystem;
     }
 
@@ -85,6 +99,22 @@ public class Room extends RealmObject {
         });
     }
 
+    public static ArrayList<Room> getRoomsFromRealm(Realm realm) {
+        RealmResults<Room> results = realm.where(Room.class)
+                .findAll();
+        return new ArrayList<>(results);
+    }
+
+    @Nullable
+    public static Room getRoomById(Activity activity, Realm realm, String id) {
+        RealmResults<Room> results = realm.where(Room.class)
+                .equalTo("id", id)
+                .findAll();
+        if(results.size() > 0)
+            return results.first();
+        return null;
+    }
+
 
     public boolean isToUser() {
         return isToUser;
@@ -110,12 +140,12 @@ public class Room extends RealmObject {
         this.id = id;
     }
 
-    public String getRoomname() {
-        return roomname;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomname(String roomname) {
-        this.roomname = roomname;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public List<Message> getMessageList() {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Notifications">
+        <CheckBoxPreference
+            android:key="prefNotifications"
+            android:title="@string/notificationsSettings"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="prefVibrate"
+            android:title="@string/vibrateSettings"
+            android:defaultValue="true"
+            android:dependency="prefNotifications"/>
+        <CheckBoxPreference
+            android:key="prefSound"
+            android:title="@string/soundSettings"
+            android:defaultValue="true"
+            android:dependency="prefNotifications"/>
+    </PreferenceCategory>
+</PreferenceScreen>

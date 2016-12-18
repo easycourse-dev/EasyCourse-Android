@@ -1,8 +1,18 @@
 package com.example.markwen.easycourse.activities;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
@@ -29,6 +40,8 @@ import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
@@ -40,7 +53,10 @@ import static com.example.markwen.easycourse.EasyCourse.bus;
 public class ChatRoom extends AppCompatActivity {
 
     private static final String TAG = "ChatRoom";
-
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
+    private static final int PERMISSION_DENIED = -1;
+    private static final int CHOOSE_IMAGE_INTENT = 4;
+    private static final int TAKE_IMAGE_INTENT = 5;
 
     Realm realm;
     SocketIO socketIO;
@@ -68,7 +84,6 @@ public class ChatRoom extends AppCompatActivity {
     ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     RealmResults<Message> messages;
 
-    //TODO: Animate from roomsview
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +103,13 @@ public class ChatRoom extends AppCompatActivity {
         handleIntent();
 
         setupChatRecyclerView();
+
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog();
+            }
+        });
 
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,13 +136,55 @@ public class ChatRoom extends AppCompatActivity {
         bus.register(this);
     }
 
+    private void showImageDialog() {
+        new MaterialDialog.Builder(this)
+                .items(R.array.addImageDialog)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        handleAddImage(which, view);
+                    }
+                })
+                .show();
+    }
+
+    private void handleAddImage(int which, View view) {
+        switch (which) {
+            case 0:  // choose image
+                int permissionCheck1 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (permissionCheck1 == PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                } else {
+                    chooseImage();
+                }
+
+                break;
+            case 1:  // take image
+                takeImage();
+                break;
+        }
+    }
+
+    private void chooseImage() {
+        Intent chooseImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(chooseImageIntent , CHOOSE_IMAGE_INTENT);
+    }
+
+    private void takeImage() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);
+        }
+    }
+
+
     private void finalSendMessage() {
         String messageText = messageEditText.getText().toString();
         if (!TextUtils.isEmpty(messageText)) {
             if (sendTextMessage(messageText)) {
                 messageEditText.setText("");
                 chatRecyclerViewAdapter.notifyDataSetChanged();
-                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount()+1);
+                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
             }
         }
     }
@@ -175,6 +239,47 @@ public class ChatRoom extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case CHOOSE_IMAGE_INTENT:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+                    try {
+                        Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                        if(imageBitmap == null) return;
+                    }catch (IOException e) {
+                        Log.e(TAG, "onActivityResult: ", e);
+                    }
+                    Log.d(TAG, "onActivityResult: " + selectedImage.toString());
+                }
+                break;
+
+            case TAKE_IMAGE_INTENT:
+                if (resultCode == RESULT_OK) {
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    if(imageBitmap == null) return;
+                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    chooseImage();
+                }
+                break;
+            }
+
+        }
+    }
+
 
     @Override
     protected void onResume() {
@@ -196,7 +301,7 @@ public class ChatRoom extends AppCompatActivity {
 
     @Subscribe
     public void reconnectEvent(Event.ReconnectEvent event) {
-        if(disconnectSnackbar != null) {
+        if (disconnectSnackbar != null) {
             disconnectSnackbar.dismiss();
         }
     }

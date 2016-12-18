@@ -65,15 +65,16 @@
         <ImageButton
             android:id="@+id/chatAddImageButton"
             android:layout_width="43dp"
-            android:layout_height="match_parent"
+            android:layout_height="43dp"
+            android:layout_gravity="center_vertical"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_add_black_24px"
+            android:background="@drawable/ic_add_a_photo_black_24px"
             android:contentDescription="@string/chatMessageAccessibility" />
 
         <EditText
             android:id="@+id/chatMessageEditText"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/messageSendBoxHint"
             android:imeOptions="actionSend"

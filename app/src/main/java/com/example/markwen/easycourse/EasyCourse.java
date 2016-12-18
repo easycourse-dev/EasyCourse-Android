@@ -10,6 +10,7 @@ import android.util.Log;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.services.MainBus;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
@@ -39,6 +40,8 @@ public class EasyCourse extends Application {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
+
+        FacebookSdk.sdkInitialize(this);
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)

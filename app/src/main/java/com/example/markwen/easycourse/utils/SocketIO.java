@@ -21,13 +21,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -124,7 +125,7 @@ public class SocketIO {
                 try {
                     JSONObject obj = (JSONObject) args[0];
                     if (obj.has("error")) {
-                        Log.d(TAG, obj.toString());
+                        Log.e(TAG, obj.toString());
                     } else {
                         JSONObject msgObj = obj.getJSONObject("msg");
                         saveMessageToRealm(msgObj);
@@ -137,6 +138,16 @@ public class SocketIO {
     }
 
     //syncs realm database
+    public void syncUser(String displayName, String avatarUrl) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        if(displayName != null)
+            jsonParam.put("displayName", displayName);
+        if(avatarUrl != null)
+            jsonParam.put("avatarUrl", avatarUrl);
+        socket.emit("syncUser", jsonParam);
+        syncUser();
+    }
+
     public void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
@@ -158,14 +169,13 @@ public class SocketIO {
 
                     try {
                         userObj = obj.getJSONObject("user");
-                        Log.d(TAG, "" + userObj);
                         if (userObj.has("avatarUrl")) {
                             avatarUrlString = userObj.getString("avatarUrl");
                             URL avatarUrl = new URL(avatarUrlString);
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                             conn.setDoInput(true);
                             conn.connect();
-                            conn.setUseCaches(false);
+                            //conn.setUseCaches(false);
 
 
                             InputStream is = conn.getInputStream();
@@ -194,9 +204,7 @@ public class SocketIO {
                     Realm realm = Realm.getDefaultInstance();
 
 
-                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
-                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     realm.close();
                 }
             }
@@ -219,7 +227,7 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    Log.d(TAG, obj.toString());
+
                     if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
@@ -243,7 +251,6 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    Log.d(TAG, obj.toString());
                     if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
@@ -306,7 +313,8 @@ public class SocketIO {
                         Log.e(TAG, e.toString());
                     }
 
-                    Log.d(TAG, obj.toString());
+                } else {
+                    Log.e(TAG, obj.toString());
                 }
             }
         });
@@ -326,14 +334,13 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 if (obj.has("error")) {
-                    Log.e("com.example.easycourse", obj.toString());
+                    Log.e(TAG, obj.toString());
                 } else {
-                    Log.d("com.example.easycourse", "dropCourse " + obj.toString());
 
                     try {
                         dropCourseSuccess[0] = obj.getBoolean("success");
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
                     syncUser();
                 }
@@ -378,10 +385,9 @@ public class SocketIO {
                             rooms[0][i] = room;
                         }
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
 
-                    Log.d("com.example.easycourse", obj.toString());
                 }
             }
         });
@@ -418,12 +424,9 @@ public class SocketIO {
 
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
 
-                    Log.d("com.example.easycourse", obj.toString());
-                } else {
-                    Log.e("com.example.easycourse", obj.toString());
                 }
             }
         });
@@ -442,14 +445,13 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 if (obj.has("error")) {
-                    Log.e("com.example.easycourse", obj.toString());
+                    Log.e(TAG, obj.toString());
                 } else {
-                    Log.d("com.example.easycourse", "quitRoom " + obj.toString());
 
                     try {
                         dropRoomSuccess[0] = obj.getBoolean("success");
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
                     syncUser();
                 }
@@ -490,12 +492,11 @@ public class SocketIO {
 
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
 
-                    Log.d("com.example.easycourse", obj.toString());
                 } else {
-                    Log.d("com.example.easycourse", obj.toString());
+                    Log.e(TAG, obj.toString());
                 }
             }
         });
@@ -514,37 +515,39 @@ public class SocketIO {
 
                 JSONObject obj = (JSONObject) args[0];
                 if (obj.has("error")) {
-                    Log.e("com.example.easycourse", obj.toString());
+                    Log.e(TAG, obj.toString());
                 } else {
-                    Log.e("com.example.easycourse", "getUserInfo" + obj.toString());
-                    JSONObject userObj = null;
-                    byte[] avatar = null;
-                    String avatarUrlString = "";
+                    Log.e(TAG, "getUserInfo" + obj.toString());
+                        JSONObject userObj = null;
+                        byte[] avatar = null;
+                        String avatarUrlString = "";
 
                     try {
+
                         userObj = obj.getJSONObject("user");
-                        Log.e("com.example.easycourse", "" + userObj);
-                        avatarUrlString = userObj.getString("avatarUrl");
-                        URL avatarUrl = new URL(avatarUrlString);
-                        HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
-                        conn.setDoInput(true);
-                        conn.connect();
-                        conn.setUseCaches(false);
-
-                        InputStream is = conn.getInputStream();
-                        avatar = IOUtils.toByteArray(conn.getInputStream());
-
+                        if (userObj.has("avatarUrl")) {
+                            Log.e(TAG, "" + userObj);
+                            avatarUrlString = userObj.getString("avatarUrl");
+                            URL avatarUrl = new URL(avatarUrlString);
+                            HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                            conn.setDoInput(true);
+                            conn.connect();
+                            //conn.setUseCaches(false);
+                            avatar = IOUtils.toByteArray(conn.getInputStream());
+                        }
                     } catch (MalformedURLException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     } catch (IOException e) {
                         Log.e(TAG, e.toString());
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, "no avatarUrl", e);
                     }
 
                     User user = null;
                     try {
-                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), null, null, null, null);
+                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, null, null, null);
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     } catch (NullPointerException e) {
@@ -554,9 +557,9 @@ public class SocketIO {
                     Realm.init(context);
                     Realm realm = Realm.getDefaultInstance();
 
-                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
+                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
-                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
+                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                 }
             }
         });
@@ -576,15 +579,23 @@ public class SocketIO {
                 String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
-                Date date = (Date) checkIfJsonExists(obj, "date", null);
+                String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+
+                Date date = null;
+                try {
+                    date = formatter.parse(dateString);
+
+                } catch (ParseException e) {
+                    Log.e(TAG, "saveMessageToRealm: parseException", e);
+                }
 
                 Realm realm = Realm.getDefaultInstance();
 
                 message = new Message(id, remoteId, senderId, text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
-                Log.d(TAG, "message in realm? " + Message.isMessageInRealm(message, realm));
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
-                Log.d(TAG, "message in realm? " + Message.isMessageInRealm(message, realm));
                 realm.close();
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());

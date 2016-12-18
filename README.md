@@ -19,21 +19,19 @@ git clone https://github.com/easycourse-dev/EasyCourse-Android.git
 - [Android Asynchronous Http Client](http://loopj.com/android-async-http/)
 - [Android View Animations](https://github.com/daimajia/AndroidViewAnimations)
 
+
 ## Coding Standards
 
 1. #### File Directory
 
   ###### Java:
+    - **'src/main/java/activities':** android activities
     - **'src/main/java/components':** java files related to small components
     - **'src/main/java/fragments':** fragment files
     - **'src/main/java/models':** Realm models
+    - **'src/main/java/services':** services such as notificiations/wakeups/eventbus
     - **'src/main/java/utils':** singleton functions like API calls
-    - **'src/main/java':** activities
 
-  ###### Layout: (As of 10/21/2016, the layouts folder is still unable to be organized this way, please figure out ways to implement the following structure in the future)
-    - **'src/main/res/layout/fragments':** fragment files
-    - **'src/main/res/layout/components':** xml files related to small components
-    - **'src/main/res/layout':** activities
 
 2. #### Naming Standards
 

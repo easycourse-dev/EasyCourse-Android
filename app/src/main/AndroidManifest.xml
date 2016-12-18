@@ -56,6 +56,7 @@
         </activity>
 
         <activity android:name=".activities.SettingsActivity"/>
+        <activity android:name=".activities.NewRoomActivity"/>
 
         <service
             android:name=".services.MainService"

@@ -1,7 +1,6 @@
 package com.example.markwen.easycourse.activities;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.markwen.easycourse.R;
@@ -12,8 +11,8 @@ import com.example.markwen.easycourse.R;
 
 public class NewRoomActivity extends AppCompatActivity {
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_room);
     }
 }

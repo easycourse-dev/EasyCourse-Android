@@ -11,12 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,9 +33,6 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
-
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -73,7 +64,7 @@ public class UserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.user, container, false);
+        View v = inflater.inflate(R.layout.fragment_user, container, false);
 
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
@@ -103,10 +94,10 @@ public class UserFragment extends Fragment {
             Log.d(TAG, currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
             textViewUsername.setText(user.getUsername());
-            if(user.getProfilePicture() != null) {
+            if (user.getProfilePicture() != null) {
                 Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
                 avatarImage.setImageBitmap(bm);
-            }else {
+            } else {
                 avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
             }
 

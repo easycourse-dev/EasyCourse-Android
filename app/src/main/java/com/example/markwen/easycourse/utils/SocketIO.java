@@ -422,7 +422,10 @@ public class SocketIO {
                         RealmList<Message> messageList = new RealmList<>();
                         RealmList<User> memberList = new RealmList<>();
 
+                        Realm realm = Realm.getDefaultInstance();
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                        Room.updateRoomToRealm(room[0], realm);
+                        realm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
@@ -490,7 +493,10 @@ public class SocketIO {
                         RealmList<Message> messageList = new RealmList<>();
                         RealmList<User> memberList = new RealmList<>();
 
+                        Realm realm = Realm.getDefaultInstance();
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                        Room.updateRoomToRealm(room[0], realm);
+                        realm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }

@@ -65,6 +65,7 @@ public class NewRoomActivity extends AppCompatActivity {
         noCourseText.setVisibility(View.GONE);
         coursesLabel.setVisibility(View.GONE);
         newRoomCourseView.setVisibility(View.GONE);
+        newRoomButton.setVisibility(View.GONE);
 
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         socketIO.syncUser();

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout
-    android:id="@+id/relativeLayoutChatRoom"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ChatRoom">
+    tools:context=".activities.ChatRoom"
+    android:fitsSystemWindows="true">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/relativeLayoutChatRoom"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:context=".activities.ChatRoom">
 
-    <!--TODO: Hide scrollbar-->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        <!--TODO: Hide scrollbar-->
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbarChatRoom"
@@ -96,13 +98,15 @@
                 android:background="@drawable/ic_send_black_24px"
                 android:contentDescription="@string/chatMessageAccessibility" />
         </LinearLayout>
-    </LinearLayout>
+
+    </RelativeLayout>
     <android.support.design.widget.NavigationView
         android:id="@+id/roomDetailDrawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="right"
         android:background="@android:color/white"
+        app:menu="@menu/room_detail"
         />
 
 </android.support.v4.widget.DrawerLayout>

@@ -1,15 +1,13 @@
 package com.example.markwen.easycourse.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -81,6 +79,9 @@ public class ChatRoom extends AppCompatActivity {
     @BindView(R.id.chatSendImageButton)
     ImageButton sendImageButton;
 
+    @BindView(R.id.roomDetailDrawer)
+    NavigationView roomDetailDrawer;
+
     ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     RealmResults<Message> messages;
 
@@ -89,7 +90,6 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         ButterKnife.bind(this);
-
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -200,6 +200,12 @@ public class ChatRoom extends AppCompatActivity {
         }
         toolbarTitleTextView.setText(currentRoom.getRoomName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+
+
+        View headView = roomDetailDrawer.getHeaderView(0);
+
+        ((TextView) headView.findViewById(R.id.headerCourseTitle)).setText(currentRoom.getRoomName());
+        ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
     }
 
     //TODO: private messages

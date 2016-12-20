@@ -369,7 +369,7 @@ public class SocketIO {
                         rooms[0] = new Room[roomArrayJSON.length()];
                         for (int i = 0; i < roomArrayJSON.length(); i++) {
                             String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
-                            String roomname = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
+                            String roomName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
                             String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
                             String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
                             String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
@@ -378,16 +378,12 @@ public class SocketIO {
                             int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", "0"));
                             boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
 
-                            RealmList<Message> messageList = new RealmList<>();
-                            RealmList<User> memberList = new RealmList<>();
-
-                            Room room = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                            Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, language, founderId, isSystem);
                             rooms[0][i] = room;
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
-
                 }
             }
         });
@@ -422,10 +418,7 @@ public class SocketIO {
                         RealmList<Message> messageList = new RealmList<>();
                         RealmList<User> memberList = new RealmList<>();
 
-                        Realm realm = Realm.getDefaultInstance();
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
-                        Room.updateRoomToRealm(room[0], realm);
-                        realm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }

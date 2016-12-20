@@ -1,11 +1,9 @@
-package com.example.markwen.easycourse.components;
+package com.example.markwen.easycourse.components.signup;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-
-import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 
 /**
  * Created by nisarg on 31/10/16.

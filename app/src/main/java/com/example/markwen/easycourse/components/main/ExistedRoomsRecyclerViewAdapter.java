@@ -1,48 +1,50 @@
 package com.example.markwen.easycourse.components.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.RealmRecyclerViewAdapter;
-import io.realm.RealmResults;
 
 /**
  * Created by markw on 12/19/2016.
  */
 
-public class ExistedRoomsRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
+public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder> {
 
-    private RealmResults<Room> roomsList;
+    private ArrayList<Room> roomsList;
+    Context context;
 
-    public ExistedRoomsRecyclerViewAdapter(@NonNull Context context, RealmResults<Room> rooms) {
-        super(context, rooms, true);
+    public ExistedRoomsRecyclerViewAdapter(@NonNull Context context, ArrayList<Room> rooms) {
+        super();
         this.roomsList = rooms;
+        this.context = context;
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public ExistedRoomViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         return new ExistedRoomViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.chat_room_item, viewGroup, false));
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int i) {
+    public void onBindViewHolder(ExistedRoomViewHolder holder, final int i) {
         final Room room = roomsList.get(i);
         ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder roomViewHolder = (ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder) holder;
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
@@ -53,7 +55,10 @@ public class ExistedRoomsRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ro
             public void onClick(View view) {
                 SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
                 try {
-                    socketIO.joinRoom(room.getId());
+                    Room joinedRoom = socketIO.joinRoom(room.getId());
+                    Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+                    chatActivityIntent.putExtra("roomId", joinedRoom.getId());
+                    context.startActivity(chatActivityIntent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -61,21 +66,18 @@ public class ExistedRoomsRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ro
         });
     }
 
+    @Override
+    public int getItemCount() {
+        return 0;
+    }
+
     class ExistedRoomViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.cardViewChatRoom)
         CardView roomCardView;
-        @BindView(R.id.relativeLayoutChatRoom)
-        RelativeLayout roomRelativeLayout;
         @BindView(R.id.textViewChatRoomName)
         TextView roomNameTextView;
         @BindView(R.id.textViewChatRoomCourse)
         TextView roomCourseTextView;
-        @BindView(R.id.textViewChatRoomLastMessage)
-        TextView roomLastMessageTextView;
-        @BindView(R.id.textViewChatRoomLastTime)
-        TextView roomLastTimeTextView;
-        @BindView(R.id.imageViewChatRoom)
-        ImageView roomImageView;
 
         ExistedRoomViewHolder(View itemView) {
             super(itemView);

@@ -26,14 +26,16 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin">
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:weightSum="1">
 
             <TextView
                 android:id="@+id/newRoomNoCourseText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/please_join_a_course_first"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:layout_weight="0.80" />
 
             <EditText
                 android:id="@+id/newRoomNameEditText"
@@ -51,9 +53,9 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/existedRoomsList"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="175dp"
                 android:paddingTop="5dp"
-                android:paddingBottom="16dp"/>
+                android:paddingBottom="8dp"/>
 
             <TextView
                 android:id="@+id/newRoomCoursesLabel"
@@ -64,9 +66,9 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/newRoomCourseList"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="175dp"
                 android:paddingTop="5dp"
-                android:paddingBottom="16dp"/>
+                android:paddingBottom="8dp"/>
 
             <Button
                 android:id="@+id/newRoomCreateButton"

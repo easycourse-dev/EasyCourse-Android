@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/id1">
+        <item
+            android:icon="@drawable/ic_group_black_24px"
+            android:title="Classmates"
+            android:background="?android:attr/selectableItemBackground"/>
+        <item
+            android:icon="@drawable/ic_chatboxes"
+            android:title="Subgroups"
+            android:background="?android:attr/selectableItemBackground"/>
+
+    </group>
+    <group
+        android:id="@+id/id2">
+
+        <item
+            app:actionLayout="@layout/room_detail_silent_switch"
+            android:title="Silent"
+            android:background="?android:attr/selectableItemBackground"/>
+    </group>
+</menu>

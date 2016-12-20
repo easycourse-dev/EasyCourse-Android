@@ -107,6 +107,7 @@
         android:layout_gravity="right"
         android:background="@android:color/white"
         app:menu="@menu/room_detail"
+        app:headerLayout="@layout/room_detail_drawer_header"
         />
 
 </android.support.v4.widget.DrawerLayout>

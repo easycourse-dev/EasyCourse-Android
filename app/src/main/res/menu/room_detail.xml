@@ -6,12 +6,10 @@
         android:id="@+id/id1">
         <item
             android:icon="@drawable/ic_group_black_24px"
-            android:title="Classmates"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:title="@string/classmates"/>
         <item
             android:icon="@drawable/ic_chatboxes"
-            android:title="Subgroups"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:title="@string/subgroups"/>
 
     </group>
     <group
@@ -19,7 +17,10 @@
 
         <item
             app:actionLayout="@layout/room_detail_silent_switch"
-            android:title="Silent"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:title="@string/silent"/>
+        <item
+            android:title="@string/share_room"/>
+        <item
+            android:title="@string/quit_room"/>
     </group>
 </menu>

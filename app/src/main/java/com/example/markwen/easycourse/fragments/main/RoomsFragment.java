@@ -14,9 +14,8 @@ import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
+import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,8 +36,10 @@ public class RoomsFragment extends Fragment {
 
     @BindView(R.id.roomsRecyclerView)
     RecyclerView roomRecyclerView;
-    @BindView(R.id.roomsFab)
-    FloatingActionMenu roomFab;
+    @BindView(R.id.mainFab)
+    FloatingActionMenu mainFab;
+    @BindView(R.id.newRoomFab)
+    FloatingActionButton newRoomFab;
 
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     RealmResults<Room> rooms;
@@ -53,8 +54,6 @@ public class RoomsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
-
-        
     }
 
     @Override
@@ -64,11 +63,24 @@ public class RoomsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_rooms, container, false);
         ButterKnife.bind(this, v);
 
+        setupFAB();
+
         setupRecyclerView();
 
         return v;
     }
 
+    private void setupFAB() {
+        // MainFab
+        mainFab.setMenuButtonColorNormalResId(R.color.colorAccent);
+        mainFab.setMenuButtonColorRippleResId(R.color.colorAccent);
+        mainFab.setMenuButtonColorPressedResId(R.color.colorAccent);
+
+        // New Room Fab
+        newRoomFab.setColorNormalResId(R.color.colorAccent);
+        newRoomFab.setColorRippleResId(R.color.colorAccent);
+        newRoomFab.setColorPressedResId(R.color.colorAccent);
+    }
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).findAll();

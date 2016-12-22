@@ -1,7 +1,6 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
@@ -26,7 +25,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import io.realm.Realm;
@@ -177,7 +175,7 @@ public class SocketIO {
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                             conn.setDoInput(true);
                             conn.connect();
-                            conn.setUseCaches(false);
+                            //conn.setUseCaches(false);
 
 
                             InputStream is = conn.getInputStream();
@@ -534,7 +532,7 @@ public class SocketIO {
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                             conn.setDoInput(true);
                             conn.connect();
-                            conn.setUseCaches(false);
+                            //conn.setUseCaches(false);
                             avatar = IOUtils.toByteArray(conn.getInputStream());
                         }
                     } catch (MalformedURLException e) {
@@ -549,7 +547,7 @@ public class SocketIO {
 
                     User user = null;
                     try {
-                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), null, null, null, null);
+                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, null, null, null);
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     } catch (NullPointerException e) {

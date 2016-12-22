@@ -23,7 +23,7 @@
 
 
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/roomsFab"
+        android:id="@+id/mainFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
@@ -33,16 +33,12 @@
         fab:menu_animationDelayPerItem="50"
         fab:menu_backgroundColor="@android:color/transparent"
         fab:menu_buttonSpacing="0dp"
-        fab:menu_colorNormal="@color/colorAccent"
-        fab:menu_colorRipple="#99FFFFFF"
         fab:menu_fab_hide_animation="@anim/my_hide_animation"
         fab:menu_fab_label="your_label_here"
         fab:menu_fab_show_animation="@anim/my_show_animation"
         fab:menu_fab_size="normal"
         fab:menu_icon="@drawable/fab_add"
         fab:menu_labels_colorNormal="#333333"
-        fab:menu_labels_colorPressed="#444444"
-        fab:menu_labels_colorRipple="#66FFFFFF"
         fab:menu_labels_cornerRadius="3dp"
         fab:menu_labels_ellipsize="none"
         fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
@@ -65,16 +61,15 @@
         fab:menu_showShadow="true">
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/menu_item"
+            android:id="@+id/newRoomFab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
-            android:src="@drawable/ic_group_black_24px"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccent"
-            fab:fab_colorRipple="@color/colorWhiteText" />
+            app:fab_size="mini"
+            app:fab_label="Create new room"
+            android:src="@drawable/ic_people_white_24px" />
 
     </com.github.clans.fab.FloatingActionMenu>
 </android.support.design.widget.CoordinatorLayout>

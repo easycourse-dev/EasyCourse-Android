@@ -42,6 +42,7 @@ import java.net.URISyntaxException;
 import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 
 /**
  * Created by nisarg on 28/11/16.
@@ -110,12 +111,13 @@ public class UserProfile extends AppCompatActivity {
             currentUserObject = new JSONObject(currentUser);
             Log.e("com.example.easycourse", currentUserObject.toString());
             user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            if (user.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-                avatarImage.setImageBitmap(bm);
-            } else {
-                avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
-            }
+            user.addChangeListener(new RealmChangeListener<User>() {
+                @Override
+                public void onChange(User user) {
+                    updateUserInfoOnScreen();
+                }
+            });
+            
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -166,6 +168,15 @@ public class UserProfile extends AppCompatActivity {
         });
 
 
+    }
+
+    private void updateUserInfoOnScreen(){
+        if (user.getProfilePicture().length > 0) {
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
+        } else {
+            avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+        }
     }
 
     public void toggleProfileEdit() {

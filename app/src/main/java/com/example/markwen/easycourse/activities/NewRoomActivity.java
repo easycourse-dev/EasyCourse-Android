@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ExistedRoomsRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.main.NewRoomRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.NewRoomCoursesRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.main.RoomsEndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Room;
@@ -114,7 +114,7 @@ public class NewRoomActivity extends AppCompatActivity {
         courses = realm.where(Course.class).findAll();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        final NewRoomRecyclerViewAdapter adapter = new NewRoomRecyclerViewAdapter(this, courses);
+        final NewRoomCoursesRecyclerViewAdapter coursesAdapter = new NewRoomCoursesRecyclerViewAdapter(this, courses);
         if (courses.size() == 0) {
             // If no courses then show hint to add courses
             existedRoomView.setVisibility(View.GONE);
@@ -124,9 +124,9 @@ public class NewRoomActivity extends AppCompatActivity {
             newRoomName.setVisibility(View.GONE);
             noCourseText.setVisibility(View.VISIBLE);
         } else {
-            // Setup recycler view
+            // Setup courses recycler view
             newRoomCourseView.setLayoutManager(layoutManager);
-            newRoomCourseView.setAdapter(adapter);
+            newRoomCourseView.setAdapter(coursesAdapter);
             newRoomCourseView.setHasFixedSize(true);
         }
 
@@ -135,11 +135,11 @@ public class NewRoomActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (newRoomName.getText().toString().equals("")){
                     Snackbar.make(view, "Please enter a room name", Snackbar.LENGTH_LONG).show();
-                } else if (adapter.getSelectedCourse() == null) {
+                } else if (coursesAdapter.getSelectedCourse() == null) {
                     Snackbar.make(view, "Please select a class that this room belongs to", Snackbar.LENGTH_LONG).show();
                 } else {
                     try {
-                        socketIO.createRoom(newRoomName.getText().toString(), adapter.getSelectedCourse().getId());
+                        socketIO.createRoom(newRoomName.getText().toString(), coursesAdapter.getSelectedCourse().getId());
                         finish();
                     } catch (JSONException e) {
                         Snackbar.make(view, e.toString(), Snackbar.LENGTH_LONG).show();
@@ -148,7 +148,8 @@ public class NewRoomActivity extends AppCompatActivity {
             }
         });
 
-        // Logics for text change
+        // Logic for EditText input change
+        // and other view changes based on it
         newRoomName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -170,6 +171,7 @@ public class NewRoomActivity extends AppCompatActivity {
                             Collections.addAll(rooms, searchResults);
                             roomsRecyclerViewAdapter.notifyDataSetChanged();
                         }
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

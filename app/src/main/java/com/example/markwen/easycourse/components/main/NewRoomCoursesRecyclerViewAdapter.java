@@ -21,13 +21,14 @@ import io.realm.RealmResults;
  * Created by markw on 12/19/2016.
  */
 
-public class NewRoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Course, RecyclerView.ViewHolder> {
+public class NewRoomCoursesRecyclerViewAdapter extends RealmRecyclerViewAdapter<Course, RecyclerView.ViewHolder> {
 
     private RealmResults<Course> coursesList;
     private Course selectedCourse;
+    private int selectedId = -1;
     private AnimateCheckBox lastChecked = null;
 
-    public NewRoomRecyclerViewAdapter(@NonNull Context context, RealmResults<Course> courses) {
+    public NewRoomCoursesRecyclerViewAdapter(@NonNull Context context, RealmResults<Course> courses) {
         super(context, courses, true);
         this.coursesList = courses;
     }
@@ -40,13 +41,19 @@ public class NewRoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Course,
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int i) {
         final Course course = coursesList.get(i);
-        final NewRoomRecyclerViewAdapter.NewRoomViewHolder courseViewHolder = (NewRoomRecyclerViewAdapter.NewRoomViewHolder) holder;
+        final NewRoomCoursesRecyclerViewAdapter.NewRoomViewHolder courseViewHolder = (NewRoomCoursesRecyclerViewAdapter.NewRoomViewHolder) holder;
         courseViewHolder.nameTextView.setText(course.getCoursename());
         courseViewHolder.titleTextView.setText(course.getTitle());
         courseViewHolder.courseHolder.setOnClickListener(null);
-        courseViewHolder.courseCheckBox.setChecked(false);
+        // Setting checked status initially
+        if (i == selectedId) {
+            courseViewHolder.courseCheckBox.setChecked(true);
+            lastChecked = courseViewHolder.courseCheckBox;
+        } else {
+            courseViewHolder.courseCheckBox.setChecked(false);
+        }
 
-        if(lastChecked == null)
+        if (lastChecked == null)
         {
             lastChecked = courseViewHolder.courseCheckBox;
         }
@@ -61,9 +68,11 @@ public class NewRoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Course,
                     lastChecked = null;
                     selectedCourse = null;
                     courseViewHolder.courseCheckBox.setChecked(false);
+                    selectedId = -1;
                 } else {
-                    selectedCourse = course;
                     courseViewHolder.courseCheckBox.setChecked(true);
+                    selectedId = i;
+                    selectedCourse = course;
                     if (lastChecked != null) {
                         lastChecked.setChecked(false);
                     }

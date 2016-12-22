@@ -53,8 +53,7 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
     @Override
     public CourseViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.signup_choose_courses_item, viewGroup, false);
-        CourseViewHolder courseViewHolder = new CourseViewHolder(v);
-        return courseViewHolder;
+        return new CourseViewHolder(v);
     }
 
 

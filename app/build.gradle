@@ -92,7 +92,4 @@ dependencies {
 
     //Dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.1.0'
-
-    //JDeffer for Promise handling
-    compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
 }

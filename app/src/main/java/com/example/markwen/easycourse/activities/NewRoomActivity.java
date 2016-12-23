@@ -26,7 +26,8 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +46,6 @@ public class NewRoomActivity extends AppCompatActivity {
     RealmResults<Course> courses;
     ArrayList<Room> rooms = new ArrayList<>();
     String UniversityId;
-    Room[] searchResults;
 
     @BindView(R.id.newRoomToolbar)
     Toolbar toolbar;
@@ -98,11 +98,10 @@ public class NewRoomActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 try {
-                    searchResults = socketIO.searchRooms(newRoomName.getText().toString(), 20, page, UniversityId);
-                    if (searchResults != null) {
-                        int start = rooms.size();
-                        Collections.addAll(rooms, searchResults);
-                        roomsRecyclerViewAdapter.notifyItemRangeInserted(start, 20);
+                    int roomsOrigSize = rooms.size();
+                    socketIO.searchRooms(newRoomName.getText().toString(), 20, page, UniversityId, rooms);
+                    if (rooms.size() > roomsOrigSize) {
+                        roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -147,7 +146,6 @@ public class NewRoomActivity extends AppCompatActivity {
                 }
             }
         });
-
         // Logic for EditText input change
         // and other view changes based on it
         newRoomName.addTextChangedListener(new TextWatcher() {
@@ -163,17 +161,13 @@ public class NewRoomActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                rooms.clear();
                 try {
-                    if (!editable.toString().equals("")) {
-                        rooms.clear();
-                        searchResults = socketIO.searchRooms(editable.toString(), 20, 0, UniversityId);
-                        if (searchResults != null) {
-                            Collections.addAll(rooms, searchResults);
-                            roomsRecyclerViewAdapter.notifyDataSetChanged();
-                        }
-
-                    }
-                } catch (JSONException e) {
+                    Future<ArrayList<Room>> search = socketIO.searchRooms(editable.toString(), 20, 0, UniversityId, rooms);
+                    rooms = search.get();
+                    roomsRecyclerViewAdapter.notifyDataSetChanged();
+                    roomsOnScrollListener.resetState();
+                } catch (JSONException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }

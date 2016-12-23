@@ -23,9 +23,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -53,7 +58,6 @@ public class SocketIO {
         this.realm = Realm.getDefaultInstance();
 
         IO.Options opts = new IO.Options();
-        //opts.forceNew = true;
         opts.query = "token=" + APIFunctions.getUserToken(context);
         socket = IO.socket(CHAT_SERVER_URL, opts);
         socket.connect();
@@ -350,15 +354,12 @@ public class SocketIO {
         return dropCourseSuccess[0];
     }
 
-    public Room[] searchRooms(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
+    public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {
+        final JSONObject jsonParam = new JSONObject();
         jsonParam.put("text", searchQuery);
         jsonParam.put("university", unversityId);
         jsonParam.put("limit", limit);
         jsonParam.put("skip", skip);
-
-        final Room[][] rooms = {null};
-
         socket.emit("searchRoom", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
@@ -366,7 +367,6 @@ public class SocketIO {
                 if (!obj.has("error")) {
                     try {
                         JSONArray roomArrayJSON = obj.getJSONArray("room");
-                        rooms[0] = new Room[roomArrayJSON.length()];
                         for (int i = 0; i < roomArrayJSON.length(); i++) {
                             String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
                             String roomName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
@@ -379,7 +379,7 @@ public class SocketIO {
                             boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
 
                             Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, language, founderId, isSystem);
-                            rooms[0][i] = room;
+                            rooms.add(room);
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
@@ -388,7 +388,33 @@ public class SocketIO {
             }
         });
 
-        return rooms[0];
+        // Returns a Future object to handle async
+        return new Future<ArrayList<Room>>() {
+            @Override
+            public boolean cancel(boolean b) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public ArrayList<Room> get() throws InterruptedException, ExecutionException {
+                return rooms;
+            }
+
+            @Override
+            public ArrayList<Room> get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+                return null;
+            }
+        };
     }
 
     public Room joinRoom(String roomID) throws JSONException {

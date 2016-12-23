@@ -7,19 +7,21 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.viewholders.IncomingChatPictureViewHolder;
+import com.example.markwen.easycourse.components.main.viewholders.IncomingChatTextViewHolder;
+import com.example.markwen.easycourse.components.main.viewholders.OutgoingChatPictureViewHolder;
+import com.example.markwen.easycourse.components.main.viewholders.OutgoingChatTextViewHolder;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
@@ -31,8 +33,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -61,86 +61,6 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         this.curUser = User.getCurrentUser(this.activity, this.realm);
     }
 
-    class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.linearIncomingChatCell)
-        LinearLayout incomingLinearLayout;
-        @BindView(R.id.textViewIncomingTextTime)
-        TextView incomingTime;
-        @BindView(R.id.imageViewIncomingTextImage)
-        ImageView incomingImageView;
-        @BindView(R.id.textViewIncomingTextName)
-        TextView incomingName;
-        @BindView(R.id.textViewIncomingTextMessage)
-        TextView incomingMessage;
-
-        IncomingChatTextViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-            Linkify.addLinks(incomingMessage, Linkify.ALL);
-        }
-    }
-
-    class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.linearIncomingPicCell)
-        LinearLayout incomingPicLinearLayout;
-        @BindView(R.id.textViewIncomingPicTime)
-        TextView incomingPicTime;
-        @BindView(R.id.imageViewIncomingUserImage)
-        ImageView incomingPicUserView;
-        @BindView(R.id.textViewIncomingPicName)
-        TextView incomingPicName;
-        @BindView(R.id.imageViewIncomingPicImage)
-        ImageView incomingPicImageView;
-
-
-        IncomingChatPictureViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
-
-    class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.linearOutgoingChatCell)
-        LinearLayout outgoingLinearLayout;
-        @BindView(R.id.textViewOutgoingTextTime)
-        TextView outgoingTime;
-        @BindView(R.id.imageViewOutgoingTextImage)
-        ImageView outgoingImageView;
-        @BindView(R.id.textViewOutgoingTextName)
-        TextView outgoingName;
-        @BindView(R.id.textViewOutgoingTextMessage)
-        TextView outgoingMessage;
-
-        OutgoingChatTextViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-            Linkify.addLinks(outgoingMessage, Linkify.ALL);
-        }
-    }
-
-    class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.linearOutgoingPicCell)
-        LinearLayout outgoingPicLinearLayout;
-        @BindView(R.id.textViewOutgoingPicTime)
-        TextView outgoingPicTime;
-        @BindView(R.id.imageViewOutgoingUserImage)
-        ImageView outgoingPicUserView;
-        @BindView(R.id.textViewOutgoingPicName)
-        TextView outgoingPicName;
-        @BindView(R.id.imageViewOutgoingImage)
-        ImageView outgoingPicImageView;
-
-
-        OutgoingChatPictureViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
-
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         RecyclerView.ViewHolder viewHolder;
@@ -162,168 +82,48 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         Message prevMessage = null;
-        final Message message = getData().get(position);
+
+        final Message message;
+        try {
+            message = getData().get(position);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "onBindViewHolder:", e);
+            return;
+        }
         if (position != 0)
             prevMessage = getData().get(position - 1);
 
 
         switch (viewHolder.getItemViewType()) {
             case OUTGOING_TEXT: {
-                final OutgoingChatTextViewHolder outgoingViewHolder = (OutgoingChatTextViewHolder) viewHolder;
-
-                String reportDateOutgoing = getTimeString(message, prevMessage);
-                if (reportDateOutgoing != null) {
-                    outgoingViewHolder.outgoingTime.setVisibility(View.VISIBLE);
-                    outgoingViewHolder.outgoingTime.setText(reportDateOutgoing);
-                } else {
-                    outgoingViewHolder.outgoingTime.setVisibility(View.GONE);
-                }
-
-                if (this.curUser != null) {
-                    try {
-                        if (!this.curUser.getProfilePictureUrl().isEmpty())
-                            Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
-                                    .placeholder(R.drawable.ic_person_black_24px)
-                                    .into(outgoingViewHolder.outgoingImageView);
-
-
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    outgoingViewHolder.outgoingName.setText(this.curUser.getUsername());
-                    outgoingViewHolder.outgoingMessage.setText(message.getText());
-
-                }
-
-                outgoingViewHolder.outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        return showPopup(outgoingViewHolder.outgoingLinearLayout, outgoingViewHolder.outgoingMessage, message);
-                    }
-                });
+                OutgoingChatTextViewHolder outgoingViewHolder = (OutgoingChatTextViewHolder) viewHolder;
+                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
                 break;
 
             }
 
-
             case OUTGOING_PIC: {
-                final OutgoingChatPictureViewHolder outgoingViewHolder = (OutgoingChatPictureViewHolder) viewHolder;
-
-                String reportDateOutgoing = getTimeString(message, prevMessage);
-                if (reportDateOutgoing != null) {
-                    outgoingViewHolder.outgoingPicTime.setVisibility(View.VISIBLE);
-                    outgoingViewHolder.outgoingPicTime.setText(reportDateOutgoing);
-                } else {
-                    outgoingViewHolder.outgoingPicTime.setVisibility(View.GONE);
-                }
-
-                if (this.curUser != null) {
-                    try {
-                        if (!this.curUser.getProfilePictureUrl().isEmpty())
-                            Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
-                                    .placeholder(R.drawable.ic_person_black_24px)
-                                    .into(outgoingViewHolder.outgoingPicUserView);
-
-                        if (!message.getImageUrl().isEmpty()) {
-                            Picasso.with(context)
-                                    .load(message.getImageUrl()).resize(36,36).centerInside()
-                                    .into(outgoingViewHolder.outgoingPicImageView);
-                        }
-
-
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    outgoingViewHolder.outgoingPicName.setText(this.curUser.getUsername());
-//                    outgoingViewHolder.outgoingpicme.setText(message.getText());
-                    //TODO: add click listner to fullsize image with animation
-                }
-
-//                outgoingViewHolder.outgoingPicLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
-//                    @Override
-//                    public boolean onLongClick(View view) {
-//                        return showPopup(outgoingViewHolder.outgoingPicLinearLayout, outgoingViewHolder.outgoingMessage, message);
-//                    }
-//                });
+                OutgoingChatPictureViewHolder outgoingViewHolder = (OutgoingChatPictureViewHolder) viewHolder;
+                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
                 break;
             }
 
 
             case INCOMING_TEXT: {
                 IncomingChatTextViewHolder incomingViewHolder = (IncomingChatTextViewHolder) viewHolder;
-
-                String reportDateIncoming = getTimeString(message, prevMessage);
-                if (reportDateIncoming != null) {
-                    incomingViewHolder.incomingTime.setVisibility(View.VISIBLE);
-                    incomingViewHolder.incomingTime.setText(reportDateIncoming);
-                } else {
-                    incomingViewHolder.incomingTime.setVisibility(View.GONE);
-                }
-
-                User thisUser = User.getUserFromRealm(this.realm, message.getSenderId());
-
-                if (thisUser != null) {
-                    try {
-                        if (thisUser.getProfilePictureUrl() != null)
-                            Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
-                                    .placeholder(R.drawable.ic_person_black_24px)
-                                    .into(incomingViewHolder.incomingImageView);
-
-
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    incomingViewHolder.incomingName.setText(thisUser.getUsername());
-                    incomingViewHolder.incomingMessage.setText(message.getText());
-                }
+                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
                 break;
             }
 
             case INCOMING_PIC: {
-                final IncomingChatPictureViewHolder incomingViewHolder = (IncomingChatPictureViewHolder) viewHolder;
-
-                String reportDateOutgoing = getTimeString(message, prevMessage);
-                if (reportDateOutgoing != null) {
-                    incomingViewHolder.incomingPicTime.setVisibility(View.VISIBLE);
-                    incomingViewHolder.incomingPicTime.setText(reportDateOutgoing);
-                } else {
-                    incomingViewHolder.incomingPicTime.setVisibility(View.GONE);
-                }
-
-                User thisUser = User.getUserFromRealm(this.realm, message.getSenderId());
-
-
-                if (thisUser != null) {
-                    try {
-                        if (thisUser.getProfilePictureUrl() != null)
-                            Picasso.with(context)
-                                    .load(this.curUser.getProfilePictureUrl()).resize(36,36).centerInside()
-                                    .placeholder(R.drawable.ic_person_black_24px)
-                                    .into(incomingViewHolder.incomingPicUserView);
-
-                        if (!message.getImageUrl().isEmpty()) {
-                            Picasso.with(context)
-                                    .load(message.getImageUrl()).resize(36,36).centerInside()
-                                    .into(incomingViewHolder.incomingPicImageView);
-                        }
-
-
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    incomingViewHolder.incomingPicName.setText(thisUser.getUsername());
-//                    outgoingViewHolder.outgoingpicme.setText(message.getText());
-                    //TODO: add click listener to fullsize image with animation
-                }
+                IncomingChatPictureViewHolder incomingViewHolder = (IncomingChatPictureViewHolder) viewHolder;
+                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
                 break;
             }
         }
     }
 
-    private boolean showPopup(LinearLayout linearLayout, TextView textView, final Message message) {
+    public boolean showPopup(LinearLayout linearLayout, TextView textView, final Message message) {
         if (message.getText() == null) return false;
 
         PopupMenu popup = new PopupMenu(this.context, linearLayout);
@@ -380,6 +180,11 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
         }
         return null;
+    }
+
+    public void closeRealm() {
+        if (realm != null)
+            realm.close();
     }
 
     @Override

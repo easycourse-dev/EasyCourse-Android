@@ -4,10 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,9 +17,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -34,6 +36,15 @@ import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.DimenHolder;
+import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondarySwitchDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
@@ -79,8 +90,7 @@ public class ChatRoom extends AppCompatActivity {
     @BindView(R.id.chatSendImageButton)
     ImageButton sendImageButton;
 
-    @BindView(R.id.roomDetailDrawer)
-    NavigationView roomDetailDrawer;
+    Drawer roomDetailDrawer;
 
     ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     RealmResults<Message> messages;
@@ -90,6 +100,42 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         ButterKnife.bind(this);
+
+        roomDetailDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .withHeaderHeight(DimenHolder.fromDp(192))
+                .withHeader(R.layout.room_detail_drawer_header)
+                .withSelectedItem(-1)
+                .withDrawerGravity(Gravity.END)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
+                        new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
+                        new DividerDrawerItem(),
+                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(true).withOnCheckedChangeListener(silentRoom).withSelectable(false),
+                        new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                        new SecondaryDrawerItem().withName(R.string.quit_room).withSelectable(false)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        switch (position){
+                            case 1 :
+                                //TODO: Add intent to Classmates
+                                break;
+                            case 2 :
+                                //TODO: Add intent to Subgroups
+                                break;
+                            case 5:
+                                //TODO: Add intent to Share Room
+                                break;
+                            case 6:
+                                //TODO: Add intent to Quit Room
+                                break;
+                        }
+                        return true;
+                    }
+                })
+                .build();
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -134,6 +180,17 @@ public class ChatRoom extends AppCompatActivity {
         disconnectSnackbar = Snackbar.make(findViewById(R.id.relativeLayoutChatRoom), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
 
         bus.register(this);
+    }
+
+    OnCheckedChangeListener silentRoom = new OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {
+            //TODO: Add silentRoom code
+        }
+    };
+
+    public void openCourseDetail(View v){
+        Toast.makeText(getApplicationContext(), "openCourseDetail", Toast.LENGTH_LONG);
     }
 
     private void showImageDialog() {
@@ -202,10 +259,13 @@ public class ChatRoom extends AppCompatActivity {
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
 
 
-        View headView = roomDetailDrawer.getHeaderView(0);
+        View headView = roomDetailDrawer.getHeader();
 
-        ((TextView) headView.findViewById(R.id.headerCourseTitle)).setText(currentRoom.getRoomName());
+        TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
+        headerCourseTitle.setText(currentRoom.getRoomName());
+        headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
         ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
+
     }
 
     //TODO: private messages

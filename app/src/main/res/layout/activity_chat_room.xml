@@ -100,14 +100,16 @@
         </LinearLayout>
 
     </RelativeLayout>
-    <android.support.design.widget.NavigationView
+
+  <!-- <android.support.design.widget.NavigationView
         app:menu="@menu/room_detail"
         app:headerLayout="@layout/room_detail_drawer_header"
         app:itemBackground="?android:attr/selectableItemBackground"
         android:id="@+id/roomDetailDrawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="right"
-        />
+        android:layout_gravity="end"
+        />-->
+
 
 </android.support.v4.widget.DrawerLayout>

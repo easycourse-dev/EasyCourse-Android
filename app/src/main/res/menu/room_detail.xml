@@ -2,18 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:icon="@drawable/ic_group_black_24px"
+        android:title="@string/classmates"/>
+    <item
+        android:icon="@drawable/ic_chatboxes"
+        android:title="@string/subgroups"/>
     <group
-        android:id="@+id/id1">
-        <item
-            android:icon="@drawable/ic_group_black_24px"
-            android:title="@string/classmates"/>
-        <item
-            android:icon="@drawable/ic_chatboxes"
-            android:title="@string/subgroups"/>
-
-    </group>
-    <group
-        android:id="@+id/id2">
+        android:id="@+id/id2"
+        android:checkableBehavior="none">
 
         <item
             app:actionLayout="@layout/room_detail_silent_switch"

@@ -92,4 +92,9 @@ dependencies {
 
     //Dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.1.0'
+
+    //Material Drawer
+    compile('com.mikepenz:materialdrawer:5.8.1@aar') {
+        transitive = true
+    }
 }

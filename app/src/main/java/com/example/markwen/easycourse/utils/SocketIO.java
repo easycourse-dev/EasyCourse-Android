@@ -189,23 +189,36 @@ public class SocketIO {
                     } catch (IOException e) {
                         Log.e(TAG, e.toString());
                     }
-                    User user = null;
+                    //User user = null;
 
                     try {
                         String id = (String) checkIfJsonExists(userObj, "_id", null);
+                        String university = (String) checkIfJsonExists(userObj, "university", null);
+                       /*
                         String username = (String) checkIfJsonExists(userObj, "displayName", null);
                         String email = (String) checkIfJsonExists(userObj, "email", null);
-                        String university = (String) checkIfJsonExists(userObj, "university", null);
 
                         user = new User(id, username, avatar, avatarUrlString, email, university);
+                        */
+
+                        userObj.put("id", id);
+                        userObj.put("profilePictureUrl", avatarUrlString);
+                        userObj.put("universityID", university);
+
+                        userObj.remove("_id");
+                        Realm realm = Realm.getDefaultInstance();
+                        User.updateUserFromJson(userObj.toString(), realm);
+                        realm.beginTransaction();
+                        User.getUserFromRealm(realm, id).setProfilePicture(avatar);
+                        realm.commitTransaction();
+                        realm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
-                    Realm realm = Realm.getDefaultInstance();
+                    //User.updateUserToRealm(user, realm);
 
+                    Log.e(TAG, "syncUser: "+obj.toString());
 
-                    User.updateUserToRealm(user, realm);
-                    realm.close();
                 }
             }
         });

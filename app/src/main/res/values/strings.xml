@@ -56,4 +56,6 @@
     <string name="please_join_a_course_first">Please join a course first.</string>
     <string name="your_courses">your courses:</string>
     <string name="existed_rooms">existed rooms:</string>
+    <string name="tempCourse">CS18000</string>
+    <string name="tempRoomName">CS180NoArrayListPlease...</string>
 </resources>

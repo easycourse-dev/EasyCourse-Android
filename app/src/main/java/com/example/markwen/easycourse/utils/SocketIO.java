@@ -511,7 +511,7 @@ public class SocketIO {
         return dropRoomSuccess[0];
     }
 
-    public Room createRoom(String name, String courseID) throws JSONException {
+    public Future<Room> createRoom(String name, String courseID) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("name", name);
         jsonParam.put("course", courseID);
@@ -554,7 +554,32 @@ public class SocketIO {
             }
         });
 
-        return room[0];
+        return new Future<Room>() {
+            @Override
+            public boolean cancel(boolean b) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public Room get() throws InterruptedException, ExecutionException {
+                return room[0];
+            }
+
+            @Override
+            public Room get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+                return null;
+            }
+        };
     }
 
 

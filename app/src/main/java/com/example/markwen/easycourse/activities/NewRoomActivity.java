@@ -1,8 +1,11 @@
 package com.example.markwen.easycourse.activities;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,8 +21,9 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ExistedRoomsRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.main.NewRoomCoursesRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.NewRoomCoursesAdapter;
 import com.example.markwen.easycourse.components.main.RoomsEndlessRecyclerViewScrollListener;
+import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -50,19 +55,19 @@ public class NewRoomActivity extends AppCompatActivity {
     SocketIO socketIO;
     RoomsEndlessRecyclerViewScrollListener roomsOnScrollListener;
     RealmResults<Course> courses;
+    NewRoomCoursesAdapter coursesAdapter;
     ArrayList<Room> rooms = new ArrayList<>();
-    String UniversityId;
-    NewRoomCoursesRecyclerViewAdapter coursesAdapter;
     ExistedRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
+    String UniversityId;
 
     @BindView(R.id.newRoomToolbar)
     Toolbar toolbar;
     @BindView(R.id.newRoomNoCourseText)
     TextView noCourseText;
+    @BindView(R.id.newRoomCoursesSpinner)
+    AppCompatSpinner newRoomCoursesSpinner;
     @BindView(R.id.newRoomRoomsLabel)
     TextView existedRoomsLabel;
-    @BindView(R.id.newRoomCourseList)
-    RecyclerView newRoomCourseView;
     @BindView(R.id.existedRoomsList)
     RecyclerView existedRoomView;
     @BindView(R.id.newRoomNameEditText)
@@ -82,6 +87,7 @@ public class NewRoomActivity extends AppCompatActivity {
         setTitle("Join/Create Room");
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
+        newRoomButton.setVisibility(View.GONE);
 
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         socketIO.syncUser();
@@ -93,24 +99,36 @@ public class NewRoomActivity extends AppCompatActivity {
             UniversityId = "57e2cb6854ad620011c82db4";
         }
 
-        // Setup courses view
+        // Setup courses
         courses = realm.where(Course.class).findAll();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        coursesAdapter = new NewRoomCoursesRecyclerViewAdapter(this, courses);
         if (courses.size() == 0) {
             // If no courses then show hint to add courses
             existedRoomView.setVisibility(View.GONE);
             existedRoomsLabel.setVisibility(View.GONE);
             newRoomButton.setVisibility(View.GONE);
-            newRoomCourseView.setVisibility(View.GONE);
+            newRoomCoursesSpinner.setVisibility(View.GONE);
             newRoomName.setVisibility(View.GONE);
             noCourseText.setVisibility(View.VISIBLE);
         } else {
-            // Setup courses recycler view
-            newRoomCourseView.setLayoutManager(layoutManager);
-            newRoomCourseView.setAdapter(coursesAdapter);
-            newRoomCourseView.setHasFixedSize(true);
+            // Setup courses spinner
+            // Set dropdown arrow color
+            newRoomCoursesSpinner.getBackground().setColorFilter(Color.parseColor("#939393"), PorterDuff.Mode.SRC_ATOP);
+            coursesAdapter = new NewRoomCoursesAdapter(getApplicationContext(), courses);
+            newRoomCoursesSpinner.setAdapter(coursesAdapter);
+            newRoomCoursesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    coursesAdapter.setSelectedCourse(i);
+                    doSearchRoom(newRoomName.getText().toString(), 0, UniversityId, coursesAdapter.getSelectedCourse().getCoursename());
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
         }
 
         // Setup rooms view
@@ -119,6 +137,7 @@ public class NewRoomActivity extends AppCompatActivity {
         roomsRecyclerViewAdapter = new ExistedRoomsRecyclerViewAdapter(this, rooms, socketIO);
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
+        existedRoomView.addItemDecoration(new RecyclerViewDivider(this));
 
         // Search room API function
         newRoomName.addTextChangedListener(new TextWatcher() {
@@ -134,7 +153,7 @@ public class NewRoomActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (coursesAdapter.getSelectedCourse() != null) {
+                if (coursesAdapter.getSelectedCourse() != null && !editable.toString().equals("")) {
                     doSearchRoom(editable.toString(), 0, UniversityId, coursesAdapter.getSelectedCourse().getCoursename());
                 } else {
                     Snackbar.make(newRoomName, "Please select the course that the room belongs to", Snackbar.LENGTH_LONG).show();
@@ -153,6 +172,7 @@ public class NewRoomActivity extends AppCompatActivity {
         existedRoomView.addOnScrollListener(roomsOnScrollListener);
         existedRoomView.setAdapter(roomsRecyclerViewAdapter);
 
+        // Create new room button
         newRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,9 +182,15 @@ public class NewRoomActivity extends AppCompatActivity {
                     Snackbar.make(view, "Please select a class that this room belongs to", Snackbar.LENGTH_LONG).show();
                 } else {
                     try {
-                        socketIO.createRoom(newRoomName.getText().toString(), coursesAdapter.getSelectedCourse().getId());
+                        Future<Room> creatingRoom = socketIO.createRoom(newRoomName.getText().toString(), coursesAdapter.getSelectedCourse().getId());
+                        Room createdRoom = creatingRoom.get();
                         finish();
-                    } catch (JSONException e) {
+                        // Wait till socketIO async implementation to be done to uncomment below
+//                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
+//                        chatActivityIntent.putExtra("roomId", createdRoom.getId());
+//                        finish();
+//                        startActivity(chatActivityIntent);
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
                         Snackbar.make(view, e.toString(), Snackbar.LENGTH_LONG).show();
                     }
                 }
@@ -174,25 +200,55 @@ public class NewRoomActivity extends AppCompatActivity {
         realm.close();
     }
 
-    private void doSearchRoom(String query, int skip, String universityId, final String courseName) {
+    // Commented out the socket implementation for load more room
+    // because for some reason it is not getting the results
+    // fast enough, feel free to figure this out in the future
+    private void doSearchRoom(final String query, int skip, String universityId, final String courseName) {
         if (courseName != null && !courseName.equals("")) {
 
             if (skip == 0) { // normal
-                rooms.clear();
-                try {
-                    Future<ArrayList<Room>> searchingRoom = socketIO.searchRooms(query, 20, skip, universityId, rooms);
-                    rooms = searchingRoom.get();
-                } catch (JSONException | InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-                roomsRecyclerViewAdapter.notifyDataSetChanged();
-                roomsOnScrollListener.resetState();
+//                rooms.clear();
+//                try {
+//                    Future<ArrayList<Room>> searchingRoom = socketIO.searchRooms(query, 20, skip, universityId, rooms);
+//                    rooms = searchingRoom.get();
+//                } catch (JSONException | InterruptedException | ExecutionException e) {
+//                    e.printStackTrace();
+//                }
+//                roomsRecyclerViewAdapter.notifyDataSetChanged();
+//                roomsOnScrollListener.resetState();
+
+                APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                        rooms.clear();
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject room = (JSONObject) response.get(i);
+                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                                rooms.add(roomObj);
+                            }
+                            roomsRecyclerViewAdapter.notifyDataSetChanged();
+                            roomsOnScrollListener.resetState();
+
+                            if (response.length() == 0 && coursesAdapter.getSelectedCourse() != null && !query.equals("")){
+                                newRoomButton.setVisibility(View.VISIBLE);
+                                existedRoomView.setVisibility(View.GONE);
+                            } else {
+                                newRoomButton.setVisibility(View.GONE);
+                                existedRoomView.setVisibility(View.VISIBLE);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        Log.e("com.example.easycourse", "failure" + t.toString());
+                    }
+                });
 
             } else { // load more
-                // Commented out the socket implementation for load more room
-                // because for some reason it is not getting the results
-                // fast enough, feel free to figure this out in the future
-
 //                int roomsOrigSize = rooms.size();
 //                Room tempRoom;
 //                try {
@@ -210,7 +266,7 @@ public class NewRoomActivity extends AppCompatActivity {
 //                if (rooms.size() > roomsOrigSize) {
 //                    roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
 //                }
-                
+
                 APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray response) {

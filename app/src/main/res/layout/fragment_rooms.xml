@@ -68,7 +68,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
             app:fab_size="mini"
-            app:fab_label="Create new room"
+            app:fab_label="Join/Create Room"
             android:src="@drawable/ic_people_white_24px" />
 
     </com.github.clans.fab.FloatingActionMenu>

@@ -1,8 +1,6 @@
 package com.example.markwen.easycourse.models.main;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -55,6 +53,12 @@ public class Room extends RealmObject {
     }
 
     public Room(String roomName, String courseName) {
+        this.roomName = roomName;
+        this.courseName = courseName;
+    }
+
+    public Room(String id, String roomName, String courseName) {
+        this.id = id;
         this.roomName = roomName;
         this.courseName = courseName;
     }

@@ -152,6 +152,11 @@ public class APIFunctions {
         return true;
     }
 
+    //API function to search room database
+    public static void searchRoom(Context context, String searchQuery, int limit, int skip, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/room?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
+    }
+
     //API function to report a user
     public static boolean reportUser(Context context, String targetUser, String reason, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);

@@ -34,7 +34,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -189,9 +188,9 @@ public class MainActivity extends AppCompatActivity {
 
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        // Add items
+        // Add items and set titles
         AHBottomNavigationItem item1 = new AHBottomNavigationItem("Rooms", R.drawable.ic_chatboxes);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("User", R.drawable.ic_contact_outline);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("Me", R.drawable.ic_contact_outline);
 
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
@@ -234,15 +233,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        try {
-            SocketIO socketIO = new SocketIO(getApplicationContext());
-            socketIO.getUserInfo("5808237e5e6c6300115a381c");
-        } catch (URISyntaxException e) {
-            Log.e("com.example.easycourse", e.toString());
-        } catch (JSONException e) {
-            Log.e("com.example.easycourse", e.toString());
-        }
     }
 
     @Override

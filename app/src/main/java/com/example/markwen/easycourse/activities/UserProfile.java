@@ -231,6 +231,7 @@ public class UserProfile extends AppCompatActivity {
                     Log.e("com.example.easycourse", response.toString());
                     try {
                         socket.syncUser(null, response.getString("url"));
+                        socket.syncUser();
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", response.toString());
                     }

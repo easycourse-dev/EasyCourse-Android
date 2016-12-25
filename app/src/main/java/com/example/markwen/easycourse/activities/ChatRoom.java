@@ -34,8 +34,10 @@ import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.DimenHolder;
@@ -48,11 +50,14 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -110,6 +115,8 @@ public class ChatRoom extends AppCompatActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        handleIntent();
+
         roomDetailDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withHeaderHeight(DimenHolder.fromDp(192))
@@ -120,7 +127,7 @@ public class ChatRoom extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
                         new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
                         new DividerDrawerItem(),
-                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(true).withOnCheckedChangeListener(silentRoom).withSelectable(false),
+                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(currentRoom.isSilent()).withOnCheckedChangeListener(silentRoom).withSelectable(false),
                         new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                         new SecondaryDrawerItem().withName(R.string.quit_room).withSelectable(false)
                 )
@@ -152,7 +159,12 @@ public class ChatRoom extends AppCompatActivity {
                 })
                 .build();
 
-        handleIntent();
+        View headView = roomDetailDrawer.getHeader();
+
+        TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
+        headerCourseTitle.setText(currentRoom.getRoomName());
+        headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
 
         setupChatRecyclerView();
 
@@ -190,8 +202,29 @@ public class ChatRoom extends AppCompatActivity {
 
     OnCheckedChangeListener silentRoom = new OnCheckedChangeListener() {
         @Override
-        public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {
-            //TODO: Add silentRoom code
+        public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, final boolean isChecked) {
+            try {
+                APIFunctions.setSilentRoom(getApplicationContext(), currentRoom.getId(), isChecked, new JsonHttpResponseHandler(){
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        if(isChecked){
+                            Log.e(TAG, "Room silented");
+                        } else {
+                            Log.e(TAG, "Room un-silented");
+                        }
+                        socketIO.syncUser();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        Log.e(TAG, "onFailure: silentRoomOnCheckedListener", t);
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -255,6 +288,7 @@ public class ChatRoom extends AppCompatActivity {
     private void handleIntent() {
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("roomId");
+
         this.currentRoom = Room.getRoomById(this, realm, roomId);
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
@@ -263,14 +297,6 @@ public class ChatRoom extends AppCompatActivity {
         }
         toolbarTitleTextView.setText(currentRoom.getRoomName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
-
-
-        View headView = roomDetailDrawer.getHeader();
-
-        TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
-        headerCourseTitle.setText(currentRoom.getRoomName());
-        headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
-        ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
 
     }
 

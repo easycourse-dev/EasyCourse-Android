@@ -504,6 +504,51 @@ public class SocketIO {
         return room[0];
     }
 
+    public void getRoomInfo(final String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
+
+        final Room[] room = {null};
+
+        socket.emit("getRoomInfo", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (!obj.has("error")) {
+                    try {
+                        JSONObject roomObjJSON = obj.getJSONObject("room");
+
+                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
+                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
+                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
+                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
+                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", "0"));
+                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
+                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", "0"));
+                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+
+                        RealmList<Message> messageList = new RealmList<>();
+                        RealmList<User> memberList = new RealmList<>();
+
+                        room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+
+                        Realm realm = Realm.getDefaultInstance();
+                        Room.updateRoomToRealm(room[0], realm);
+                        realm.close();
+
+                        Log.e(TAG, "Success: "+obj.toString());
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSONEx"+e.toString());
+                    }
+
+                } else {
+                    Log.e(TAG, "Error"+obj.toString());
+                }
+            }
+        });
+    }
 
     public void getUserInfo(String userID) throws JSONException {
         JSONObject jsonParam = new JSONObject();

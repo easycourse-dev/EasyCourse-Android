@@ -417,7 +417,7 @@ public class SocketIO {
         };
     }
 
-    public Room joinRoom(String roomID) throws JSONException {
+    public Future<Room> joinRoom(String roomID) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
@@ -444,7 +444,10 @@ public class SocketIO {
                         RealmList<Message> messageList = new RealmList<>();
                         RealmList<User> memberList = new RealmList<>();
 
+                        Realm realm = Realm.getDefaultInstance();
                         room[0] = new Room(id, roomname, messageList, courseID, courseName, universityID, memberList, memberCounts, language, founderId, isSystem);
+                        Room.updateRoomToRealm(room[0], realm);
+                        realm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
@@ -453,7 +456,32 @@ public class SocketIO {
             }
         });
 
-        return room[0];
+        return new Future<Room>() {
+            @Override
+            public boolean cancel(boolean b) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public Room get() throws InterruptedException, ExecutionException {
+                return room[0];
+            }
+
+            @Override
+            public Room get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+                return null;
+            }
+        };
     }
 
     public boolean quitRoom(String roomID) throws JSONException {

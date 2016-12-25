@@ -114,7 +114,7 @@ public class NewRoomActivity extends AppCompatActivity {
         // Setup rooms view
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomsRecyclerViewAdapter = new ExistedRoomsRecyclerViewAdapter(this, rooms);
+        roomsRecyclerViewAdapter = new ExistedRoomsRecyclerViewAdapter(this, rooms, socketIO);
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
 
@@ -132,29 +132,8 @@ public class NewRoomActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
                 if (coursesAdapter.getSelectedCourse() != null) {
-                    APIFunctions.searchRoom(getApplicationContext(), editable.toString(), 20, 0, UniversityId, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                            try {
-                                rooms.clear();
-                                for (int i = 0; i < response.length(); i++) {
-                                    JSONObject room = (JSONObject) response.get(i);
-                                    rooms.add(new Room(room.getString("_id"), room.getString("name"), coursesAdapter.getSelectedCourse().getCoursename()));
-                                }
-                                roomsRecyclerViewAdapter.notifyDataSetChanged();
-                                roomsOnScrollListener.resetState();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "failure" + t.toString());
-                        }
-                    });
+                    doSearchRoom(editable.toString(), 0, UniversityId, coursesAdapter.getSelectedCourse().getCoursename());
                 } else {
                     Snackbar.make(newRoomName, "Please select the course that the room belongs to", Snackbar.LENGTH_LONG).show();
                 }
@@ -166,31 +145,7 @@ public class NewRoomActivity extends AppCompatActivity {
         roomsOnScrollListener = new RoomsEndlessRecyclerViewScrollListener(roomsLayoutManager, roomsRecyclerViewAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-
-                APIFunctions.searchRoom(getApplicationContext(), newRoomName.getText().toString(), 20, page, UniversityId, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        try {
-                            int roomsOrigSize = rooms.size();
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject room = (JSONObject) response.get(i);
-                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), coursesAdapter.getSelectedCourse().getCoursename());
-                                if (!rooms.contains(roomObj))
-                                    rooms.add(roomObj);
-                            }
-                            if (rooms.size() > roomsOrigSize) {
-                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        Log.e("com.example.easycourse", "failure" + t.toString());
-                    }
-                });
+                doSearchRoom(newRoomName.getText().toString(), page, UniversityId, coursesAdapter.getSelectedCourse().getCoursename());
             }
         };
         existedRoomView.addOnScrollListener(roomsOnScrollListener);
@@ -215,5 +170,60 @@ public class NewRoomActivity extends AppCompatActivity {
         });
 
         realm.close();
+    }
+
+    private void doSearchRoom(String query, int skip, String universityId, final String courseName) {
+        if (courseName != null && !courseName.equals("")) {
+
+            if (skip == 0) { // normal
+                APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                        try {
+                            rooms.clear();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject room = (JSONObject) response.get(i);
+                                rooms.add(new Room(room.getString("_id"), room.getString("name"), courseName));
+                            }
+                            roomsRecyclerViewAdapter.notifyDataSetChanged();
+                            roomsOnScrollListener.resetState();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        Log.e("com.example.easycourse", "failure" + t.toString());
+                    }
+                });
+
+            } else { // load more
+                APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                        try {
+                            int roomsOrigSize = rooms.size();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject room = (JSONObject) response.get(i);
+                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                                if (!rooms.contains(roomObj))
+                                    rooms.add(roomObj);
+                            }
+                            if (rooms.size() > roomsOrigSize) {
+                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        Log.e("com.example.easycourse", "failure" + t.toString());
+                    }
+                });
+            }
+        }
     }
 }

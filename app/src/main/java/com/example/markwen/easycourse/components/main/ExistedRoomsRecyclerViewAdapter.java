@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
 import com.example.markwen.easycourse.models.main.Room;
@@ -19,6 +18,8 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,11 +32,13 @@ public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<Existe
 
     private ArrayList<Room> roomsList;
     private Context context;
+    private SocketIO socketIO;
 
-    public ExistedRoomsRecyclerViewAdapter(@NonNull Context context, ArrayList<Room> rooms) {
+    public ExistedRoomsRecyclerViewAdapter(@NonNull Context context, ArrayList<Room> rooms, SocketIO socketIO) {
         super();
         this.roomsList = rooms;
         this.context = context;
+        this.socketIO = socketIO;
     }
 
     @Override
@@ -52,13 +55,13 @@ public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<Existe
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
                 try {
-                    Room joinedRoom = socketIO.joinRoom(room.getId());
+                    Future<Room> joiningRoom = socketIO.joinRoom(room.getId());
+                    Room joinedRoom = joiningRoom.get();
                     Intent chatActivityIntent = new Intent(context, ChatRoom.class);
                     chatActivityIntent.putExtra("roomId", joinedRoom.getId());
                     context.startActivity(chatActivityIntent);
-                } catch (JSONException e) {
+                } catch (JSONException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }

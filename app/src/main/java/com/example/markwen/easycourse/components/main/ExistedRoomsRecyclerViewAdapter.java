@@ -44,9 +44,8 @@ public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<Existe
     }
 
     @Override
-    public void onBindViewHolder(ExistedRoomViewHolder holder, final int i) {
+    public void onBindViewHolder(ExistedRoomViewHolder roomViewHolder, int i) {
         final Room room = roomsList.get(i);
-        ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder roomViewHolder = (ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder) holder;
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
 
@@ -68,7 +67,7 @@ public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<Existe
 
     @Override
     public int getItemCount() {
-        return 0;
+        return roomsList.size();
     }
 
     class ExistedRoomViewHolder extends RecyclerView.ViewHolder {

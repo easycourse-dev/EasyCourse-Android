@@ -117,7 +117,6 @@ public class NewRoomActivity extends AppCompatActivity {
         roomsRecyclerViewAdapter = new ExistedRoomsRecyclerViewAdapter(this, rooms);
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
-        existedRoomView.setAdapter(roomsRecyclerViewAdapter);
 
         // Search room API function
         newRoomName.addTextChangedListener(new TextWatcher() {
@@ -194,6 +193,8 @@ public class NewRoomActivity extends AppCompatActivity {
                 });
             }
         };
+        existedRoomView.addOnScrollListener(roomsOnScrollListener);
+        existedRoomView.setAdapter(roomsRecyclerViewAdapter);
 
         newRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override

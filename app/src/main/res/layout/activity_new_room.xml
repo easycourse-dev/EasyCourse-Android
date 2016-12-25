@@ -44,6 +44,13 @@
                 android:hint="@string/room_name"
                 android:layout_marginTop="5dp" />
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/newRoomCourseList"
+                android:layout_width="match_parent"
+                android:layout_height="175dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="8dp"/>
+
             <TextView
                 android:id="@+id/newRoomRoomsLabel"
                 android:layout_width="match_parent"
@@ -52,19 +59,6 @@
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/existedRoomsList"
-                android:layout_width="match_parent"
-                android:layout_height="175dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/newRoomCoursesLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/your_courses"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/newRoomCourseList"
                 android:layout_width="match_parent"
                 android:layout_height="175dp"
                 android:paddingTop="5dp"

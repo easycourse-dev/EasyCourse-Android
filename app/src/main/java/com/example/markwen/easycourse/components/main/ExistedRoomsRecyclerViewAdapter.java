@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<ExistedRoomsRecyclerViewAdapter.ExistedRoomViewHolder> {
 
     private ArrayList<Room> roomsList;
-    Context context;
+    private Context context;
 
     public ExistedRoomsRecyclerViewAdapter(@NonNull Context context, ArrayList<Room> rooms) {
         super();

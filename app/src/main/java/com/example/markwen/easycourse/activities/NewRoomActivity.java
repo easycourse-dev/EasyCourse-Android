@@ -31,6 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -176,29 +178,39 @@ public class NewRoomActivity extends AppCompatActivity {
         if (courseName != null && !courseName.equals("")) {
 
             if (skip == 0) { // normal
-                APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        try {
-                            rooms.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject room = (JSONObject) response.get(i);
-                                rooms.add(new Room(room.getString("_id"), room.getString("name"), courseName));
-                            }
-                            roomsRecyclerViewAdapter.notifyDataSetChanged();
-                            roomsOnScrollListener.resetState();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                        Log.e("com.example.easycourse", "failure" + t.toString());
-                    }
-                });
+                rooms.clear();
+                try {
+                    Future<ArrayList<Room>> searchingRoom = socketIO.searchRooms(query, 20, skip, universityId, rooms);
+                    rooms = searchingRoom.get();
+                } catch (JSONException | InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+                roomsRecyclerViewAdapter.notifyDataSetChanged();
+                roomsOnScrollListener.resetState();
 
             } else { // load more
+                // Commented out the socket implementation for load more room
+                // because for some reason it is not getting the results
+                // fast enough, feel free to figure this out in the future
+
+//                int roomsOrigSize = rooms.size();
+//                Room tempRoom;
+//                try {
+//                    Future<ArrayList<Room>> searchingRoom = socketIO.searchRooms(query, 20, skip, universityId, rooms);
+//                    ArrayList<Room> loadMoreResults = searchingRoom.get();
+//                    for (int i = 0; i < loadMoreResults.size(); i++) {
+//                        tempRoom = loadMoreResults.get(i);
+//                        if (!rooms.contains(tempRoom)) {
+//                            rooms.add(tempRoom);
+//                        }
+//                    }
+//                } catch (JSONException | InterruptedException | ExecutionException e) {
+//                    e.printStackTrace();
+//                }
+//                if (rooms.size() > roomsOrigSize) {
+//                    roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+//                }
+                
                 APIFunctions.searchRoom(getApplicationContext(), query, 20, skip, universityId, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray response) {

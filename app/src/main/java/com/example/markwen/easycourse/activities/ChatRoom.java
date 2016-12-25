@@ -101,6 +101,15 @@ public class ChatRoom extends AppCompatActivity {
         setContentView(R.layout.activity_chat_room);
         ButterKnife.bind(this);
 
+        realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
+        currentUser = User.getCurrentUser(this, realm);
+        socketIO.syncUser();
+
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         roomDetailDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withHeaderHeight(DimenHolder.fromDp(192))
@@ -129,22 +138,19 @@ public class ChatRoom extends AppCompatActivity {
                                 //TODO: Add intent to Share Room
                                 break;
                             case 6:
-                                //TODO: Add intent to Quit Room
+                                try {
+                                    socketIO.quitRoom(currentRoom.getId());
+                                    socketIO.syncUser();
+                                    return false;
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                         }
                         return true;
                     }
                 })
                 .build();
-
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        currentUser = User.getCurrentUser(this, realm);
-        socketIO.syncUser();
-
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         handleIntent();
 

@@ -117,6 +117,8 @@ public class ChatRoom extends AppCompatActivity {
 
         handleIntent();
 
+        //Log.e(TAG, "silentRooms: "+ currentUser.getSilentRoom().toString()+"\n c? "+currentRoom.getId());
+
         roomDetailDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withHeaderHeight(DimenHolder.fromDp(192))
@@ -127,7 +129,7 @@ public class ChatRoom extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
                         new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
                         new DividerDrawerItem(),
-                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(currentRoom.isSilent()).withOnCheckedChangeListener(silentRoom).withSelectable(false),
+                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(currentUser.getSilentRooms().contains(currentRoom)).withOnCheckedChangeListener(silentRoom).withSelectable(false),
                         new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                         new SecondaryDrawerItem().withName(R.string.quit_room).withSelectable(false)
                 )
@@ -289,7 +291,7 @@ public class ChatRoom extends AppCompatActivity {
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("roomId");
 
-        this.currentRoom = Room.getRoomById(this, realm, roomId);
+        this.currentRoom = Room.getRoomById(realm, roomId);
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();

@@ -204,12 +204,21 @@ public class SocketIO {
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
                         userObj.put("universityID", university);
-
                         userObj.remove("_id");
+
+                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom");
+
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
                         realm.beginTransaction();
+
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
+                        for (int i = 0; i < silentRoomsJSON.length(); i++) {
+                            String roomID = silentRoomsJSON.getString(i);
+                            Log.e(TAG, "silent room:"+roomID);
+                            Room room = Room.getRoomById(realm, roomID);
+                            User.getUserFromRealm(realm, id).getSilentRooms().add(room);
+                        }
                         realm.commitTransaction();
                         realm.close();
                     } catch (JSONException e) {

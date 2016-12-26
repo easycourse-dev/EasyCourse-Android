@@ -18,7 +18,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
@@ -38,6 +37,8 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by nisarg on 9/11/16.
@@ -186,11 +187,7 @@ public class SocketIO {
                             avatar = IOUtils.toByteArray(conn.getInputStream());
                         }
 
-                    } catch (MalformedURLException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (IOException e) {
+                    } catch (JSONException | IOException e) {
                         Log.e(TAG, e.toString());
                     }
                     User user = null;
@@ -598,7 +595,7 @@ public class SocketIO {
                     Log.e(TAG, "getUserInfo" + obj.toString());
                         JSONObject userObj = null;
                         byte[] avatar = null;
-                        String avatarUrlString = "";
+                        String avatarUrlString;
 
                     try {
 
@@ -613,11 +610,7 @@ public class SocketIO {
                             //conn.setUseCaches(false);
                             avatar = IOUtils.toByteArray(conn.getInputStream());
                         }
-                    } catch (MalformedURLException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (IOException e) {
+                    } catch (JSONException | IOException e) {
                         Log.e(TAG, e.toString());
                     } catch (NullPointerException e) {
                         Log.e(TAG, "no avatarUrl", e);
@@ -626,9 +619,7 @@ public class SocketIO {
                     User user = null;
                     try {
                         user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, null, null, null);
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (NullPointerException e) {
+                    } catch (JSONException | NullPointerException e) {
                         Log.e(TAG, e.toString());
                     }
 
@@ -680,16 +671,5 @@ public class SocketIO {
                 Log.e(TAG, e.toString());
             }
         }
-    }
-
-    //check if JSON value exists, returns default if not
-    private Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
-        if (obj.has(searchQuery)) {
-            if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
-                return obj.getString(searchQuery);
-            else
-                return obj.get(searchQuery);
-        } else
-            return defaultObj;
     }
 }

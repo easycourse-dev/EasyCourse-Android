@@ -22,7 +22,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/choose_languages_recycler_view"
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:layout_gravity="center"
             android:layout_marginTop="60dp" />
     </LinearLayout>

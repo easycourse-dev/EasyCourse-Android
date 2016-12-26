@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -25,12 +24,12 @@ import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -73,8 +72,6 @@ public class SignupChooseLanguage extends Fragment {
         fetchLanguages();
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
-
-        fillLanguages();
     }
 
     @Override
@@ -90,6 +87,7 @@ public class SignupChooseLanguage extends Fragment {
         languageRecyclerView = (RecyclerView) v.findViewById(R.id.choose_languages_recycler_view);
         languageRecyclerView.setLayoutManager(languageLayoutManager);
         languageRecyclerView.setAdapter(languageAdapter);
+        languageRecyclerView.setHasFixedSize(true);
 
         nextButton = (Button) v.findViewById(R.id.buttonChooseLanguageNext);
         prevButton = (Button) v.findViewById(R.id.buttonChooseLanguagePrev);
@@ -98,14 +96,12 @@ public class SignupChooseLanguage extends Fragment {
             @Override
             public void onClick(View v) {
                 String[] languageCodes = getLanguageCodes();
-                if (languageCodes != null) {
-                    userSetup.setLanguageCodeArray(languageCodes);
-                    postSignupData(userSetup);
+                if (languageCodes == null) {
+                    userSetup.setLanguageCodeArray(new String[0]);
                 } else {
-                    Log.d(TAG, "No language selected!");
-                    Snackbar.make(v, "No language selected!", Snackbar.LENGTH_SHORT).show();
+                    userSetup.setLanguageCodeArray(languageCodes);
                 }
-
+                postSignupData(userSetup);
             }
         });
 
@@ -139,18 +135,25 @@ public class SignupChooseLanguage extends Fragment {
 
         APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
                     languageList.clear();
-                    Iterator languages = response.keys();
-                    while (languages.hasNext()) {
-                        String key = (String) languages.next();
-                        JSONObject obj = response.getJSONObject(key);
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject obj = (JSONObject) response.get(i);
                         String name = obj.getString("name");
                         String code = obj.getString("code");
                         String translation = obj.getString("translation");
                         Language language = new Language(name, code, translation);
                         languageList.add(language);
+                    }
+                    ArrayList<Language> selectedLanguages = userSetup.getSelectedLanguages();
+                    languageAdapter.setCheckedLanguageList(selectedLanguages);
+                    for (int i = 0; i < languageList.size(); i++) {
+                        for (int j = 0; j < selectedLanguages.size(); j++) {
+                            if (selectedLanguages.get(j).getCode().equals(languageList.get(i).getCode())) {
+                                languageList.get(i).setChecked(true);
+                            }
+                        }
                     }
                     languageAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
@@ -165,20 +168,6 @@ public class SignupChooseLanguage extends Fragment {
                 Log.e(TAG, res);
             }
         });
-    }
-
-    public void fillLanguages() {
-        if (userSetup == null) return;
-        String[] languages = userSetup.getLanguageCodeArray();
-        if (languages == null) return;
-        ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
-        for (int i = 0; i < languages.length; i++) {
-            for (Language language : languageArrayList) {
-                if (language.getCode() == languages[i]) {
-                    language.setChecked(true);
-                }
-            }
-        }
     }
 
     // Posts the signupData

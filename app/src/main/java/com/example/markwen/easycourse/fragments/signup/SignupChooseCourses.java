@@ -81,16 +81,6 @@ public class SignupChooseCourses extends Fragment {
         clearEditTextButton = (Button)rootView.findViewById(R.id.buttonClearEditText);
 
         courses = userSetup.getSelectedCourses();
-        if (courses.size() > 0) {
-            Course sampleCourse = courses.get(0);
-            if (sampleCourse != null) {
-                if (!sampleCourse.getUniversityId().equals(chosenUniversity)) {
-                    // If user chose a different university
-                    courses.clear();
-                }
-            }
-        }
-
         coursesAdapter = new SignupChooseCoursesAdapter(courses);
 
         coursesLayoutManager = new LinearLayoutManager(getContext());

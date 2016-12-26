@@ -36,6 +36,12 @@ public class UserSetup implements Parcelable {
     }
 
     public void setUniversityID(String universityID) {
+        if (this.universityID != null && !this.universityID.equals(universityID)) {
+            setSelectedCourses(new ArrayList<Course>());
+            setCourseCodeArray(new String[0]);
+            setSelectedLanguages(new ArrayList<Language>());
+            setLanguageCodeArray(new String[0]);
+        }
         this.universityID = universityID;
     }
 

@@ -8,11 +8,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.fragments.signup.SignupChooseUniversity;
 import com.example.markwen.easycourse.fragments.signup.SignupLogin;
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 /**
@@ -31,32 +33,24 @@ public class SignupLoginActivity extends AppCompatActivity {
 
         // Setup userSetup model to hold data
         userSetup = new UserSetup();
+        Realm realm = Realm.getDefaultInstance();
         // Use SharedPreferences to get users
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String currentUser = sharedPref.getString("currentUser", "");
-        JSONObject currentUserObject;
-        JSONArray joinedCourses = new JSONArray();
-        try {
-            // If user has no joined courses, bring the user to signup setup
-            currentUserObject = new JSONObject(currentUser);
-            joinedCourses = currentUserObject.getJSONArray("joinedCourse");
-        } catch (Throwable t) {
-
-        }
+        RealmResults<Course> joinedCourses = realm.where(Course.class).findAll();
 
         // Hide toolbar for this specific activity and null check
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
         if (savedInstanceState == null) {
-//            Uncomment code below when syncUser is ready to check if a user has joined courses:
-//            if (!currentUser.equals("") && joinedCourses.toString().equals("[]")) {
-//                SignupChooseUniversity chooseUniversity = new SignupChooseUniversity();
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                fragmentManager.beginTransaction()
-//                        .replace(R.id.activity_signuplogin_container, chooseUniversity).commit();
-//                return;
-//            }
+            if (!currentUser.equals("") && joinedCourses.size() == 0) {
+                SignupChooseUniversity chooseUniversity = new SignupChooseUniversity();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.activity_signuplogin_container, chooseUniversity).commit();
+                return;
+            }
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
 

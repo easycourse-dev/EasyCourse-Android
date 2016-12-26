@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.fragments.signup;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -79,6 +80,17 @@ public class SignupChooseCourses extends Fragment {
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
         clearEditTextButton = (Button)rootView.findViewById(R.id.buttonClearEditText);
 
+        courses = userSetup.getSelectedCourses();
+        if (courses.size() > 0) {
+            Course sampleCourse = courses.get(0);
+            if (sampleCourse != null) {
+                if (!sampleCourse.getUniversityId().equals(chosenUniversity)) {
+                    // If user chose a different university
+                    courses.clear();
+                }
+            }
+        }
+
         coursesAdapter = new SignupChooseCoursesAdapter(courses);
 
         coursesLayoutManager = new LinearLayoutManager(getContext());
@@ -127,7 +139,11 @@ public class SignupChooseCourses extends Fragment {
                                 courses.clear();
                                 for (int i = 0; i < response.length(); i++) {
                                     JSONObject course = (JSONObject) response.get(i);
-                                    courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                                    courses.add(new Course(
+                                            course.getString("name"),
+                                            course.getString("title"),
+                                            course.getString("_id"),
+                                            chosenUniversity));
                                 }
                                 coursesAdapter.notifyDataSetChanged();
                                 coursesOnScrollListener.resetState();
@@ -160,7 +176,7 @@ public class SignupChooseCourses extends Fragment {
                 @Override
                 public void onClick(View v) {
                     saveToUserSetup();
-                    gotoSignupChooseLanguage();
+                    gotoSignupChooseLanguage(v);
                 }
             });
 
@@ -177,7 +193,7 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
-    public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, RecyclerView view) {
+    public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {
         APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -186,7 +202,11 @@ public class SignupChooseCourses extends Fragment {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject courseJSON = (JSONObject) response.get(i);
-                        Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
+                        Course courseObj = new Course(
+                                courseJSON.getString("name"),
+                                courseJSON.getString("title"),
+                                courseJSON.getString("_id"),
+                                chosenUniversity);
                         if (!courses.contains(courseObj))
                             courses.add(courseObj);
                     }
@@ -210,11 +230,19 @@ public class SignupChooseCourses extends Fragment {
             courseStringList[i] = checkedCourses.get(i).getId();
         }
         userSetup.setCourseCodeArray(courseStringList);
+        userSetup.setSelectedCourses(checkedCourses);
     }
 
 
     // Call this function when going to SignupChooseCourses
-    public void gotoSignupChooseLanguage() {
+    public void gotoSignupChooseLanguage(View v) {
+
+        // Prevent user from continuing without enrolling into a course
+        if (courses.size() == 0) {
+            Snackbar.make(v, "Please enroll into a course", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
         saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
@@ -226,6 +254,7 @@ public class SignupChooseCourses extends Fragment {
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseUniversity() {
+        saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);

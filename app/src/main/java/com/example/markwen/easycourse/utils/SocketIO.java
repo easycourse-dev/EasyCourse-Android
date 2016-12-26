@@ -638,6 +638,7 @@ public class SocketIO {
                     Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
                     Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
+                    realm.close();
                 }
             }
         });

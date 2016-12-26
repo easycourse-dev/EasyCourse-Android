@@ -27,6 +27,12 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
 
     public SignupChooseCoursesAdapter(ArrayList<Course> coursesList) {
         this.coursesList = coursesList;
+        // Check if there are checked courses in the inserted list
+        for (int i = 0; i < coursesList.size(); i++) {
+            if (coursesList.get(i).isSelected()) {
+                checkedCourseList.add(coursesList.get(i));
+            }
+        }
     }
 
     static class CourseViewHolder extends RecyclerView.ViewHolder {

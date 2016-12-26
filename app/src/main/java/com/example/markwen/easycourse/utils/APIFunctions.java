@@ -113,7 +113,7 @@ public class APIFunctions {
     }
 
     //API function to set courses and languages in  user's profile
-    public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+    public static boolean setCoursesAndLanguages(Context context, String[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
         if(userToken.isEmpty())
@@ -122,7 +122,7 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
-        JSONArray jsonLanguageCodeArray = getJsonArrayFromIntArray(languageCodeArray);
+        JSONArray jsonLanguageCodeArray = getJsonArrayFromStringArray(languageCodeArray);
         JSONArray jsonCourseCodeArray = getJsonArrayFromStringArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);
         jsonParam.put("course", jsonCourseCodeArray);

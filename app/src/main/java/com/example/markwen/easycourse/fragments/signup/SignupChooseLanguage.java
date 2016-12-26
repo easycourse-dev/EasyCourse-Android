@@ -67,7 +67,6 @@ public class SignupChooseLanguage extends Fragment {
         // Sets screen to portrait
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
         languageList = new ArrayList<>();
         languageAdapter = new SignupChooseLanguageAdapter(languageList);
 
@@ -76,8 +75,6 @@ public class SignupChooseLanguage extends Fragment {
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
 
         fillLanguages();
-
-
     }
 
     @Override
@@ -100,7 +97,7 @@ public class SignupChooseLanguage extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int[] languageCodes = getLanguageCodes();
+                String[] languageCodes = getLanguageCodes();
                 if (languageCodes != null) {
                     userSetup.setLanguageCodeArray(languageCodes);
                     postSignupData(userSetup);
@@ -123,13 +120,13 @@ public class SignupChooseLanguage extends Fragment {
     }
 
     @Nullable
-    private int[] getLanguageCodes() {
+    private String[] getLanguageCodes() {
         ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
 
         if (checkedLanguages.size() == 0)
             return null;
 
-        int[] languageCodes = new int[checkedLanguages.size()];
+        String[] languageCodes = new String[checkedLanguages.size()];
         for (int i = 0; i < checkedLanguages.size(); i++) {
             if (checkedLanguages.get(i) != null) {
                 languageCodes[i] = checkedLanguages.get(i).getCode();
@@ -150,8 +147,9 @@ public class SignupChooseLanguage extends Fragment {
                         String key = (String) languages.next();
                         JSONObject obj = response.getJSONObject(key);
                         String name = obj.getString("name");
-                        int code = obj.getInt("code");
-                        Language language = new Language(name, code);
+                        String code = obj.getString("code");
+                        String translation = obj.getString("translation");
+                        Language language = new Language(name, code, translation);
                         languageList.add(language);
                     }
                     languageAdapter.notifyDataSetChanged();
@@ -171,7 +169,7 @@ public class SignupChooseLanguage extends Fragment {
 
     public void fillLanguages() {
         if (userSetup == null) return;
-        int[] languages = userSetup.getLanguageCodeArray();
+        String[] languages = userSetup.getLanguageCodeArray();
         if (languages == null) return;
         ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
         for (int i = 0; i < languages.length; i++) {
@@ -223,6 +221,16 @@ public class SignupChooseLanguage extends Fragment {
         }
     }
 
+    public void saveToUserSetup() {
+        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
+        String[] languageStringList = new String[checkedLanguages.size()];
+        for (int i = 0; i < languageStringList.length; i++) {
+            languageStringList[i] = checkedLanguages.get(i).getCode();
+        }
+        userSetup.setLanguageCodeArray(languageStringList);
+        userSetup.setSelectedLanguages(checkedLanguages);
+    }
+
     // Function to go to MainActivity
     private void goToMainActivity() {
         Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
@@ -234,6 +242,7 @@ public class SignupChooseLanguage extends Fragment {
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseCourses() {
+        saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);

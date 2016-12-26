@@ -54,7 +54,7 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
     @Override
     public void onBindViewHolder(final LanguageViewHolder languageViewHolder, int i) {
         final Language language = languageList.get(i);
-        languageViewHolder.languageTextView.setText(language.getName());
+        languageViewHolder.languageTextView.setText(language.getTranslation());
 
         languageViewHolder.languageLayout.setOnClickListener(new View.OnClickListener() {
             @Override

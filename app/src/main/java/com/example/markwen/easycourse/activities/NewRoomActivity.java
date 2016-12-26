@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -74,6 +75,10 @@ public class NewRoomActivity extends AppCompatActivity {
     EditText newRoomName;
     @BindView(R.id.newRoomCreateButton)
     Button newRoomButton;
+    @BindView(R.id.newRoomInputCard)
+    CardView inputCard;
+    @BindView(R.id.newRoomResultsCard)
+    CardView resultsCard;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,6 +116,8 @@ public class NewRoomActivity extends AppCompatActivity {
             newRoomCoursesSpinner.setVisibility(View.GONE);
             newRoomName.setVisibility(View.GONE);
             noCourseText.setVisibility(View.VISIBLE);
+            inputCard.setVisibility(View.GONE);
+            resultsCard.setVisibility(View.GONE);
         } else {
             // Setup courses spinner
             // Set dropdown arrow color

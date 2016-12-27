@@ -66,7 +66,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         handleIntent();
 
 
-        //TODO: add loading bar till fragment loads
         ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(this, currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()

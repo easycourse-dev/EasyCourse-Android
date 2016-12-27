@@ -36,6 +36,7 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
 
 import org.json.JSONException;
 
@@ -105,24 +106,14 @@ public class ChatRoomFragment extends Fragment {
         setupOnClickListeners();
 
 
+        DownloadImagesTask task = new DownloadImagesTask();
+        task.execute();
+
         return v;
     }
 
     //TODO: private messages
     private void setupChatRecyclerView() {
-//
-//        Message message1 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-//        Message message2 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-//        Message message3 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-//        Message message4 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-//        Message message5 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-//        Message.updateMessageToRealm(message1, realm);
-//        Message.updateMessageToRealm(message2, realm);
-//        Message.updateMessageToRealm(message3, realm);
-//        Message.updateMessageToRealm(message4, realm);
-//        Message.updateMessageToRealm(message5, realm);
-
-
         messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAll();
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);

@@ -348,6 +348,15 @@ public class SocketIO {
         return courses[0];
     }
 
+    //Join courses with language keys
+    public void joinCourse(String courseID, String[] languageKeys) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courseId", courseID);
+        jsonParam.put("lang", languageKeys);
+
+        socket.emit("joinCourse", jsonParam);
+    }
+
     //convert and save JSON message object to realm
     public boolean dropCourse(String courseID) throws JSONException {
         JSONObject jsonParam = new JSONObject();

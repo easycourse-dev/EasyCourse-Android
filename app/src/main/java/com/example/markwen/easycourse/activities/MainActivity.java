@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intentFromSignup = getIntent();
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
-            parseSetupIntent(userSetup);
+//            parseSetupIntent(userSetup);
         }
 
     }

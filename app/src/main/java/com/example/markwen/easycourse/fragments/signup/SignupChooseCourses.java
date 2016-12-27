@@ -131,7 +131,6 @@ public class SignupChooseCourses extends Fragment {
                     coursesOnScrollListener.resetState();
                 } else {
                     try {
-//                        socketIO = new SocketIO(getContext());
                         socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
 
                             @Override
@@ -161,8 +160,6 @@ public class SignupChooseCourses extends Fragment {
                         });
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", "jsonex" + e.toString());
-//                    } catch (URISyntaxException e) {
-//                        e.printStackTrace();
                     }
                 }
             }
@@ -211,10 +208,8 @@ public class SignupChooseCourses extends Fragment {
                             coursesOnScrollListener.resetState();
                         }
                     });
-
                 }
-
-            };
+            }
         };
         thread.start();
     }

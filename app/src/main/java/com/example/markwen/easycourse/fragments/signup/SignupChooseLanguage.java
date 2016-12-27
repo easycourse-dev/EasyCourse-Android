@@ -22,6 +22,7 @@ import com.example.markwen.easycourse.components.signup.SignupChooseLanguageAdap
 import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -29,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -187,25 +189,13 @@ public class SignupChooseLanguage extends Fragment {
                 }
             });
 
-            APIFunctions.setCoursesAndLanguages(getContext(), userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "Successfully posted courses and languages");
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
-                    Log.d(TAG, "Failed to post courses and languages");
-                }
-            });
+            SocketIO socketIO = new SocketIO(getContext());
+            socketIO.joinCourse(userSetup.getCourseCodeArray(), userSetup.getLanguageCodeArray());
 
             goToMainActivity();
 
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (JSONException | UnsupportedEncodingException | URISyntaxException e) {
             e.printStackTrace();
         }
     }

@@ -363,7 +363,14 @@ public class SocketIO {
         jsonParam.put("courses", courses);
         jsonParam.put("lang", languageKeys);
 
-        socket.emit("joinCourse", jsonParam);
+        socket.emit("joinCourse", jsonParam, new Ack() {
+
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                Log.i("obj", obj.toString());
+            }
+        });
     }
 
     //convert and save JSON message object to realm

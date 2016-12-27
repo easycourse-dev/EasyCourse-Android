@@ -106,8 +106,6 @@ public class NewRoomActivity extends AppCompatActivity {
 
         // Setup courses
         courses = realm.where(Course.class).findAll();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         if (courses.size() == 0) {
             // If no courses then show hint to add courses
             existedRoomView.setVisibility(View.GONE);

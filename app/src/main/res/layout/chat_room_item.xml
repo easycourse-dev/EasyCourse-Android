@@ -55,7 +55,6 @@
                 android:clickable="false"
                 android:ellipsize="end"
                 android:maxLength="15"
-                android:text="@string/textViewTest"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -79,7 +78,6 @@
                 android:lines="1"
                 android:maxLength="20"
                 android:maxWidth="100dp"
-                android:text="@string/textViewTest"
                 android:textSize="16sp"
                 android:textStyle="italic" />
 
@@ -90,7 +88,6 @@
                 android:clickable="false"
                 android:ellipsize="end"
                 android:paddingLeft="16dp"
-                android:text="10:58 AM"
                 android:textSize="16sp"
                 android:textStyle="italic" />
 

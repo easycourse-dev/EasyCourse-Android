@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
@@ -87,6 +88,12 @@ public class RoomsFragment extends Fragment {
         newRoomFab.setColorNormalResId(R.color.colorAccent);
         newRoomFab.setColorRippleResId(R.color.colorAccent);
         newRoomFab.setColorPressedResId(R.color.colorAccent);
+        newRoomFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), NewRoomActivity.class));
+            }
+        });
     }
 
     private void setupRecyclerView() {

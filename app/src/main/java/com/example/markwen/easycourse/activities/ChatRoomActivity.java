@@ -1,9 +1,6 @@
 package com.example.markwen.easycourse.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -30,7 +27,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -41,33 +38,31 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
-public class ChatRoom extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity {
 
-    private static final String TAG = "ChatRoom";
+    private static final String TAG = "ChatRoomActivity";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
     private static final int PERMISSION_DENIED = -1;
     private static final int CHOOSE_IMAGE_INTENT = 4;
     private static final int TAKE_IMAGE_INTENT = 5;
 
-    Realm realm;
-    SocketIO socketIO;
-    Snackbar disconnectSnackbar;
+    private Realm realm;
+    private SocketIO socketIO;
+    private Snackbar disconnectSnackbar;
 
 
-    Room currentRoom;
-    User currentUser;
+    private Room currentRoom;
+    private User currentUser;
 
     @BindView(R.id.toolbarChatRoom)
     Toolbar toolbar;

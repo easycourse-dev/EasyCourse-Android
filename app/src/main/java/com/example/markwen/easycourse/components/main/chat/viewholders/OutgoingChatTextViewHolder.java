@@ -1,8 +1,10 @@
-package com.example.markwen.easycourse.components.main.viewholders;
+package com.example.markwen.easycourse.components.main.chat.viewholders;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
@@ -16,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
@@ -33,21 +35,25 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "OutgoingChatTextViewHol";
 
-    @BindView(R.id.linearOutgoingChatCell)
-    public LinearLayout outgoingLinearLayout;
-    @BindView(R.id.textViewOutgoingTextTime)
-    public TextView outgoingTime;
-    @BindView(R.id.imageViewOutgoingTextImage)
-    public ImageView outgoingImageView;
-    @BindView(R.id.textViewOutgoingTextName)
-    public TextView outgoingName;
-    @BindView(R.id.textViewOutgoingTextMessage)
-    public TextView outgoingMessage;
+    private AppCompatActivity activity;
 
-    public OutgoingChatTextViewHolder(View itemView) {
+
+    @BindView(R.id.linearOutgoingChatCell)
+    LinearLayout outgoingLinearLayout;
+    @BindView(R.id.textViewOutgoingTextTime)
+    TextView outgoingTime;
+    @BindView(R.id.imageViewOutgoingTextImage)
+    ImageView outgoingImageView;
+    @BindView(R.id.textViewOutgoingTextName)
+    TextView outgoingName;
+    @BindView(R.id.textViewOutgoingTextMessage)
+    TextView outgoingMessage;
+
+    public OutgoingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         Linkify.addLinks(outgoingMessage, Linkify.ALL);
+        this.activity = activity;
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, final Context context, final ChatRecyclerViewAdapter adapter) {
@@ -76,7 +82,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 
         }
 
-       outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+        outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 return showPopup(outgoingLinearLayout, message, context);

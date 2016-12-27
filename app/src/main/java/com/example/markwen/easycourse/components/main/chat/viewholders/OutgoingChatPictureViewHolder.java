@@ -1,6 +1,8 @@
-package com.example.markwen.easycourse.components.main.viewholders;
+package com.example.markwen.easycourse.components.main.chat.viewholders;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -9,7 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.chat.ChatImageViewFragment;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
@@ -26,23 +29,27 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "OutgoingChatPictureView";
 
-    @BindView(R.id.linearOutgoingPicCell)
-    private LinearLayout outgoingPicLinearLayout;
-    @BindView(R.id.textViewOutgoingPicTime)
-    private TextView outgoingPicTime;
-    @BindView(R.id.imageViewOutgoingUserImage)
-    private ImageView outgoingPicUserView;
-    @BindView(R.id.textViewOutgoingPicName)
-    private TextView outgoingPicName;
-    @BindView(R.id.imageViewOutgoingImage)
-    private ImageView outgoingPicImageView;
+    private AppCompatActivity activity;
 
-    public OutgoingChatPictureViewHolder(View itemView) {
+    @BindView(R.id.linearOutgoingPicCell)
+    LinearLayout outgoingPicLinearLayout;
+    @BindView(R.id.textViewOutgoingPicTime)
+    TextView outgoingPicTime;
+    @BindView(R.id.imageViewOutgoingUserImage)
+    ImageView outgoingPicUserView;
+    @BindView(R.id.textViewOutgoingPicName)
+    TextView outgoingPicName;
+    @BindView(R.id.imageViewOutgoingImage)
+    ImageView outgoingPicImageView;
+
+
+    public OutgoingChatPictureViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+        this.activity = activity;
     }
 
-    public void setupView(Message message, Message prevMessage, User curUser, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingPicTime.setVisibility(View.VISIBLE);
@@ -61,7 +68,7 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
                 if (!message.getImageUrl().isEmpty()) {
                     Picasso.with(context)
-                            .load(message.getImageUrl()).resize(36, 36).centerInside()
+                            .load(message.getImageUrl())
                             .into(outgoingPicImageView);
                 }
 
@@ -71,6 +78,17 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
             }
             outgoingPicName.setText(curUser.getUsername());
             //TODO: add click listner to fullsize image with animation
+            outgoingPicImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl());
+                    activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .add(android.R.id.content, fragment, message.getImageUrl())
+                            .addToBackStack(fragment.getClass().getSimpleName())
+                            .commit();
+                }
+            });
         }
     }
 }

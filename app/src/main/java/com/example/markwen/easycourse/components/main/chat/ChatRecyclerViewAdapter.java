@@ -1,37 +1,20 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.chat;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.PopupMenu;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.viewholders.IncomingChatPictureViewHolder;
-import com.example.markwen.easycourse.components.main.viewholders.IncomingChatTextViewHolder;
-import com.example.markwen.easycourse.components.main.viewholders.OutgoingChatPictureViewHolder;
-import com.example.markwen.easycourse.components.main.viewholders.OutgoingChatTextViewHolder;
+import com.example.markwen.easycourse.components.main.chat.viewholders.IncomingChatPictureViewHolder;
+import com.example.markwen.easycourse.components.main.chat.viewholders.IncomingChatTextViewHolder;
+import com.example.markwen.easycourse.components.main.chat.viewholders.OutgoingChatPictureViewHolder;
+import com.example.markwen.easycourse.components.main.chat.viewholders.OutgoingChatTextViewHolder;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
-import com.example.markwen.easycourse.utils.DateUtils;
-import com.squareup.picasso.Picasso;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
@@ -46,34 +29,45 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
     private static final String TAG = "ChatRecyclerViewAdapter";
 
-    private final int INCOMING_TEXT = 0, INCOMING_PIC = 1, OUTGOING_TEXT = 2, OUTGOING_PIC = 3;
+    private final int INCOMING_TEXT = 1, INCOMING_PIC = 2, OUTGOING_TEXT = 3, OUTGOING_PIC = 4;
 
     private Context context;
-    private Activity activity;
+    private AppCompatActivity activity;
     private Realm realm;
     private User curUser;
 
     public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
         super(context, messages, true);
         this.context = context;
-        this.activity = (Activity) context;
+        this.activity = (AppCompatActivity) context;
         realm = Realm.getDefaultInstance();
         this.curUser = User.getCurrentUser(this.activity, this.realm);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        RecyclerView.ViewHolder viewHolder;
+        RecyclerView.ViewHolder viewHolder = null;
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
 
         switch (viewType) {
-            case OUTGOING_TEXT:
-                View outgoingView = inflater.inflate(R.layout.chat_cell_outgoing_text, viewGroup, false);
-                viewHolder = new OutgoingChatTextViewHolder(outgoingView);
+            case INCOMING_TEXT:
+                View incomingTextView = inflater.inflate(R.layout.chat_cell_incoming_text, viewGroup, false);
+                viewHolder = new IncomingChatTextViewHolder(incomingTextView, activity);
                 break;
-            default:
-                View incomingView = inflater.inflate(R.layout.chat_cell_incoming_text, viewGroup, false);
-                viewHolder = new IncomingChatTextViewHolder(incomingView);
+
+            case INCOMING_PIC:
+                View incomingPicView = inflater.inflate(R.layout.chat_pic_incoming, viewGroup, false);
+                viewHolder = new IncomingChatPictureViewHolder(incomingPicView, activity);
+                break;
+
+            case OUTGOING_TEXT:
+                View outgoingTextView = inflater.inflate(R.layout.chat_cell_outgoing_text, viewGroup, false);
+                viewHolder = new OutgoingChatTextViewHolder(outgoingTextView, activity);
+                break;
+
+            case OUTGOING_PIC:
+                View outgoingPicView = inflater.inflate(R.layout.chat_pic_outgoing, viewGroup, false);
+                viewHolder = new OutgoingChatPictureViewHolder(outgoingPicView, activity);
                 break;
         }
         return viewHolder;
@@ -83,13 +77,11 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         Message prevMessage = null;
 
-        final Message message;
-        try {
-            message = getData().get(position);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "onBindViewHolder:", e);
+
+        if (getData() == null || getData().size() < 1)
             return;
-        }
+
+        final Message message = getData().get(position);
         if (position != 0)
             prevMessage = getData().get(position - 1);
 
@@ -124,20 +116,19 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     }
 
 
-    public void closeRealm() {
-        if (realm != null)
-            realm.close();
-    }
+
 
     @Override
     public int getItemViewType(int i) {
         if (getData() != null && getData().size() > 0) {
             final Message message = getData().get(i);
             if (message.isToUser()) {
+
                 if (message.getImageUrl() != null)
                     return OUTGOING_PIC;
                 else
                     return OUTGOING_TEXT;
+
             } else {
                 if (message.getImageUrl() != null)
                     return INCOMING_PIC;
@@ -146,5 +137,10 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
             }
         }
         return 0;
+    }
+
+    public void closeRealm() {
+        if (realm != null)
+            realm.close();
     }
 }

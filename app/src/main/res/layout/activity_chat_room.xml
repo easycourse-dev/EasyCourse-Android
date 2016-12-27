@@ -5,9 +5,7 @@
     android:id="@+id/relativeLayoutChatRoom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ChatRoom">
-
-    <!--TODO: Hide scrollbar-->
+    tools:context=".activities.ChatRoomActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarChatRoom"

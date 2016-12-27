@@ -48,7 +48,7 @@ import io.realm.RealmChangeListener;
  * Created by nisarg on 28/11/16.
  */
 
-public class UserProfile extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     TextView textViewUsername;

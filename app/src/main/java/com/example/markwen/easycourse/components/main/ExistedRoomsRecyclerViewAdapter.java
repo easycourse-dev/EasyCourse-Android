@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.utils.SocketIO;
 
@@ -58,7 +58,7 @@ public class ExistedRoomsRecyclerViewAdapter extends RecyclerView.Adapter<Existe
                 try {
                     Future<Room> joiningRoom = socketIO.joinRoom(room.getId());
                     Room joinedRoom = joiningRoom.get();
-                    Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+                    Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
                     chatActivityIntent.putExtra("roomId", joinedRoom.getId());
                     context.startActivity(chatActivityIntent);
                 } catch (JSONException | InterruptedException | ExecutionException e) {

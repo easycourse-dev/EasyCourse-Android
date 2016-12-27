@@ -193,7 +193,7 @@ public class NewRoomActivity extends AppCompatActivity {
                         Room createdRoom = creatingRoom.get();
                         finish();
                         // Wait till socketIO async implementation to be done to uncomment below
-//                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
+//                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
 //                        chatActivityIntent.putExtra("roomId", createdRoom.getId());
 //                        finish();
 //                        startActivity(chatActivityIntent);

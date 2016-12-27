@@ -1,8 +1,10 @@
-package com.example.markwen.easycourse.components.main.viewholders;
+package com.example.markwen.easycourse.components.main.chat.viewholders;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
@@ -16,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
@@ -34,21 +36,24 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "IncomingChatTextViewHol";
 
-    @BindView(R.id.linearIncomingChatCell)
-    public LinearLayout incomingLinearLayout;
-    @BindView(R.id.textViewIncomingTextTime)
-    public TextView incomingTime;
-    @BindView(R.id.imageViewIncomingTextImage)
-    public ImageView incomingImageView;
-    @BindView(R.id.textViewIncomingTextName)
-    public TextView incomingName;
-    @BindView(R.id.textViewIncomingTextMessage)
-    public TextView incomingMessage;
+    private AppCompatActivity activity;
 
-    public IncomingChatTextViewHolder(View itemView) {
+    @BindView(R.id.linearIncomingChatCell)
+    LinearLayout incomingLinearLayout;
+    @BindView(R.id.textViewIncomingTextTime)
+    TextView incomingTime;
+    @BindView(R.id.imageViewIncomingTextImage)
+    ImageView incomingImageView;
+    @BindView(R.id.textViewIncomingTextName)
+    TextView incomingName;
+    @BindView(R.id.textViewIncomingTextMessage)
+    TextView incomingMessage;
+
+    public IncomingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         Linkify.addLinks(incomingMessage, Linkify.ALL);
+        this.activity = activity;
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {

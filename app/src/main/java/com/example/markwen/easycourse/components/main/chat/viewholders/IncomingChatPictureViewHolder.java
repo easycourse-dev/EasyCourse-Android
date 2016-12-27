@@ -1,21 +1,17 @@
-package com.example.markwen.easycourse.components.main.viewholders;
+package com.example.markwen.easycourse.components.main.chat.viewholders;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
+import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
@@ -33,21 +29,25 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "IncomingChatPictureView";
 
+    private AppCompatActivity activity;
+
+
     @BindView(R.id.linearIncomingPicCell)
-    private LinearLayout incomingPicLinearLayout;
+    LinearLayout incomingPicLinearLayout;
     @BindView(R.id.textViewIncomingPicTime)
-    private TextView incomingPicTime;
+    TextView incomingPicTime;
     @BindView(R.id.textViewIncomingPicName)
-    private TextView incomingPicName;
+    TextView incomingPicName;
     @BindView(R.id.imageViewIncomingUserImage)
-    private ImageView incomingPicUserImage;
+    ImageView incomingPicUserImage;
     @BindView(R.id.imageViewIncomingPicImage)
-    private ImageView incomingPicImageView;
+    ImageView incomingPicImageView;
 
 
-    protected IncomingChatPictureViewHolder(View itemView) {
+    public IncomingChatPictureViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+        this.activity = activity;
     }
 
     public void setupView(Message message, Message prevMessage, User curUser, Realm realm, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {

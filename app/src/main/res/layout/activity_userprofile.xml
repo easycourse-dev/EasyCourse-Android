@@ -11,6 +11,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbarUserProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    android:background="@color/colorPrimary"
+                    android:clickable="true"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                    app:layout_scrollFlags="scroll|enterAlways|snap"/>
                 <RelativeLayout
                     android:layout_width="128dp"
                     android:layout_height="128dp"

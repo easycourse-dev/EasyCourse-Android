@@ -81,9 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -124,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
                 MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
             }
+            finish();
         }
     }
 

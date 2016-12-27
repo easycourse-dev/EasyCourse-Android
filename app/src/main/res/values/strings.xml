@@ -58,4 +58,9 @@
     <string name="existed_rooms">existed rooms:</string>
     <string name="tempCourse">CS18000</string>
     <string name="tempRoomName">CS180NoArrayListPlease...</string>
+    <string name="classmates">Classmates</string>
+    <string name="subgroups">Subgroups</string>
+    <string name="silent">Silent</string>
+    <string name="share_room">Share Room</string>
+    <string name="quit_room">Quit Room</string>
 </resources>

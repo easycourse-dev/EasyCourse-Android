@@ -61,12 +61,12 @@ public class SignupChooseUniversity extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        userSetup = ((SignupLoginActivity) getActivity()).userSetup;
+
         uniList = new ArrayList<>();
         uniAdapter = new SignupChooseUniversityAdapter(uniList);
 
         fetchUniversities();
-
-        userSetup = ((SignupLoginActivity) getActivity()).userSetup;
     }
 
     @Override
@@ -90,9 +90,9 @@ public class SignupChooseUniversity extends Fragment {
                 String universityId = getUniversityId();
                 if (universityId != null && userSetup != null) {
                     userSetup.setUniversityID(universityId);
+                    userSetup.setSelectedUniversity(uniAdapter.getSelectedUniversity());
                     gotoSignupChooseCourses();
                 } else {
-                    Log.d(TAG, "No language selected!");
                     Snackbar.make(v, "No university selected!", Snackbar.LENGTH_SHORT).show();
                 }
             }
@@ -136,6 +136,13 @@ public class SignupChooseUniversity extends Fragment {
                                 University university = new University(id, name);
                                 uniList.add(university);
                             }
+                            University selectedUniversity = userSetup.getSelectedUniversity();
+                            if (selectedUniversity != null) {
+                                if (hasUniversity(uniList, selectedUniversity) != null) {
+                                    hasUniversity(uniList, selectedUniversity).setSelected(true);
+                                    uniAdapter.setSelectedUniversity(selectedUniversity);
+                                }
+                            }
                             uniAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -156,15 +163,24 @@ public class SignupChooseUniversity extends Fragment {
 
     // Call this function when going to SignupChooseCourses
     public void gotoSignupChooseCourses() {
-        String unId = userSetup.getUniversityID();
-        if (unId != null)
-            Log.d(TAG, "Passing: " + unId);
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseCourses.newInstance());
         transaction.addToBackStack("SignupChooseUniversity");
         transaction.commit();
+    }
+
+    // Check if a university exists in a list by comparing IDs
+    public University hasUniversity(ArrayList<University> list, University univ) {
+        University temp;
+        for (int i = 0; i < list.size(); i++) {
+            temp = list.get(i);
+            if (temp.getId().equals(univ.getId())) {
+                return temp;
+            }
+        }
+        return null;
     }
 
 }

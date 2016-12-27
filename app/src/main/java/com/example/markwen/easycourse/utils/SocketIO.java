@@ -349,9 +349,9 @@ public class SocketIO {
     }
 
     //Join courses with language keys
-    public void joinCourse(String courseID, String[] languageKeys) throws JSONException {
+    public void joinCourse(String[] courses, String[] languageKeys) throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("courseId", courseID);
+        jsonParam.put("courses", courses);
         jsonParam.put("lang", languageKeys);
 
         socket.emit("joinCourse", jsonParam);

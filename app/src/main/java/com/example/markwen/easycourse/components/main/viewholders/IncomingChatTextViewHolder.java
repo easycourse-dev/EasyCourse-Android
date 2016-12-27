@@ -1,13 +1,19 @@
 package com.example.markwen.easycourse.components.main.viewholders;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
@@ -45,7 +51,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
         Linkify.addLinks(incomingMessage, Linkify.ALL);
     }
 
-    public void setupView(Message message, Message prevMessage, User curUser, Realm realm, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateIncoming = DateUtils.getTimeString(message, prevMessage);
         if (reportDateIncoming != null) {
             incomingTime.setVisibility(View.VISIBLE);
@@ -70,6 +76,42 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             }
             incomingName.setText(thisUser.getUsername());
             incomingMessage.setText(message.getText());
+
+            incomingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    return showPopup(incomingLinearLayout, message, context);
+                }
+            });
         }
+    }
+
+    private boolean showPopup(LinearLayout linearLayout, final Message message, final Context context) {
+        if (message.getText() == null) return false;
+
+        PopupMenu popup = new PopupMenu(context, linearLayout);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.itemPopupCopy:
+                        //Copy item to clipboard
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText(message.getText(), message.getText());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
+                        return true;
+
+//                    case R.id.itemPopupDelete:
+//                        //Delete item from realm
+//                        return true;
+                }
+                return false;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.chat_message_popup, popup.getMenu());
+        popup.show();
+        return false;
     }
 }

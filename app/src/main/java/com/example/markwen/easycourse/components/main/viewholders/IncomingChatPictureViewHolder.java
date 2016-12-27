@@ -1,12 +1,18 @@
 package com.example.markwen.easycourse.components.main.viewholders;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
@@ -27,16 +33,17 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "IncomingChatPictureView";
 
-    @BindView(R.id.linearIncomingChatCell)
-    public LinearLayout incomingLinearLayout;
-    @BindView(R.id.textViewIncomingTextTime)
-    public TextView incomingTime;
-    @BindView(R.id.imageViewIncomingTextImage)
-    public ImageView incomingImageView;
-    @BindView(R.id.textViewIncomingTextName)
-    public TextView incomingName;
-    @BindView(R.id.textViewIncomingTextMessage)
-    public TextView incomingMessage;
+    @BindView(R.id.linearIncomingPicCell)
+    private LinearLayout incomingPicLinearLayout;
+    @BindView(R.id.textViewIncomingPicTime)
+    private TextView incomingPicTime;
+    @BindView(R.id.textViewIncomingPicName)
+    private TextView incomingPicName;
+    @BindView(R.id.imageViewIncomingUserImage)
+    private ImageView incomingPicUserImage;
+    @BindView(R.id.imageViewIncomingPicImage)
+    private ImageView incomingPicImageView;
+
 
     protected IncomingChatPictureViewHolder(View itemView) {
         super(itemView);
@@ -62,7 +69,7 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                     Picasso.with(context)
                             .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                             .placeholder(R.drawable.ic_person_black_24px)
-                            .into(incomingPicUserView);
+                            .into(incomingPicUserImage);
 
                 if (!message.getImageUrl().isEmpty()) {
                     Picasso.with(context)
@@ -75,8 +82,8 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 Log.e(TAG, e.toString());
             }
             incomingPicName.setText(thisUser.getUsername());
-//                    outgoingViewHolder.outgoingpicme.setText(message.getText());
             //TODO: add click listener to fullsize image with animation
         }
     }
+
 }

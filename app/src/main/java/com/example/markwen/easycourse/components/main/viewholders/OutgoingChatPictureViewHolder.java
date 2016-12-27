@@ -25,18 +25,17 @@ import butterknife.ButterKnife;
 public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "OutgoingChatPictureView";
-    
-    @BindView(R.id.linearOutgoingPicCell)
-    public LinearLayout outgoingPicLinearLayout;
-    @BindView(R.id.textViewOutgoingPicTime)
-    public TextView outgoingPicTime;
-    @BindView(R.id.imageViewOutgoingUserImage)
-    public  ImageView outgoingPicUserView;
-    @BindView(R.id.textViewOutgoingPicName)
-    public TextView outgoingPicName;
-    @BindView(R.id.imageViewOutgoingImage)
-    public ImageView outgoingPicImageView;
 
+    @BindView(R.id.linearOutgoingPicCell)
+    private LinearLayout outgoingPicLinearLayout;
+    @BindView(R.id.textViewOutgoingPicTime)
+    private TextView outgoingPicTime;
+    @BindView(R.id.imageViewOutgoingUserImage)
+    private ImageView outgoingPicUserView;
+    @BindView(R.id.textViewOutgoingPicName)
+    private TextView outgoingPicName;
+    @BindView(R.id.imageViewOutgoingImage)
+    private ImageView outgoingPicImageView;
 
     public OutgoingChatPictureViewHolder(View itemView) {
         super(itemView);
@@ -71,15 +70,7 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 Log.e(TAG, e.toString());
             }
             outgoingPicName.setText(curUser.getUsername());
-//                    outgoingpicme.setText(message.getText());
             //TODO: add click listner to fullsize image with animation
         }
-
-//                outgoingPicLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
-//                    @Override
-//                    public boolean onLongClick(View view) {
-//                        return showPopup(outgoingPicLinearLayout, outgoingMessage, message);
-//                    }
-//                });
     }
 }

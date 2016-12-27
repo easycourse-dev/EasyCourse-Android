@@ -123,64 +123,6 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         }
     }
 
-    public boolean showPopup(LinearLayout linearLayout, TextView textView, final Message message) {
-        if (message.getText() == null) return false;
-
-        PopupMenu popup = new PopupMenu(this.context, linearLayout);
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.itemPopupCopy:
-                        //Copy item to clipboard
-                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText(message.getText(), message.getText());
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
-                        return true;
-
-//                    case R.id.itemPopupDelete:
-//                        //Delete item from realm
-//                        return true;
-                }
-                return false;
-            }
-        });
-        MenuInflater inflater = popup.getMenuInflater();
-        inflater.inflate(R.menu.chat_message_popup, popup.getMenu());
-        popup.show();
-        return false;
-    }
-
-
-    @Nullable
-    private String getTimeString(Message message, Message prevMessage) {
-        if (prevMessage == null) return null;
-        Date messageDate = message.getCreatedAt();
-        if (messageDate == null) return null;
-        Date prevMessageDate = prevMessage.getCreatedAt();
-        if (prevMessageDate == null) return null;
-        long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
-        if (diffInMinutes >= 5) {
-            //If today
-            if (DateUtils.isToday(messageDate)) {
-                //Exclude date in time
-                TimeZone UTC = TimeZone.getTimeZone("UTC");
-                DateFormat df = new SimpleDateFormat("h:mm a", Locale.US);
-                df.setTimeZone(UTC);
-                return df.format(messageDate);
-
-            } else {
-                //Include date in time
-                TimeZone UTC = TimeZone.getTimeZone("UTC");
-                DateFormat df = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.US);
-                df.setTimeZone(UTC);
-                return df.format(messageDate);
-            }
-
-        }
-        return null;
-    }
 
     public void closeRealm() {
         if (realm != null)
@@ -189,19 +131,20 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
     @Override
     public int getItemViewType(int i) {
-        final Message message = getData().get(i);
-        if (message.isToUser()) {
-            if (message.getImageUrl() != null)
-                return OUTGOING_PIC;
-            else
-                return OUTGOING_TEXT;
-        } else {
-            if (message.getImageUrl() != null)
-                return INCOMING_PIC;
-            else
-                return INCOMING_TEXT;
+        if (getData() != null && getData().size() > 0) {
+            final Message message = getData().get(i);
+            if (message.isToUser()) {
+                if (message.getImageUrl() != null)
+                    return OUTGOING_PIC;
+                else
+                    return OUTGOING_TEXT;
+            } else {
+                if (message.getImageUrl() != null)
+                    return INCOMING_PIC;
+                else
+                    return INCOMING_TEXT;
+            }
         }
+        return 0;
     }
-
-
 }

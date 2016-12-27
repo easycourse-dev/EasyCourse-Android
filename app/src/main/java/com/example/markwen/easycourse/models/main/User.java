@@ -51,6 +51,12 @@ public class User extends RealmObject {
         realm.commitTransaction();
     }
 
+    public static void updateUserFromJson(String json, Realm realm){
+        realm.beginTransaction();
+        realm.createOrUpdateAllFromJson(User.class, "["+json+"]");
+        realm.commitTransaction();
+    }
+
     @Contract("null, _ -> false")
     public static boolean isUserInRealm(User user, Realm realm) {
         if (user == null) return false;

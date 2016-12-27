@@ -23,11 +23,11 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
     private ArrayList<Language> languageList = new ArrayList<>();
     private ArrayList<Language> checkedLanguageList = new ArrayList<>();
 
-    public SignupChooseLanguageAdapter(ArrayList<Language> coursesList) {
-        this.languageList = coursesList;
+    public SignupChooseLanguageAdapter(ArrayList<Language> languageList) {
+        this.languageList = languageList;
     }
 
-    public static class LanguageViewHolder extends RecyclerView.ViewHolder {
+    static class LanguageViewHolder extends RecyclerView.ViewHolder {
         CardView languageCardView;
         TextView languageTextView;
         AnimateCheckBox languageCheckBox;
@@ -47,14 +47,14 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
     @Override
     public LanguageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.signup_choose_single_item, viewGroup, false);
-        LanguageViewHolder languageViewHolder = new LanguageViewHolder(v);
-        return languageViewHolder;
+        return new LanguageViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final LanguageViewHolder languageViewHolder, int i) {
         final Language language = languageList.get(i);
-        languageViewHolder.languageTextView.setText(language.getName());
+        languageViewHolder.languageTextView.setText(language.getTranslation());
+        languageViewHolder.languageCheckBox.setChecked(language.isChecked());
 
         languageViewHolder.languageLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,8 +82,8 @@ public class SignupChooseLanguageAdapter extends RecyclerView.Adapter<SignupChoo
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public ArrayList<Language> getLanguageList() {
-        return languageList;
+    public void setCheckedLanguageList(ArrayList<Language> list) {
+        this.checkedLanguageList = list;
     }
 
     public ArrayList<Language> getCheckedLanguageList() {

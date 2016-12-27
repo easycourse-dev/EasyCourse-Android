@@ -14,8 +14,6 @@ public class Course extends RealmObject {
     @PrimaryKey
     private String id;
     private String coursename;
-    private byte[] coursePicture;
-    private String coursePictureUrl;
     private String title;
     private String courseDescription;
     private int creditHours;
@@ -25,15 +23,18 @@ public class Course extends RealmObject {
 
     }
 
-    public Course(String id, String coursename, byte[] coursePicture, String coursePictureUrl, String title, String courseDescription, int creditHours, String universityID) {
+    public Course(String id, String coursename, String title, String courseDescription, int creditHours, String universityID) {
         this.id = id;
         this.coursename = coursename;
-        this.coursePicture = coursePicture;
-        this.coursePictureUrl = coursePictureUrl;
         this.title = title;
         this.courseDescription = courseDescription;
         this.creditHours = creditHours;
         this.universityID = universityID;
+    }
+
+    public static Course getCourseById (String id, Realm realm) {
+        RealmResults<Course> results = realm.where(Course.class).equalTo("id", id).findAll();
+        return results.first();
     }
 
     public static void updateCourseToRealm(Course course, Realm realm) {
@@ -75,22 +76,6 @@ public class Course extends RealmObject {
 
     public void setCoursename(String coursename) {
         this.coursename = coursename;
-    }
-
-    public byte[] getCoursePicture() {
-        return coursePicture;
-    }
-
-    public void setCoursePicture(byte[] coursePicture) {
-        this.coursePicture = coursePicture;
-    }
-
-    public String getCoursePictureUrl() {
-        return coursePictureUrl;
-    }
-
-    public void setCoursePictureUrl(String coursePictureUrl) {
-        this.coursePictureUrl = coursePictureUrl;
     }
 
     public String getTitle() {

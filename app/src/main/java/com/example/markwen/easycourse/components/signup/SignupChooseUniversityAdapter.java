@@ -21,6 +21,7 @@ import java.util.ArrayList;
 public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupChooseUniversityAdapter.UniversityViewHolder> {
 
     private ArrayList<University> universityList = new ArrayList<>();
+    private University selectedUniversity;
 
     public SignupChooseUniversityAdapter(ArrayList<University> universityList) {
         this.universityList = universityList;
@@ -47,8 +48,7 @@ public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupCh
     @Override
     public UniversityViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.signup_choose_single_item, viewGroup, false);
-        UniversityViewHolder uniViewHolder = new UniversityViewHolder(v);
-        return uniViewHolder;
+        return new UniversityViewHolder(v);
     }
 
     @Override
@@ -72,6 +72,7 @@ public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupCh
                 } else {
                     uniViewHolder.uniCheckBox.setChecked(true);
                     university.setSelected(true);
+                    selectedUniversity = university;
                 }
 
             }
@@ -90,5 +91,13 @@ public class SignupChooseUniversityAdapter extends RecyclerView.Adapter<SignupCh
 
     public ArrayList<University> getUniversityList() {
         return universityList;
+    }
+
+    public University getSelectedUniversity() {
+        return selectedUniversity;
+    }
+
+    public void setSelectedUniversity(University univ) {
+        this.selectedUniversity = univ;
     }
 }

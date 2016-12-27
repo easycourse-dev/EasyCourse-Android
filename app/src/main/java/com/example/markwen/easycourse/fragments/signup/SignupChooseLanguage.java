@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,19 +19,31 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.SignupChooseLanguageAdapter;
+import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.socket.client.Ack;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -67,17 +78,12 @@ public class SignupChooseLanguage extends Fragment {
         // Sets screen to portrait
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
         languageList = new ArrayList<>();
         languageAdapter = new SignupChooseLanguageAdapter(languageList);
 
         fetchLanguages();
 
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
-
-        fillLanguages();
-
-
     }
 
     @Override
@@ -93,6 +99,7 @@ public class SignupChooseLanguage extends Fragment {
         languageRecyclerView = (RecyclerView) v.findViewById(R.id.choose_languages_recycler_view);
         languageRecyclerView.setLayoutManager(languageLayoutManager);
         languageRecyclerView.setAdapter(languageAdapter);
+        languageRecyclerView.setHasFixedSize(true);
 
         nextButton = (Button) v.findViewById(R.id.buttonChooseLanguageNext);
         prevButton = (Button) v.findViewById(R.id.buttonChooseLanguagePrev);
@@ -100,15 +107,13 @@ public class SignupChooseLanguage extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int[] languageCodes = getLanguageCodes();
-                if (languageCodes != null) {
-                    userSetup.setLanguageCodeArray(languageCodes);
-                    postSignupData(userSetup);
+                String[] languageCodes = getLanguageCodes();
+                if (languageCodes == null) {
+                    userSetup.setLanguageCodeArray(new String[0]);
                 } else {
-                    Log.d(TAG, "No language selected!");
-                    Snackbar.make(v, "No language selected!", Snackbar.LENGTH_SHORT).show();
+                    userSetup.setLanguageCodeArray(languageCodes);
                 }
-
+                postSignupData(userSetup);
             }
         });
 
@@ -123,13 +128,13 @@ public class SignupChooseLanguage extends Fragment {
     }
 
     @Nullable
-    private int[] getLanguageCodes() {
-        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
+    private String[] getLanguageCodes() {
+        ArrayList<Language> checkedLanguages = userSetup.getSelectedLanguages();
 
         if (checkedLanguages.size() == 0)
             return null;
 
-        int[] languageCodes = new int[checkedLanguages.size()];
+        String[] languageCodes = new String[checkedLanguages.size()];
         for (int i = 0; i < checkedLanguages.size(); i++) {
             if (checkedLanguages.get(i) != null) {
                 languageCodes[i] = checkedLanguages.get(i).getCode();
@@ -142,17 +147,25 @@ public class SignupChooseLanguage extends Fragment {
 
         APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
                     languageList.clear();
-                    Iterator languages = response.keys();
-                    while (languages.hasNext()) {
-                        String key = (String) languages.next();
-                        JSONObject obj = response.getJSONObject(key);
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject obj = (JSONObject) response.get(i);
                         String name = obj.getString("name");
-                        int code = obj.getInt("code");
-                        Language language = new Language(name, code);
+                        String code = obj.getString("code");
+                        String translation = obj.getString("translation");
+                        Language language = new Language(name, code, translation);
                         languageList.add(language);
+                    }
+                    ArrayList<Language> selectedLanguages = userSetup.getSelectedLanguages();
+                    languageAdapter.setCheckedLanguageList(selectedLanguages);
+                    for (int i = 0; i < languageList.size(); i++) {
+                        for (int j = 0; j < selectedLanguages.size(); j++) {
+                            if (selectedLanguages.get(j).getCode().equals(languageList.get(i).getCode())) {
+                                languageList.get(i).setChecked(true);
+                            }
+                        }
                     }
                     languageAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
@@ -167,20 +180,6 @@ public class SignupChooseLanguage extends Fragment {
                 Log.e(TAG, res);
             }
         });
-    }
-
-    public void fillLanguages() {
-        if (userSetup == null) return;
-        int[] languages = userSetup.getLanguageCodeArray();
-        if (languages == null) return;
-        ArrayList<Language> languageArrayList = languageAdapter.getLanguageList();
-        for (int i = 0; i < languages.length; i++) {
-            for (Language language : languageArrayList) {
-                if (language.getCode() == languages[i]) {
-                    language.setChecked(true);
-                }
-            }
-        }
     }
 
     // Posts the signupData
@@ -200,27 +199,72 @@ public class SignupChooseLanguage extends Fragment {
                 }
             });
 
-            APIFunctions.setCoursesAndLanguages(getContext(), userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "Successfully posted courses and languages");
-                }
+            SocketIO socketIO = new SocketIO(getContext());
+            socketIO.joinCourse(
+                    stringArrayToArrayList(userSetup.getCourseCodeArray()),
+                    stringArrayToArrayList(userSetup.getLanguageCodeArray()),
+                    new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            JSONObject res = (JSONObject) args[0];
+                            try {
+                                JSONArray courseArrayJSON = res.getJSONArray("joinedCourse");
+                                JSONArray roomArrayJSON = res.getJSONArray("joinedRoom");
+                                JSONObject temp;
+                                Realm realm = Realm.getDefaultInstance();
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    // Make a Snackbar to notify user with error
-                    Log.d(TAG, "Failed to post courses and languages");
-                }
-            });
+                                // Courses handling
+                                for (int i = 0; i < courseArrayJSON.length(); i++) {
+                                    temp = courseArrayJSON.getJSONObject(i);
+                                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    String courseName = (String) checkIfJsonExists(temp, "name", null);
+                                    String title = (String) checkIfJsonExists(temp, "title", null);
+                                    String courseDescription = (String) checkIfJsonExists(temp, "description", null);
+                                    int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
+                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
 
-            goToMainActivity();
+                                    Course course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
+                                    Course.updateCourseToRealm(course, realm);
+                                }
 
+                                // Rooms handling
+                                for (int i = 0; i < roomArrayJSON.length(); i++) {
+                                    temp = roomArrayJSON.getJSONObject(i);
+                                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    String roomName = (String) checkIfJsonExists(temp, "name", null);
+                                    String courseID = (String) checkIfJsonExists(temp, "course", null);
+                                    String courseName = Course.getCourseById(courseID, realm).getCoursename();
+                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                    boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                                    int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                                    String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                                    String language = (String) checkIfJsonExists(temp, "language", "0");
+                                    boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+                                    Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
+                                    Room.updateRoomToRealm(room, realm);
+                                }
+
+                                realm.close();
+                                goToMainActivity();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+        } catch (JSONException | UnsupportedEncodingException | URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    public void saveToUserSetup() {
+        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
+        String[] languageStringList = new String[checkedLanguages.size()];
+        for (int i = 0; i < languageStringList.length; i++) {
+            languageStringList[i] = checkedLanguages.get(i).getCode();
+        }
+        userSetup.setLanguageCodeArray(languageStringList);
+        userSetup.setSelectedLanguages(checkedLanguages);
     }
 
     // Function to go to MainActivity
@@ -234,11 +278,20 @@ public class SignupChooseLanguage extends Fragment {
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseCourses() {
+        saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseCourses.newInstance());
         transaction.commit();
+    }
+
+    // TODO: modify userSetup to save course and language array as arraylist instead
+    // and kill this function
+    public ArrayList<String> stringArrayToArrayList(String[] array) {
+        ArrayList<String> temp = new ArrayList<>();
+        Collections.addAll(temp, array);
+        return temp;
     }
 
 }

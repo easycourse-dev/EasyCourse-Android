@@ -19,6 +19,10 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.SignupChooseLanguageAdapter;
+import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -32,8 +36,14 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.socket.client.Ack;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -119,7 +129,7 @@ public class SignupChooseLanguage extends Fragment {
 
     @Nullable
     private String[] getLanguageCodes() {
-        ArrayList<Language> checkedLanguages = languageAdapter.getCheckedLanguageList();
+        ArrayList<Language> checkedLanguages = userSetup.getSelectedLanguages();
 
         if (checkedLanguages.size() == 0)
             return null;
@@ -190,11 +200,58 @@ public class SignupChooseLanguage extends Fragment {
             });
 
             SocketIO socketIO = new SocketIO(getContext());
-            socketIO.joinCourse(userSetup.getCourseCodeArray(), userSetup.getLanguageCodeArray());
+            socketIO.joinCourse(
+                    stringArrayToArrayList(userSetup.getCourseCodeArray()),
+                    stringArrayToArrayList(userSetup.getLanguageCodeArray()),
+                    new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            JSONObject res = (JSONObject) args[0];
+                            try {
+                                JSONArray courseArrayJSON = res.getJSONArray("joinedCourse");
+                                JSONArray roomArrayJSON = res.getJSONArray("joinedRoom");
+                                JSONObject temp;
+                                Realm realm = Realm.getDefaultInstance();
 
-            goToMainActivity();
+                                // Courses handling
+                                for (int i = 0; i < courseArrayJSON.length(); i++) {
+                                    temp = courseArrayJSON.getJSONObject(i);
+                                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    String courseName = (String) checkIfJsonExists(temp, "name", null);
+                                    String title = (String) checkIfJsonExists(temp, "title", null);
+                                    String courseDescription = (String) checkIfJsonExists(temp, "description", null);
+                                    int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
+                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
 
+                                    Course course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
+                                    Course.updateCourseToRealm(course, realm);
+                                }
 
+                                // Rooms handling
+                                for (int i = 0; i < roomArrayJSON.length(); i++) {
+                                    temp = roomArrayJSON.getJSONObject(i);
+                                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    String roomName = (String) checkIfJsonExists(temp, "name", null);
+                                    String courseID = (String) checkIfJsonExists(temp, "course", null);
+                                    String courseName = Course.getCourseById(courseID, realm).getCoursename();
+                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                    boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                                    int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                                    String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                                    String language = (String) checkIfJsonExists(temp, "language", "0");
+                                    boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                                    Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
+                                    Room.updateRoomToRealm(room, realm);
+                                }
+
+                                realm.close();
+                                goToMainActivity();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
         } catch (JSONException | UnsupportedEncodingException | URISyntaxException e) {
             e.printStackTrace();
         }
@@ -227,6 +284,14 @@ public class SignupChooseLanguage extends Fragment {
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseCourses.newInstance());
         transaction.commit();
+    }
+
+    // TODO: modify userSetup to save course and language array as arraylist instead
+    // and kill this function
+    public ArrayList<String> stringArrayToArrayList(String[] array) {
+        ArrayList<String> temp = new ArrayList<>();
+        Collections.addAll(temp, array);
+        return temp;
     }
 
 }

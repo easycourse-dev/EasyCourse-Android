@@ -1,13 +1,8 @@
 package com.example.markwen.easycourse;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.services.MainBus;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.FacebookSdk;
@@ -15,14 +10,11 @@ import com.facebook.stetho.Stetho;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by noahrinehart on 11/5/16.

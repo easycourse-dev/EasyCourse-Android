@@ -51,4 +51,11 @@
     <string name="facebook_app_id">284790891905413</string>
     <string name="chooseCoursesHint">e.g. ECON251</string>
     <string name="log_out_button_text">Log Out</string>
+    <string name="room_name">Room Name</string>
+    <string name="create_room">Create Room</string>
+    <string name="please_join_a_course_first">Please join a course first.</string>
+    <string name="your_courses">your courses:</string>
+    <string name="existed_rooms">existed rooms:</string>
+    <string name="tempCourse">CS18000</string>
+    <string name="tempRoomName">CS180NoArrayListPlease...</string>
 </resources>

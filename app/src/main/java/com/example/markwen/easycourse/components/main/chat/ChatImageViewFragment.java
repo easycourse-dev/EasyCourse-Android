@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.example.markwen.easycourse.R;
 import com.squareup.picasso.Picasso;
@@ -21,6 +22,8 @@ public class ChatImageViewFragment extends Fragment {
 
     private String url;
 
+    @BindView(R.id.relative_layout_chat_image)
+    RelativeLayout relativeLayout;
     @BindView(R.id.chatImageView)
     ImageView chatImageView;
 
@@ -30,6 +33,7 @@ public class ChatImageViewFragment extends Fragment {
         return fragment;
     }
 
+    //TODO: Viewpager to go to next image
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,6 +45,17 @@ public class ChatImageViewFragment extends Fragment {
                     .load(url)
                     .into(chatImageView);
         }
+
+        relativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
         return v;
+
+
     }
 }

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayoutChatRoom"
+    android:id="@+id/activity_chat_room"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.ChatRoomActivity">
+    android:orientation="vertical"
+    android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarChatRoom"
@@ -43,50 +42,17 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/chatRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/chatLinearEditBox"
-        android:layout_below="@id/appbarChatRoom"
-        android:paddingBottom="8dp" />
+    <!--<FrameLayout-->
+        <!--android:id="@+id/activity_chat_room_content"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_above="@id/appbarChatRoom" />-->
 
     <LinearLayout
-        android:id="@+id/chatLinearEditBox"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:minHeight="48dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:id="@+id/activity_chat_room_content"/>
 
-        <ImageButton
-            android:id="@+id/chatAddImageButton"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="5dp"
-            android:background="@drawable/ic_add_a_photo_black_24px"
-            android:contentDescription="@string/chatMessageAccessibility" />
 
-        <EditText
-            android:id="@+id/chatMessageEditText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/messageSendBoxHint"
-            android:imeOptions="actionSend"
-            android:inputType="textMultiLine"
-            android:minLines="1" />
-
-        <ImageButton
-            android:id="@+id/chatSendImageButton"
-            android:layout_width="33dp"
-            android:layout_height="33dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="5dp"
-            android:background="@drawable/ic_send_black_24px"
-            android:contentDescription="@string/chatMessageAccessibility" />
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>

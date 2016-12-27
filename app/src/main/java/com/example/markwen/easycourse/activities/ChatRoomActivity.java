@@ -1,60 +1,35 @@
 package com.example.markwen.easycourse.activities;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
-import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.components.main.chat.ChatRoomFragment;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.squareup.otto.Subscribe;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatRoomActivity";
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
-    private static final int PERMISSION_DENIED = -1;
-    private static final int CHOOSE_IMAGE_INTENT = 4;
-    private static final int TAKE_IMAGE_INTENT = 5;
 
     private Realm realm;
     private SocketIO socketIO;
@@ -70,17 +45,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     TextView toolbarTitleTextView;
     @BindView(R.id.toolbarSubtitleChatRoom)
     TextView toolbarSubtitleTextView;
-    @BindView(R.id.chatRecyclerView)
-    RecyclerView chatRecyclerView;
-    @BindView(R.id.chatAddImageButton)
-    ImageButton addImageButton;
-    @BindView(R.id.chatMessageEditText)
-    EditText messageEditText;
-    @BindView(R.id.chatSendImageButton)
-    ImageButton sendImageButton;
 
-    ChatRecyclerViewAdapter chatRecyclerViewAdapter;
-    RealmResults<Message> messages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,92 +65,20 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         handleIntent();
 
-        setupChatRecyclerView();
 
-        addImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showImageDialog();
-            }
-        });
-
-        sendImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finalSendMessage();
-            }
-        });
-
-        messageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                boolean handled = false;
-                if (i == EditorInfo.IME_ACTION_SEND) {
-                    finalSendMessage();
-                    handled = true;
-                }
-                return handled;
-            }
-        });
+        //TODO: add loading bar till fragment loads
+        ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(this, currentRoom, currentUser);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_chat_room_content, chatRoomFragment)
+                .commit();
 
         //Setup snackbar for disconnect
-        disconnectSnackbar = Snackbar.make(findViewById(R.id.relativeLayoutChatRoom), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+        disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
 
         bus.register(this);
     }
 
-    private void showImageDialog() {
-        new MaterialDialog.Builder(this)
-                .items(R.array.addImageDialog)
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        handleAddImage(which, view);
-                    }
-                })
-                .show();
-    }
-
-    private void handleAddImage(int which, View view) {
-        switch (which) {
-            case 0:  // choose image
-                int permissionCheck1 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-                if (permissionCheck1 == PERMISSION_DENIED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                } else {
-                    chooseImage();
-                }
-
-                break;
-            case 1:  // take image
-                takeImage();
-                break;
-        }
-    }
-
-    private void chooseImage() {
-        Intent chooseImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(chooseImageIntent , CHOOSE_IMAGE_INTENT);
-    }
-
-    private void takeImage() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);
-        }
-    }
-
-
-    private void finalSendMessage() {
-        String messageText = messageEditText.getText().toString();
-        if (!TextUtils.isEmpty(messageText)) {
-            if (sendTextMessage(messageText)) {
-                messageEditText.setText("");
-                chatRecyclerViewAdapter.notifyDataSetChanged();
-                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
-            }
-        }
-    }
 
     private void handleIntent() {
         Intent intent = getIntent();
@@ -200,95 +93,15 @@ public class ChatRoomActivity extends AppCompatActivity {
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
     }
 
-    //TODO: private messages
-    private void setupChatRecyclerView() {
-
-        Message message1 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-        Message message2 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-        Message message3 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-        Message message4 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-        Message message5 = new Message(null, "57e2cdea8b59ae00115a8fc5", "581162b12e5c5000114f8df5", null, "http://www.planwallpaper.com/static/images/desktop-year-of-the-tiger-images-wallpaper.jpg", null, false, 0,0, "57e2cdea8b59ae00115a8fc5", new Date());
-        Message.updateMessageToRealm(message1, realm);
-        Message.updateMessageToRealm(message2, realm);
-        Message.updateMessageToRealm(message3, realm);
-        Message.updateMessageToRealm(message4, realm);
-        Message.updateMessageToRealm(message5, realm);
-
-
-
-        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAll();
-        chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(this, messages);
-        chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
-        chatRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager chatLinearManager = new LinearLayoutManager(this);
-        chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
-        chatLinearManager.setStackFromEnd(true);
-        chatRecyclerView.setLayoutManager(chatLinearManager);
-
-        messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
-            @Override
-            public void onChange(RealmResults<Message> element) {
-                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
-            }
-        });
-    }
-
-    private boolean sendTextMessage(String messageText) {
-        String fixed = messageText.replace("\\", "");
-        try {
-            //Recieve message from socketIO
-            if (this.currentRoom.isToUser()) {
-                socketIO.sendMessage(fixed, null, this.currentRoom.getId(), null, 0, 0);
-            } else {
-                socketIO.sendMessage(fixed, this.currentRoom.getId(), null, null, 0, 0);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "sendTextMessage: error");
-            return false;
-        }
-        socketIO.syncUser();
-        return true;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case CHOOSE_IMAGE_INTENT:
-                if(resultCode == RESULT_OK){
-                    Uri selectedImage = data.getData();
-                    try {
-                        Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        if(imageBitmap == null) return;
-                    }catch (IOException e) {
-                        Log.e(TAG, "onActivityResult: ", e);
-                    }
-                    Log.d(TAG, "onActivityResult: " + selectedImage.toString());
-                }
-                break;
-
-            case TAKE_IMAGE_INTENT:
-                if (resultCode == RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    if(imageBitmap == null) return;
-                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
-                }
-                break;
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    chooseImage();
-                }
-                break;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
-
         }
     }
 
@@ -304,7 +117,6 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-        chatRecyclerViewAdapter.closeRealm();
     }
 
     @Subscribe

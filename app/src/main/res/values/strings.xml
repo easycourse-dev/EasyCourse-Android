@@ -60,4 +60,9 @@
     <string name="tempRoomName">CS180NoArrayListPlease...</string>
     <string name="search_course_hint">Search for new courses</string>
     <string name="no_course_warning">Please enroll into a course.</string>
+    <string name="classmates">Classmates</string>
+    <string name="subgroups">Subgroups</string>
+    <string name="silent">Silent</string>
+    <string name="share_room">Share Room</string>
+    <string name="quit_room">Quit Room</string>
 </resources>

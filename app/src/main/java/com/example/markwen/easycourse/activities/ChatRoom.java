@@ -1,12 +1,10 @@
 package com.example.markwen.easycourse.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,9 +17,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -34,16 +34,30 @@ import com.example.markwen.easycourse.components.main.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.DimenHolder;
+import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondarySwitchDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -81,6 +95,8 @@ public class ChatRoom extends AppCompatActivity {
     @BindView(R.id.chatSendImageButton)
     ImageButton sendImageButton;
 
+    Drawer roomDetailDrawer;
+
     ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     RealmResults<Message> messages;
 
@@ -89,7 +105,6 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         ButterKnife.bind(this);
-
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -101,6 +116,57 @@ public class ChatRoom extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         handleIntent();
+
+        //Log.e(TAG, "silentRooms: "+ currentUser.getSilentRoom().toString()+"\n c? "+currentRoom.getId());
+
+        roomDetailDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .withHeaderHeight(DimenHolder.fromDp(192))
+                .withHeader(R.layout.room_detail_drawer_header)
+                .withSelectedItem(-1)
+                .withDrawerGravity(Gravity.END)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
+                        new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
+                        new DividerDrawerItem(),
+                        new SecondarySwitchDrawerItem().withName(R.string.silent).withChecked(currentUser.getSilentRooms().contains(currentRoom)).withOnCheckedChangeListener(silentRoom).withSelectable(false),
+                        new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                        new SecondaryDrawerItem().withName(R.string.quit_room).withSelectable(false)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        switch (position){
+                            case 1 :
+                                //TODO: Add intent to Classmates
+                                break;
+                            case 2 :
+                                //TODO: Add intent to Subgroups
+                                break;
+                            case 5:
+                                //TODO: Add intent to Share Room
+                                break;
+                            case 6:
+                                try {
+                                    socketIO.quitRoom(currentRoom.getId());
+                                    socketIO.syncUser();
+                                    return false;
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
+                        return true;
+                    }
+                })
+                .build();
+
+        View headView = roomDetailDrawer.getHeader();
+
+        TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
+        headerCourseTitle.setText(currentRoom.getRoomName());
+        headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
 
         setupChatRecyclerView();
 
@@ -134,6 +200,38 @@ public class ChatRoom extends AppCompatActivity {
         disconnectSnackbar = Snackbar.make(findViewById(R.id.relativeLayoutChatRoom), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
 
         bus.register(this);
+    }
+
+    OnCheckedChangeListener silentRoom = new OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, final boolean isChecked) {
+            try {
+                APIFunctions.setSilentRoom(getApplicationContext(), currentRoom.getId(), isChecked, new JsonHttpResponseHandler(){
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        if(isChecked){
+                            Log.e(TAG, "Room silented");
+                        } else {
+                            Log.e(TAG, "Room un-silented");
+                        }
+                        socketIO.syncUser();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                        Log.e(TAG, "onFailure: silentRoomOnCheckedListener", t);
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    public void openCourseDetail(View v){
+        Toast.makeText(getApplicationContext(), "openCourseDetail", Toast.LENGTH_LONG);
     }
 
     private void showImageDialog() {
@@ -192,7 +290,8 @@ public class ChatRoom extends AppCompatActivity {
     private void handleIntent() {
         Intent intent = getIntent();
         String roomId = intent.getStringExtra("roomId");
-        this.currentRoom = Room.getRoomById(this, realm, roomId);
+
+        this.currentRoom = Room.getRoomById(realm, roomId);
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
@@ -200,6 +299,7 @@ public class ChatRoom extends AppCompatActivity {
         }
         toolbarTitleTextView.setText(currentRoom.getRoomName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+
     }
 
     //TODO: private messages

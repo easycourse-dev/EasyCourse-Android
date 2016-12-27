@@ -110,7 +110,7 @@ public class Room extends RealmObject {
     }
 
     @Nullable
-    public static Room getRoomById(Activity activity, Realm realm, String id) {
+    public static Room getRoomById(Realm realm, String id) {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", id)
                 .findAll();

@@ -145,10 +145,10 @@ public class APIFunctions {
 
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("room", roomID);
-        jsonParam.put("silentBoolean", silentBoolean);
+        jsonParam.put("silent", silentBoolean);
         StringEntity body = new StringEntity(jsonParam.toString());
 
-        client.post(context, URL+"/silentroom", body, "application/json", jsonHttpResponseHandler);
+        client.post(context, URL+"/silentRoom", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 

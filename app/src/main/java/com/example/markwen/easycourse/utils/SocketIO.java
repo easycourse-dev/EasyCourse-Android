@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
-import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -306,13 +305,16 @@ public class SocketIO {
         return logoutSuccess[0];
     }
 
-    public Course[] searchCourses(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+    public void searchCourses(String searchQuery, int limit, int skip, String unversityId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("text", searchQuery);
         jsonParam.put("university", unversityId);
         jsonParam.put("limit", limit);
         jsonParam.put("skip", skip);
 
+        socket.emit("searchCourse", jsonParam, callback);
+
+        /*
         final Course[][] courses = {null};
 
         socket.emit("searchCourse", jsonParam, new Ack() {
@@ -343,9 +345,12 @@ public class SocketIO {
                     Log.e(TAG, obj.toString());
                 }
             }
-        });
+        });*/
+    }
 
-        return courses[0];
+    //Search subrooms within a course
+    public void searchCourseSubrooms(){
+
     }
 
     //Join courses with language keys
@@ -758,7 +763,7 @@ public class SocketIO {
     }
 
     //check if JSON value exists, returns default if not
-    private Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
+    public Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
         if (obj.has(searchQuery)) {
             if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
                 return obj.getString(searchQuery);

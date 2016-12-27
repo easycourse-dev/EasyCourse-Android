@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrollListener;
@@ -22,6 +23,7 @@ import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapt
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -31,6 +33,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import io.socket.client.Ack;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -52,6 +55,8 @@ public class SignupChooseCourses extends Fragment {
 
     UserSetup userSetup;
 
+    SocketIO socketIO;
+
     public SignupChooseCourses() {
     }
 
@@ -63,6 +68,7 @@ public class SignupChooseCourses extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
     }
 
@@ -120,28 +126,33 @@ public class SignupChooseCourses extends Fragment {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                            try {
-                                courses.clear();
-                                for (int i = 0; i < response.length(); i++) {
-                                    JSONObject course = (JSONObject) response.get(i);
-                                    courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                    try {
+                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
+                            @Override
+                            public void call(Object... args) {
+                                JSONObject obj = (JSONObject) args[0];
+                                if (!obj.has("error")) {
+                                    try {
+                                        JSONArray response = obj.getJSONArray("course");
+                                        courses.clear();
+                                        for (int i = 0; i < response.length(); i++) {
+                                            JSONObject course = (JSONObject) response.get(i);
+                                            courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                                        }
+                                        coursesAdapter.notifyDataSetChanged();
+                                        coursesOnScrollListener.resetState();
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else{
+                                    Log.e("com.example.easycourse", "failure" + obj.toString());
                                 }
-                                coursesAdapter.notifyDataSetChanged();
-                                coursesOnScrollListener.resetState();
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "failure" + t.toString());
-                        }
-                    });
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });

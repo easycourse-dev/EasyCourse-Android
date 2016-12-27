@@ -305,10 +305,10 @@ public class SocketIO {
         return logoutSuccess[0];
     }
 
-    public void searchCourses(String searchQuery, int limit, int skip, String unversityId, Ack callback) throws JSONException {
+    public void searchCourses(String searchQuery, int limit, int skip, String universityId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("text", searchQuery);
-        jsonParam.put("university", unversityId);
+        jsonParam.put("university", universityId);
         jsonParam.put("limit", limit);
         jsonParam.put("skip", skip);
 
@@ -322,6 +322,7 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 if (!obj.has("error")) {
+                    Log.e("com.example.easycourse", "success" + obj.toString());
                     try {
                         JSONArray courseArrayJSON = obj.getJSONArray("course");
                         courses[0] = new Course[courseArrayJSON.length()];
@@ -349,8 +350,14 @@ public class SocketIO {
     }
 
     //Search subrooms within a course
-    public void searchCourseSubrooms(){
+    public void searchCourseSubrooms(String searchQuery, int limit, int skip, String courseID, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("text", searchQuery);
+        jsonParam.put("courseId", courseID);
+        jsonParam.put("limit", limit);
+        jsonParam.put("skip", skip);
 
+        socket.emit("searchCourse", jsonParam, callback);
     }
 
     //Join courses with language keys

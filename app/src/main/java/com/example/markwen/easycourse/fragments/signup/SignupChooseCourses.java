@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.fragments.signup;
 
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,24 +16,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
-import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
 import io.socket.client.Ack;
 
 /**
@@ -67,14 +65,13 @@ public class SignupChooseCourses extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.signup_choose_courses, container, false);
 
@@ -127,9 +124,12 @@ public class SignupChooseCourses extends Fragment {
                     coursesOnScrollListener.resetState();
                 } else {
                     try {
+                        socketIO = new SocketIO(getContext());
                         socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
+
                             @Override
                             public void call(Object... args) {
+
                                 JSONObject obj = (JSONObject) args[0];
                                 if (!obj.has("error")) {
                                     try {
@@ -139,9 +139,7 @@ public class SignupChooseCourses extends Fragment {
                                             JSONObject course = (JSONObject) response.get(i);
                                             courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
                                         }
-                                        coursesAdapter.notifyDataSetChanged();
-                                        coursesOnScrollListener.resetState();
-
+                                        updateRecyclerView();
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
@@ -151,6 +149,8 @@ public class SignupChooseCourses extends Fragment {
                             }
                         });
                     } catch (JSONException e) {
+                        Log.e("com.example.easycourse", "jsonex" + e.toString());
+                    } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
                 }
@@ -188,8 +188,56 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
+    public void updateRecyclerView(){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            coursesAdapter.notifyDataSetChanged();
+                            coursesOnScrollListener.resetState();
+                        }
+                    });
+
+                }
+
+            };
+        };
+        thread.start();
+    }
+
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, RecyclerView view) {
-        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
+        try {
+            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (!obj.has("error")) {
+                        Log.e("com.example.easycourse", "success" + obj.toString());
+                        int startPosition = courses.size();
+                        try {
+                            JSONArray response = obj.getJSONArray("course");
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject courseJSON = (JSONObject) response.get(i);
+                                Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
+                                if (!courses.contains(courseObj))
+                                    courses.add(courseObj);
+                            }
+                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        Log.e("com.example.easycourse", "failure" + obj.toString());
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        /*APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.e("com.example.easycourse", "success " + response.toString());
@@ -211,7 +259,7 @@ public class SignupChooseCourses extends Fragment {
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                 Log.e("com.example.easycourse", "failure" + t.toString());
             }
-        });
+        });*/
     }
 
     public void saveToUserSetup() {

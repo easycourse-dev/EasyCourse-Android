@@ -1,5 +1,7 @@
 package com.example.markwen.easycourse.models.main;
 
+import java.io.Serializable;
+
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -9,7 +11,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by noahrinehart on 11/5/16.
  */
 
-public class Course extends RealmObject {
+public class Course extends RealmObject implements Serializable {
 
     @PrimaryKey
     private String id;
@@ -23,6 +25,12 @@ public class Course extends RealmObject {
 
     public Course() {
 
+    }
+
+    public Course(String name, String title, String id) {
+        this.coursename = name;
+        this.title = title;
+        this.id = id;
     }
 
     public Course(String id, String coursename, byte[] coursePicture, String coursePictureUrl, String title, String courseDescription, int creditHours, String universityID) {

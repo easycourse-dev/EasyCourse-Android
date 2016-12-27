@@ -1,5 +1,7 @@
 package com.example.markwen.easycourse.components.main;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.CourseDetailsAcitivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.hanks.library.AnimateCheckBox;
 
@@ -23,8 +26,10 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
     private ArrayList<Course> coursesList = new ArrayList<>();
     private ArrayList<Course> joinedCourses = new ArrayList<>();
     private boolean showJoined = true;
+    private Context context;
 
-    public CourseManagementCoursesRecyclerViewAdapter(ArrayList<Course> coursesList) {
+    public CourseManagementCoursesRecyclerViewAdapter(Context context, ArrayList<Course> coursesList) {
+        this.context = context;
         this.coursesList = coursesList;
     }
 
@@ -48,7 +53,6 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         }
     }
 
-
     @Override
     public CourseViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.signup_choose_courses_item, viewGroup, false);
@@ -58,7 +62,7 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
     @Override
     public void onBindViewHolder(final CourseViewHolder courseViewHolder, final int i) {
         final Course course;
-        if (showJoined) {
+        if (showJoined && joinedCourses.size() > 0) {
             course = joinedCourses.get(i);
         } else {
             course = coursesList.get(i);
@@ -79,7 +83,9 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent courseIntent = new Intent(context, CourseDetailsAcitivity.class);
+                courseIntent.putExtra("CourseObj", course);
+                context.startActivity(courseIntent);
             }
         });
     }

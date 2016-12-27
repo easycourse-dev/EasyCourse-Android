@@ -46,16 +46,20 @@
 
         </android.support.v7.widget.CardView>
         <android.support.v7.widget.CardView
+            android:id="@+id/UserFragmentCourseManageCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            >
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:selectableItemBackground">
             <RelativeLayout
+                android:id="@+id/UserFragmentCourseManageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?android:selectableItemBackground"
                 android:clickable="true"
-                android:padding="16dp">
+                android:padding="16dp" >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -63,6 +67,7 @@
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
                     android:text="My Courses"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
                     android:layout_centerVertical="true"/>
             </RelativeLayout>
 

@@ -11,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfile;
 import com.example.markwen.easycourse.models.main.User;
@@ -45,7 +47,8 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile;
+    RelativeLayout cardProfile, cardCourses;
+    CardView courseManageCard;
 
     User user = new User();
     Realm realm;
@@ -69,6 +72,8 @@ public class UserFragment extends Fragment {
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
         cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
+        cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
+        courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +84,13 @@ public class UserFragment extends Fragment {
                 ActivityOptionsCompat options = ActivityOptionsCompat.
                         makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
                 startActivity(i, options.toBundle());
+            }
+        });
+
+        cardCourses.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), CourseManagementAcitivity.class));
             }
         });
 

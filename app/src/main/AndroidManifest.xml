@@ -77,6 +77,16 @@
                 android:value=".activities.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".activities.CourseDetailsAcitivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
         <service
             android:name=".services.MainService"
             android:enabled="true"

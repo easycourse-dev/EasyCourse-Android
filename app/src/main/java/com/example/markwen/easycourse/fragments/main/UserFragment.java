@@ -30,7 +30,6 @@ import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -94,27 +93,13 @@ public class UserFragment extends Fragment {
             }
         });
 
-        SharedPreferences sharedPref = v.getContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", "");
-        JSONObject currentUserObject;
-
-        Realm.init(v.getContext());
-        realm = Realm.getDefaultInstance();
-
-        try {
-            currentUserObject = new JSONObject(currentUser);
-            Log.d(TAG, currentUserObject.toString());
-            user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            textViewUsername.setText(user.getUsername());
-            if (user.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-                avatarImage.setImageBitmap(bm);
-            } else {
-                avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        user = User.getCurrentUser(getActivity(), realm);
+        textViewUsername.setText(user.getUsername());
+        if (user.getProfilePicture() != null) {
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
+        } else {
+            avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
         }
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);

@@ -68,8 +68,9 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         final Course course = coursesList.get(i);
         courseViewHolder.nameTextView.setText(course.getName());
         courseViewHolder.titleTextView.setText(course.getTitle());
-        //Fixes weird problems
+        // Fixes weird problems
         courseViewHolder.courseHolder.setOnClickListener(null);
+        // Check if this course is checked before
         if (isCourseChecked(checkedCourseList, course)) {
             courseViewHolder.courseCheckBox.setChecked(true);
         } else {
@@ -108,7 +109,8 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         return checkedCourseList;
     }
 
-    public boolean isCourseChecked(ArrayList<Course> list, Course course) {
+    // Check if the course is in the checked course list
+    private boolean isCourseChecked(ArrayList<Course> list, Course course) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getId().equals(course.getId())) {
                 return true;

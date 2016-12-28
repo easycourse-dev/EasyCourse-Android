@@ -1,11 +1,14 @@
 package com.example.markwen.easycourse.fragments.main;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -44,7 +47,7 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile;
+    RelativeLayout cardProfile, joinUsCard;
 
     User user = new User();
     Realm realm;
@@ -68,6 +71,7 @@ public class UserFragment extends Fragment {
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
         cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
+        joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +82,27 @@ public class UserFragment extends Fragment {
                 ActivityOptionsCompat options = ActivityOptionsCompat.
                         makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
                 startActivity(i, options.toBundle());
+            }
+        });
+
+        joinUsCard.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                String joinUsFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeKu9p0Al-E9LAQyjeQw06KmXQQ1DyoJenH2_tRwO2sbhvA_g/viewform?c=0&w=1";
+                try {
+                    // Launch web form in Chrome
+                    Intent i = new Intent("android.intent.action.MAIN");
+                    i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
+                    i.addCategory("android.intent.category.LAUNCHER");
+                    i.setData(Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                }
+                catch(ActivityNotFoundException e) {
+                    // Chrome is not installed
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                }
             }
         });
 

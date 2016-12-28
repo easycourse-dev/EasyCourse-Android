@@ -35,9 +35,10 @@ public class DownloadImagesTask extends AsyncTask<Void, Void, Void> {
 
         for (Message message : messages) {
             if (message.getText() != null) continue;
+            if (message.getImageData() != null) continue;
 
             Bitmap bitmap = fetchBitmap(message.getImageUrl());
-            if(bitmap == null) continue;
+            if (bitmap == null) continue;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
             byte[] compressedBytes = out.toByteArray();

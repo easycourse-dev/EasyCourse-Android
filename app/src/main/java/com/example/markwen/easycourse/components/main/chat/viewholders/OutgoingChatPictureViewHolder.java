@@ -1,7 +1,7 @@
 package com.example.markwen.easycourse.components.main.chat.viewholders;
 
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +15,7 @@ import com.example.markwen.easycourse.components.main.chat.ChatImageViewFragment
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.DateUtils;
 import com.squareup.picasso.Picasso;
 
@@ -67,9 +68,15 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
                             .into(outgoingPicUserView);
 
                 if (!message.getImageUrl().isEmpty()) {
-                    Picasso.with(context)
-                            .load(message.getImageUrl())
-                            .into(outgoingPicImageView);
+                    if (message.getImageData() != null) {
+                        Bitmap bitmap = BitmapUtils.byteArrayToBitmap(message.getImageData());
+                        outgoingPicImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
+                    } else {
+                        //TODO: placeholder image
+                        Picasso.with(context)
+                                .load(message.getImageUrl())
+                                .into(outgoingPicImageView);
+                    }
                 }
 
 
@@ -77,11 +84,10 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 Log.e(TAG, e.toString());
             }
             outgoingPicName.setText(curUser.getUsername());
-            //TODO: add click listner to fullsize image with animation
             outgoingPicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl());
+                    ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl(), message.getImageData());
                     activity.getSupportFragmentManager()
                             .beginTransaction()
                             .add(android.R.id.content, fragment, message.getImageUrl())

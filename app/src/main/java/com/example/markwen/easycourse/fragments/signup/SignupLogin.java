@@ -316,6 +316,18 @@ public class SignupLogin extends Fragment {
                             editor.putString("currentUser", response.toString());
                             editor.apply();
 
+                            try {
+                                currentUser.setId(response.getString("_id"));
+                                currentUser.setEmail(response.getString("email"));
+                                currentUser.setUsername(response.getString("displayName"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            realm.beginTransaction();
+                            realm.copyToRealmOrUpdate(currentUser);
+                            realm.commitTransaction();
+
                             gotoSignupChooseCourses();
                         }
 
@@ -327,10 +339,7 @@ public class SignupLogin extends Fragment {
                         }
                     });
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
-            } catch (UnsupportedEncodingException e) {
+            } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }
@@ -392,10 +401,7 @@ public class SignupLogin extends Fragment {
                         loginErrorSnackbar.show();
                     }
                 });
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
-            } catch (UnsupportedEncodingException e) {
+            } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
                 Log.e("com.example.easycourse", e.toString());
             }

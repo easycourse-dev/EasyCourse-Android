@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
-import com.example.markwen.easycourse.activities.UserProfile;
+import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.facebook.login.LoginManager;
@@ -76,7 +76,7 @@ public class UserFragment extends Fragment {
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(view.getContext(), UserProfile.class);
+                Intent i = new Intent(view.getContext(), UserProfileActivity.class);
                 Pair<View, String> p1 = Pair.create((View)avatarImage, "avatar");
                 Pair<View, String> p2 = Pair.create((View)textViewUsername, "username");
                 ActivityOptionsCompat options = ActivityOptionsCompat.

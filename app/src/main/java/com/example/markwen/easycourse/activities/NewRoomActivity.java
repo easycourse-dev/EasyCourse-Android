@@ -37,6 +37,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -217,10 +219,10 @@ public class NewRoomActivity extends AppCompatActivity {
 
                                         // TODO: Since chat will become a fragment now, figure out a way
                                         // to let users get into the room right after they create it
-                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
-                                        chatActivityIntent.putExtra("roomId", room.getId());
-                                        finish();
-                                        startActivity(chatActivityIntent);
+//                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
+//                                        chatActivityIntent.putExtra("roomId", room.getId());
+//                                        finish();
+//                                        startActivity(chatActivityIntent);
                                     } catch (JSONException e) {
                                         Log.e("createRoom", e.toString());
                                     }

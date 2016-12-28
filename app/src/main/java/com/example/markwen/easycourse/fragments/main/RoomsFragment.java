@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
@@ -108,7 +108,7 @@ public class RoomsFragment extends Fragment {
     }
 
     public void startChatRoom(Room room) {
-        Intent chatActivityIntent = new Intent(getContext(), ChatRoom.class);
+        Intent chatActivityIntent = new Intent(getContext(), ChatRoomActivity.class);
         chatActivityIntent.putExtra("roomId", room.getId());
         getActivity().startActivity(chatActivityIntent);
         realm.close();

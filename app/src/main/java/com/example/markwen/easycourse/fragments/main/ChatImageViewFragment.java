@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main.chat;
+package com.example.markwen.easycourse.fragments.main;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;

@@ -35,14 +35,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="center_vertical"
             android:hint="@string/messageSendBoxHint"
             android:imeOptions="actionSend"
             android:minLines="1" />
 
+
         <ImageButton
             android:id="@+id/chatSendImageButton"
-            android:layout_width="33dp"
-            android:layout_height="33dp"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
             android:layout_gravity="center_vertical"
             android:layout_margin="5dp"
             android:background="@drawable/ic_send_black_24px"

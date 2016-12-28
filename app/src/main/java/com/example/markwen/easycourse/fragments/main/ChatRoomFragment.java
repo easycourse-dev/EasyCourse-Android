@@ -3,9 +3,12 @@ package com.example.markwen.easycourse.fragments.main;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,20 +16,27 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -37,6 +47,8 @@ import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -75,16 +87,15 @@ public class ChatRoomFragment extends Fragment {
     ImageButton sendImageButton;
 
 
-      private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
+    private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     private RealmResults<Message> messages;
 
     public ChatRoomFragment() {
     }
 
     //TODO: streamline new fragments so current user/realm not reinitiated
-    public static ChatRoomFragment newInstance(ChatRoomActivity activity, Room currentRoom, User currentUser) {
+    public static ChatRoomFragment newInstance(Room currentRoom, User currentUser) {
         ChatRoomFragment fragment = new ChatRoomFragment();
-        fragment.activity = activity;
         fragment.currentRoom = currentRoom;
         fragment.currentUser = currentUser;
         return fragment;
@@ -96,6 +107,7 @@ public class ChatRoomFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_chat_room, container, false);
         ButterKnife.bind(this, v);
+        activity = (ChatRoomActivity) getActivity();
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -159,8 +171,53 @@ public class ChatRoomFragment extends Fragment {
         });
     }
 
+    private void sendImageDialog(final Uri uri) {
+        Log.d(TAG, "sendImageDialog: " + uri);
+        if (uri == null) {
+            Toast.makeText(activity, "Image failed to load!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        MaterialDialog dialog = new MaterialDialog.Builder(activity)
+                .title("Send Image?")
+                .titleColor(getResources().getColor(R.color.colorAccent))
+                .customView(R.layout.dialog_send_image, true)
+                .positiveText("Send")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Log.d(TAG, uri.toString());
+                    }
+                })
+                .negativeText("Cancel")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.cancel();
+                    }
+                })
+                .build();
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int height = displaymetrics.heightPixels;
+
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
+            int scaleToUse = 50; // this will be our percentage
+            int sizeY = height * scaleToUse / 100;
+            int sizeX = bitmap.getWidth() * sizeY / bitmap.getHeight();
+            Bitmap scaled = Bitmap.createScaledBitmap(bitmap, sizeX, sizeY, false);
+
+            ImageView image = (ImageView) dialog.getCustomView().findViewById(R.id.image_view_send_dialog);
+            image.setImageBitmap(scaled);
 
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        dialog.show();
+    }
 
 
     private void showImageDialog() {
@@ -219,8 +276,6 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-
-
     private boolean sendTextMessage(String messageText) {
         try {
             //Recieve message from socketIO
@@ -254,29 +309,31 @@ public class ChatRoomFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case CHOOSE_IMAGE_INTENT:
-                if(resultCode == Activity.RESULT_OK){
-                    Uri selectedImage = data.getData();
-                    try {
-                        Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), selectedImage);
-                        if(imageBitmap == null) return;
-                    }catch (IOException e) {
-                        Log.e(TAG, "onActivityResult: ", e);
-                    }
-                    Log.d(TAG, "onActivityResult: " + selectedImage.toString());
-                }
-                break;
+        if (resultCode != Activity.RESULT_OK) return;
+        Uri selectedImage = data.getData();
+        if (selectedImage == null)
+            Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
+        sendImageDialog(selectedImage);
 
-            case TAKE_IMAGE_INTENT:
-                if (resultCode == Activity.RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    if(imageBitmap == null) return;
-                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
-                }
-                break;
-        }
+//        switch (requestCode) {
+//            case CHOOSE_IMAGE_INTENT:
+//                    Uri selectedImage = data.getData();
+//
+//
+//
+//                    sendImageDialog(selectedImage);
+//
+//
+//                break;
+//
+//            case TAKE_IMAGE_INTENT:
+//                    Bundle extras = data.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                    if (imageBitmap == null) return;
+//                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
+//
+//                break;
+//        }
     }
 
     @Override

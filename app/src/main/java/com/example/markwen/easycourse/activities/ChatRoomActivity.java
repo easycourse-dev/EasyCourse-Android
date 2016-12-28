@@ -89,7 +89,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         setupDrawer();
 
-        ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(this, currentRoom, currentUser);
+        ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_chat_room_content, chatRoomFragment)

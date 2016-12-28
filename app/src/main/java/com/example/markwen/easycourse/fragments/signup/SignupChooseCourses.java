@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.fragments.signup;
 
+
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,16 +23,16 @@ import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrol
 import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
-import com.example.markwen.easycourse.utils.APIFunctions;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import com.example.markwen.easycourse.utils.SocketIO;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
+import io.socket.client.Ack;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -52,6 +54,8 @@ public class SignupChooseCourses extends Fragment {
 
     UserSetup userSetup;
 
+    SocketIO socketIO;
+
     public SignupChooseCourses() {
     }
 
@@ -62,13 +66,18 @@ public class SignupChooseCourses extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
+        try {
+            socketIO = new SocketIO(getContext());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.signup_choose_courses, container, false);
 
@@ -79,6 +88,7 @@ public class SignupChooseCourses extends Fragment {
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
         clearEditTextButton = (Button)rootView.findViewById(R.id.buttonClearEditText);
 
+        courses = userSetup.getSelectedCourses();
         coursesAdapter = new SignupChooseCoursesAdapter(courses);
 
         coursesLayoutManager = new LinearLayoutManager(getContext());
@@ -120,28 +130,37 @@ public class SignupChooseCourses extends Fragment {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    APIFunctions.searchCourse(rootView.getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                            try {
-                                courses.clear();
-                                for (int i = 0; i < response.length(); i++) {
-                                    JSONObject course = (JSONObject) response.get(i);
-                                    courses.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                    try {
+                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
+
+                            @Override
+                            public void call(Object... args) {
+
+                                JSONObject obj = (JSONObject) args[0];
+                                if (!obj.has("error")) {
+                                    try {
+                                        JSONArray response = obj.getJSONArray("course");
+                                        courses.clear();
+                                        for (int i = 0; i < response.length(); i++) {
+                                            JSONObject course = (JSONObject) response.get(i);
+                                            courses.add(new Course(
+                                                    course.getString("name"),
+                                                    course.getString("title"),
+                                                    course.getString("_id"),
+                                                    chosenUniversity));
+                                        }
+                                        updateRecyclerView();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else{
+                                    Log.e("com.example.easycourse", "failure" + obj.toString());
                                 }
-                                coursesAdapter.notifyDataSetChanged();
-                                coursesOnScrollListener.resetState();
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "failure" + t.toString());
-                        }
-                    });
+                        });
+                    } catch (JSONException e) {
+                        Log.e("com.example.easycourse", "jsonex" + e.toString());
+                    }
                 }
             }
         });
@@ -160,7 +179,7 @@ public class SignupChooseCourses extends Fragment {
                 @Override
                 public void onClick(View v) {
                     saveToUserSetup();
-                    gotoSignupChooseLanguage();
+                    gotoSignupChooseLanguage(v);
                 }
             });
 
@@ -177,30 +196,57 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
-    public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, RecyclerView view) {
-        APIFunctions.searchCourse(view.getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
+    public void updateRecyclerView(){
+        Thread thread = new Thread(){
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.e("com.example.easycourse", "success " + response.toString());
-                int startPosition = courses.size();
-                try {
-                    for (int i = 0; i < response.length(); i++) {
-                        JSONObject courseJSON = (JSONObject) response.get(i);
-                        Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
-                        if (!courses.contains(courseObj))
-                            courses.add(courseObj);
-                    }
-                    coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            coursesAdapter.notifyDataSetChanged();
+                            coursesOnScrollListener.resetState();
+                        }
+                    });
                 }
             }
+        };
+        thread.start();
+    }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                Log.e("com.example.easycourse", "failure" + t.toString());
-            }
-        });
+    public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {
+        try {
+            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (!obj.has("error")) {
+                        Log.e("com.example.easycourse", "success" + obj.toString());
+                        int startPosition = courses.size();
+                        try {
+                            JSONArray response = obj.getJSONArray("course");
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject courseJSON = (JSONObject) response.get(i);
+                                Course courseObj = new Course(
+                                        courseJSON.getString("name"),
+                                        courseJSON.getString("title"),
+                                        courseJSON.getString("_id"),
+                                        chosenUniversity);
+                                if (!courses.contains(courseObj))
+                                    courses.add(courseObj);
+                            }
+                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        Log.e("com.example.easycourse", "failure" + obj.toString());
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveToUserSetup() {
@@ -210,11 +256,19 @@ public class SignupChooseCourses extends Fragment {
             courseStringList[i] = checkedCourses.get(i).getId();
         }
         userSetup.setCourseCodeArray(courseStringList);
+        userSetup.setSelectedCourses(checkedCourses);
     }
 
 
     // Call this function when going to SignupChooseCourses
-    public void gotoSignupChooseLanguage() {
+    public void gotoSignupChooseLanguage(View v) {
+
+        // Prevent user from continuing without enrolling into a course
+        if (courses.size() == 0) {
+            Snackbar.make(v, "Please enroll into a course", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
         saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
@@ -226,6 +280,7 @@ public class SignupChooseCourses extends Fragment {
 
     // Call this function when going back to SignupChooseUniversity
     public void goBackSignupChooseUniversity() {
+        saveToUserSetup();
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);

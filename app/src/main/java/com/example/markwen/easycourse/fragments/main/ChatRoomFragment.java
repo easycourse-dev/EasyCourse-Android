@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main.chat;
+package com.example.markwen.easycourse.fragments.main;
 
 
 import android.Manifest;
@@ -10,13 +10,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,6 +31,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoomActivity;
+import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -41,7 +41,6 @@ import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,7 +75,7 @@ public class ChatRoomFragment extends Fragment {
     ImageButton sendImageButton;
 
 
-    private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
+      private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     private RealmResults<Message> messages;
 
     public ChatRoomFragment() {
@@ -105,6 +104,7 @@ public class ChatRoomFragment extends Fragment {
         setupChatRecyclerView();
         setupOnClickListeners();
 
+        messageEditText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
         DownloadImagesTask task = new DownloadImagesTask();
         task.execute();
@@ -122,7 +122,6 @@ public class ChatRoomFragment extends Fragment {
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         chatLinearManager.setStackFromEnd(true);
         chatRecyclerView.setLayoutManager(chatLinearManager);
-
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
@@ -143,7 +142,7 @@ public class ChatRoomFragment extends Fragment {
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finalSendMessage();
+                setupMessageToSend();
             }
         });
 
@@ -152,13 +151,16 @@ public class ChatRoomFragment extends Fragment {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 boolean handled = false;
                 if (i == EditorInfo.IME_ACTION_SEND) {
-                    finalSendMessage();
+                    setupMessageToSend();
                     handled = true;
                 }
                 return handled;
             }
         });
     }
+
+
+
 
 
     private void showImageDialog() {
@@ -204,10 +206,11 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-    private void finalSendMessage() {
+    private void setupMessageToSend() {
         String messageText = messageEditText.getText().toString();
-        if (!TextUtils.isEmpty(messageText)) {
-            if (sendTextMessage(messageText)) {
+        String fixed = messageText.replace("\\", "");
+        if (!TextUtils.isEmpty(fixed)) {
+            if (sendTextMessage(fixed)) {
                 messageEditText.setText("");
                 chatRecyclerViewAdapter.notifyDataSetChanged();
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
@@ -215,14 +218,16 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
+
+
+
     private boolean sendTextMessage(String messageText) {
-        String fixed = messageText.replace("\\", "");
         try {
             //Recieve message from socketIO
             if (this.currentRoom.isToUser()) {
-                socketIO.sendMessage(fixed, null, this.currentRoom.getId(), null, 0, 0);
+                socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
             } else {
-                socketIO.sendMessage(fixed, this.currentRoom.getId(), null, null, 0, 0);
+                socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
             }
         } catch (JSONException e) {
             e.printStackTrace();

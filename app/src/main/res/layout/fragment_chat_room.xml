@@ -37,7 +37,6 @@
             android:layout_weight="1"
             android:hint="@string/messageSendBoxHint"
             android:imeOptions="actionSend"
-            android:inputType="textMultiLine"
             android:minLines="1" />
 
         <ImageButton

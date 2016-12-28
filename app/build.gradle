@@ -99,4 +99,8 @@ dependencies {
 
     //Compressor
     compile 'id.zelory:compressor:1.0.4'
+    //Material Drawer
+    compile('com.mikepenz:materialdrawer:5.8.1@aar') {
+        transitive = true
+    }
 }

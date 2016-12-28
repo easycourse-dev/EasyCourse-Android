@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.models.main;
 
-import android.app.Activity;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -39,10 +38,11 @@ public class Room extends RealmObject {
     private String university;
     private RealmList<User> memberList;
     private int memberCounts;
-    private int language;
+    private String memberCountsDesc;
+    private String language;
 
     //UserFragment built room
-    private String founderID;
+    private User founder;
     private boolean isPublic = false;
 
     //System
@@ -63,7 +63,7 @@ public class Room extends RealmObject {
         this.courseName = courseName;
     }
 
-    public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, int language, String founderID, boolean isSystem) {
+    public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
         this.id = id;
         this.roomName = roomName;
         this.messageList = messageList;
@@ -72,9 +72,10 @@ public class Room extends RealmObject {
         this.university = university;
         this.memberList = memberList;
         this.memberCounts = memberCounts;
+        this.memberCountsDesc = memberCountsDesc;
+        this.founder = founder;
         this.language = language;
-        this.founderID = founderID;
-
+        this.isPublic = isPublic;
         this.isSystem = isSystem;
     }
 
@@ -110,7 +111,7 @@ public class Room extends RealmObject {
     }
 
     @Nullable
-    public static Room getRoomById(Activity activity, Realm realm, String id) {
+    public static Room getRoomById(Realm realm, String id) {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", id)
                 .findAll();
@@ -216,20 +217,28 @@ public class Room extends RealmObject {
         this.memberCounts = memberCounts;
     }
 
-    public int getLanguage() {
+    public String getMemberCountsDesc() {
+        return memberCountsDesc;
+    }
+
+    public void setMemberCountsDesc(String memberCountsDesc) {
+        this.memberCountsDesc = memberCountsDesc;
+    }
+
+    public String getLanguage() {
         return language;
     }
 
-    public void setLanguage(int language) {
+    public void setLanguage(String language) {
         this.language = language;
     }
 
-    public String getFounderID() {
-        return founderID;
+    public User getFounder() {
+        return founder;
     }
 
-    public void setFounderID(String founderID) {
-        this.founderID = founderID;
+    public void setFounder(User founder) {
+        this.founder = founder;
     }
 
     public boolean isPublic() {

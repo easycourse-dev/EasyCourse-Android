@@ -18,6 +18,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +40,8 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -51,11 +54,20 @@ import io.realm.RealmChangeListener;
 public class UserProfileActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
+
+    @BindView(R.id.toolbarUserProfile)
+    Toolbar toolbar;
+    @BindView(R.id.textViewUsername)
     TextView textViewUsername;
+    @BindView(R.id.editTextUsername)
     EditText editTextUsername;
-    ImageButton editUsernameButton;
+    @BindView(R.id.saveChangesButton)
     FloatingActionButton saveChangesButton;
+    @BindView(R.id.editUsernameButton)
+    ImageButton editUsernameButton;
+    @BindView(R.id.editAvatarButton)
     FloatingActionButton editAvatarButton;
+    @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
 
     boolean isInEditMode = false;
@@ -74,6 +86,11 @@ public class UserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userprofile);
 
+        //Binds all the views
+        ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -84,14 +101,8 @@ public class UserProfileActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        textViewUsername = (TextView) findViewById(R.id.textViewUsername);
-        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
-        saveChangesButton = (FloatingActionButton) findViewById(R.id.saveChangesButton);
-        editAvatarButton = (FloatingActionButton) findViewById(R.id.editAvatarButton);
-        avatarImage = (CircleImageView) findViewById(R.id.avatarImage);
         saveChangesButton.hide();
 
-        editUsernameButton = (ImageButton) findViewById(R.id.editUsernameButton);
         editUsernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,7 +128,7 @@ public class UserProfileActivity extends AppCompatActivity {
                     updateUserInfoOnScreen();
                 }
             });
-            
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -220,6 +231,7 @@ public class UserProfileActivity extends AppCompatActivity {
                     Log.e("com.example.easycourse", response.toString());
                     try {
                         socket.syncUser(null, response.getString("url"));
+                        socket.syncUser();
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", response.toString());
                     }

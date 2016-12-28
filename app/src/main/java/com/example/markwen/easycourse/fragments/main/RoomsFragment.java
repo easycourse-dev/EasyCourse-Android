@@ -9,12 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
@@ -33,6 +35,7 @@ public class RoomsFragment extends Fragment {
 
 
     private Realm realm;
+    private SocketIO socketIO;
 
 
     @BindView(R.id.roomsRecyclerView)
@@ -55,6 +58,7 @@ public class RoomsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
     @Override
@@ -67,6 +71,9 @@ public class RoomsFragment extends Fragment {
         setupFAB();
 
         setupRecyclerView();
+
+        socketIO.syncUser();
+        roomRecyclerViewAdapter.notifyDataSetChanged();
 
         return v;
     }

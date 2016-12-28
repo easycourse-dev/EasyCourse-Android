@@ -446,7 +446,7 @@ public class SignupLogin extends Fragment {
                 room.setCourseName(object.getString("courseName"));
                 room.setPublic(object.getBoolean("isPublic"));
                 room.setSystem(object.getBoolean("isSystem"));
-                room.setLanguage(object.getInt("language"));
+                room.setLanguage(object.getString("language"));
                 room.setMemberCounts(object.getInt("memberCounts"));
                 room.setMemberList(new RealmList<User>());
                 room.getMemberList().add(currentUser);
@@ -475,7 +475,7 @@ public class SignupLogin extends Fragment {
                 room.setCourseName(object.getString("courseName"));
                 room.setPublic(object.getBoolean("isPublic"));
                 room.setSystem(object.getBoolean("isSystem"));
-                room.setLanguage(object.getInt("language"));
+                room.setLanguage(object.getString("language"));
                 room.setMemberCounts(object.getInt("memberCounts"));
                 room.setMemberList(new RealmList<User>());
                 room.getMemberList().add(currentUser);

@@ -126,6 +126,7 @@ public class NewRoomActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     coursesAdapter.setSelectedCourse(i);
+                    roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
                     doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
                 }
 
@@ -139,7 +140,7 @@ public class NewRoomActivity extends AppCompatActivity {
         // Setup rooms view
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomsRecyclerViewAdapter = new NewRoomRoomsRecyclerViewAdapter(this, rooms, socketIO);
+        roomsRecyclerViewAdapter = new NewRoomRoomsRecyclerViewAdapter(this, this, rooms, socketIO);
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
         existedRoomView.addItemDecoration(new RecyclerViewDivider(this));

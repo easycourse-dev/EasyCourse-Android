@@ -2,7 +2,7 @@ package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,6 +20,7 @@ import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.hanks.library.AnimateCheckBox;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,14 +44,18 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
 
     private ArrayList<Room> roomsList;
     private ArrayList<Room> joinedRooms = new ArrayList<>();
+    private String selectedCourseId;
+    private String selectedCourseName;
     private Context context;
     private SocketIO socketIO;
     private Realm realm;
+    private AppCompatActivity activity;
 
-    public NewRoomRoomsRecyclerViewAdapter(@NonNull Context context, ArrayList<Room> rooms, SocketIO socketIO) {
+    public NewRoomRoomsRecyclerViewAdapter(AppCompatActivity activity, Context context, ArrayList<Room> rooms, SocketIO socketIO) {
         super();
-        this.roomsList = rooms;
+        this.activity = activity;
         this.context = context;
+        this.roomsList = rooms;
         this.socketIO = socketIO;
         realm = Realm.getDefaultInstance();
         RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
@@ -81,58 +86,100 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
             @Override
             public void onClick(View view) {
                 try {
-                    final Room[] joinedRoom = {new Room()};
                     if (roomViewHolder.roomCheckbox.isChecked()) {
-                        joinedRoom[0] = room;
+                        goToChatRoom(room);
                     } else {
                         socketIO.joinRoom(room.getId(), new Ack() {
                             @Override
                             public void call(Object... args) {
+                                final Room[] joinedRoom = {new Room()};
                                 JSONObject obj = (JSONObject) args[0];
                                 if (!obj.has("error")) {
                                     try {
+                                        // Get room
                                         JSONObject temp = obj.getJSONObject("room");
+                                        final String id = (String) checkIfJsonExists(temp, "_id", null);
+                                        final String roomName = (String) checkIfJsonExists(temp, "name", null);
+                                        final String courseID = selectedCourseId;
+                                        final String courseName = selectedCourseName;
+                                        final String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                        final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                                        final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                                        final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                                        final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                                        String id = (String) checkIfJsonExists(temp, "_id", null);
-                                        String roomName = (String) checkIfJsonExists(temp, "name", null);
-                                        String courseID = (String) checkIfJsonExists(temp, "course", null);
-                                        String courseName = Course.getCourseById(courseID, realm).getCoursename();
-                                        String universityID = (String) checkIfJsonExists(temp, "university", null);
-                                        boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                                        String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                                        String language = (String) checkIfJsonExists(temp, "language", "0");
-                                        boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+                                        // Get founder
+                                        JSONObject founderJSON = temp.getJSONObject("founder");
+                                        final String founderId = (String) checkIfJsonExists(founderJSON, "_id", null);
+                                        final String founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
+                                        final String founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
 
-                                        joinedRoom[0] = new Room(
-                                                id,
-                                                roomName,
-                                                new RealmList<Message>(),
-                                                courseID,
-                                                courseName,
-                                                universityID,
-                                                new RealmList<User>(),
-                                                memberCounts,
-                                                memberCountsDesc,
-                                                null,
-                                                language,
-                                                isPublic,
-                                                isSystem);
+                                        // Get users
+                                        final RealmList<User> userList = new RealmList<>();
+                                        socketIO.getRoomMembers(id, new Ack() {
+                                            @Override
+                                            public void call(Object... args) {
+                                                JSONObject obj = (JSONObject) args[0];
+                                                try {
+                                                    JSONArray userArray = obj.getJSONArray("users");
+                                                    JSONObject tempUserJSON, tempUserEventJSON;
+                                                    User tempUser;
+                                                    for (int i = 0; i < userArray.length(); i++) {
+                                                        tempUserEventJSON = (JSONObject) userArray.get(i);
+                                                        tempUserJSON = tempUserEventJSON.getJSONObject("user");
+                                                        tempUser = new User(
+                                                                (String) checkIfJsonExists(tempUserJSON, "_id", null),
+                                                                (String) checkIfJsonExists(tempUserJSON, "displayName", null),
+                                                                null,
+                                                                (String) checkIfJsonExists(tempUserJSON, "avatarUrl", null),
+                                                                null,
+                                                                null
+                                                        );
+                                                        if (!isUserInList(userList, tempUser)) {
+                                                            userList.add(tempUser);
+                                                        }
+                                                    }
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
 
-                                        Room.updateRoomToRealm(joinedRoom[0], realm);
-                                        realm.close();
+                                                joinedRoom[0] = new Room(
+                                                        id,
+                                                        roomName,
+                                                        new RealmList<Message>(),
+                                                        courseID,
+                                                        courseName,
+                                                        universityID,
+                                                        userList,
+                                                        memberCounts,
+                                                        memberCountsDesc,
+                                                        new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                                        null,
+                                                        isPublic,
+                                                        isSystem);
+
+                                                updateRoomInSocket(joinedRoom[0]);
+
+                                                socketIO.syncUser();
+
+                                                goToChatRoom(joinedRoom[0]);
+                                            }
+                                        });
                                     } catch (JSONException e) {
                                         Log.e(TAG, e.toString());
                                     }
 
+                                } else {
+                                    try {
+                                        JSONObject temp = obj.getJSONObject("error");
+                                        Log.e("joinRoom", temp.toString());
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         });
                     }
-
-                    Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
-                    chatActivityIntent.putExtra("roomId", joinedRoom[0].getId());
-                    context.startActivity(chatActivityIntent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -168,5 +215,42 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
             }
         }
         return false;
+    }
+
+    private boolean isUserInList(RealmList<User> userList, User user) {
+        for (int i = 0; i < userList.size(); i++) {
+            if (userList.get(i).getId().equals(user.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void goToChatRoom(Room room) {
+        Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
+        chatActivityIntent.putExtra("roomId", room.getId());
+        context.startActivity(chatActivityIntent);
+    }
+
+    public void setCurrentCourse(Course course) {
+        this.selectedCourseId = course.getId();
+        this.selectedCourseName = course.getCoursename();
+    }
+
+    public void updateRoomInSocket(final Room room){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Room.updateRoomToRealm(room, realm);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

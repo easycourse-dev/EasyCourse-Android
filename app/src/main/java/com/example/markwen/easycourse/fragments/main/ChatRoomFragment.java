@@ -189,6 +189,7 @@ public class ChatRoomFragment extends Fragment {
                     }
                 })
                 .negativeText("Cancel")
+                .negativeColor(getResources().getColor(R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {

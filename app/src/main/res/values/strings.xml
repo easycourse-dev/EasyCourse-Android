@@ -63,7 +63,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="classmates">Classmates</string>
     <string name="subgroups">Subgroups</string>
+    <string name="sharedgroups">Shared Groups</string>
     <string name="silent">Silent</string>
     <string name="share_room">Share Room</string>
+    <string name="block_user">Block User</string>
+    <string name="report_user">Report User</string>
     <string name="quit_room">Quit Room</string>
+
+    <string name="report_user_hint">Optional reason...</string>
 </resources>

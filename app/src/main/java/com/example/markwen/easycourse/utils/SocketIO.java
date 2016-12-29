@@ -556,13 +556,13 @@ public class SocketIO {
         return dropRoomSuccess[0];
     }
 
-    public Future<Room> createRoom(String name, String courseID) throws JSONException {
+    public void createRoom(String name, String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("name", name);
         jsonParam.put("course", courseID);
 
-
-        final Room[] room = {null};
+        socket.emit("createRoom", jsonParam, callback);
+        /*final Room[] room = {null};
 
         socket.emit("createRoom", jsonParam, new Ack() {
             @Override
@@ -624,7 +624,7 @@ public class SocketIO {
             public Room get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
                 return null;
             }
-        };
+        };*/
     }
 
     public void getRoomInfo(final String roomID) throws JSONException {

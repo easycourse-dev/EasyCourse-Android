@@ -321,10 +321,10 @@ public class NewRoomActivity extends AppCompatActivity {
                         public void run() {
                             roomsRecyclerViewAdapter.notifyDataSetChanged();
                             roomsOnScrollListener.resetState();
-
+                            Course selectedCourse = coursesAdapter.getSelectedCourse();
                             if (response.length() == 0
-                                    && (coursesAdapter.getSelectedCourse() != null
-                                        || coursesAdapter.getSelectedCourse().getCoursename().equals("Private Room"))
+                                    && ((selectedCourse != null && selectedCourse.getId() != null)
+                                        || selectedCourse.getCoursename().equals("Private Room"))
                                     && !query.equals("")) {
                                 newRoomButton.setVisibility(View.VISIBLE);
                                 existedRoomView.setVisibility(View.GONE);

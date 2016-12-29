@@ -143,6 +143,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                                     e.printStackTrace();
                                                 }
 
+                                                // Save user to Realm
                                                 joinedRoom[0] = new Room(
                                                         id,
                                                         roomName,
@@ -157,11 +158,12 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                                         null,
                                                         isPublic,
                                                         isSystem);
-
                                                 updateRoomInSocket(joinedRoom[0]);
 
+                                                // Get messages
                                                 socketIO.syncUser();
 
+                                                // Go to that room
                                                 goToChatRoom(joinedRoom[0]);
                                             }
                                         });

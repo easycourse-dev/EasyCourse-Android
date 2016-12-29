@@ -56,7 +56,7 @@ public class NewRoomActivity extends AppCompatActivity {
     Realm realm;
     SocketIO socketIO;
     NewRoomRoomsEndlessRecyclerViewScrollListener roomsOnScrollListener;
-    RealmResults<Course> courses;
+    ArrayList<Course> courses = new ArrayList<>();
     NewRoomCoursesAdapter coursesAdapter;
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
@@ -103,7 +103,19 @@ public class NewRoomActivity extends AppCompatActivity {
         currentUser = User.getCurrentUser(this, realm);
 
         // Setup courses
-        courses = realm.where(Course.class).findAll();
+        RealmResults<Course> coursesResults = realm.where(Course.class).findAll();
+        for (int i = 0; i < coursesResults.size() + 2; i++) {
+            if (i == 0) {
+                // Add in hint Course
+                // TODO: use work around to handle hint on spinner
+                courses.add(new Course(null, "This room belongs to...", null, null, 0, null));
+            } else if (i == 1) {
+                // Add in private option Course
+                courses.add(new Course("", "Private Room", null, null, 0, null));
+            } else {
+                courses.add(coursesResults.get(i - 2));
+            }
+        }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         if (courses.size() == 0) {
@@ -272,6 +284,8 @@ public class NewRoomActivity extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        rooms.clear();
+                        updateRecyclerView(new JSONArray(), query);
                     }
                 }
             });
@@ -308,7 +322,10 @@ public class NewRoomActivity extends AppCompatActivity {
                             roomsRecyclerViewAdapter.notifyDataSetChanged();
                             roomsOnScrollListener.resetState();
 
-                            if (response.length() == 0 && coursesAdapter.getSelectedCourse() != null && !query.equals("")) {
+                            if (response.length() == 0
+                                    && (coursesAdapter.getSelectedCourse() != null
+                                        || coursesAdapter.getSelectedCourse().getCoursename().equals("Private Room"))
+                                    && !query.equals("")) {
                                 newRoomButton.setVisibility(View.VISIBLE);
                                 existedRoomView.setVisibility(View.GONE);
                             } else {

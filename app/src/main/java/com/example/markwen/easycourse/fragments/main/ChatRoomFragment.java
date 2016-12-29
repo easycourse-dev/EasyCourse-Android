@@ -3,12 +3,9 @@ package com.example.markwen.easycourse.fragments.main;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -27,12 +23,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,10 +40,10 @@ import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapt
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.asyntasks.CompressAndUploadImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -85,6 +80,9 @@ public class ChatRoomFragment extends Fragment {
     EditText messageEditText;
     @BindView(R.id.chatSendImageButton)
     ImageButton sendImageButton;
+
+    @BindView(R.id.chatSendImageProgressBar)
+    ProgressBar sendImageProgressBar;
 
 
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
@@ -154,7 +152,7 @@ public class ChatRoomFragment extends Fragment {
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setupMessageToSend();
+                setupTextMessageToSend();
             }
         });
 
@@ -163,7 +161,7 @@ public class ChatRoomFragment extends Fragment {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 boolean handled = false;
                 if (i == EditorInfo.IME_ACTION_SEND) {
-                    setupMessageToSend();
+                    setupTextMessageToSend();
                     handled = true;
                 }
                 return handled;
@@ -187,6 +185,7 @@ public class ChatRoomFragment extends Fragment {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         Log.d(TAG, uri.toString());
+                        sendImageProgressBar.setVisibility(View.VISIBLE);
                     }
                 })
                 .negativeText("Cancel")
@@ -213,8 +212,9 @@ public class ChatRoomFragment extends Fragment {
             image.setImageBitmap(scaled);
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Toast.makeText(activity, "Image failed to load!", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "sendImageDialog:", e);
         }
         dialog.show();
     }
@@ -232,7 +232,6 @@ public class ChatRoomFragment extends Fragment {
                 .show();
     }
 
-    //TODO: fix add images
     private void handleAddImage(int which, View view) {
         switch (which) {
             case 0:  // choose image
@@ -263,11 +262,11 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-    private void setupMessageToSend() {
+    private void setupTextMessageToSend() {
         String messageText = messageEditText.getText().toString();
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
-            if (sendTextMessage(fixed)) {
+            if (sendMessage(fixed, true, null, 0, 0)) {
                 messageEditText.setText("");
                 chatRecyclerViewAdapter.notifyDataSetChanged();
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
@@ -275,23 +274,62 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
+    private void setupPicToSend(final Uri uri) {
+        BitmapUtils.compressAndUploadBitmap(uri, currentRoom.getId(), getContext(), new CompressAndUploadImageTask.OnCompressImageTaskCompleted() {
+            @Override
+            public void onTaskCompleted(String url) {
 
-    private boolean sendTextMessage(String messageText) {
+                try {
+                    Bitmap bitmap = BitmapUtils.getBitmapFromUri(uri, getContext());
+                    if (sendMessage(null, false, url, bitmap.getWidth(), bitmap.getHeight())) {
+                        chatRecyclerViewAdapter.notifyDataSetChanged();
+                        chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+                        picSent(true);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onTaskFailed() {
+
+            }
+        });
+        picSent(false);
+    }
+
+    private void picSent(boolean wasSent) {
+        sendImageProgressBar.setVisibility(View.GONE);
+    }
+
+
+    private boolean sendMessage(String messageText, boolean isTextMessage, String url, int imageWidth, int imageHeight) {
         try {
-            //Recieve message from socketIO
+            //Receive message from socketIO
             if (this.currentRoom.isToUser()) {
-                socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
+                else
+                    socketIO.sendMessage(null, null, this.currentUser.getId(), url, imageWidth, imageHeight);
+
             } else {
-                socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
+                else
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, url, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e(TAG, "sendTextMessage: error");
+            Log.e(TAG, "sendMessage: error");
             return false;
         }
         socketIO.syncUser();
         return true;
     }
+
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

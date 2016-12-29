@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;

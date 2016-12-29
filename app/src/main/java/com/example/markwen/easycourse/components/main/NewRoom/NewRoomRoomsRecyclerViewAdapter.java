@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
@@ -69,6 +69,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
         final Room room = roomsList.get(i);
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
+        roomViewHolder.roomCheckbox.setClickable(false);
 
         if (isRoomJoined(joinedRooms, room)) {
             roomViewHolder.roomCheckbox.setChecked(true);
@@ -129,9 +130,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                         });
                     }
 
-                    // TODO: Since chat will become a fragment now, figure out a way
-                    // to let users get into the room right after they create it
-                    Intent chatActivityIntent = new Intent(context, ChatRoom.class);
+                    Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
                     chatActivityIntent.putExtra("roomId", joinedRoom[0].getId());
                     context.startActivity(chatActivityIntent);
                 } catch (JSONException e) {

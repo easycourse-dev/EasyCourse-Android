@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -22,9 +22,9 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.NewRoomCoursesAdapter;
-import com.example.markwen.easycourse.components.main.NewRoomRoomsEndlessRecyclerViewScrollListener;
-import com.example.markwen.easycourse.components.main.NewRoomRoomsRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
@@ -217,9 +217,7 @@ public class NewRoomActivity extends AppCompatActivity {
                                                 isSystem);
                                         updateRoomInSocket(room);
 
-                                        // TODO: Since chat will become a fragment now, figure out a way
-                                        // to let users get into the room right after they create it
-                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
+                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                                         chatActivityIntent.putExtra("roomId", room.getId());
                                         finish();
                                         startActivity(chatActivityIntent);

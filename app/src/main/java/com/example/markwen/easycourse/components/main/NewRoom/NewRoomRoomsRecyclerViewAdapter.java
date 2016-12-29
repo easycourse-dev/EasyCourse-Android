@@ -34,6 +34,8 @@ import io.realm.RealmResults;
 import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+import static com.example.markwen.easycourse.utils.ListsUtils.isRoomJoined;
+import static com.example.markwen.easycourse.utils.ListsUtils.isUserInList;
 import static com.google.android.gms.internal.zzs.TAG;
 
 /**
@@ -208,24 +210,6 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
-    }
-
-    private boolean isRoomJoined(ArrayList<Room> joinedRooms, Room room) {
-        for (int i = 0; i < joinedRooms.size(); i++) {
-            if (joinedRooms.get(i).getId().equals(room.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isUserInList(RealmList<User> userList, User user) {
-        for (int i = 0; i < userList.size(); i++) {
-            if (userList.get(i).getId().equals(user.getId())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void goToChatRoom(Room room) {

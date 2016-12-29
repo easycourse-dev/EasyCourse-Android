@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
@@ -44,6 +43,8 @@ import io.realm.RealmList;
 import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+import static com.example.markwen.easycourse.utils.ListsUtils.isUserInList;
+import static com.example.markwen.easycourse.utils.ListsUtils.stringArrayToArrayList;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -199,7 +200,7 @@ public class SignupChooseLanguage extends Fragment {
                 }
             });
 
-            SocketIO socketIO = new SocketIO(getContext());
+            final SocketIO socketIO = new SocketIO(getContext());
             socketIO.joinCourse(
                     stringArrayToArrayList(userSetup.getCourseCodeArray()),
                     stringArrayToArrayList(userSetup.getLanguageCodeArray()),
@@ -230,23 +231,71 @@ public class SignupChooseLanguage extends Fragment {
                                 // Rooms handling
                                 for (int i = 0; i < roomArrayJSON.length(); i++) {
                                     temp = roomArrayJSON.getJSONObject(i);
-                                    String id = (String) checkIfJsonExists(temp, "_id", null);
-                                    String roomName = (String) checkIfJsonExists(temp, "name", null);
-                                    String courseID = (String) checkIfJsonExists(temp, "course", null);
-                                    String courseName = Course.getCourseById(courseID, realm).getCoursename();
-                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
-                                    boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                                    int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                                    String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                                    String language = (String) checkIfJsonExists(temp, "language", "0");
-                                    boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+                                    final String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    final String roomName = (String) checkIfJsonExists(temp, "name", null);
+                                    final String courseID = (String) checkIfJsonExists(temp, "course", null);
+                                    final String courseName = Course.getCourseById(courseID, realm).getCoursename();
+                                    final String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                    final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                                    final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                                    final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                                    final String language = (String) checkIfJsonExists(temp, "language", "0");
+                                    final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                                    Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
-                                    Room.updateRoomToRealm(room, realm);
+                                    try {
+                                        // Get users
+                                        final RealmList<User> userList = new RealmList<>();
+                                        socketIO.getRoomMembers(id, new Ack() {
+                                            @Override
+                                            public void call(Object... args) {
+                                                JSONObject obj = (JSONObject) args[0];
+                                                Realm realmForRoom = Realm.getDefaultInstance();
+                                                try {
+                                                    JSONArray userArray = obj.getJSONArray("users");
+                                                    JSONObject tempUserJSON, tempUserEventJSON;
+                                                    User tempUser;
+                                                    for (int i = 0; i < userArray.length(); i++) {
+                                                        tempUserEventJSON = (JSONObject) userArray.get(i);
+                                                        tempUserJSON = tempUserEventJSON.getJSONObject("user");
+                                                        tempUser = new User(
+                                                                (String) checkIfJsonExists(tempUserJSON, "_id", null),
+                                                                (String) checkIfJsonExists(tempUserJSON, "displayName", null),
+                                                                null,
+                                                                (String) checkIfJsonExists(tempUserJSON, "avatarUrl", null),
+                                                                null,
+                                                                null
+                                                        );
+                                                        if (!isUserInList(userList, tempUser)) {
+                                                            userList.add(tempUser);
+                                                        }
+                                                    }
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                // Save user to Realm
+                                                updateRoomInSocket(new Room(
+                                                        id,
+                                                        roomName,
+                                                        new RealmList<Message>(),
+                                                        courseID,
+                                                        courseName,
+                                                        universityID,
+                                                        userList,
+                                                        memberCounts,
+                                                        memberCountsDesc,
+                                                        null,
+                                                        language,
+                                                        isPublic,
+                                                        isSystem), realmForRoom);
+
+                                                goToMainActivity();
+                                            }
+                                        });
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, e.toString());
+                                    }
                                 }
-
-                                realm.close();
-                                goToMainActivity();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -286,12 +335,21 @@ public class SignupChooseLanguage extends Fragment {
         transaction.commit();
     }
 
-    // TODO: modify userSetup to save course and language array as arraylist instead
-    // and kill this function
-    public ArrayList<String> stringArrayToArrayList(String[] array) {
-        ArrayList<String> temp = new ArrayList<>();
-        Collections.addAll(temp, array);
-        return temp;
+    private void updateRoomInSocket(final Room room, final Realm realm){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Room.updateRoomToRealm(room, realm);
+                            realm.close();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
-
 }

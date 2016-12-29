@@ -23,6 +23,12 @@ public class Course extends RealmObject {
 
     }
 
+    public Course(String name, String title, String id) {
+        this.coursename = name;
+        this.title = title;
+        this.id = id;
+    }
+
     public Course(String id, String coursename, String title, String courseDescription, int creditHours, String universityID) {
         this.id = id;
         this.coursename = coursename;

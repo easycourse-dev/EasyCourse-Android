@@ -7,6 +7,7 @@ import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.eventbus.Event;
 
@@ -497,15 +498,15 @@ public class SocketIO {
                     Log.e(TAG, obj.toString());
                 } else {
                     Log.e(TAG, "getUserInfo" + obj.toString());
-                        JSONObject userObj = null;
-                        byte[] avatar = null;
-                        String avatarUrlString;
+                    JSONObject userObj = null;
+                    byte[] avatar = null;
+                    String avatarUrlString = "";
+                    String emailString = "";
+                    String universityId = "";
 
                     try {
-
                         userObj = obj.getJSONObject("user");
                         if (userObj.has("avatarUrl")) {
-                            Log.e(TAG, "" + userObj);
                             avatarUrlString = userObj.getString("avatarUrl");
                             URL avatarUrl = new URL(avatarUrlString);
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
@@ -513,6 +514,16 @@ public class SocketIO {
                             conn.connect();
                             //conn.setUseCaches(false);
                             avatar = IOUtils.toByteArray(conn.getInputStream());
+                        }
+                        if (userObj.has("email")) {
+                            emailString = userObj.getString("email");
+                        } else {
+                            emailString = null;
+                        }
+                        if (userObj.has("university")) {
+                            universityId = userObj.getString("university");
+                        } else {
+                            universityId = null;
                         }
                     } catch (JSONException | IOException e) {
                         Log.e(TAG, e.toString());
@@ -522,18 +533,53 @@ public class SocketIO {
 
                     User user = null;
                     try {
-                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, null, null, null);
+                        user = new User(
+                                userObj.getString("_id"),
+                                userObj.getString("displayName"),
+                                avatar,
+                                avatarUrlString,
+                                emailString,
+                                universityId);
                     } catch (JSONException | NullPointerException e) {
                         Log.e(TAG, e.toString());
                     }
 
                     Realm.init(context);
                     Realm realm = Realm.getDefaultInstance();
-
-                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     User.updateUserToRealm(user, realm);
-                    Log.d(TAG, "user in realm? " + User.isUserInRealm(user, realm));
                     realm.close();
+
+                    try {
+                        getUniversityInfo(universityId);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+    }
+
+    public void getUniversityInfo(String univId) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("univId", univId);
+
+        socket.emit("getUniversityInfo", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                try {
+                    JSONObject temp = obj.getJSONObject("univ");
+                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                    String name = (String) checkIfJsonExists(temp, "name", null);
+
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    realm.copyToRealmOrUpdate(new University(id, name));
+                    realm.commitTransaction();
+                    realm.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });

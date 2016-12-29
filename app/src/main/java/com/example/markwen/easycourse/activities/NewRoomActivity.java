@@ -80,6 +80,8 @@ public class NewRoomActivity extends AppCompatActivity {
     CardView inputCard;
     @BindView(R.id.newRoomResultsCard)
     CardView resultsCard;
+    @BindView(R.id.newRoomButtonClearEditText)
+    Button clearText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,14 @@ public class NewRoomActivity extends AppCompatActivity {
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
         existedRoomView.addItemDecoration(new RecyclerViewDivider(this));
+
+        // Clear text button
+        clearText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                newRoomName.setText("");
+            }
+        });
 
         // Search room API function
         newRoomName.addTextChangedListener(new TextWatcher() {
@@ -327,6 +337,11 @@ public class NewRoomActivity extends AppCompatActivity {
                                         || selectedCourse.getCoursename().equals("Private Room"))
                                     && !query.equals("")) {
                                 newRoomButton.setVisibility(View.VISIBLE);
+                                existedRoomView.setVisibility(View.GONE);
+                            } else if (response.length() == 0
+                                    && ((selectedCourse != null && selectedCourse.getId() != null)
+                                    || selectedCourse.getCoursename().equals("Private Room"))
+                                    && query.equals("")) {
                                 existedRoomView.setVisibility(View.GONE);
                             } else {
                                 newRoomButton.setVisibility(View.GONE);

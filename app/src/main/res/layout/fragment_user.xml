@@ -53,13 +53,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                >
+                android:id="@+id/UserFragmentCourseManageCard">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:id="@+id/UserFragmentCourseManageView">
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -24,6 +24,11 @@ public class University extends RealmObject {
         this.name = name;
     }
 
+    public static University getUniversityById (String id, Realm realm) {
+        RealmResults<University> results = realm.where(University.class).equalTo("id", id).findAll();
+        return results.first();
+    }
+
     public static void updateUniversityToRealm(University university, Realm realm) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(university);

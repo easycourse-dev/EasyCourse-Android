@@ -300,6 +300,7 @@ public class SignupLogin extends Fragment {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             String userToken = "";
+                            String userId = "";
 
                             //for each header in array Headers scan for Auth header
                             for (Header header : headers) {
@@ -311,19 +312,21 @@ public class SignupLogin extends Fragment {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userToken", userToken);
                             editor.putString("currentUser", response.toString());
-                            editor.apply();
-
                             try {
-                                currentUser.setId(response.getString("_id"));
+                                userId = response.getString("_id");
+                                currentUser.setId(userId);
                                 currentUser.setEmail(response.getString("email"));
                                 currentUser.setUsername(response.getString("displayName"));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            editor.putString("userId", userId);
+                            editor.apply();
 
                             realm.beginTransaction();
                             realm.copyToRealmOrUpdate(currentUser);
                             realm.commitTransaction();
+                            realm.close();
 
                             gotoSignupChooseCourses();
                         }
@@ -474,6 +477,7 @@ public class SignupLogin extends Fragment {
                 joinedRoomList.add(room);
             }
 
+            // TODO: check if this is still needed or modify
             JSONArray silentRooms = response.getJSONArray("silentRoom");
             for (int i = 0; i < silentRooms.length(); i++) {
                 JSONObject object = silentRooms.getJSONObject(i);

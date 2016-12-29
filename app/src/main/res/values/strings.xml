@@ -58,6 +58,8 @@
     <string name="existed_rooms">existed rooms:</string>
     <string name="tempCourse">CS18000</string>
     <string name="tempRoomName">CS180NoArrayListPlease...</string>
+    <string name="search_course_hint">Search for new courses</string>
+    <string name="no_course_warning">Please enroll into a course.</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

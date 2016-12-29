@@ -361,12 +361,12 @@ public class SocketIO {
     }
 
     //Join courses with language keys
-    public void joinCourse(String[] courses, String[] languageKeys) throws JSONException {
+    public void joinCourse(String[] courses, String[] languageKeys, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courses", courses);
         jsonParam.put("lang", languageKeys);
 
-        socket.emit("joinCourse", jsonParam);
+        socket.emit("joinCourse", jsonParam, callback);
     }
 
     //convert and save JSON message object to realm

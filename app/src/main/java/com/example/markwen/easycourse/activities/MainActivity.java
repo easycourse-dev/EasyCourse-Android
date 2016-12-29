@@ -29,7 +29,6 @@ import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.otto.Subscribe;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,15 +69,14 @@ public class MainActivity extends AppCompatActivity {
         //Binds all the views
         ButterKnife.bind(this);
 
+        realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
+        socketIO.syncUser();
+
         // Checking if there is a user currently logged in
         // if there is, remain in MainActivity
         // if not, show SignupLoginActivity
         checkUserLogin();
-
-
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        socketIO.syncUser();
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
@@ -117,17 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
-        JSONObject currentUserObject;
-        JSONArray joinedCourses = new JSONArray();
-
-        try {
-            // If user has no joined courses, bring the user to signup setup
-            currentUserObject = new JSONObject(currentUser);
-            joinedCourses = currentUserObject.getJSONArray("joinedCourse");
-        } catch (Throwable t) {
-
-        }
-        Log.e("joinedCourses", joinedCourses.toString());
+        User currentUserObject = User.getCurrentUser(this, realm);
 
         /*
             When syncUser is ready, add code below into the if statement:
@@ -138,11 +126,20 @@ public class MainActivity extends AppCompatActivity {
             If a user doesn't have joined courses, then bring the user back to signup setup.
          */
 
-        if (userToken == null || currentUser == null) {
+        if (userToken == null || currentUser == null || currentUserObject == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
                 MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
+            }
+        } else {
+            // If user has no joined courses, bring the user to signup setup
+            if(currentUserObject.getJoinedCourses() == null || currentUserObject.getJoinedCourses().size() < 1) {
+                launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
+                startActivity(launchIntent);
+                if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
+                    MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
+                }
             }
         }
     }

@@ -10,12 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.signup.SignupChooseUniversity;
 import com.example.markwen.easycourse.fragments.signup.SignupLogin;
-import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 
-import org.json.JSONArray;
-
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 /**
@@ -26,30 +25,26 @@ public class SignupLoginActivity extends AppCompatActivity {
 
     public UserSetup userSetup;
 
-    Realm realm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signuplogin);
 
-        realm = Realm.getDefaultInstance();
-
         // Setup userSetup model to hold data
         userSetup = new UserSetup();
+        Realm realm = Realm.getDefaultInstance();
         // Use SharedPreferences to get users
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String currentUser = sharedPref.getString("currentUser", "");
-        User currentUserObject = User.getCurrentUser(this, realm);
-        JSONArray joinedCourses = new JSONArray();
-
+        RealmResults<Course> joinedCourses = realm.where(Course.class).findAll();
 
         // Hide toolbar for this specific activity and null check
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
         if (savedInstanceState == null) {
-            if(currentUserObject != null && (currentUserObject.getJoinedCourses() == null || currentUserObject.getJoinedCourses().size() < 1)) {
+            if (!currentUser.equals("") && joinedCourses.size() == 0) {
                 SignupChooseUniversity chooseUniversity = new SignupChooseUniversity();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction()

@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.ChatRoom"
+            android:name=".activities.ChatRoomActivity"
             android:label=""
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
@@ -47,7 +47,7 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".activities.UserProfile"
+            android:name=".activities.UserProfileActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
             android:parentActivityName=".activities.MainActivity">
@@ -65,6 +65,26 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activities.CourseManagementAcitivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activities.CourseDetailsAcitivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.CourseManagementAcitivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.CourseManagementAcitivity" />
         </activity>
 
         <service

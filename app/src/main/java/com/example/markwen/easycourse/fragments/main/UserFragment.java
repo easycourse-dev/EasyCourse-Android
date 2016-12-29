@@ -1,16 +1,20 @@
 package com.example.markwen.easycourse.fragments.main;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,15 +26,15 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
-import com.example.markwen.easycourse.activities.UserProfile;
+import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -48,7 +52,8 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile;
+    RelativeLayout cardProfile, cardCourses, joinUsCard;
+    CardView courseManageCard;
 
     User user = new User();
     Realm realm;
@@ -74,11 +79,14 @@ public class UserFragment extends Fragment {
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
         cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
+        cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
+        joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
+        courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(view.getContext(), UserProfile.class);
+                Intent i = new Intent(view.getContext(), UserProfileActivity.class);
                 Pair<View, String> p1 = Pair.create((View)avatarImage, "avatar");
                 Pair<View, String> p2 = Pair.create((View)textViewUsername, "username");
                 ActivityOptionsCompat options = ActivityOptionsCompat.
@@ -87,27 +95,42 @@ public class UserFragment extends Fragment {
             }
         });
 
-        SharedPreferences sharedPref = v.getContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", "");
-        JSONObject currentUserObject;
+        cardCourses.setOnClickListener(new View.OnClickListener() {
 
-        Realm.init(v.getContext());
-        realm = Realm.getDefaultInstance();
-
-        try {
-            currentUserObject = new JSONObject(currentUser);
-            Log.d(TAG, currentUserObject.toString());
-            user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            textViewUsername.setText(user.getUsername());
-            if (user.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-                avatarImage.setImageBitmap(bm);
-            } else {
-                avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), CourseManagementAcitivity.class));
             }
+        });
+        
+        joinUsCard.setOnClickListener(new View.OnClickListener() {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+            @Override
+            public void onClick(View view) {
+                String joinUsFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeKu9p0Al-E9LAQyjeQw06KmXQQ1DyoJenH2_tRwO2sbhvA_g/viewform?c=0&w=1";
+                try {
+                    // Launch web form in Chrome
+                    Intent i = new Intent("android.intent.action.MAIN");
+                    i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
+                    i.addCategory("android.intent.category.LAUNCHER");
+                    i.setData(Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                }
+                catch(ActivityNotFoundException e) {
+                    // Chrome is not installed
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                }
+            }
+        });
+
+        user = User.getCurrentUser(getActivity(), realm);
+        textViewUsername.setText(user.getUsername());
+        if (user.getProfilePicture() != null) {
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
+        } else {
+            avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
         }
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);

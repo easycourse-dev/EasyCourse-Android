@@ -28,6 +28,8 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
 
 
+    //TODO: http://stackoverflow.com/questions/23978828/how-do-i-use-disk-caching-in-picasso
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -2,7 +2,6 @@ package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -18,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+import static com.example.markwen.easycourse.utils.JSONUtils.getJsonArrayFromStringArray;
 
 
 public class APIFunctions {
@@ -113,7 +113,7 @@ public class APIFunctions {
     }
 
     //API function to set courses and languages in  user's profile
-    public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+    public static boolean setCoursesAndLanguages(Context context, String[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
         if(userToken.isEmpty())
@@ -122,7 +122,7 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
-        JSONArray jsonLanguageCodeArray = getJsonArrayFromIntArray(languageCodeArray);
+        JSONArray jsonLanguageCodeArray = getJsonArrayFromStringArray(languageCodeArray);
         JSONArray jsonCourseCodeArray = getJsonArrayFromStringArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);
         jsonParam.put("course", jsonCourseCodeArray);
@@ -205,31 +205,5 @@ public class APIFunctions {
             return "";
         else
             return userToken;
-    }
-
-    private static JSONArray getJsonArrayFromIntArray(int[] arr) {
-        JSONArray jsonLanguageCodeArray = new JSONArray();
-
-        try {
-            for (int i = 0; i < arr.length; i++) {
-                jsonLanguageCodeArray.put(i,arr[i]);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonLanguageCodeArray;
-    }
-
-    private static JSONArray getJsonArrayFromStringArray(String[] arr) {
-        JSONArray jsonLanguageCodeArray = new JSONArray();
-
-        try {
-            for (int i = 0; i < arr.length; i++) {
-                jsonLanguageCodeArray.put(i,arr[i]);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-        return jsonLanguageCodeArray;
     }
 }

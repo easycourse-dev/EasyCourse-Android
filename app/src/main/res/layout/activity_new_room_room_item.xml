@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardViewChatRoom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    card_view:cardCornerRadius="0dp"
+    android:descendantFocusability="blocksDescendants"
+    card_view:cardElevation="1dp">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutChatRoom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="?android:selectableItemBackground"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/imageViewChatRoom"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="false"
+            android:contentDescription="@string/chatMessageAccessibility"
+            android:src="@drawable/ic_group_black_24px" />
+
+
+        <LinearLayout
+            android:id="@+id/linearLayoutChatRoomTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/imageViewChatRoom"
+            android:layout_toRightOf="@id/imageViewChatRoom"
+            android:ellipsize="end"
+            android:maxLength="15"
+            android:orientation="vertical"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp">
+
+            <TextView
+                android:id="@+id/textViewChatRoomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:text="@string/chooseItemPlaceholder"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textViewChatRoomCourse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:maxLength="15"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/linearLayoutChatRoomMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:baselineAligned="false">
+
+            <com.hanks.library.AnimateCheckBox
+                android:id="@+id/new_room_room_check_box"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:enabled="false"
+                android:padding="16dp"
+                app:animDuration="0"
+                app:checkedColor="@color/colorAccent"
+                app:lineColor="#fff"
+                app:lineWidth="1.2dp"
+                app:unCheckColor="#e0e0e0" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

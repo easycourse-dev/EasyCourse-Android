@@ -21,6 +21,7 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -38,6 +39,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //Binds all the views
         ButterKnife.bind(this);
 
@@ -80,9 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intentFromSignup = getIntent();
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
-            parseSetupIntent(userSetup);
+//            parseSetupIntent(userSetup);
         }
 
     }
@@ -115,32 +114,15 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
-        User currentUserObject = User.getCurrentUser(this, realm);
+        RealmResults<Course> joinedCourses = realm.where(Course.class).findAll();
 
-        /*
-            When syncUser is ready, add code below into the if statement:
-
-                 || joinedCourses.toString().equals("[]")
-
-            to make sure a user has joined courses.
-            If a user doesn't have joined courses, then bring the user back to signup setup.
-         */
-
-        if (userToken == null || currentUser == null || currentUserObject == null) {
+        if (userToken == null || currentUser == null || joinedCourses.size() == 0) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
                 MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
             }
-        } else {
-            // If user has no joined courses, bring the user to signup setup
-            if(currentUserObject.getJoinedCourses() == null || currentUserObject.getJoinedCourses().size() < 1) {
-                launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
-                startActivity(launchIntent);
-                if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
-                    MainActivity.this.overridePendingTransition(R.anim.enter_from_left, R.anim.enter_from_right);
-                }
-            }
+            finish();
         }
     }
 

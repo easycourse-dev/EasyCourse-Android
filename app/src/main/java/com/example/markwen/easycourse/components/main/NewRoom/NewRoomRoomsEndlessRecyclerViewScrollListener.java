@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,7 +9,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
  * Created by nisarg on 31/10/16.
  */
 
-public abstract class RoomsEndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
+public abstract class NewRoomRoomsEndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
     // The minimum amount of items to have below your current scroll position
     // before loading more.
     private int visibleThreshold = 5;
@@ -23,19 +23,19 @@ public abstract class RoomsEndlessRecyclerViewScrollListener extends RecyclerVie
     private int startingPageIndex = 0;
 
     RecyclerView.LayoutManager mLayoutManager;
-    ExistedRoomsRecyclerViewAdapter mAdapter;
+    NewRoomRoomsRecyclerViewAdapter mAdapter;
 
-    public RoomsEndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager, ExistedRoomsRecyclerViewAdapter adapter) {
+    public NewRoomRoomsEndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager, NewRoomRoomsRecyclerViewAdapter adapter) {
         this.mLayoutManager = layoutManager;
         this.mAdapter = adapter;
     }
 
-    public RoomsEndlessRecyclerViewScrollListener(GridLayoutManager layoutManager) {
+    public NewRoomRoomsEndlessRecyclerViewScrollListener(GridLayoutManager layoutManager) {
         this.mLayoutManager = layoutManager;
         visibleThreshold = visibleThreshold * layoutManager.getSpanCount();
     }
 
-    public RoomsEndlessRecyclerViewScrollListener(StaggeredGridLayoutManager layoutManager) {
+    public NewRoomRoomsEndlessRecyclerViewScrollListener(StaggeredGridLayoutManager layoutManager) {
         this.mLayoutManager = layoutManager;
         visibleThreshold = visibleThreshold * layoutManager.getSpanCount();
     }

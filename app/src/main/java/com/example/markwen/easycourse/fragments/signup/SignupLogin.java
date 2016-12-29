@@ -492,7 +492,7 @@ public class SignupLogin extends Fragment {
         currentUser.setJoinedCourses(joinedCourseList);
         currentUser.setJoinedRooms(joinedRoomList);
 
-
+        // Save currentUser to Realm
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(currentUser);
         realm.commitTransaction();

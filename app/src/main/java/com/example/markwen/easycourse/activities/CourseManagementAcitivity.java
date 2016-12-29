@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -56,6 +57,8 @@ public class CourseManagementAcitivity extends AppCompatActivity {
     RecyclerView coursesView;
     @BindView(R.id.CourseNanagementNoCourseTextView)
     TextView noCourseText;
+    @BindView(R.id.CourseManageButtonClearEditText)
+    Button clearButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,14 @@ public class CourseManagementAcitivity extends AppCompatActivity {
             joinedCourses.add(enrolledCoursesRealmResults.get(i));
             searchResults.add(enrolledCoursesRealmResults.get(i));
         }
+
+        // Clear button
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                courseSearch.setText("");
+            }
+        });
 
         // Set up recycler view
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -205,10 +216,8 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                             coursesOnScrollListener.resetState();
                         }
                     });
-
                 }
-
-            };
+            }
         };
         thread.start();
     }

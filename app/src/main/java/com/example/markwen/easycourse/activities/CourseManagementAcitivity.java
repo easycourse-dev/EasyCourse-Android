@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.CourseManagementCoursesRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.main.CoursesEndlessRecyclerViewScrollListener;
+import com.example.markwen.easycourse.components.main.CourseManagement.CourseManagementCoursesRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.User;
@@ -43,7 +43,7 @@ public class CourseManagementAcitivity extends AppCompatActivity {
     Realm realm;
     SocketIO socketIO;
     String chosenUniversity;
-    ArrayList<Course> enrolledCourses = new ArrayList<>();;
+    ArrayList<Course> joinedCourses = new ArrayList<>();
     ArrayList<Course> searchResults = new ArrayList<>();
     CourseManagementCoursesRecyclerViewAdapter coursesAdapter;
     CoursesEndlessRecyclerViewScrollListener coursesOnScrollListener;
@@ -86,14 +86,14 @@ public class CourseManagementAcitivity extends AppCompatActivity {
         // Get already registered classes
         RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
         for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
-            enrolledCourses.add(enrolledCoursesRealmResults.get(i));
+            joinedCourses.add(enrolledCoursesRealmResults.get(i));
         }
 
         // Set up recycler view
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         coursesAdapter = new CourseManagementCoursesRecyclerViewAdapter(this, searchResults);
-        coursesAdapter.setJoinedCourses(enrolledCourses);
+        coursesAdapter.setJoinedCourses(joinedCourses);
         coursesView.setHasFixedSize(true);
         coursesView.setLayoutManager(layoutManager);
         coursesView.setAdapter(coursesAdapter);
@@ -123,11 +123,11 @@ public class CourseManagementAcitivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 if (editable.toString().equals("")) {
                     searchResults.clear();
-                    for (int i = 0; i < enrolledCourses.size(); i++) {
-                        searchResults.add(enrolledCourses.get(i));
+                    for (int i = 0; i < joinedCourses.size(); i++) {
+                        searchResults.add(joinedCourses.get(i));
                     }
                     coursesAdapter.showJoinedCourses(true);
-                    coursesAdapter.setJoinedCourses(enrolledCourses);
+                    coursesAdapter.setJoinedCourses(joinedCourses);
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {

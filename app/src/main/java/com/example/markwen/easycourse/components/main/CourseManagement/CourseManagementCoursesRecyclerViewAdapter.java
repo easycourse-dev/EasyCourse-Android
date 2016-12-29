@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.CourseManagement;
 
 import android.content.Context;
 import android.content.Intent;

@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
@@ -47,7 +49,8 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile, joinUsCard;
+    RelativeLayout cardProfile, cardCourses, joinUsCard;
+    CardView courseManageCard;
 
     User user = new User();
     Realm realm;
@@ -71,7 +74,9 @@ public class UserFragment extends Fragment {
         textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
         avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
         cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
+        cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
         joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
+        courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +90,14 @@ public class UserFragment extends Fragment {
             }
         });
 
+        cardCourses.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), CourseManagementAcitivity.class));
+            }
+        });
+        
         joinUsCard.setOnClickListener(new View.OnClickListener() {
 
             @Override

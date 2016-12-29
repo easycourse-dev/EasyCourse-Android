@@ -370,13 +370,12 @@ public class SocketIO {
     }
 
     //convert and save JSON message object to realm
-    public boolean dropCourse(String courseID) throws JSONException {
+    public void dropCourse(String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courseId", courseID);
 
-        final boolean[] dropCourseSuccess = {false};
-
-        socket.emit("dropCourse", jsonParam, new Ack() {
+        socket.emit("dropCourse", jsonParam, callback);
+        /*socket.emit("dropCourse", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
@@ -392,9 +391,8 @@ public class SocketIO {
                     syncUser();
                 }
             }
-        });
+        });*/
 
-        return dropCourseSuccess[0];
     }
 
     public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {

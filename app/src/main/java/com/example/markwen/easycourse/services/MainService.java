@@ -15,7 +15,7 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoom;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.activities.SettingsActivity;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
@@ -70,7 +70,7 @@ public class MainService extends Service {
 
         if(!notificationPref || message == null) return;
 
-        Intent i = new Intent(this, ChatRoom.class);
+        Intent i = new Intent(this, ChatRoomActivity.class);
         i.putExtra("roomId", message.getToRoom());
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 

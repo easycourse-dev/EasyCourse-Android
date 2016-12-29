@@ -455,7 +455,13 @@ public class SignupLogin extends Fragment {
                 String id = (String) checkIfJsonExists(temp, "_id", null);
                 String roomName = (String) checkIfJsonExists(temp, "name", null);
                 String courseID = (String) checkIfJsonExists(temp, "course", null);
-                String courseName = Course.getCourseById(courseID, realm).getCoursename();
+                String courseName;
+                if (courseID == null) {
+                    // Private rooms don't have courseID
+                    courseName = "Private Room";
+                } else {
+                    courseName = Course.getCourseById(courseID, realm).getCoursename();
+                }
                 String universityID = (String) checkIfJsonExists(temp, "university", null);
                 boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
                 int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));

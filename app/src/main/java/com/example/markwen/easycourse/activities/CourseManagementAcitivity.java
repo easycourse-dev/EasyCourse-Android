@@ -87,6 +87,7 @@ public class CourseManagementAcitivity extends AppCompatActivity {
         RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
         for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
             joinedCourses.add(enrolledCoursesRealmResults.get(i));
+            searchResults.add(enrolledCoursesRealmResults.get(i));
         }
 
         // Set up recycler view
@@ -104,7 +105,6 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                 loadMoreCourses(courseSearch.getText().toString(), chosenUniversity, page, view);
             }
         };
-
         coursesView.addOnScrollListener(coursesOnScrollListener);
 
         // On search
@@ -126,7 +126,6 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                     for (int i = 0; i < joinedCourses.size(); i++) {
                         searchResults.add(joinedCourses.get(i));
                     }
-                    coursesAdapter.showJoinedCourses(true);
                     coursesAdapter.setJoinedCourses(joinedCourses);
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
@@ -147,7 +146,7 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                                             JSONObject course = (JSONObject) response.get(i);
                                             searchResults.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
                                         }
-                                        updateRecyclerView(false);
+                                        updateRecyclerView();
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
@@ -194,7 +193,7 @@ public class CourseManagementAcitivity extends AppCompatActivity {
         }
     }
 
-    public void updateRecyclerView(final boolean showJoined){
+    public void updateRecyclerView(){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -202,7 +201,6 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            coursesAdapter.showJoinedCourses(showJoined);
                             coursesAdapter.notifyDataSetChanged();
                             coursesOnScrollListener.resetState();
                         }

@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.components.main.CourseManagement;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,7 +26,6 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
 
     private ArrayList<Course> coursesList = new ArrayList<>();
     private ArrayList<Course> joinedCourses = new ArrayList<>();
-    private boolean showJoined = true;
     private Context context;
 
     public CourseManagementCoursesRecyclerViewAdapter(Context context, ArrayList<Course> coursesList) {
@@ -61,30 +61,32 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
 
     @Override
     public void onBindViewHolder(final CourseViewHolder courseViewHolder, final int i) {
-        final Course course;
-        if (showJoined && joinedCourses.size() > 0) {
-            course = joinedCourses.get(i);
-        } else {
-            course = coursesList.get(i);
-        }
+        final Course course = coursesList.get(i);
 
+        if (isCourseJoined(joinedCourses, course)) {
+            courseViewHolder.courseCheckBox.setChecked(true);
+        } else {
+            courseViewHolder.courseCheckBox.setChecked(false);
+        }
+        courseViewHolder.courseCheckBox.setClickable(false);
         courseViewHolder.nameTextView.setText(course.getCoursename());
         courseViewHolder.titleTextView.setText(course.getTitle());
-        //Fixes weird problems
-        courseViewHolder.courseHolder.setOnClickListener(null);
-
-        for (int j = 0; j < joinedCourses.size(); j++) {
-            if (joinedCourses.get(j).getId().equals(course.getId())) {
-                courseViewHolder.courseCheckBox.setChecked(true);
-                break;
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            courseViewHolder.courseCardView.setElevation(0);
         }
 
+        courseViewHolder.courseHolder.setOnClickListener(null);
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent courseIntent = new Intent(context, CourseDetailsAcitivity.class);
-                courseIntent.putExtra("CourseObj", course);
+                courseIntent.putExtra("courseId", course.getId());
+                courseIntent.putExtra("courseName", course.getCoursename());
+                courseIntent.putExtra("title", course.getTitle());
+                courseIntent.putExtra("courseDesc", course.getCourseDescription());
+                courseIntent.putExtra("univId", course.getUniversityID());
+                courseIntent.putExtra("courseCred", course.getCreditHours());
+                courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
                 context.startActivity(courseIntent);
             }
         });
@@ -104,8 +106,12 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         this.joinedCourses = list;
     }
 
-    public void showJoinedCourses(boolean show) {
-        this.showJoined = show;
-        this.notifyDataSetChanged();
+    private boolean isCourseJoined(ArrayList<Course> list, Course course) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(course.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

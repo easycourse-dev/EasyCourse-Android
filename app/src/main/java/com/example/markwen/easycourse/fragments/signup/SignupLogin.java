@@ -474,6 +474,7 @@ public class SignupLogin extends Fragment {
                 joinedRoomList.add(room);
             }
 
+            // TODO: check if this is still needed or modify
             JSONArray silentRooms = response.getJSONArray("silentRoom");
             for (int i = 0; i < silentRooms.length(); i++) {
                 JSONObject object = silentRooms.getJSONObject(i);

@@ -328,6 +328,11 @@ public class NewRoomActivity extends AppCompatActivity {
                                     && !query.equals("")) {
                                 newRoomButton.setVisibility(View.VISIBLE);
                                 existedRoomView.setVisibility(View.GONE);
+                            } else if (response.length() == 0
+                                    && ((selectedCourse != null && selectedCourse.getId() != null)
+                                    || selectedCourse.getCoursename().equals("Private Room"))
+                                    && query.equals("")) {
+                                existedRoomView.setVisibility(View.GONE);
                             } else {
                                 newRoomButton.setVisibility(View.GONE);
                                 existedRoomView.setVisibility(View.VISIBLE);

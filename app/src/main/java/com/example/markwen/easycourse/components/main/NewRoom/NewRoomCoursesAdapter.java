@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.components.main;
+package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Course;
 
-import io.realm.RealmResults;
+import java.util.ArrayList;
 
 /**
  * Created by markw on 12/19/2016.
@@ -19,11 +19,11 @@ import io.realm.RealmResults;
 
 public class NewRoomCoursesAdapter extends BaseAdapter {
 
-    private RealmResults<Course> coursesList;
+    private ArrayList<Course> coursesList;
     private Course selectedCourse;
     private LayoutInflater inflater;
 
-    public NewRoomCoursesAdapter(@NonNull Context context, RealmResults<Course> courses) {
+    public NewRoomCoursesAdapter(@NonNull Context context, ArrayList<Course> courses) {
         this.coursesList = courses;
         inflater = (LayoutInflater.from(context));
     }

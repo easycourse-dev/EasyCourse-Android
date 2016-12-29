@@ -394,7 +394,6 @@ public class SocketIO {
     public void joinRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
-        final Room[] room = new Room[1];
 
         socket.emit("joinRoom", jsonParam, callback);
     }
@@ -476,6 +475,13 @@ public class SocketIO {
                 }
             }
         });
+    }
+
+    public void getRoomMembers(String roomId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomId);
+
+        socket.emit("getRoomMembers", jsonParam, callback);
     }
 
     public void getUserInfo(String userID) throws JSONException {

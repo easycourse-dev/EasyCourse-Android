@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -21,9 +22,9 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.NewRoomCoursesAdapter;
-import com.example.markwen.easycourse.components.main.NewRoomRoomsEndlessRecyclerViewScrollListener;
-import com.example.markwen.easycourse.components.main.NewRoomRoomsRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
+import com.example.markwen.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
@@ -55,7 +56,7 @@ public class NewRoomActivity extends AppCompatActivity {
     Realm realm;
     SocketIO socketIO;
     NewRoomRoomsEndlessRecyclerViewScrollListener roomsOnScrollListener;
-    RealmResults<Course> courses;
+    ArrayList<Course> courses = new ArrayList<>();
     NewRoomCoursesAdapter coursesAdapter;
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
@@ -102,7 +103,21 @@ public class NewRoomActivity extends AppCompatActivity {
         currentUser = User.getCurrentUser(this, realm);
 
         // Setup courses
-        courses = realm.where(Course.class).findAll();
+        RealmResults<Course> coursesResults = realm.where(Course.class).findAll();
+        for (int i = 0; i < coursesResults.size() + 2; i++) {
+            if (i == 0) {
+                // Add in hint Course
+                // TODO: use work around to handle hint on spinner
+                courses.add(new Course(null, "This room belongs to...", null, null, 0, null));
+            } else if (i == 1) {
+                // Add in private option Course
+                courses.add(new Course("", "Private Room", null, null, 0, null));
+            } else {
+                courses.add(coursesResults.get(i - 2));
+            }
+        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         if (courses.size() == 0) {
             // If no courses then show hint to add courses
             existedRoomView.setVisibility(View.GONE);
@@ -123,6 +138,7 @@ public class NewRoomActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     coursesAdapter.setSelectedCourse(i);
+                    roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
                     doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
                 }
 
@@ -136,7 +152,7 @@ public class NewRoomActivity extends AppCompatActivity {
         // Setup rooms view
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomsRecyclerViewAdapter = new NewRoomRoomsRecyclerViewAdapter(this, rooms, socketIO);
+        roomsRecyclerViewAdapter = new NewRoomRoomsRecyclerViewAdapter(this, this, rooms, socketIO);
         existedRoomView.setLayoutManager(roomsLayoutManager);
         existedRoomView.setHasFixedSize(true);
         existedRoomView.addItemDecoration(new RecyclerViewDivider(this));
@@ -214,12 +230,10 @@ public class NewRoomActivity extends AppCompatActivity {
                                                 isSystem);
                                         updateRoomInSocket(room);
 
-                                        // TODO: Since chat will become a fragment now, figure out a way
-                                        // to let users get into the room right after they create it
-//                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoom.class);
-//                                        chatActivityIntent.putExtra("roomId", room.getId());
-//                                        finish();
-//                                        startActivity(chatActivityIntent);
+                                        Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                                        chatActivityIntent.putExtra("roomId", room.getId());
+                                        finish();
+                                        startActivity(chatActivityIntent);
                                     } catch (JSONException e) {
                                         Log.e("createRoom", e.toString());
                                     }
@@ -270,6 +284,8 @@ public class NewRoomActivity extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        rooms.clear();
+                        updateRecyclerView(new JSONArray(), query);
                     }
                 }
             });
@@ -306,7 +322,10 @@ public class NewRoomActivity extends AppCompatActivity {
                             roomsRecyclerViewAdapter.notifyDataSetChanged();
                             roomsOnScrollListener.resetState();
 
-                            if (response.length() == 0 && coursesAdapter.getSelectedCourse() != null && !query.equals("")) {
+                            if (response.length() == 0
+                                    && (coursesAdapter.getSelectedCourse() != null
+                                        || coursesAdapter.getSelectedCourse().getCoursename().equals("Private Room"))
+                                    && !query.equals("")) {
                                 newRoomButton.setVisibility(View.VISIBLE);
                                 existedRoomView.setVisibility(View.GONE);
                             } else {

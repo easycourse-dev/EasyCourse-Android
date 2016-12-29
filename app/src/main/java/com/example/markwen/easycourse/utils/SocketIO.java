@@ -291,18 +291,8 @@ public class SocketIO {
         });
     }
 
-    public boolean logout() {
-        final boolean[] logoutSuccess = {false};
-        socket.emit("logout", null, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("success")) {
-                    logoutSuccess[0] = true;
-                }
-            }
-        });
-        return logoutSuccess[0];
+    public void logout(Ack callback) {
+        socket.emit("logout", null, callback);
     }
 
     public void searchCourses(String searchQuery, int limit, int skip, String universityId, Ack callback) throws JSONException {

@@ -36,7 +36,6 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
-import static com.example.markwen.easycourse.utils.ListsUtils.isUserInList;
 
 /**
  * Created by nisarg on 9/11/16.
@@ -381,54 +380,23 @@ public class SocketIO {
                         final String founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
                         final String founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
 
-                        // Get users
-                        final RealmList<User> userList = new RealmList<>();
-                        getRoomMembers(id, new Ack() {
-                            @Override
-                            public void call(Object... args) {
-                                JSONObject obj = (JSONObject) args[0];
-                                try {
-                                    JSONArray userArray = obj.getJSONArray("users");
-                                    JSONObject tempUserJSON, tempUserEventJSON;
-                                    User tempUser;
-                                    for (int i = 0; i < userArray.length(); i++) {
-                                        tempUserEventJSON = (JSONObject) userArray.get(i);
-                                        tempUserJSON = tempUserEventJSON.getJSONObject("user");
-                                        tempUser = new User(
-                                                (String) checkIfJsonExists(tempUserJSON, "_id", null),
-                                                (String) checkIfJsonExists(tempUserJSON, "displayName", null),
-                                                null,
-                                                (String) checkIfJsonExists(tempUserJSON, "avatarUrl", null),
-                                                null,
-                                                null
-                                        );
-                                        if (!isUserInList(userList, tempUser)) {
-                                            userList.add(tempUser);
-                                        }
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                                // Save user to Realm
-                                Room.updateRoomToRealm(
-                                        new Room(
-                                                id,
-                                                roomName,
-                                                new RealmList<Message>(),
-                                                courseID,
-                                                courseName,
-                                                universityID,
-                                                userList,
-                                                memberCounts,
-                                                memberCountsDesc,
-                                                new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                                null,
-                                                isPublic,
-                                                isSystem),
-                                        realm);
-                            }
-                        });
+                        // Save user to Realm
+                        Room.updateRoomToRealm(
+                                new Room(
+                                        id,
+                                        roomName,
+                                        new RealmList<Message>(),
+                                        courseID,
+                                        courseName,
+                                        universityID,
+                                        new RealmList<User>(),
+                                        memberCounts,
+                                        memberCountsDesc,
+                                        new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                        null,
+                                        isPublic,
+                                        isSystem),
+                                realm);
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }

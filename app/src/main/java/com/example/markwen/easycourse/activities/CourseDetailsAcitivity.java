@@ -12,8 +12,11 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetailsRoomsEndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetailsRoomsRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.socket.client.Ack;
 
 /**
@@ -44,6 +48,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
     boolean isJoined;
     ArrayList<Room> courseRooms = new ArrayList<>();
     CourseDetailsRoomsRecyclerViewAdapter roomsAdapter;
+    CourseDetailsRoomsEndlessRecyclerViewScrollListener scrollListener;
 
     @BindView(R.id.CourseDetailsToolbar)
     Toolbar toolbar;
@@ -107,34 +112,21 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
         updateButtonView(isJoined);
 
         // Set up rooms RecyclerView
-        try {
-            // Get course rooms
-            socketIO.searchCourseSubrooms("", 20, 0, courseId, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    try {
-                        courseRooms.clear();
-                        JSONObject room;
-                        JSONObject obj = (JSONObject) args[0];
-                        JSONArray response = obj.getJSONArray("rooms");
-                        for (int i = 0; i < response.length(); i++) {
-                            room = (JSONObject) response.get(i);
-                            Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-                            courseRooms.add(roomObj);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        doSearchRoom(0, courseId, courseName);
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO);
-
-
+        roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO, isJoined, realm);
+        roomsView.setHasFixedSize(true);
+        roomsView.setLayoutManager(roomsLayoutManager);
+        roomsView.addItemDecoration(new RecyclerViewDivider(this));
+        scrollListener = new CourseDetailsRoomsEndlessRecyclerViewScrollListener(roomsLayoutManager, roomsAdapter) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                doSearchRoom(page, courseId, courseName);
+            }
+        };
+        roomsView.addOnScrollListener(scrollListener);
+        roomsView.setAdapter(roomsAdapter);
     }
 
     private void updateButtonView(Boolean joined) {
@@ -145,5 +137,143 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
             joinCourseButton.setText("Join");
             joinCourseButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.course_details_join_button, null));
         }
+    }
+
+    private void doSearchRoom(final int skip, String courseId, final String courseName) {
+        final String query = "";
+        try {
+            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    try {
+                        JSONObject obj = (JSONObject) args[0];
+                        JSONArray response = obj.getJSONArray("rooms");
+                        JSONObject room;
+                        JSONObject founderJSON;
+                        Room roomObj;
+                        if (skip == 0) { // normal
+                            courseRooms.clear();
+                            for (int i = 0; i < response.length(); i++) {
+                                room = (JSONObject) response.get(i);
+                                if (!room.isNull("founder")) {
+                                    founderJSON = (JSONObject) room.get("founder");
+                                    roomObj = new Room(
+                                            room.getString("_id"),
+                                            room.getString("name"),
+                                            new RealmList<Message>(),
+                                            room.getString("course"),
+                                            courseName,
+                                            universityId,
+                                            new RealmList<User>(),
+                                            room.getInt("memberCounts"),
+                                            room.getString("memberCountsDescription"),
+                                            new User(
+                                                    founderJSON.getString("_id"),
+                                                    founderJSON.getString("displayName"),
+                                                    null,
+                                                    founderJSON.getString("avatarUrl"),
+                                                    null, null),
+                                            null,
+                                            true,
+                                            false
+                                    );
+                                } else {
+                                    roomObj = new Room(
+                                            room.getString("_id"),
+                                            room.getString("name"),
+                                            new RealmList<Message>(),
+                                            room.getString("course"),
+                                            courseName,
+                                            universityId,
+                                            new RealmList<User>(),
+                                            room.getInt("memberCounts"),
+                                            room.getString("memberCountsDescription"),
+                                            null,
+                                            room.getString("language"),
+                                            true,
+                                            true
+                                    );
+                                }
+
+                                courseRooms.add(roomObj);
+                            }
+                            updateRecyclerView();
+                        } else { // load more
+                            int roomsOrigSize = courseRooms.size();
+                            for (int i = 0; i < response.length(); i++) {
+                                room = (JSONObject) response.get(i);
+                                if (!room.isNull("founder")) {
+                                    founderJSON = (JSONObject) room.get("founder");
+                                    roomObj = new Room(
+                                            room.getString("_id"),
+                                            room.getString("name"),
+                                            new RealmList<Message>(),
+                                            room.getString("course"),
+                                            courseName,
+                                            universityId,
+                                            new RealmList<User>(),
+                                            room.getInt("memberCounts"),
+                                            room.getString("memberCountsDescription"),
+                                            new User(
+                                                    founderJSON.getString("_id"),
+                                                    founderJSON.getString("displayName"),
+                                                    null,
+                                                    founderJSON.getString("avatarUrl"),
+                                                    null, null),
+                                            null,
+                                            true,
+                                            false
+                                    );
+                                } else {
+                                    roomObj = new Room(
+                                            room.getString("_id"),
+                                            room.getString("name"),
+                                            new RealmList<Message>(),
+                                            room.getString("course"),
+                                            courseName,
+                                            universityId,
+                                            new RealmList<User>(),
+                                            room.getInt("memberCounts"),
+                                            room.getString("memberCountsDescription"),
+                                            null,
+                                            room.getString("language"),
+                                            true,
+                                            true
+                                    );
+                                }
+                                if (!courseRooms.contains(roomObj))
+                                    courseRooms.add(roomObj);
+                            }
+                            if (courseRooms.size() > roomsOrigSize) {
+                                roomsAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        courseRooms.clear();
+                        updateRecyclerView();
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateRecyclerView(){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            roomsAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

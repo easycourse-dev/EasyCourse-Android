@@ -20,7 +20,6 @@ import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.hanks.library.AnimateCheckBox;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,7 +34,6 @@ import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 import static com.example.markwen.easycourse.utils.ListsUtils.isRoomJoined;
-import static com.example.markwen.easycourse.utils.ListsUtils.isUserInList;
 import static com.google.android.gms.internal.zzs.TAG;
 
 /**
@@ -116,59 +114,28 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                         final String founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
                                         final String founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
 
-                                        // Get users
-                                        final RealmList<User> userList = new RealmList<>();
-                                        socketIO.getRoomMembers(id, new Ack() {
-                                            @Override
-                                            public void call(Object... args) {
-                                                JSONObject obj = (JSONObject) args[0];
-                                                try {
-                                                    JSONArray userArray = obj.getJSONArray("users");
-                                                    JSONObject tempUserJSON, tempUserEventJSON;
-                                                    User tempUser;
-                                                    for (int i = 0; i < userArray.length(); i++) {
-                                                        tempUserEventJSON = (JSONObject) userArray.get(i);
-                                                        tempUserJSON = tempUserEventJSON.getJSONObject("user");
-                                                        tempUser = new User(
-                                                                (String) checkIfJsonExists(tempUserJSON, "_id", null),
-                                                                (String) checkIfJsonExists(tempUserJSON, "displayName", null),
-                                                                null,
-                                                                (String) checkIfJsonExists(tempUserJSON, "avatarUrl", null),
-                                                                null,
-                                                                null
-                                                        );
-                                                        if (!isUserInList(userList, tempUser)) {
-                                                            userList.add(tempUser);
-                                                        }
-                                                    }
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
+                                        // Save user to Realm
+                                        joinedRoom[0] = new Room(
+                                                id,
+                                                roomName,
+                                                new RealmList<Message>(),
+                                                courseID,
+                                                courseName,
+                                                universityID,
+                                                new RealmList<User>(),
+                                                memberCounts,
+                                                memberCountsDesc,
+                                                new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                                null,
+                                                isPublic,
+                                                isSystem);
+                                        updateRoomInSocket(joinedRoom[0]);
 
-                                                // Save user to Realm
-                                                joinedRoom[0] = new Room(
-                                                        id,
-                                                        roomName,
-                                                        new RealmList<Message>(),
-                                                        courseID,
-                                                        courseName,
-                                                        universityID,
-                                                        userList,
-                                                        memberCounts,
-                                                        memberCountsDesc,
-                                                        new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                                        null,
-                                                        isPublic,
-                                                        isSystem);
-                                                updateRoomInSocket(joinedRoom[0]);
+                                        // Get messages
+                                        socketIO.syncUser();
 
-                                                // Get messages
-                                                socketIO.syncUser();
-
-                                                // Go to that room
-                                                goToChatRoom(joinedRoom[0]);
-                                            }
-                                        });
+                                        // Go to that room
+                                        goToChatRoom(joinedRoom[0]);
                                     } catch (JSONException e) {
                                         Log.e(TAG, e.toString());
                                     }
@@ -223,7 +190,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
         this.selectedCourseName = course.getCoursename();
     }
 
-    public void updateRoomInSocket(final Room room){
+    private void updateRoomInSocket(final Room room){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -232,6 +199,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                         @Override
                         public void run() {
                             Room.updateRoomToRealm(room, realm);
+                            joinedRooms.add(room);
                         }
                     });
                 }

@@ -43,7 +43,6 @@ import io.realm.RealmList;
 import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
-import static com.example.markwen.easycourse.utils.ListsUtils.isUserInList;
 import static com.example.markwen.easycourse.utils.ListsUtils.stringArrayToArrayList;
 
 /**
@@ -242,60 +241,25 @@ public class SignupChooseLanguage extends Fragment {
                                     final String language = (String) checkIfJsonExists(temp, "language", "0");
                                     final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                                    try {
-                                        // Get users
-                                        final RealmList<User> userList = new RealmList<>();
-                                        socketIO.getRoomMembers(id, new Ack() {
-                                            @Override
-                                            public void call(Object... args) {
-                                                JSONObject obj = (JSONObject) args[0];
-                                                Realm realmForRoom = Realm.getDefaultInstance();
-                                                try {
-                                                    JSONArray userArray = obj.getJSONArray("users");
-                                                    JSONObject tempUserJSON, tempUserEventJSON;
-                                                    User tempUser;
-                                                    for (int i = 0; i < userArray.length(); i++) {
-                                                        tempUserEventJSON = (JSONObject) userArray.get(i);
-                                                        tempUserJSON = tempUserEventJSON.getJSONObject("user");
-                                                        tempUser = new User(
-                                                                (String) checkIfJsonExists(tempUserJSON, "_id", null),
-                                                                (String) checkIfJsonExists(tempUserJSON, "displayName", null),
-                                                                null,
-                                                                (String) checkIfJsonExists(tempUserJSON, "avatarUrl", null),
-                                                                null,
-                                                                null
-                                                        );
-                                                        if (!isUserInList(userList, tempUser)) {
-                                                            userList.add(tempUser);
-                                                        }
-                                                    }
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                // Save user to Realm
-                                                updateRoomInSocket(new Room(
-                                                        id,
-                                                        roomName,
-                                                        new RealmList<Message>(),
-                                                        courseID,
-                                                        courseName,
-                                                        universityID,
-                                                        userList,
-                                                        memberCounts,
-                                                        memberCountsDesc,
-                                                        null,
-                                                        language,
-                                                        isPublic,
-                                                        isSystem), realmForRoom);
-
-                                                goToMainActivity();
-                                            }
-                                        });
-                                    } catch (JSONException e) {
-                                        Log.e(TAG, e.toString());
-                                    }
+                                    // Save user to Realm
+                                    Room.updateRoomToRealm(
+                                            new Room(
+                                                    id,
+                                                    roomName,
+                                                    new RealmList<Message>(),
+                                                    courseID,
+                                                    courseName,
+                                                    universityID,
+                                                    new RealmList<User>(),
+                                                    memberCounts,
+                                                    memberCountsDesc,
+                                                    null,
+                                                    language,
+                                                    isPublic,
+                                                    isSystem), realm
+                                    );
                                 }
+                                goToMainActivity();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -333,23 +297,5 @@ public class SignupChooseLanguage extends Fragment {
         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.replace(R.id.activity_signuplogin_container, SignupChooseCourses.newInstance());
         transaction.commit();
-    }
-
-    private void updateRoomInSocket(final Room room, final Realm realm){
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Room.updateRoomToRealm(room, realm);
-                            realm.close();
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

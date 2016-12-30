@@ -155,7 +155,14 @@ public class CourseManagementAcitivity extends AppCompatActivity {
                                         searchResults.clear();
                                         for (int i = 0; i < response.length(); i++) {
                                             JSONObject course = (JSONObject) response.get(i);
-                                            searchResults.add(new Course(course.getString("name"), course.getString("title"), course.getString("_id")));
+                                            searchResults.add(new Course(
+                                                    course.getString("_id"),
+                                                    course.getString("name"),
+                                                    course.getString("title"),
+                                                    course.getString("description"),
+                                                    course.getInt("creditHours"),
+                                                    course.getJSONObject("university").getString("_id")
+                                                    ));
                                         }
                                         updateRecyclerView();
                                     } catch (JSONException e) {

@@ -51,8 +51,7 @@
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginLeft="@dimen/activity_horizontal_margin"
                             android:maxLines="1"
-                            android:ellipsize="end"
-                            android:text="CS25100" />
+                            android:ellipsize="end" />
 
                         <TextView
                             android:id="@+id/CourseDetailsTitle"
@@ -65,7 +64,7 @@
                             android:layout_marginLeft="@dimen/activity_horizontal_margin"
                             android:layout_below="@+id/CourseDetailsCourseName"
                             android:ellipsize="end"
-                            android:text="Data Structure and Algorithm" />
+                            android:maxLines="1" />
 
                         <Button
                             android:id="@+id/CourseDetailsJoinCourse"
@@ -79,7 +78,6 @@
                             android:layout_marginRight="32dp"
                             android:layout_marginTop="8dp"
                             android:padding="1dp"
-                            android:text="Joined"
                             android:textAllCaps="false"
                             style="?android:attr/borderlessButtonStyle"
                             android:layout_alignTop="@+id/CourseDetailsCourseName" />
@@ -90,7 +88,6 @@
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:textColor="@color/colorGrayText"
-                            android:text="3 credits"
                             android:layout_toEndOf="@+id/CourseDetailsCourseName"
                             android:layout_toRightOf="@+id/CourseDetailsCourseName"
                             android:layout_marginTop="4dp"
@@ -116,8 +113,7 @@
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
                         android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:textSize="18sp"
-                        android:textColor="@color/colorGrayText"
-                        android:text="Purdue University" />
+                        android:textColor="@color/colorGrayText" />
 
                 </LinearLayout>
 

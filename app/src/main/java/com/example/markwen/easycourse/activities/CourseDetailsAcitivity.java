@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetailsRoomsRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.University;
@@ -41,6 +43,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
     int creditHrs = 0;
     boolean isJoined;
     ArrayList<Room> courseRooms = new ArrayList<>();
+    CourseDetailsRoomsRecyclerViewAdapter roomsAdapter;
 
     @BindView(R.id.CourseDetailsToolbar)
     Toolbar toolbar;
@@ -127,6 +130,10 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
+        roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO);
+
 
     }
 

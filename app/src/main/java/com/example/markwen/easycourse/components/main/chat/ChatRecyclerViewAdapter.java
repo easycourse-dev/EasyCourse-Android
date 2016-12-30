@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.components.main.chat;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -31,14 +30,12 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
     private final int INCOMING_TEXT = 1, INCOMING_PIC = 2, OUTGOING_TEXT = 3, OUTGOING_PIC = 4;
 
-    private Context context;
     private AppCompatActivity activity;
     private Realm realm;
     private User curUser;
 
     public ChatRecyclerViewAdapter(Context context, RealmResults<Message> messages) {
         super(context, messages, true);
-        this.context = context;
         this.activity = (AppCompatActivity) context;
         realm = Realm.getDefaultInstance();
         this.curUser = User.getCurrentUser(this.activity, this.realm);
@@ -51,22 +48,22 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
         switch (viewType) {
             case INCOMING_TEXT:
-                View incomingTextView = inflater.inflate(R.layout.chat_cell_incoming_text, viewGroup, false);
+                View incomingTextView = inflater.inflate(R.layout.cell_chat_incoming_text, viewGroup, false);
                 viewHolder = new IncomingChatTextViewHolder(incomingTextView, activity);
                 break;
 
             case INCOMING_PIC:
-                View incomingPicView = inflater.inflate(R.layout.chat_pic_incoming, viewGroup, false);
+                View incomingPicView = inflater.inflate(R.layout.cell_chat_incoming_pic, viewGroup, false);
                 viewHolder = new IncomingChatPictureViewHolder(incomingPicView, activity);
                 break;
 
             case OUTGOING_TEXT:
-                View outgoingTextView = inflater.inflate(R.layout.chat_cell_outgoing_text, viewGroup, false);
+                View outgoingTextView = inflater.inflate(R.layout.cell_chat_outgoing_text, viewGroup, false);
                 viewHolder = new OutgoingChatTextViewHolder(outgoingTextView, activity);
                 break;
 
             case OUTGOING_PIC:
-                View outgoingPicView = inflater.inflate(R.layout.chat_pic_outgoing, viewGroup, false);
+                View outgoingPicView = inflater.inflate(R.layout.cell_chat_outgoing_pic, viewGroup, false);
                 viewHolder = new OutgoingChatPictureViewHolder(outgoingPicView, activity);
                 break;
         }

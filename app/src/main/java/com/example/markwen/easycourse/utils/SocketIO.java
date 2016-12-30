@@ -344,6 +344,13 @@ public class SocketIO {
         });*/
     }
 
+    //Block user
+    public void blockUser(String otherUserId, Ack callback)  throws JSONException{
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("otherUser", otherUserId);
+        socket.emit("blockUser", jsonParam, callback);
+    }
+
     //Search subrooms within a course
     public void searchCourseSubrooms(String searchQuery, int limit, int skip, String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();

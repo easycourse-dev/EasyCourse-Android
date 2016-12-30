@@ -48,6 +48,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
@@ -126,7 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         builder.withHeader(R.layout.room_detail_drawer_header);
         builder.withSelectedItem(-1);
         builder.withDrawerGravity(Gravity.END);
-        if (!currentRoom.isToUser()) {
+        if (!currentRoom.isToUser()) { //If group chat
             builder.addDrawerItems(
                     new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
                     new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
@@ -168,7 +169,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     return false;
                 }
             });
-        } else {
+        } else { //If private chat
             builder.addDrawerItems(
                     new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px),
                     new PrimaryDrawerItem().withName(R.string.sharedgroups).withIcon(R.drawable.ic_chatboxes),
@@ -340,8 +341,31 @@ public class ChatRoomActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void blockUser(User otherUser) {
-        //TODO: socket call to block user
+    private void blockUser(final User otherUser) {
+        try {
+            socketIO.blockUser(otherUser.getId(), new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
+                    } else {
+                        try {
+                            boolean successBool = obj.getBoolean("success");
+                            if(successBool) {
+                                Toast.makeText(ChatRoomActivity.this, otherUser.getUsername()+ " was blocked!", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, e.toString());
+                            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername()+ "failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "blockUser: ", e);
+            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername()+ "failed!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //Only call if isToUser

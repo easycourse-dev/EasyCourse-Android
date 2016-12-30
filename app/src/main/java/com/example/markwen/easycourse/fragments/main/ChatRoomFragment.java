@@ -6,7 +6,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -40,17 +42,24 @@ import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapt
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
-import com.example.markwen.easycourse.utils.asyntasks.CompressAndUploadImageTask;
+import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -186,6 +195,7 @@ public class ChatRoomFragment extends Fragment {
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         Log.d(TAG, uri.toString());
                         sendImageProgressBar.setVisibility(View.VISIBLE);
+                        uploadAndSendImage(uri);
                     }
                 })
                 .negativeText("Cancel")
@@ -251,8 +261,17 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void chooseImage() {
-        Intent chooseImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(chooseImageIntent, CHOOSE_IMAGE_INTENT);
+        if (Build.VERSION.SDK_INT < 19 || true) {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), CHOOSE_IMAGE_INTENT);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, CHOOSE_IMAGE_INTENT);
+        }
     }
 
     private void takeImage() {
@@ -275,33 +294,102 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
-    private void setupPicToSend(final Uri uri) {
-        BitmapUtils.compressAndUploadBitmap(uri, currentRoom.getId(), getContext(), new CompressAndUploadImageTask.OnCompressImageTaskCompleted() {
-            @Override
-            public void onTaskCompleted(String url) {
-
-                try {
-                    Bitmap bitmap = BitmapUtils.getBitmapFromUri(uri, getContext());
-                    if (sendMessage(null, false, url, bitmap.getWidth(), bitmap.getHeight())) {
-                        chatRecyclerViewAdapter.notifyDataSetChanged();
-                        chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
-                        picSent(true);
+    private void uploadAndSendImage(final Uri uri) {
+        File file = new File(BitmapUtils.getImagePath(uri, getContext()));
+        try {
+            APIFunctions.uploadImage(getContext(), file, file.getName(), "", currentRoom.getId(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, response.toString());
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+                    int imageHeight = options.outHeight;
+                    int imageWidth = options.outWidth;
+                    try {
+                        String url = response.getString("url");
+                        if (ChatRoomFragment.this.sendMessage(null, false, url, imageWidth, imageHeight)) {
+                            chatRecyclerViewAdapter.notifyDataSetChanged();
+                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+                            picSent(true);
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, response.toString(), e);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onTaskFailed() {
-
-            }
-        });
-        picSent(false);
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e(TAG, "onFailure: ", t);
+                    Toast.makeText(getContext(), "Picture filed to upload (internal server error)", Toast.LENGTH_SHORT).show();
+                    sendImageProgressBar.setVisibility(View.GONE);
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "uploadAndSendImage:", e);
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "uploadAndSendImage:", e);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "uploadAndSendImage:", e);
+        }
     }
+
+
+//    private void setupPicToSend(final Uri uri) {
+//        BitmapUtils.compressBitmap(uri, currentRoom.getId(), getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
+//            @Override
+//            public void onTaskCompleted(Byte[] bytes) {
+//                try {
+//                    Bitmap bitmap = BitmapUtils.getBitmapFromUri(uri, getContext());
+//                    uploadAndSendImage(bitmap, BitmapUtils.convertWrapperToBytes(bytes), BitmapUtils.getFileName(uri, getContext()), "image/jpg");
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onTaskFailed() {
+//                Log.e(TAG, "onTaskFailed: sendpic");
+//            }
+//        });
+//        picSent(false);
+//    }
+//
+//    private void uploadAndSendImage(final Bitmap bitmap, final byte[] bytes, final String filename, final String mimeType) {
+//        try {
+//            File file = BitmapUtils.convertBytesToFile(bytes, filename, getContext());
+//            APIFunctions.uploadImage(getContext(), file, filename, mimeType, currentRoom.getId(), new JsonHttpResponseHandler() {
+//                @Override
+//                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                    Log.d(TAG, response.toString());
+//                    try {
+//                        String url = response.getString("url");
+//                        if (ChatRoomFragment.this.sendMessage(null, false, url, bitmap.getWidth(), bitmap.getHeight())) {
+//                            chatRecyclerViewAdapter.notifyDataSetChanged();
+//                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+//                            picSent(true);
+//                        }
+//                    } catch (JSONException e) {
+//                        Log.e(TAG, response.toString(), e);
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+//                    Log.e(TAG, "onFailure: ", t);
+//                }
+//            });
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//}
 
     private void picSent(boolean wasSent) {
         sendImageProgressBar.setVisibility(View.GONE);
+        //TODO: handle pic send failure
+        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -351,26 +439,6 @@ public class ChatRoomFragment extends Fragment {
         if (selectedImage == null)
             Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
         sendImageDialog(selectedImage);
-
-//        switch (requestCode) {
-//            case CHOOSE_IMAGE_INTENT:
-//                    Uri selectedImage = data.getData();
-//
-//
-//
-//                    sendImageDialog(selectedImage);
-//
-//
-//                break;
-//
-//            case TAKE_IMAGE_INTENT:
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                    if (imageBitmap == null) return;
-//                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
-//
-//                break;
-//        }
     }
 
     @Override

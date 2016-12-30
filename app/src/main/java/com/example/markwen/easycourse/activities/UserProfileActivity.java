@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -182,7 +183,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserInfoOnScreen(){
-        if (user.getProfilePicture().length > 0) {
+        if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
@@ -222,7 +223,7 @@ public class UserProfileActivity extends AppCompatActivity {
             originalUri = data.getData();
         }
 
-        String path = getImagePath(originalUri);
+        String path = BitmapUtils.getImagePath(originalUri, this);
         Log.e("com.example.easycourse", path);
         try {
             APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler() {
@@ -251,25 +252,8 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * helper to retrieve the path of an image URI
-     */
-    public String getImagePath(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-        cursor.close();
 
-        cursor = getContentResolver().query(
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-        cursor.moveToFirst();
-        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        cursor.close();
 
-        return path;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,

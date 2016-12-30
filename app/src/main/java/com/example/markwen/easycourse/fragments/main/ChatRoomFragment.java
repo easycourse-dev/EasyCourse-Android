@@ -195,7 +195,7 @@ public class ChatRoomFragment extends Fragment {
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         Log.d(TAG, uri.toString());
                         sendImageProgressBar.setVisibility(View.VISIBLE);
-                        uploadAndSendImage(uri);
+                        compressAndSendImage(uri);
                     }
                 })
                 .negativeText("Cancel")
@@ -294,45 +294,65 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
-    private void uploadAndSendImage(final Uri uri) {
-        File file = new File(BitmapUtils.getImagePath(uri, getContext()));
-        try {
-            APIFunctions.uploadImage(getContext(), file, file.getName(), "", currentRoom.getId(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, response.toString());
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
-                    int imageHeight = options.outHeight;
-                    int imageWidth = options.outWidth;
-                    try {
-                        String url = response.getString("url");
-                        if (ChatRoomFragment.this.sendMessage(null, false, url, imageWidth, imageHeight)) {
-                            chatRecyclerViewAdapter.notifyDataSetChanged();
-                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
-                            picSent(true);
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, response.toString(), e);
-                    }
+    private void compressAndSendImage(final Uri uri) {
+        BitmapUtils.compressBitmap(uri, currentRoom.getId(), getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
+            @Override
+            public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
+                if (ChatRoomFragment.this.sendMessage(null, false, bytes, bitmap.getWidth(), bitmap.getHeight())) {
+                    chatRecyclerViewAdapter.notifyDataSetChanged();
+                    chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+                    picSent(true);
                 }
+                picSent(false);
+            }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: ", t);
-                    Toast.makeText(getContext(), "Picture filed to upload (internal server error)", Toast.LENGTH_SHORT).show();
-                    sendImageProgressBar.setVisibility(View.GONE);
-                }
-            });
-        } catch (JSONException e) {
-            Log.e(TAG, "uploadAndSendImage:", e);
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "uploadAndSendImage:", e);
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "uploadAndSendImage:", e);
-        }
+            @Override
+            public void onTaskFailed() {
+                picSent(false);
+            }
+        });
     }
+
+
+//    private void uploadAndSendImage(final Uri uri) {
+//        File file = new File(BitmapUtils.getImagePath(uri, getContext()));
+//        try {
+//            APIFunctions.uploadImage(getContext(), file, file.getName(), "", currentRoom.getId(), new JsonHttpResponseHandler() {
+//                @Override
+//                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                    Log.d(TAG, response.toString());
+//                    BitmapFactory.Options options = new BitmapFactory.Options();
+//                    options.inJustDecodeBounds = true;
+//                    BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+//                    int imageHeight = options.outHeight;
+//                    int imageWidth = options.outWidth;
+//                    try {
+//                        String url = response.getString("url");
+//                        if (ChatRoomFragment.this.sendMessage(null, false, url, imageWidth, imageHeight)) {
+//                            chatRecyclerViewAdapter.notifyDataSetChanged();
+//                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+//                            picSent(true);
+//                        }
+//                    } catch (JSONException e) {
+//                        Log.e(TAG, response.toString(), e);
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+//                    Log.e(TAG, "onFailure: ", t);
+//                    Toast.makeText(getContext(), "Picture filed to upload (internal server error)", Toast.LENGTH_SHORT).show();
+//                    sendImageProgressBar.setVisibility(View.GONE);
+//                }
+//            });
+//        } catch (JSONException e) {
+//            Log.e(TAG, "uploadAndSendImage:", e);
+//        } catch (UnsupportedEncodingException e) {
+//            Log.e(TAG, "uploadAndSendImage:", e);
+//        } catch (FileNotFoundException e) {
+//            Log.e(TAG, "uploadAndSendImage:", e);
+//        }
+//    }
 
 
 //    private void setupPicToSend(final Uri uri) {
@@ -393,20 +413,20 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-    private boolean sendMessage(String messageText, boolean isTextMessage, String url, int imageWidth, int imageHeight) {
+    private boolean sendMessage(String messageText, boolean isTextMessage, byte[] imageData, int imageWidth, int imageHeight) {
         try {
             //Receive message from socketIO
             if (this.currentRoom.isToUser()) {
                 if (isTextMessage)
                     socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
                 else
-                    socketIO.sendMessage(null, null, this.currentUser.getId(), url, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
 
             } else {
                 if (isTextMessage)
                     socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
                 else
-                    socketIO.sendMessage(null, this.currentRoom.getId(), null, url, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, imageData, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
             e.printStackTrace();

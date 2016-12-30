@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
@@ -88,8 +91,8 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(view.getContext(), UserProfileActivity.class);
-                Pair<View, String> p1 = Pair.create((View)avatarImage, "avatar");
-                Pair<View, String> p2 = Pair.create((View)textViewUsername, "username");
+                Pair<View, String> p1 = Pair.create((View) avatarImage, "avatar");
+                Pair<View, String> p2 = Pair.create((View) textViewUsername, "username");
                 ActivityOptionsCompat options = ActivityOptionsCompat.
                         makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
                 startActivity(i, options.toBundle());
@@ -103,7 +106,7 @@ public class UserFragment extends Fragment {
                 startActivity(new Intent(view.getContext(), CourseManagementAcitivity.class));
             }
         });
-        
+
         joinUsCard.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -116,8 +119,7 @@ public class UserFragment extends Fragment {
                     i.addCategory("android.intent.category.LAUNCHER");
                     i.setData(Uri.parse(joinUsFormUrl));
                     startActivity(i);
-                }
-                catch(ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e) {
                     // Chrome is not installed
                     Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(joinUsFormUrl));
                     startActivity(i);
@@ -138,11 +140,36 @@ public class UserFragment extends Fragment {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout(v);
+                showLogoutDialog(v);
             }
         });
 
         return v;
+    }
+
+    private void showLogoutDialog(final View v) {
+        MaterialDialog dialog = new MaterialDialog.Builder(getContext())
+                .title("Logout?")
+                .titleColor(getResources().getColor(R.color.colorLogout))
+                .positiveText("Logout")
+                .positiveColor(getResources().getColor(R.color.colorLogout))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Log.d(TAG, "onClick: logout");
+                        logout(dialog.getView());
+                    }
+                })
+                .negativeText("No")
+                .negativeColor(getResources().getColor(R.color.colorAccent))
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.cancel();
+                    }
+                })
+                .build();
+        dialog.show();
     }
 
     private void logout(final View v) {
@@ -165,7 +192,7 @@ public class UserFragment extends Fragment {
                             realm.beginTransaction();
                         realm.deleteAll();
                         realm.commitTransaction();
-                    }catch (NullPointerException e){
+                    } catch (NullPointerException e) {
                         Log.e(TAG, "onSuccess: ", e);
                     }
 
@@ -203,7 +230,7 @@ public class UserFragment extends Fragment {
                         realm.beginTransaction();
                     realm.deleteAll();
                     realm.commitTransaction();
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     Log.e(TAG, "onSuccess: ", e);
                 }
 

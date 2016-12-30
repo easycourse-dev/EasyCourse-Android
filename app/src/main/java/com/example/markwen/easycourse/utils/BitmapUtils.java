@@ -13,6 +13,8 @@ import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -63,8 +65,35 @@ public class BitmapUtils {
         return out.toByteArray();
     }
 
+    public static Bitmap decodeFile(File f) throws IOException {
+        Bitmap b = null;
+
+        //Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+
+        FileInputStream fis = new FileInputStream(f);
+        BitmapFactory.decodeStream(fis, null, o);
+        fis.close();
+
+        int scale = 1;
+        if (o.outHeight > 1000 || o.outWidth > 1000) {
+            scale = (int) Math.pow(2, (int) Math.ceil(Math.log(1000 /
+                    (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        }
+
+        //Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        fis = new FileInputStream(f);
+        b = BitmapFactory.decodeStream(fis, null, o2);
+        fis.close();
+
+        return b;
+    }
+
     public static void compressBitmap(Uri uri, String roomId, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
-        CompressImageTask task = new CompressImageTask(context, roomId, listener);
+        CompressImageTask task = new CompressImageTask(context, listener);
         task.execute(uri);
     }
 
@@ -103,7 +132,7 @@ public class BitmapUtils {
         return result;
     }
 
-    public static Bitmap getBitmapFromUri(Uri uri, Context context) throws IOException{
+    public static Bitmap getBitmapFromUri(Uri uri, Context context) throws IOException {
         return MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
     }
 
@@ -125,4 +154,5 @@ public class BitmapUtils {
         cursor.close();
 
         return path;
-    }}
+    }
+}

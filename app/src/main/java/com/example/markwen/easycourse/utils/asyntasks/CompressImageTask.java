@@ -8,34 +8,33 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.utils.BitmapUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+
 /**
  * Created by nrinehart on 12/28/16.
  */
 
-public class CompressImageTask extends AsyncTask<Uri, Void, Byte[]> {
+public class CompressImageTask extends AsyncTask<Uri, Void, Bitmap> {
 
     private static final String TAG = "CompressAndUploadImageT";
 
     private OnCompressImageTaskCompleted listener;
     private Context context;
-    private String roomId;
-    private CompressImageTask thisTask;
 
-    public CompressImageTask(Context context, String roomId, OnCompressImageTaskCompleted listener) {
+    public CompressImageTask(Context context, OnCompressImageTaskCompleted listener) {
         this.context = context;
-        this.roomId = roomId;
         this.listener = listener;
-        thisTask = this;
     }
 
     @Override
-    protected Byte[] doInBackground(Uri... params) {
+    protected Bitmap doInBackground(Uri... params) {
         Uri uri = params[0];
 
         try {
-            Bitmap bitmap = BitmapUtils.getBitmapFromUri(uri, context);
-            byte[] compressedBytes = BitmapUtils.compressBitmapToBytes(bitmap, context, 50);
-            return BitmapUtils.convertBytesToWrapper(compressedBytes);
+            File file = new File(BitmapUtils.getImagePath(uri, context));
+            return BitmapUtils.decodeFile(file);
+
         } catch (Exception e) {
             Log.e(TAG, "doInBackground: ", e);
             this.cancel(false);
@@ -44,9 +43,13 @@ public class CompressImageTask extends AsyncTask<Uri, Void, Byte[]> {
     }
 
     @Override
-    protected void onPostExecute(Byte[] bytes) {
-        super.onPostExecute(bytes);
-        listener.onTaskCompleted(bytes);
+    protected void onPostExecute(Bitmap bitmap) {
+        super.onPostExecute(bitmap);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        listener.onTaskCompleted(bitmap, byteArray);
+
     }
 
     @Override
@@ -57,7 +60,7 @@ public class CompressImageTask extends AsyncTask<Uri, Void, Byte[]> {
 
 
     public interface OnCompressImageTaskCompleted {
-        void onTaskCompleted(Byte[] bytes);
+        void onTaskCompleted(Bitmap bitmap, byte[] bytes);
 
         void onTaskFailed();
     }

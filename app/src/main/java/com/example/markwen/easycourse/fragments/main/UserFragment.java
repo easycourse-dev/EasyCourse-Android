@@ -24,12 +24,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -37,6 +39,7 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -54,6 +57,7 @@ public class UserFragment extends Fragment {
 
     User user = new User();
     Realm realm;
+    SocketIO socketIO;
 
     public UserFragment() {
     }
@@ -63,6 +67,7 @@ public class UserFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
     @Override
@@ -140,6 +145,45 @@ public class UserFragment extends Fragment {
     }
 
     private void logout(final View v) {
+
+        socketIO.logout(new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                if (obj.has("success")) {
+                    // Remove userToken and currentUser in SharedPreferences
+                    SharedPreferences sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("userToken", null);
+                    editor.putString("currentUser", null);
+                    editor.apply();
+
+                    // Clear Realm
+                    try {
+                        if (realm != null)
+                            realm.beginTransaction();
+                        realm.deleteAll();
+                        realm.commitTransaction();
+                    }catch (NullPointerException e){
+                        Log.e(TAG, "onSuccess: ", e);
+                    }
+
+                    Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
+
+                    // Go back to SignupLoginActivity
+                    startActivity(new Intent(getContext(), SignupLoginActivity.class));
+                    // Logout from Facebook
+                    LoginManager.getInstance().logOut();
+                } else {
+                    // Make a Snackbar to notify user with error
+                    try {
+                        Snackbar.make(v, "Log out failed because of " + obj.getString("error"), Snackbar.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
         APIFunctions.logout(getContext(), new JsonHttpResponseHandler() {
             @Override

@@ -3,6 +3,7 @@
     android:id="@+id/linearIncomingChatCell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
     android:orientation="vertical"
     android:paddingTop="16dp">
 
@@ -26,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="36dp"
-            android:layout_marginStart="36dp"/>
+            android:layout_marginStart="36dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -49,8 +50,8 @@
                 android:id="@+id/textViewIncomingTextMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
                 android:background="@drawable/cell_incoming_message"
+                android:clickable="true"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
         </LinearLayout>

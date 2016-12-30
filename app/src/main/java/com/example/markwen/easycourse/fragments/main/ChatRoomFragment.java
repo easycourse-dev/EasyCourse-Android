@@ -409,7 +409,7 @@ public class ChatRoomFragment extends Fragment {
     private void picSent(boolean wasSent) {
         sendImageProgressBar.setVisibility(View.GONE);
         //TODO: handle pic send failure
-        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
+//        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
     }
 
 

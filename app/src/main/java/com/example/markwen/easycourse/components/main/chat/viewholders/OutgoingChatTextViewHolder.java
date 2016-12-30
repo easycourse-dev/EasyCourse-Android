@@ -49,6 +49,8 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.textViewOutgoingTextMessage)
     TextView outgoingMessage;
 
+    private boolean timeVisible;
+
     public OutgoingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -61,8 +63,10 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
             outgoingTime.setText(reportDateOutgoing);
+            timeVisible = true;
         } else {
             outgoingTime.setVisibility(View.GONE);
+            timeVisible = false;
         }
 
         if (curUser != null) {
@@ -86,6 +90,20 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
             @Override
             public boolean onLongClick(View view) {
                 return showPopup(outgoingLinearLayout, message, context);
+            }
+        });
+
+        outgoingLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (outgoingTime.getText().equals("time")) return;
+                if (timeVisible) {
+                    outgoingTime.setVisibility(View.GONE);
+                    timeVisible = false;
+                } else {
+                    outgoingTime.setVisibility(View.VISIBLE);
+                    timeVisible = true;
+                }
             }
         });
     }

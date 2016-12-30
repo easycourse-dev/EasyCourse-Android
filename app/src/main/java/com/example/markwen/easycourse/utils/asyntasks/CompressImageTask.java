@@ -36,7 +36,6 @@ public class CompressImageTask extends AsyncTask<Uri, Void, Byte[]> {
             Bitmap bitmap = BitmapUtils.getBitmapFromUri(uri, context);
             byte[] compressedBytes = BitmapUtils.compressBitmapToBytes(bitmap, context, 50);
             return BitmapUtils.convertBytesToWrapper(compressedBytes);
-//            uploadImage(compressedBytes, BitmapUtils.getFileName(uri, context), "image/jpg");
         } catch (Exception e) {
             Log.e(TAG, "doInBackground: ", e);
             this.cancel(false);

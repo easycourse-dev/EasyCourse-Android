@@ -49,6 +49,9 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.textViewIncomingTextMessage)
     TextView incomingMessage;
 
+    private boolean timeVisible;
+
+
     public IncomingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -86,6 +89,16 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public boolean onLongClick(View view) {
                     return showPopup(incomingLinearLayout, message, context);
+                }
+            });
+
+            incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(timeVisible)
+                        incomingTime.setVisibility(View.GONE);
+                    else
+                        incomingTime.setVisibility(View.VISIBLE);
                 }
             });
         }

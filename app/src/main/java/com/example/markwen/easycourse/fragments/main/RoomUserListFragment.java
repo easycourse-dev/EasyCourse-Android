@@ -1,18 +1,22 @@
 package com.example.markwen.easycourse.fragments.main;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomUserListViewAdapter;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -38,11 +42,14 @@ public class RoomUserListFragment extends Fragment {
 
     @BindView(R.id.room_user_list_recyclerview)
     RecyclerView roomUserListRecyclerView;
+    @BindView(R.id.room_user_list_progressbar)
+    ProgressBar chatProgressBar;
 
     private SocketIO socketIO;
     private Room curRoom;
     private List<User> users;
     private RoomUserListViewAdapter roomUserListViewAdapter;
+    private ChatRoomActivity activity;
 
 
     @Contract("null -> null")
@@ -66,6 +73,15 @@ public class RoomUserListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_room_user_list, container, false);
         ButterKnife.bind(this, v);
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        activity = (ChatRoomActivity) getActivity();
+
+
+        activity.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.gotoChatRoomFragment();
+            }
+        });
 
         getRoomUsers();
 
@@ -74,6 +90,7 @@ public class RoomUserListFragment extends Fragment {
     }
 
     private void getRoomUsers() {
+        chatProgressBar.setVisibility(View.VISIBLE);
         try {
             socketIO.getRoomMembers(curRoom.getId(), new Ack() {
                 @Override
@@ -81,7 +98,7 @@ public class RoomUserListFragment extends Fragment {
                     try {
                         JSONObject obj = (JSONObject) args[0];
                         JSONArray response = obj.getJSONArray("users");
-                        List<User> users = new ArrayList<>(response.length());
+                        users = new ArrayList<>(response.length());
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject object = (JSONObject) response.get(i);
                             String id = null;
@@ -96,8 +113,12 @@ public class RoomUserListFragment extends Fragment {
                             User user = new User(id, displayName, null, avatarUrl, null, null);
                             users.add(user);
                         }
-                        RoomUserListFragment.this.users = users;
-                        setupRecyclerView();
+                        RoomUserListFragment.this.getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setupRecyclerView();
+                            }
+                        });
                     } catch (Exception e) {
                         Log.e(TAG, "call: ", e);
                     }
@@ -105,7 +126,6 @@ public class RoomUserListFragment extends Fragment {
             });
         } catch (JSONException e) {
             Log.e(TAG, "onCreateView: ", e);
-
         }
     }
 
@@ -115,7 +135,7 @@ public class RoomUserListFragment extends Fragment {
         roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);
         roomUserListRecyclerView.setHasFixedSize(true);
-
+        chatProgressBar.setVisibility(View.GONE);
     }
 
 }

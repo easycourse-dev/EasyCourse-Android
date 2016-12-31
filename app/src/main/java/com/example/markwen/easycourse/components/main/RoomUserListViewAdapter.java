@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
@@ -42,7 +43,9 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     class RoomUserListViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.cell_user_list_textview)
+        @BindView(R.id.imageViewUserList)
+        ImageView avatarImageView;
+        @BindView(R.id.textViewNameUserList)
         TextView nameTextView;
 
         RoomUserListViewHolder(View itemView) {

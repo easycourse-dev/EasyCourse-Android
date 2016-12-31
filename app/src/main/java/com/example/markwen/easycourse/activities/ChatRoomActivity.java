@@ -105,21 +105,28 @@ public class ChatRoomActivity extends AppCompatActivity {
         bus.register(this);
     }
 
-    private void gotoChatRoomFragment() {
+    public void gotoChatRoomFragment() {
         ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_chat_room_content, chatRoomFragment)
+                .replace(R.id.activity_chat_room_content, chatRoomFragment)
                 .commit();
+        getToolbar().setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
+        getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChatRoomActivity.this.finish();
+            }
+        });
     }
 
-    private void gotoRoomUserListFragment() {
+    public void gotoRoomUserListFragment() {
         RoomUserListFragment roomUserListFragment = RoomUserListFragment.newInstance(currentRoom);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, roomUserListFragment)
-                .addToBackStack("RoomUserListFragment")
                 .commit();
+        getToolbar().setNavigationIcon(R.drawable.ic_close_white_24px);
     }
 
 
@@ -439,5 +446,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (disconnectSnackbar != null) {
             disconnectSnackbar.dismiss();
         }
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
     }
 }

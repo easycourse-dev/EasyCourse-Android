@@ -42,7 +42,7 @@ import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
  * Created by markw on 12/27/2016.
  */
 
-public class CourseDetailsAcitivity extends AppCompatActivity {
+public class CourseDetailsActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;

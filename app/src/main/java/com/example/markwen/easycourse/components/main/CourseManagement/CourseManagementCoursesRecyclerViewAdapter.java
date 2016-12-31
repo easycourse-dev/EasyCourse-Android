@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.CourseDetailsAcitivity;
+import com.example.markwen.easycourse.activities.CourseDetailsActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.hanks.library.AnimateCheckBox;
 
@@ -79,7 +79,7 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent courseIntent = new Intent(context, CourseDetailsAcitivity.class);
+                Intent courseIntent = new Intent(context, CourseDetailsActivity.class);
                 courseIntent.putExtra("courseId", course.getId());
                 courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
                 context.startActivity(courseIntent);

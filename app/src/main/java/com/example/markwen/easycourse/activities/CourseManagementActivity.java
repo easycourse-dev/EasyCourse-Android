@@ -39,7 +39,7 @@ import io.socket.client.Ack;
  * Created by markw on 12/26/2016.
  */
 
-public class CourseManagementAcitivity extends AppCompatActivity {
+public class CourseManagementActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;

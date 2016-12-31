@@ -68,7 +68,7 @@
         </activity>
 
         <activity
-            android:name=".activities.CourseManagementAcitivity"
+            android:name=".activities.CourseManagementActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
             android:parentActivityName=".activities.MainActivity">
@@ -78,13 +78,13 @@
         </activity>
 
         <activity
-            android:name=".activities.CourseDetailsAcitivity"
+            android:name=".activities.CourseDetailsActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
-            android:parentActivityName=".activities.CourseManagementAcitivity">
+            android:parentActivityName=".activities.CourseManagementActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.CourseManagementAcitivity" />
+                android:value=".activities.CourseManagementActivity" />
         </activity>
 
         <service

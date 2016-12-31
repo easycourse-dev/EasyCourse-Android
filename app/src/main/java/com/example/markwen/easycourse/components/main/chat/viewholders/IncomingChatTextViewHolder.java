@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -68,6 +69,11 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingTime.setVisibility(View.GONE);
         }
 
+//        if (!message.isSuccessSent())
+//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+//        else
+//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
+
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
 
         if (thisUser != null) {
@@ -95,7 +101,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(timeVisible)
+                    if (timeVisible)
                         incomingTime.setVisibility(View.GONE);
                     else
                         incomingTime.setVisibility(View.VISIBLE);

@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -61,6 +62,11 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         } else {
             incomingPicTime.setVisibility(View.GONE);
         }
+
+//        if (!message.isSuccessSent())
+//            incomingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+//        else
+//            incomingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
 

@@ -47,7 +47,9 @@ import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
+import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -380,6 +382,12 @@ public class ChatRoomFragment extends Fragment {
         super.onDestroy();
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
+    }
+
+
+    @Subscribe
+    public void messageEvent(Event.MessageEvent event) {
+        this.chatRecyclerViewAdapter.notifyDataSetChanged();
     }
 
 

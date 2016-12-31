@@ -98,7 +98,7 @@ public class RoomsFragment extends Fragment {
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).findAll();
-        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms);
+        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
         roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
         roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
         roomRecyclerView.setHasFixedSize(true);
@@ -112,6 +112,10 @@ public class RoomsFragment extends Fragment {
         chatActivityIntent.putExtra("roomId", room.getId());
         getActivity().startActivity(chatActivityIntent);
         realm.close();
+    }
+
+    public void deleteRoom(Room room) {
+        Room.deleteRoomFromRealm(room, realm);
     }
 
     @Override

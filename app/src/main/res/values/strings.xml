@@ -36,6 +36,7 @@
     <!--Popup-->
     <string name="popupCopy">Copy</string>
     <string name="popupDelete">Delete</string>
+    <string name="popupQuit">Quit Room</string>
 
     <!--Dialogs-->
     <string-array name="addImageDialog">

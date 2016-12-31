@@ -76,7 +76,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
 
     Drawer roomDetailDrawer;
-    Drawer privateDetailDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,14 +97,14 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         setupDrawer();
 
-        gotoChatRoomFragment();
+        gotoChatRoomFragment(currentRoom, currentUser);
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
         bus.register(this);
     }
 
-    public void gotoChatRoomFragment() {
+    public void gotoChatRoomFragment(Room currentRoom, User currentUser) {
         ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -121,7 +120,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     public void gotoRoomUserListFragment() {
-        RoomUserListFragment roomUserListFragment = RoomUserListFragment.newInstance(currentRoom);
+        RoomUserListFragment roomUserListFragment = RoomUserListFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, roomUserListFragment)

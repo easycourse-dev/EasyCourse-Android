@@ -2,14 +2,17 @@ package com.example.markwen.easycourse.components.main;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.fragments.main.RoomUserListFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 
@@ -33,16 +36,20 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     private AppCompatActivity activity;
     private Realm realm;
     private User curUser;
+    private RoomUserListFragment fragment;
 
-    public RoomUserListViewAdapter(Context context, List<User> users) {
+    public RoomUserListViewAdapter(Context context, List<User> users, RoomUserListFragment fragment) {
         this.users = users;
         this.activity = (AppCompatActivity) context;
         realm = Realm.getDefaultInstance();
         this.curUser = User.getCurrentUser(this.activity, this.realm);
+        this.fragment = fragment;
     }
 
     class RoomUserListViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.cardViewUserList)
+        CardView cardView;
         @BindView(R.id.imageViewUserList)
         ImageView avatarImageView;
         @BindView(R.id.textViewNameUserList)
@@ -54,9 +61,18 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
 
 
-        void setupView(final User user, User curUser, Context context) {
+        void setupView(final User user, final User curUser, final Context context) {
             if(user == null) return;
             nameTextView.setText(user.getUsername());
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(user == curUser) return;
+                    fragment.goToPrivateRoom(user);
+//                    Toast.makeText(context, user.getUsername() + " clicked!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
     }
 

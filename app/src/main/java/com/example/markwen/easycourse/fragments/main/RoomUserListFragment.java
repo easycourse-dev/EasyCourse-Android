@@ -28,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -131,6 +133,12 @@ public class RoomUserListFragment extends Fragment {
 
 
     private void setupRecyclerView() {
+        Collections.sort(users, new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getUsername().compareTo(o2.getUsername());
+            }
+        });
         roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users);
         roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);

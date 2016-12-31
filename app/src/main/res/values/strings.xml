@@ -68,4 +68,6 @@
     <string name="silent">Silent</string>
     <string name="share_room">Share Room</string>
     <string name="quit_room">Quit Room</string>
+    <string name="rooms">Rooms</string>
+    <string name="less_than_10"><![CDATA[(<10)]]></string>
 </resources>

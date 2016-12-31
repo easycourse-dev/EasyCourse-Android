@@ -149,7 +149,27 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 break;
                             case 6:
                                 try {
-                                    socketIO.quitRoom(currentRoom.getId());
+                                    socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                                        @Override
+                                        public void call(Object... args) {
+                                            JSONObject obj = (JSONObject) args[0];
+                                            Log.e(TAG, obj.toString());
+
+                                            if (obj.has("error")) {
+                                                Log.e(TAG, obj.toString());
+                                            } else {
+
+                                                try {
+                                                    boolean success = obj.getBoolean("success");
+                                                    if(success) {
+                                                        socketIO.syncUser();
+                                                    }
+                                                } catch (JSONException e) {
+                                                    Log.e(TAG, e.toString());
+                                                }
+                                            }
+                                        }
+                                    });
                                     socketIO.syncUser();
                                     return false;
                                 } catch (JSONException e) {
@@ -172,6 +192,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(getApplication(), CourseDetailsAcitivity.class);
                 i.putExtra("courseId", currentRoom.getCourseID());
+                i.putExtra("isJoined", true);
                 startActivity(i);
             }
         });

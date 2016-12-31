@@ -203,6 +203,7 @@ public class SocketIO {
                         userObj.remove("_id");
 
                         JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom");
+                        userObj.put("joinedRooms", userObj.getJSONArray("joinedRoom"));
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
@@ -455,31 +456,11 @@ public class SocketIO {
         socket.emit("silentRoom", jsonParam, callback);
     }
 
-    public boolean quitRoom(String roomID) throws JSONException {
+    public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-        final boolean[] dropRoomSuccess = {false};
-
-        socket.emit("quitRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("error")) {
-                    Log.e(TAG, obj.toString());
-                } else {
-
-                    try {
-                        dropRoomSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });
-
-        return dropRoomSuccess[0];
+        socket.emit("quitRoom", jsonParam, callback);
     }
 
     public void createRoom(String name, String courseID, Ack callback) throws JSONException {

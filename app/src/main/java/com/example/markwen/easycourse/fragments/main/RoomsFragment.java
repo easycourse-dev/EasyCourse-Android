@@ -16,6 +16,7 @@ import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -48,6 +49,7 @@ public class RoomsFragment extends Fragment {
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     RealmResults<Room> rooms;
 
+    User currentUser;
 
     public RoomsFragment() {
     }
@@ -59,6 +61,8 @@ public class RoomsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        currentUser = User.getCurrentUser(getActivity(), realm);
+
     }
 
     @Override
@@ -97,7 +101,8 @@ public class RoomsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        rooms = realm.where(Room.class).findAll();
+        //rooms = realm.where(Room.class).findAll();
+        rooms = currentUser.getJoinedRooms().where().findAll();
         roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms);
         roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
         roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));

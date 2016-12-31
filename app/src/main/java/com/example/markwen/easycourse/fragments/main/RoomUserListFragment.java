@@ -75,7 +75,7 @@ public class RoomUserListFragment extends Fragment {
 
     private void getRoomUsers() {
         try {
-            socketIO.getRoomMembers("5862c3e8d23b2b0011425680", new Ack() {
+            socketIO.getRoomMembers(curRoom.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
                     try {

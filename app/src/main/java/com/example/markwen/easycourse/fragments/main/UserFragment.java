@@ -140,37 +140,38 @@ public class UserFragment extends Fragment {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLogoutDialog(v);
+//                showLogoutDialog(v);
+                logout(v);
             }
         });
 
         return v;
     }
 
-    private void showLogoutDialog(final View v) {
-        MaterialDialog dialog = new MaterialDialog.Builder(getContext())
-                .title("Logout?")
-                .titleColor(getResources().getColor(R.color.colorLogout))
-                .positiveText("Logout")
-                .positiveColor(getResources().getColor(R.color.colorLogout))
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        Log.d(TAG, "onClick: logout");
-                        logout(dialog.getView());
-                    }
-                })
-                .negativeText("No")
-                .negativeColor(getResources().getColor(R.color.colorAccent))
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.cancel();
-                    }
-                })
-                .build();
-        dialog.show();
-    }
+//    private void showLogoutDialog(final View v) {
+//        MaterialDialog dialog = new MaterialDialog.Builder(getContext())
+//                .title("Logout?")
+//                .titleColor(getResources().getColor(R.color.colorLogout))
+//                .positiveText("Logout")
+//                .positiveColor(getResources().getColor(R.color.colorLogout))
+//                .onPositive(new MaterialDialog.SingleButtonCallback() {
+//                    @Override
+//                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                        Log.d(TAG, "onClick: logout");
+//                        logout(dialog.getView());
+//                    }
+//                })
+//                .negativeText("No")
+//                .negativeColor(getResources().getColor(R.color.colorAccent))
+//                .onNegative(new MaterialDialog.SingleButtonCallback() {
+//                    @Override
+//                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                        dialog.cancel();
+//                    }
+//                })
+//                .build();
+//        dialog.show();
+//    }
 
     private void logout(final View v) {
 

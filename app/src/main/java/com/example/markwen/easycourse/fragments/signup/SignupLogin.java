@@ -569,8 +569,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (password.length() < 6 || password.length() > 20) {
-            passwordInputLayout.setError("Password length not between 6 and 20");
+        if (password.length() < 5 || password.length() > 20) {
+            passwordInputLayout.setError("Password length not between 5 and 20");
             passwordEditText.requestFocus();
             return false;
         }
@@ -608,8 +608,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (username.length() < 6 || username.length() > 20) {
-            usernameInputLayout.setError("Username length not between 6 and 20");
+        if (username.length() < 5 || username.length() > 20) {
+            usernameInputLayout.setError("Username length not between 5 and 20");
             usernameEditText.requestFocus();
             return false;
         }

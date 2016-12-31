@@ -12,6 +12,8 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
@@ -22,22 +24,23 @@ import io.realm.RealmResults;
  * Created by nrinehart on 12/30/16.
  */
 
-public class RoomUserListViewAdapter extends RealmRecyclerViewAdapter<User, RecyclerView.ViewHolder> {
+public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "RoomUserListViewAdapter";
 
+    private List<User> users;
     private AppCompatActivity activity;
     private Realm realm;
     private User curUser;
 
-    public RoomUserListViewAdapter(Context context, RealmResults<User> users) {
-        super(context, users, true);
+    public RoomUserListViewAdapter(Context context, List<User> users) {
+        this.users = users;
         this.activity = (AppCompatActivity) context;
         realm = Realm.getDefaultInstance();
         this.curUser = User.getCurrentUser(this.activity, this.realm);
     }
 
-    private class RoomUserListViewHolder extends RecyclerView.ViewHolder {
+    class RoomUserListViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.cell_user_list_textview)
         TextView nameTextView;
@@ -65,10 +68,19 @@ public class RoomUserListViewAdapter extends RealmRecyclerViewAdapter<User, Recy
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (getData() == null || getData().size() < 1) return;
+        if (users == null || users.size() < 1) return;
 
-        final User user = getData().get(position);
+        final User user = users.get(position);
         RoomUserListViewHolder viewHolder = (RoomUserListViewHolder) holder;
-        viewHolder.setupView(user, curUser, context);
+        viewHolder.setupView(user, curUser, activity);
+    }
+
+    @Override
+    public int getItemCount() {
+        if (users == null || users.size() < 1)
+            return 0;
+        else
+            return users.size();
+
     }
 }

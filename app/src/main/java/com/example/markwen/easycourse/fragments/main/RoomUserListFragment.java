@@ -2,28 +2,58 @@ package com.example.markwen.easycourse.fragments.main;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.RoomUserListViewAdapter;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.SocketIO;
+
+import org.jetbrains.annotations.Contract;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
+import io.socket.client.Ack;
 
 
 public class RoomUserListFragment extends Fragment {
 
+    private static final String TAG = "RoomUserListFragment";
+
     @BindView(R.id.room_user_list_recyclerview)
     RecyclerView roomUserListRecyclerView;
 
+    private SocketIO socketIO;
+    private Room curRoom;
+    private List<User> users;
+    private RoomUserListViewAdapter roomUserListViewAdapter;
+
+
+    @Contract("null -> null")
+    @Nullable
+    public static RoomUserListFragment newInstance(Room curRoom) {
+        if (curRoom == null) return null;
+        RoomUserListFragment fragment = new RoomUserListFragment();
+        fragment.curRoom = curRoom;
+        return fragment;
+    }
 
 
     public RoomUserListFragment() {
-        // Required empty public constructor
     }
 
 
@@ -33,9 +63,62 @@ public class RoomUserListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_room_user_list, container, false);
         ButterKnife.bind(this, v);
-        roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+        getRoomUsers();
+
+//        setupRecyclerView();
 
         return v;
+    }
+
+    private void getRoomUsers() {
+        try {
+            socketIO.getRoomMembers("5865a6ab8f1f8e0011779643", new Ack() {
+                @Override
+                public void call(Object... args) {
+                    try {
+                        JSONObject obj = (JSONObject) args[0];
+//                        JSONArray response = obj.getJSONArray("rooms");
+//                        JSONObject room;
+//                        if (skip == 0) { // normal
+//                            rooms.clear();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                rooms.add(roomObj);
+//                            }
+//                            updateRecyclerView(response, query);
+//                        } else { // load more
+//                            int roomsOrigSize = rooms.size();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                if (!rooms.contains(roomObj))
+//                                    rooms.add(roomObj);
+//                            }
+//                            if (rooms.size() > roomsOrigSize) {
+//                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+//                            }
+//                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "call: ", e);
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "onCreateView: ", e);
+
+        }
+    }
+
+
+    private void setupRecyclerView() {
+        roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users);
+        roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);
+        roomUserListRecyclerView.setHasFixedSize(true);
+
     }
 
 }

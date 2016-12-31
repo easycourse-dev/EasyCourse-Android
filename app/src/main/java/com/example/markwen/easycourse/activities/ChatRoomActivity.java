@@ -22,6 +22,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.main.ChatRoomFragment;
+import com.example.markwen.easycourse.fragments.main.RoomUserListFragment;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -96,15 +97,28 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         setupDrawer();
 
+        gotoChatRoomFragment();
+
+        //Setup snackbar for disconnect
+        disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+        bus.register(this);
+    }
+
+    private void gotoChatRoomFragment() {
         ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_chat_room_content, chatRoomFragment)
                 .commit();
+    }
 
-        //Setup snackbar for disconnect
-        disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-        bus.register(this);
+    private void gotoRoomUserListFragment() {
+        RoomUserListFragment roomUserListFragment = RoomUserListFragment.newInstance(currentRoom);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.activity_chat_room_content, roomUserListFragment)
+                .addToBackStack("RoomUserListFragment")
+                .commit();
     }
 
 
@@ -149,6 +163,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     switch (position) {
                         case 1:
                             //TODO: Add intent to Classmates
+                            gotoRoomUserListFragment();
                             break;
                         case 2:
                             //TODO: Add intent to Subgroups

@@ -81,11 +81,6 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
             public void onClick(View view) {
                 Intent courseIntent = new Intent(context, CourseDetailsAcitivity.class);
                 courseIntent.putExtra("courseId", course.getId());
-                courseIntent.putExtra("courseName", course.getCoursename());
-                courseIntent.putExtra("title", course.getTitle());
-                courseIntent.putExtra("courseDesc", course.getCourseDescription());
-                courseIntent.putExtra("univId", course.getUniversityID());
-                courseIntent.putExtra("courseCred", course.getCreditHours());
                 courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
                 context.startActivity(courseIntent);
             }

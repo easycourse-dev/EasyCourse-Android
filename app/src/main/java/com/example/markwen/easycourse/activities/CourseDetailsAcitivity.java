@@ -21,7 +21,6 @@ import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
-import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 
@@ -90,29 +89,32 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
         // Set up local variables
         Intent courseManageIntent = getIntent();
         courseId = courseManageIntent.getStringExtra("courseId");
-        courseName = courseManageIntent.getStringExtra("courseName");
-        title = courseManageIntent.getStringExtra("title");
-        courseDesc = courseManageIntent.getStringExtra("courseDesc");
-        universityId = courseManageIntent.getStringExtra("univId");
-        creditHrs = courseManageIntent.getIntExtra("courseCred", 3);
         isJoined = courseManageIntent.getBooleanExtra("isJoined", false);
-        course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-        if (universityId == null) {
-            universityId = User.getCurrentUser(this, realm).getUniversityID();
-        }
-        universityName = University.getUniversityById(universityId, realm).getName();
+        try {
+            socketIO.getCourseInfo(courseId, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    try {
+                        JSONObject res = obj.getJSONObject("course");
+                        courseName = res.getString("name");
+                        title = res.getString("title");
+                        courseDesc = res.getString("description");
+                        creditHrs = res.getInt("creditHours");
+                        universityId = res.getJSONObject("university").getString("_id");
+                        universityName = res.getJSONObject("university").getString("name");
+                        course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
 
-        // Set up TextViews
-        courseNameView.setText(courseName);
-        titleView.setText(title);
-        String creditHrsText;
-        if (creditHrs == 1) {
-            creditHrsText = "1 credit";
-        } else {
-            creditHrsText = creditHrs + " credits";
+                        // Set up TextViews
+                        setupTextViews();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        creditHrsView.setText(creditHrsText);
-        univView.setText(universityName);
 
         // Set up join button
         updateButtonView(isJoined);
@@ -155,6 +157,32 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
             joinCourseButton.setText("Join");
             joinCourseButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.course_details_join_button, null));
         }
+    }
+
+    private void setupTextViews() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            courseNameView.setText(courseName);
+                            titleView.setText(title);
+                            String creditHrsText;
+                            if (creditHrs == 1) {
+                                creditHrsText = "1 credit";
+                            } else {
+                                creditHrsText = creditHrs + " credits";
+                            }
+                            creditHrsView.setText(creditHrsText);
+                            univView.setText(universityName);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
     private void doSearchRoom(final int skip, String courseId, final String courseName) {

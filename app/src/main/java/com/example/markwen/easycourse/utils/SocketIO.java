@@ -336,6 +336,13 @@ public class SocketIO {
         socket.emit("dropCourse", jsonParam,callback);
     }
 
+    public void getCourseInfo(String courseId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courseId", courseId);
+
+        socket.emit("getCourseInfo", jsonParam, callback);
+    }
+
     public void joinRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);

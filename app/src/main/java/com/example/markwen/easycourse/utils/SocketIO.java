@@ -17,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -182,27 +181,17 @@ public class SocketIO {
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                             conn.setDoInput(true);
                             conn.connect();
-                            //conn.setUseCaches(false);
 
-
-                            InputStream is = conn.getInputStream();
                             avatar = IOUtils.toByteArray(conn.getInputStream());
                         }
 
                     } catch (JSONException | IOException e) {
                         Log.e(TAG, e.toString());
                     }
-                    //User user = null;
 
                     try {
                         String id = (String) checkIfJsonExists(userObj, "_id", null);
                         String university = (String) checkIfJsonExists(userObj, "university", null);
-                       /*
-                        String username = (String) checkIfJsonExists(userObj, "displayName", null);
-                        String email = (String) checkIfJsonExists(userObj, "email", null);
-
-                        user = new User(id, username, avatar, avatarUrlString, email, university);
-                        */
 
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
@@ -303,40 +292,6 @@ public class SocketIO {
         jsonParam.put("skip", skip);
 
         socket.emit("searchCourse", jsonParam, callback);
-
-        /*
-        final Course[][] courses = {null};
-
-        socket.emit("searchCourse", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (!obj.has("error")) {
-                    Log.e("com.example.easycourse", "success" + obj.toString());
-                    try {
-                        JSONArray courseArrayJSON = obj.getJSONArray("course");
-                        courses[0] = new Course[courseArrayJSON.length()];
-                        for (int i = 0; i < courseArrayJSON.length(); i++) {
-                            String id = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "id", null);
-                            String courseName = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "name", null);
-                            byte[] coursePicture = (byte[]) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePicture", null);
-                            String coursePictureUrl = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePictureUrl", null);
-                            String title = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "title", null);
-                            String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
-                            int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", "0"));
-                            String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
-                            Course course = new Course(id, courseName, coursePicture, coursePictureUrl, title, courseDescription, creditHours, universityID);
-                            courses[0][i] = course;
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-
-                } else {
-                    Log.e(TAG, obj.toString());
-                }
-            }
-        });*/
     }
 
     //Block user
@@ -365,6 +320,15 @@ public class SocketIO {
 
         socket.emit("joinCourse", jsonParam, callback);
     }
+    public void joinCourse(String courseId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        ArrayList<String> courses = new ArrayList<>();
+        courses.add(courseId);
+        jsonParam.put("courses", new JSONArray(courses));
+        jsonParam.put("lang", new JSONArray());
+
+        socket.emit("joinCourse", jsonParam, callback);
+    }
 
     //convert and save JSON message object to realm
     public void dropCourse(String courseID, Ack callback) throws JSONException {
@@ -389,7 +353,13 @@ public class SocketIO {
                 }
             }
         });*/
+    }
 
+    public void getCourseInfo(String courseId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courseId", courseId);
+
+        socket.emit("getCourseInfo", jsonParam, callback);
     }
 
 //    public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {
@@ -463,31 +433,11 @@ public class SocketIO {
         socket.emit("joinRoom", jsonParam, callback);
     }
 
-    public boolean quitRoom(String roomID) throws JSONException {
+    public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-        final boolean[] dropRoomSuccess = {false};
-
-        socket.emit("quitRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("error")) {
-                    Log.e(TAG, obj.toString());
-                } else {
-
-                    try {
-                        dropRoomSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });
-
-        return dropRoomSuccess[0];
+        socket.emit("quitRoom", jsonParam, callback);
     }
 
     public void createRoom(String name, String courseID, Ack callback) throws JSONException {
@@ -622,6 +572,13 @@ public class SocketIO {
                 }
             }
         });
+    }
+
+    public void getUniversityInfo(String univId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("univId", univId);
+
+        socket.emit("getUniversityInfo", jsonParam, callback);
     }
 
     public void getUniversityInfo(String univId) throws JSONException {

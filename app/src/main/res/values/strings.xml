@@ -73,4 +73,6 @@
     <string name="quit_room">Quit Room</string>
 
     <string name="report_user_hint">Optional reason...</string>
+    <string name="rooms">Rooms</string>
+    <string name="less_than_10"><![CDATA[(<10)]]></string>
 </resources>

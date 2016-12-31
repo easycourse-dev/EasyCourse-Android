@@ -7,7 +7,11 @@
     <color name="colorTabDefault">#939393</color>
     <color name="colorBackground">#fbfbfb</color>
     <color name="colorWhiteText">#FFFFFF</color>
+    <color name="colorGrayText">#d1d1d1</color>
+    <color name="colorDarkGrayText">#a1a1a1</color>
+    <color name="colorBlackText">#333333</color>
     <color name="colorFacebook">#3A5992</color>
     <color name="colorLogout">#F44336</color>
+    <color name="colorTransparent">#00FFFFFF</color>
     <color name="white">#FFF</color>
 </resources>

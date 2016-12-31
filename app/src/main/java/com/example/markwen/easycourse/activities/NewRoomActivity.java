@@ -321,7 +321,7 @@ public class NewRoomActivity extends AppCompatActivity {
         thread.start();
     }
 
-    public void updateRecyclerView(final JSONArray response, final String query){
+    private void updateRecyclerView(final JSONArray response, final String query){
         Thread thread = new Thread(){
             @Override
             public void run() {

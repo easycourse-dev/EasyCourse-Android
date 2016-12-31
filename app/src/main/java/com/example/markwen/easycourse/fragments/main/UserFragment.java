@@ -29,7 +29,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.CourseManagementAcitivity;
+import com.example.markwen.easycourse.activities.CourseManagementActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
@@ -103,7 +103,7 @@ public class UserFragment extends Fragment {
 
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(view.getContext(), CourseManagementAcitivity.class));
+                startActivity(new Intent(view.getContext(), CourseManagementActivity.class));
             }
         });
 

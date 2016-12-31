@@ -111,8 +111,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, chatRoomFragment)
                 .commit();
-        getToolbar().setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
-        getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ChatRoomActivity.this.finish();
@@ -126,7 +126,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, roomUserListFragment)
                 .commit();
-        getToolbar().setNavigationIcon(R.drawable.ic_close_white_24px);
+        toolbar.setNavigationIcon(R.drawable.ic_close_white_24px);
     }
 
 
@@ -180,14 +180,10 @@ public class ChatRoomActivity extends AppCompatActivity {
                             //TODO: Add intent to Share Room
                             break;
                         case 6:
-                            try {
-                                socketIO.quitRoom(currentRoom.getId());
-                                socketIO.syncUser();
-                                return true;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            break;
+                            quitRoom();
+                            socketIO.syncUser();
+                            return true;
+
                     }
                     return false;
                 }
@@ -258,6 +254,19 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (currentRoom.getCourseName() != null)
             headerCourseSubtitle.setText(currentRoom.getCourseName());
 
+    }
+
+    private void quitRoom() {
+        try {
+            socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                @Override
+                public void call(Object... args) {
+
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "quitRoom: ", e);
+        }
     }
 
     private void silenceRoom(final boolean isChecked) {

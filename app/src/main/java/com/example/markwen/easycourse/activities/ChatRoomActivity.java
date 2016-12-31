@@ -19,10 +19,8 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.main.ChatRoomFragment;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
-import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.DimenHolder;
@@ -37,13 +35,12 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
@@ -175,25 +172,23 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private void silenceRoom(final boolean isChecked) {
         try {
-            APIFunctions.setSilentRoom(getApplicationContext(), currentRoom.getId(), isChecked, new JsonHttpResponseHandler(){
+            socketIO.silentRoom(currentRoom.getId(), isChecked, new Ack(){
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    if(isChecked){
-                        Log.e(TAG, "Room silented");
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e(TAG, "onFailure: silentRoomOnCheckedListener " + obj.toString());
                     } else {
-                        Log.e(TAG, "Room un-silented");
+                        if(isChecked){
+                            Log.e(TAG, "Room silented");
+                        } else {
+                            Log.e(TAG, "Room un-silented");
+                        }
+                        socketIO.syncUser();
                     }
-                    socketIO.syncUser();
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: silentRoomOnCheckedListener", t);
                 }
             });
         } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

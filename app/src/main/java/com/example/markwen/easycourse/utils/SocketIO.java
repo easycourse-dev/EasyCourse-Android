@@ -35,8 +35,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
-
 /**
  * Created by nisarg on 9/11/16.
  */
@@ -380,7 +378,7 @@ public class SocketIO {
 
     }
 
-    public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {
+    /*public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {
         final JSONObject jsonParam = new JSONObject();
         jsonParam.put("text", searchQuery);
         jsonParam.put("university", unversityId);
@@ -441,13 +439,20 @@ public class SocketIO {
                 return null;
             }
         };
-    }
+    }*/
 
     public void joinRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
         socket.emit("joinRoom", jsonParam, callback);
+    }
+
+    public void silentRoom(String roomID, boolean silent, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("silent", silent);
+        socket.emit("silentRoom", jsonParam, callback);
     }
 
     public boolean quitRoom(String roomID) throws JSONException {

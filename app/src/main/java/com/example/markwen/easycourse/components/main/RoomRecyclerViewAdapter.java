@@ -203,7 +203,6 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                         public void run() {
                             fragment.deleteRoom(room);
                             RoomRecyclerViewAdapter.this.notifyDataSetChanged();
-
                         }
                     });
                 }

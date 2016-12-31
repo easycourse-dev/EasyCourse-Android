@@ -103,9 +103,13 @@ public class RoomUserListFragment extends Fragment {
     private void getRoomUsers() {
         chatProgressBar.setVisibility(View.VISIBLE);
         try {
+            long time1 = System.currentTimeMillis();
+            Log.d(TAG, "getRoomUsers: " + time1);
             socketIO.getRoomMembers(curRoom.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
+                    long time2 = System.currentTimeMillis();
+                    Log.d(TAG, "getRoomUsers: " + time2);
                     try {
                         JSONObject obj = (JSONObject) args[0];
                         JSONArray response = obj.getJSONArray("users");

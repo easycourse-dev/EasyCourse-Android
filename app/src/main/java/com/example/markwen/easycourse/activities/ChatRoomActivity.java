@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -285,7 +286,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .title("Report " + otherUser.getUsername() + "?")
-                .titleColor(getResources().getColor(R.color.colorAccent))
+                .titleColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .customView(R.layout.dialog_report_user, true)
                 .positiveText("Report")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -296,7 +297,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     }
                 })
                 .negativeText("Cancel")
-                .negativeColor(getResources().getColor(R.color.colorLogout))
+                .negativeColor(ContextCompat.getColor(this, R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -336,7 +337,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .title("Block " + otherUser.getUsername() + "?")
-                .titleColor(getResources().getColor(R.color.colorAccent))
+                .titleColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .positiveText("Block")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
@@ -345,7 +346,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     }
                 })
                 .negativeText("Cancel")
-                .negativeColor(getResources().getColor(R.color.colorLogout))
+                .negativeColor(ContextCompat.getColor(this, R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -367,19 +368,19 @@ public class ChatRoomActivity extends AppCompatActivity {
                     } else {
                         try {
                             boolean successBool = obj.getBoolean("success");
-                            if(successBool) {
-                                Toast.makeText(ChatRoomActivity.this, otherUser.getUsername()+ " was blocked!", Toast.LENGTH_SHORT).show();
+                            if (successBool) {
+                                Toast.makeText(ChatRoomActivity.this, otherUser.getUsername() + " was blocked!", Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
-                            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername()+ "failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername() + "failed!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
             });
         } catch (JSONException e) {
             Log.e(TAG, "blockUser: ", e);
-            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername()+ "failed!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ChatRoomActivity.this, "Blocking " + otherUser.getUsername() + "failed!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -427,7 +428,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     public void disconnectEvent(Event.DisconnectEvent event) {
         if (disconnectSnackbar != null) {
             disconnectSnackbar.show();
-        }else{
+        } else {
             disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
             disconnectSnackbar.show();
         }

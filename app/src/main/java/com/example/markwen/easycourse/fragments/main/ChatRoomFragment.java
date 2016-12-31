@@ -187,7 +187,7 @@ public class ChatRoomFragment extends Fragment {
 
         MaterialDialog dialog = new MaterialDialog.Builder(activity)
                 .title("Send Image?")
-                .titleColor(getResources().getColor(R.color.colorAccent))
+                .titleColor(ContextCompat.getColor(getContext(), R.color.colorAccent))
                 .customView(R.layout.dialog_send_image, true)
                 .positiveText("Send")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -199,7 +199,7 @@ public class ChatRoomFragment extends Fragment {
                     }
                 })
                 .negativeText("Cancel")
-                .negativeColor(getResources().getColor(R.color.colorLogout))
+                .negativeColor(ContextCompat.getColor(getContext(),R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {

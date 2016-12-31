@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.RoomUserListViewAdapter;
 import com.example.markwen.easycourse.models.main.Room;
@@ -22,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -63,44 +65,39 @@ public class RoomUserListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_room_user_list, container, false);
         ButterKnife.bind(this, v);
-
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
 
         getRoomUsers();
 
-//        setupRecyclerView();
 
         return v;
     }
 
     private void getRoomUsers() {
         try {
-            socketIO.getRoomMembers("5865a6ab8f1f8e0011779643", new Ack() {
+            socketIO.getRoomMembers("5862c3e8d23b2b0011425680", new Ack() {
                 @Override
                 public void call(Object... args) {
                     try {
                         JSONObject obj = (JSONObject) args[0];
-//                        JSONArray response = obj.getJSONArray("rooms");
-//                        JSONObject room;
-//                        if (skip == 0) { // normal
-//                            rooms.clear();
-//                            for (int i = 0; i < response.length(); i++) {
-//                                room = (JSONObject) response.get(i);
-//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-//                                rooms.add(roomObj);
-//                            }
-//                            updateRecyclerView(response, query);
-//                        } else { // load more
-//                            int roomsOrigSize = rooms.size();
-//                            for (int i = 0; i < response.length(); i++) {
-//                                room = (JSONObject) response.get(i);
-//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-//                                if (!rooms.contains(roomObj))
-//                                    rooms.add(roomObj);
-//                            }
-//                            if (rooms.size() > roomsOrigSize) {
-//                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
-//                            }
-//                        }
+                        JSONArray response = obj.getJSONArray("users");
+                        List<User> users = new ArrayList<>(response.length());
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject object = (JSONObject) response.get(i);
+                            String id = null;
+                            String displayName = null;
+                            String avatarUrl = null;
+                            if (object.has("_id"))
+                                id = object.getString("_id");
+                            if (object.has("displayName"))
+                                displayName = object.getString("displayName");
+                            if (object.has("avatarUrl"))
+                                avatarUrl = object.getString("avatarUrl");
+                            User user = new User(id, displayName, null, avatarUrl, null, null);
+                            users.add(user);
+                        }
+                        RoomUserListFragment.this.users = users;
+                        setupRecyclerView();
                     } catch (Exception e) {
                         Log.e(TAG, "call: ", e);
                     }

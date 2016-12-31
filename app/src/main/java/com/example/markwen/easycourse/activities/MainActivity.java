@@ -21,7 +21,7 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
-import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Checking if there is a user currently logged in
         // if there is, remain in MainActivity
-        // if not, show SignupLoginActivity
+        // if not or the user doesn't have any rooms, show SignupLoginActivity
         checkUserLogin();
 
         try {
@@ -114,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
-        RealmResults<Course> joinedCourses = realm.where(Course.class).findAll();
+        RealmResults<Room> joinedRooms = realm.where(Room.class).findAll();
 
-        if (userToken == null || currentUser == null || joinedCourses.size() == 0) {
+        if (userToken == null || currentUser == null || joinedRooms.size() == 0) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {

@@ -70,7 +70,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
     }
 
     @Override
-    public void onBindViewHolder(RoomViewHolder holder, int i) {
+    public void onBindViewHolder(final RoomViewHolder holder, int i) {
         final Room room = rooms.get(i);
         if (!isCourseJoined) {
             // Different state based on course joining status
@@ -87,21 +87,23 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         Room joinedRoom = isRoomJoined(joinedRooms, room);
         if (joinedRoom != null) {
             holder.checkBox.setChecked(true);
-            holder.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dropRoom(room.getId());
-                }
-            });
         } else {
             holder.checkBox.setChecked(false);
-            holder.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    joinRoom(room.getId(), room.getCourseName());
-                }
-            });
         }
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.checkBox.isChecked()) {
+                    dropRoom(room.getId());
+                    // TODO: update checkbox after dropRoom is called
+                    holder.checkBox.setChecked(false);
+                } else {
+                    joinRoom(room.getId(), room.getCourseName());
+                    // TODO: update checkbox after joinRoom is called
+                    holder.checkBox.setChecked(true);
+                }
+            }
+        });
 
         // Set founder and founder avatar
         if (room.getFounder() != null) {
@@ -260,7 +262,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
     }
 
-    private void dropRoom(String roomId) {
+    private void dropRoom(final String roomId) {
         try {
             socketIO.quitRoom(roomId, new Ack() {
                 @Override
@@ -269,7 +271,20 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     if (obj.has("error")) {
                         Log.e("quitRoom", obj.toString());
                     } else {
-
+                        try {
+                            if (obj.has("success") && obj.getBoolean("success")) {
+                                Realm tempRealm = Realm.getDefaultInstance();
+                                Room deletedRoom = Room.getRoomById(tempRealm, roomId);
+                                if (deletedRoom != null) {
+                                    tempRealm.beginTransaction();
+                                    deletedRoom.deleteFromRealm();
+                                    tempRealm.commitTransaction();
+                                }
+                                tempRealm.close();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             });
@@ -278,6 +293,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
     }
 
+    // TODO: synchronize dropRoom and joinRoom checkbox change
     private void updateCheckbox(boolean status) {
         Thread thread = new Thread(){
             @Override

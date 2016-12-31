@@ -151,6 +151,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 //TODO: Add intent to Share Room
                                 break;
                             case 6:
+                                // Replace these commented area with the latest quitRoom implementation
 //                                try {
 //                                    socketIO.quitRoom(currentRoom.getId());
 //                                    socketIO.syncUser();

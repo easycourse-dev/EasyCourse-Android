@@ -21,7 +21,7 @@ public class Room extends RealmObject {
     private boolean isToUser = false;
 
     //When user quits this room on another platform, this room will not be deleted.
-    //Instead, chaningg isJoinIn to false
+    //Instead, changing isJoinIn to false
     private boolean isJoinIn = false;
 
     //Basic info of room

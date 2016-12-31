@@ -167,6 +167,14 @@ public class ChatRoomActivity extends AppCompatActivity {
         TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
         headerCourseTitle.setText(currentRoom.getRoomName());
         headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        headerCourseTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplication(), CourseDetailsAcitivity.class);
+                i.putExtra("courseId", currentRoom.getCourseID());
+                startActivity(i);
+            }
+        });
         ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
     }
 

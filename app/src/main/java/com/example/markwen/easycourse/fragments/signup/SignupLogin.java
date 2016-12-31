@@ -529,12 +529,6 @@ public class SignupLogin extends Fragment {
         } catch (URISyntaxException | JSONException e) {
             e.printStackTrace();
         }
-
-//        // Save currentUser to Realm
-//        realm.beginTransaction();
-//        realm.commitTransaction();
-
-
     }
 
 
@@ -593,8 +587,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (password.length() < 6 || password.length() > 20) {
-            passwordInputLayout.setError("Password length not between 6 and 20");
+        if (password.length() < 8 || password.length() > 20) {
+            passwordInputLayout.setError("Password length not between 8 and 20");
             passwordEditText.requestFocus();
             return false;
         }

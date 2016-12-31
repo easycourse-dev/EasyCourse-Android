@@ -103,16 +103,20 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                         final String courseID = selectedCourseId;
                                         final String courseName = selectedCourseName;
                                         final String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                        final String language = (String) checkIfJsonExists(temp, "language", null);
                                         final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
                                         final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
                                         final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
                                         final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
                                         // Get founder
-                                        JSONObject founderJSON = temp.getJSONObject("founder");
-                                        final String founderId = (String) checkIfJsonExists(founderJSON, "_id", null);
-                                        final String founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
-                                        final String founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
+                                        String founderId = null, founderName = null, founderAvatarUrl = null;
+                                        if (temp.has("founder")) {
+                                            JSONObject founderJSON = temp.getJSONObject("founder");
+                                            founderId = (String) checkIfJsonExists(founderJSON, "_id", null);
+                                            founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
+                                            founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
+                                        }
 
                                         // Save user to Realm
                                         joinedRoom[0] = new Room(
@@ -126,7 +130,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                                 memberCounts,
                                                 memberCountsDesc,
                                                 new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                                null,
+                                                language,
                                                 isPublic,
                                                 isSystem);
                                         updateRoomInSocket(joinedRoom[0]);

@@ -350,92 +350,11 @@ public class SocketIO {
         socket.emit("joinRoom", jsonParam, callback);
     }
 
-    public void joinRoom(String roomID) throws JSONException {
+    public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-        socket.emit("joinRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (!obj.has("error")) {
-                    try {
-                        // Get room
-                        JSONObject temp = obj.getJSONObject("room");
-                        final String id = (String) checkIfJsonExists(temp, "_id", null);
-                        final String roomName = (String) checkIfJsonExists(temp, "name", null);
-                        final String courseID = (String) checkIfJsonExists(temp, "courseId", null);
-                        final String courseName = Course.getCourseById(courseID, realm).getCoursename();
-                        final String universityID = (String) checkIfJsonExists(temp, "university", null);
-                        final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                        final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                        final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                        final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
-
-                        // Get founder
-                        JSONObject founderJSON = temp.getJSONObject("founder");
-                        final String founderId = (String) checkIfJsonExists(founderJSON, "_id", null);
-                        final String founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
-                        final String founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
-
-                        // Save user to Realm
-                        Room.updateRoomToRealm(
-                                new Room(
-                                        id,
-                                        roomName,
-                                        new RealmList<Message>(),
-                                        courseID,
-                                        courseName,
-                                        universityID,
-                                        new RealmList<User>(),
-                                        memberCounts,
-                                        memberCountsDesc,
-                                        new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                        null,
-                                        isPublic,
-                                        isSystem),
-                                realm);
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-
-                } else {
-                    try {
-                        JSONObject temp = obj.getJSONObject("error");
-                        Log.e("joinRoom", temp.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-
-    public boolean quitRoom(String roomID) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("roomId", roomID);
-
-        final boolean[] dropRoomSuccess = {false};
-
-        socket.emit("quitRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("error")) {
-                    Log.e(TAG, obj.toString());
-                } else {
-
-                    try {
-                        dropRoomSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });
-
-        return dropRoomSuccess[0];
+        socket.emit("quitRoom", jsonParam, callback);
     }
 
     public void createRoom(String name, String courseID, Ack callback) throws JSONException {

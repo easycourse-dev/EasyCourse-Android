@@ -3,7 +3,9 @@ package com.example.markwen.easycourse.components.main.CourseDetails;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +13,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.hanks.library.AnimateCheckBox;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -26,7 +32,11 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
+import io.socket.client.Ack;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by markw on 12/29/2016.
@@ -35,16 +45,18 @@ import io.realm.RealmResults;
 public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<CourseDetailsRoomsRecyclerViewAdapter.RoomViewHolder> {
     private ArrayList<Room> rooms = new ArrayList<>();
     private ArrayList<Room> joinedRooms = new ArrayList<>();
-    private SocketIO socketIO;
     private boolean isCourseJoined = false;
+    private SocketIO socketIO;
     private Realm realm;
+    private AppCompatActivity activity;
     private HttpURLConnection connection;
 
-    public CourseDetailsRoomsRecyclerViewAdapter(ArrayList<Room> list, SocketIO socketIo, boolean isJoined, Realm realm) {
+    public CourseDetailsRoomsRecyclerViewAdapter(ArrayList<Room> list, SocketIO socketIo, boolean isJoined, Realm realm, AppCompatActivity activity) {
         this.rooms = list;
         this.socketIO = socketIo;
         this.isCourseJoined = isJoined;
         this.realm = realm;
+        this.activity = activity;
         RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
         for (int i = 0; i < joinedRoomsResults.size(); i++) {
             joinedRooms.add(joinedRoomsResults.get(i));
@@ -59,9 +71,9 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(RoomViewHolder holder, int i) {
-        Room room = rooms.get(i);
+        final Room room = rooms.get(i);
         if (!isCourseJoined) {
-            // Check if course is joined, if not change text
+            // Different state based on course joining status
             holder.checkBox.setClickable(false);
             holder.roomNameTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
             holder.founderTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
@@ -70,12 +82,28 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             holder.roomNameTextView.setTextColor(Color.parseColor("#333333")); // black color
             holder.founderTextView.setTextColor(Color.parseColor("#333333")); // black color
         }
+
+        // Check if this room is joined
         Room joinedRoom = isRoomJoined(joinedRooms, room);
         if (joinedRoom != null) {
             holder.checkBox.setChecked(true);
+            holder.checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dropRoom(room.getId());
+                }
+            });
         } else {
             holder.checkBox.setChecked(false);
+            holder.checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    joinRoom(room.getId(), room.getCourseName());
+                }
+            });
         }
+
+        // Set founder and founder avatar
         if (room.getFounder() != null) {
             User user = room.getFounder();
             holder.founderTextView.setText(user.getUsername());
@@ -90,6 +118,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             holder.founderImageView.setImageResource(R.drawable.ic_group_black_24px);
         }
 
+        // Set other texts
         holder.roomNameTextView.setText(room.getRoomName());
         holder.roomDescTextView.setText(room.getMemberCountsDesc());
     }
@@ -163,5 +192,106 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             }
         }
         notifyDataSetChanged();
+    }
+
+    private void joinRoom(final String roomId, final String courseName) {
+        try {
+            socketIO.joinRoom(roomId, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (!obj.has("error")) {
+                        try {
+                            Realm tempRealm = Realm.getDefaultInstance();
+                            // Get room
+                            JSONObject temp = obj.getJSONObject("room");
+                            String roomName = (String) checkIfJsonExists(temp, "name", null);
+                            String courseID = (String) checkIfJsonExists(temp, "course", null);
+                            String universityID = (String) checkIfJsonExists(temp, "university", null);
+                            String language = (String) checkIfJsonExists(temp, "language", null);
+                            boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                            String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                            boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                            // Get founder
+                            String founderId = null, founderName = null, founderAvatarUrl = null;
+                            if (temp.has("founder")) {
+                                JSONObject founderJSON = temp.getJSONObject("founder");
+                                founderId = (String) checkIfJsonExists(founderJSON, "_id", null);
+                                founderName = (String) checkIfJsonExists(founderJSON, "displayName", null);
+                                founderAvatarUrl = (String) checkIfJsonExists(founderJSON, "avatarUrl", null);
+                            }
+
+                            // Save room to Realm
+                            Room.updateRoomToRealm(
+                                    new Room(
+                                            roomId,
+                                            roomName,
+                                            new RealmList<Message>(),
+                                            courseID,
+                                            courseName,
+                                            universityID,
+                                            new RealmList<User>(),
+                                            memberCounts,
+                                            memberCountsDesc,
+                                            new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                            language,
+                                            isPublic,
+                                            isSystem),
+                                    tempRealm);
+                            tempRealm.close();
+
+                        } catch (JSONException e) {
+                            Log.e("joinRoom", e.toString());
+                        }
+                    } else {
+                        try {
+                            JSONObject temp = obj.getJSONObject("error");
+                            Log.e("joinRoom", temp.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dropRoom(String roomId) {
+        try {
+            socketIO.quitRoom(roomId, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e("quitRoom", obj.toString());
+                    } else {
+
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateCheckbox(boolean status) {
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

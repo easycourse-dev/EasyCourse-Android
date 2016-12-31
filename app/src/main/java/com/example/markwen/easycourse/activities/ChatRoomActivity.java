@@ -151,13 +151,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 //TODO: Add intent to Share Room
                                 break;
                             case 6:
-                                try {
-                                    socketIO.quitRoom(currentRoom.getId());
-                                    socketIO.syncUser();
-                                    return false;
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+//                                try {
+//                                    socketIO.quitRoom(currentRoom.getId());
+//                                    socketIO.syncUser();
+//                                    return false;
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
                                 break;
                         }
                         return true;

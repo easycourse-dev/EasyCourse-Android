@@ -135,7 +135,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
         doSearchRoom(0, courseId, courseName);
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO, isJoined, realm);
+        roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO, isJoined, realm, this);
         roomsView.setHasFixedSize(true);
         roomsView.setLayoutManager(roomsLayoutManager);
         roomsView.addItemDecoration(new RecyclerViewDivider(this));

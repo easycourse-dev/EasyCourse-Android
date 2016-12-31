@@ -1,12 +1,15 @@
 package com.example.markwen.easycourse.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -42,6 +45,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;
+
     Course course;
     String courseId, courseName, title, courseDesc, universityId, universityName;
     int creditHrs = 0;
@@ -110,6 +114,18 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
 
         // Set up join button
         updateButtonView(isJoined);
+        joinCourseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isJoined) {
+                    // Show dialog and drop course if confirmed
+                    showDropCourseDialog();
+                } else {
+                    // Click to joinCourse
+
+                }
+            }
+        });
 
         // Set up rooms RecyclerView
         doSearchRoom(0, courseId, courseName);
@@ -269,6 +285,71 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             roomsAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void showDropCourseDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Dropping " + course.getCoursename() + "?")
+                .setMessage("If you drop this course, then you will automatically quit all the rooms belonging to " + course.getCoursename() + ".")
+                .setPositiveButton("Drop It", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Drop the course
+                        try {
+                            socketIO.dropCourse(course.getId(), new Ack() {
+                                @Override
+                                public void call(Object... args) {
+                                    try {
+                                        Realm tempRealm = Realm.getDefaultInstance();
+                                        JSONObject obj = (JSONObject) args[0];
+                                        boolean status = obj.getBoolean("success");
+                                        if (status) {
+                                            JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
+                                            String quitedRoomId;
+                                            Room quitedRoom;
+                                            for (int i = 0; i < quitedRoomsJSON.length(); i++) {
+                                                // Quit rooms in Realm
+                                                quitedRoomId = quitedRoomsJSON.getString(i);
+                                                quitedRoom = Room.getRoomById(tempRealm, quitedRoomId);
+                                                Room.deleteRoomFromRealm(quitedRoom, tempRealm);
+                                            }
+                                            Course.deleteCourseFromRealm(course, tempRealm);
+                                            tempRealm.close();
+                                            // Update view
+                                            isJoined = false;
+                                            dropCourseUpdateView(course.getId(), course.getCoursename());
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("Maybe Not", null)
+                .show();
+    }
+
+    private void dropCourseUpdateView(final String courseId, final String courseName){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateButtonView(false);
+                            courseRooms.clear();
+                            roomsAdapter.dropJoinedRoom();
+                            doSearchRoom(0, courseId, courseName);
                         }
                     });
                 }

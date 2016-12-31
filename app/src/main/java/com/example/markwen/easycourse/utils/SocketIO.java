@@ -177,27 +177,17 @@ public class SocketIO {
                             HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
                             conn.setDoInput(true);
                             conn.connect();
-                            //conn.setUseCaches(false);
 
-
-                            InputStream is = conn.getInputStream();
                             avatar = IOUtils.toByteArray(conn.getInputStream());
                         }
 
                     } catch (JSONException | IOException e) {
                         Log.e(TAG, e.toString());
                     }
-                    //User user = null;
 
                     try {
                         String id = (String) checkIfJsonExists(userObj, "_id", null);
                         String university = (String) checkIfJsonExists(userObj, "university", null);
-                       /*
-                        String username = (String) checkIfJsonExists(userObj, "displayName", null);
-                        String email = (String) checkIfJsonExists(userObj, "email", null);
-
-                        user = new User(id, username, avatar, avatarUrlString, email, university);
-                        */
 
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);

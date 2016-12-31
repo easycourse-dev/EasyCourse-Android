@@ -61,7 +61,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
     public void onBindViewHolder(RoomViewHolder holder, int i) {
         Room room = rooms.get(i);
         if (!isCourseJoined) {
-            // Check if course is joined
+            // Check if course is joined, if not change text
             holder.checkBox.setClickable(false);
             holder.roomNameTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
             holder.founderTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
@@ -123,6 +123,10 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
 
     public void setCourseJoined(boolean joined) {
         isCourseJoined = joined;
+        RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
+        for (int i = 0; i < joinedRoomsResults.size(); i++) {
+            joinedRooms.add(joinedRoomsResults.get(i));
+        }
         notifyDataSetChanged();
     }
 
@@ -147,5 +151,12 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             }
         };
         thread.start();
+    }
+
+    public void dropJoinedRoom() {
+        joinedRooms.clear();
+        isCourseJoined = false;
+        rooms.clear();
+        notifyDataSetChanged();
     }
 }

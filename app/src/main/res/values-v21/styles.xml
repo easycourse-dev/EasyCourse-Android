@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+                <!-- Customize your theme here. -->
+                <item name="colorPrimary">@color/colorPrimary</item>
+                <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+                <item name="colorAccent">@color/colorAccent</item>
+
+                <!--InputLayout Colors-->
+                <item name="colorControlNormal">#FFF</item>
+                <item name="colorControlActivated">@color/colorAccent</item>
+                <item name="colorControlHighlight">@color/colorAccent</item>
+                <item name="android:windowContentTransitions">true</item>
+
+                <!--Toolbar-->
+                <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+
+                <item name="android:windowTranslucentStatus">true</item>
+        </style>
+</resources>

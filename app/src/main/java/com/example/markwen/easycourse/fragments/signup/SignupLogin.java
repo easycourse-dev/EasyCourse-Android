@@ -31,6 +31,7 @@ import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
@@ -55,6 +56,7 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
@@ -381,13 +383,6 @@ public class SignupLogin extends Fragment {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         parseLoginResponse(statusCode, headers, response);
-
-                        try {
-                            SocketIO socketIO = new SocketIO(v.getContext());
-                            socketIO.syncUser();
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
                     }
 
                     @Override
@@ -502,15 +497,44 @@ public class SignupLogin extends Fragment {
         currentUser.setJoinedCourses(joinedCourseList);
         currentUser.setJoinedRooms(joinedRoomList);
 
-        // Save currentUser to Realm
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(currentUser);
-        realm.commitTransaction();
+        realm.close();
 
-        // Make an Intent to move on to the next activity
-        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-        startActivity(mainActivityIntent);
-        getActivity().finish();
+        try {
+            SocketIO socketIO = new SocketIO(getContext());
+            socketIO.getUniversityInfo(response.getString("university"), new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    try {
+                        JSONObject temp = obj.getJSONObject("univ");
+                        String id = (String) checkIfJsonExists(temp, "_id", null);
+                        String name = (String) checkIfJsonExists(temp, "name", null);
+
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        realm.copyToRealmOrUpdate(new University(id, name));
+                        realm.copyToRealmOrUpdate(currentUser);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        // Make an Intent to move on to the next activity
+                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                        startActivity(mainActivityIntent);
+                        getActivity().finish();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (URISyntaxException | JSONException e) {
+            e.printStackTrace();
+        }
+
+//        // Save currentUser to Realm
+//        realm.beginTransaction();
+//        realm.commitTransaction();
+
+
     }
 
 

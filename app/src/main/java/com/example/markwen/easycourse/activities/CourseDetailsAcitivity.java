@@ -37,6 +37,8 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.socket.client.Ack;
 
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+
 /**
  * Created by markw on 12/27/2016.
  */
@@ -122,7 +124,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                     showDropCourseDialog();
                 } else {
                     // Click to joinCourse
-
+                    joinCourse();
                 }
             }
         });
@@ -308,6 +310,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                                         Realm tempRealm = Realm.getDefaultInstance();
                                         JSONObject obj = (JSONObject) args[0];
                                         boolean status = obj.getBoolean("success");
+                                        ArrayList<Room> deletedRooms = new ArrayList<>();
                                         if (status) {
                                             JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
                                             String quitedRoomId;
@@ -316,13 +319,14 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                                                 // Quit rooms in Realm
                                                 quitedRoomId = quitedRoomsJSON.getString(i);
                                                 quitedRoom = Room.getRoomById(tempRealm, quitedRoomId);
+                                                deletedRooms.add(quitedRoom);
                                                 Room.deleteRoomFromRealm(quitedRoom, tempRealm);
                                             }
                                             Course.deleteCourseFromRealm(course, tempRealm);
                                             tempRealm.close();
                                             // Update view
                                             isJoined = false;
-                                            dropCourseUpdateView(course.getId(), course.getCoursename());
+                                            courseUpdateView(course.getId(), course.getCoursename(), deletedRooms);
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -338,7 +342,7 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                 .show();
     }
 
-    private void dropCourseUpdateView(final String courseId, final String courseName){
+    private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -346,9 +350,9 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            updateButtonView(false);
+                            updateButtonView(isJoined);
                             courseRooms.clear();
-                            roomsAdapter.dropJoinedRoom();
+                            roomsAdapter.updateCourse(isJoined, roomsJoined);
                             doSearchRoom(0, courseId, courseName);
                         }
                     });
@@ -356,5 +360,80 @@ public class CourseDetailsAcitivity extends AppCompatActivity {
             }
         };
         thread.start();
+    }
+
+    private void joinCourse() {
+        try {
+            socketIO.joinCourse(courseId, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject res = (JSONObject) args[0];
+                    try {
+                        JSONArray courseArrayJSON = res.getJSONArray("joinedCourse");
+                        JSONArray roomArrayJSON = res.getJSONArray("joinedRoom");
+                        JSONObject temp;
+                        Realm tempRealm = Realm.getDefaultInstance();
+
+                        // Courses handling
+                        for (int i = 0; i < courseArrayJSON.length(); i++) {
+                            temp = courseArrayJSON.getJSONObject(i);
+                            String id = (String) checkIfJsonExists(temp, "_id", null);
+                            String courseName = (String) checkIfJsonExists(temp, "name", null);
+                            String title = (String) checkIfJsonExists(temp, "title", null);
+                            String courseDescription = (String) checkIfJsonExists(temp, "description", null);
+                            int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
+                            String universityID = (String) checkIfJsonExists(temp, "university", null);
+
+                            Course course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
+                            Course.updateCourseToRealm(course, tempRealm);
+                        }
+
+                        // Rooms handling
+                        ArrayList<Room> newRooms = new ArrayList<>();
+                        Room tempRoom;
+                        for (int i = 0; i < roomArrayJSON.length(); i++) {
+                            temp = roomArrayJSON.getJSONObject(i);
+                            final String id = (String) checkIfJsonExists(temp, "_id", null);
+                            final String roomName = (String) checkIfJsonExists(temp, "name", null);
+                            final String courseID = (String) checkIfJsonExists(temp, "course", null);
+                            final String courseName = Course.getCourseById(courseID, tempRealm).getCoursename();
+                            final String universityID = (String) checkIfJsonExists(temp, "university", null);
+                            final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                            final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                            final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                            final String language = (String) checkIfJsonExists(temp, "language", "0");
+                            final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                            // Save user to Realm
+                            tempRoom = new Room(
+                                    id,
+                                    roomName,
+                                    new RealmList<Message>(),
+                                    courseID,
+                                    courseName,
+                                    universityID,
+                                    new RealmList<User>(),
+                                    memberCounts,
+                                    memberCountsDesc,
+                                    null,
+                                    language,
+                                    isPublic,
+                                    isSystem
+                            );
+                            newRooms.add(tempRoom);
+                            Room.updateRoomToRealm(tempRoom, tempRealm);
+                        }
+                        tempRealm.close();
+                        // Update view
+                        isJoined = true;
+                        courseUpdateView(course.getId(), course.getCoursename(), newRooms);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

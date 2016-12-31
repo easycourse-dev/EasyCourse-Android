@@ -17,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -319,8 +318,10 @@ public class SocketIO {
 
         socket.emit("joinCourse", jsonParam, callback);
     }
-    public void joinCourse(ArrayList<String> courses, Ack callback) throws JSONException {
+    public void joinCourse(String courseId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
+        ArrayList<String> courses = new ArrayList<>();
+        courses.add(courseId);
         jsonParam.put("courses", new JSONArray(courses));
         jsonParam.put("lang", new JSONArray());
 
@@ -562,6 +563,13 @@ public class SocketIO {
                 }
             }
         });
+    }
+
+    public void getUniversityInfo(String univId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("univId", univId);
+
+        socket.emit("getUniversityInfo", jsonParam, callback);
     }
 
     public void getUniversityInfo(String univId) throws JSONException {

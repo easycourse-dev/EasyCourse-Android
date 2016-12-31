@@ -65,6 +65,10 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             holder.checkBox.setClickable(false);
             holder.roomNameTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
             holder.founderTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
+        } else {
+            holder.checkBox.setClickable(true);
+            holder.roomNameTextView.setTextColor(Color.parseColor("#333333")); // black color
+            holder.founderTextView.setTextColor(Color.parseColor("#333333")); // black color
         }
         Room joinedRoom = isRoomJoined(joinedRooms, room);
         if (joinedRoom != null) {
@@ -121,15 +125,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return null;
     }
 
-    public void setCourseJoined(boolean joined) {
-        isCourseJoined = joined;
-        RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
-        for (int i = 0; i < joinedRoomsResults.size(); i++) {
-            joinedRooms.add(joinedRoomsResults.get(i));
-        }
-        notifyDataSetChanged();
-    }
-
     private void downloadImage(final URL url, final ImageView imgView){
         Thread thread = new Thread(){
             @Override
@@ -153,10 +148,20 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         thread.start();
     }
 
-    public void dropJoinedRoom() {
-        joinedRooms.clear();
-        isCourseJoined = false;
-        rooms.clear();
+    public void updateCourse(boolean status, ArrayList<Room> newRooms) {
+        if (status) {
+            // joinCourse
+            isCourseJoined = true;
+            joinedRooms.addAll(newRooms);
+        } else {
+            // dropCourse
+            isCourseJoined = false;
+            joinedRooms.clear();
+            RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
+            for (int i = 0; i < joinedRoomsResults.size(); i++) {
+                joinedRooms.add(joinedRoomsResults.get(i));
+            }
+        }
         notifyDataSetChanged();
     }
 }

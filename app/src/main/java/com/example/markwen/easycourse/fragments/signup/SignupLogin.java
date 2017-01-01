@@ -363,9 +363,8 @@ public class SignupLogin extends Fragment {
             usernameInputLayout.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
-
         } else { // Edittexts are hidden, do logic
-            Log.d(TAG, "Login clicked-doing login");
+            Log.e(TAG, "Login clicked-doing login");
             // Get inputs and check if fields are empty
             // only execute login API when fields are all filled
             try {
@@ -392,17 +391,17 @@ public class SignupLogin extends Fragment {
                                 }
 
                                 @Override
-                                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                                    Log.e(TAG, "Token save unsuccessful "+res);
+                                public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
+                                    Log.e(TAG, "Token save unsuccessful "+response.toString());
                                 }
                             });
                         } catch (JSONException | UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                            Log.e(TAG, e.toString());
                         }
                     }
 
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
                         // Make a Snackbar to notify user with error
                         loginErrorSnackbar.show();
                     }

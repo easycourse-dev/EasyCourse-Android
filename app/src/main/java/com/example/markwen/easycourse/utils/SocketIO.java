@@ -280,8 +280,11 @@ public class SocketIO {
         });
     }
 
-    public void logout(Ack callback) {
-        socket.emit("logout", null, callback);
+    public void logout(Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("deviceToken", EasyCourse.getAppInstance().getDeviceToken());
+
+        socket.emit("logout", jsonParam, callback);
     }
 
     public void searchCourses(String searchQuery, int limit, int skip, String universityId, Ack callback) throws JSONException {

@@ -138,14 +138,18 @@ public class UserFragment extends Fragment {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout(v);
+                try {
+                    logout(v);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         return v;
     }
 
-    private void logout(final View v) {
+    private void logout(final View v) throws JSONException {
 
         socketIO.logout(new Ack() {
             @Override

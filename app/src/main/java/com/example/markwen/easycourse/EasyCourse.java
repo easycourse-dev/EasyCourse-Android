@@ -71,6 +71,10 @@ public class EasyCourse extends Application {
         return appInstance;
     }
 
+    public void setDeviceToken(String deviceToken){
+        this.deviceToken = deviceToken;
+    }
+
     public String getDeviceToken() {
         return deviceToken;
     }

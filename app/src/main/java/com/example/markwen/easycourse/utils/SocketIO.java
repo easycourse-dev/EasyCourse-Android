@@ -189,6 +189,7 @@ public class SocketIO {
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
                         userObj.put("universityID", university);
+                        userObj.put("profilePicture", avatar);
                         userObj.remove("_id");
 
                         JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs
@@ -197,8 +198,9 @@ public class SocketIO {
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
+                        Course.syncAddCourse(joinedCoursesJSON, realm);
                         Room.syncRooms(joinedRoomsJSON, realm);
-//                        Course.syncCourses(joinedCoursesJSON, realm);
+                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
 
                         // Adding silent rooms

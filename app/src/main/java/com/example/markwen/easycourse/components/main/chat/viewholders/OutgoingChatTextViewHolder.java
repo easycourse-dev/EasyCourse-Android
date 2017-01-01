@@ -76,20 +76,16 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 //            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            try {
-                if (!curUser.getProfilePictureUrl().isEmpty())
-                    Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(outgoingImageView);
+            if (curUser.getProfilePictureUrl().isEmpty()) {
+                outgoingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+            } else {
+                Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                        .placeholder(R.drawable.ic_person_black_24px)
+                        .into(outgoingImageView);
+                outgoingName.setText(curUser.getUsername());
+                outgoingMessage.setText(message.getText());
 
-
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.toString());
             }
-            outgoingName.setText(curUser.getUsername());
-            outgoingMessage.setText(message.getText());
-
         }
 
         outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {

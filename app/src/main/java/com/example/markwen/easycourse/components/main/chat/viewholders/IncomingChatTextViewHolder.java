@@ -99,18 +99,16 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void fillUserInfo(User thisUser, final Context context, final Message message) {
-        if (thisUser != null) {
-            try {
-                if (thisUser.getProfilePictureUrl() != null)
-                    Picasso.with(context)
-                            .load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(incomingImageView);
+        if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
 
-
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.toString());
+            if (thisUser.getProfilePictureUrl().isEmpty()) {
+                incomingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+            } else {
+                Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                        .placeholder(R.drawable.ic_person_black_24px)
+                        .into(incomingImageView);
             }
+
             incomingName.setText(thisUser.getUsername());
             incomingMessage.setText(message.getText());
 

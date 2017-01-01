@@ -89,7 +89,7 @@ public class Room extends RealmObject {
 
     public static void syncRooms(JSONArray updatedRooms, Realm realm){
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
-        ArrayList<String> addedRoomsId = new ArrayList<>(), removedRoomsId = new ArrayList<>();
+        ArrayList<Room> newRooms = new ArrayList<>(), removedRooms = new ArrayList<>();
 
 
     }

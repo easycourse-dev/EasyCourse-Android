@@ -22,6 +22,15 @@ public class ListsUtils {
         return false;
     }
 
+    public static boolean isRoomJoined(RealmList<Room> joinedRooms, Room room) {
+        for (int i = 0; i < joinedRooms.size(); i++) {
+            if (joinedRooms.get(i).getId().equals(room.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isUserInList(RealmList<User> userList, User user) {
         for (int i = 0; i < userList.size(); i++) {
             if (userList.get(i).getId().equals(user.getId())) {

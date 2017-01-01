@@ -43,6 +43,7 @@ import io.realm.Realm;
 import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
+import static com.example.markwen.easycourse.utils.ListsUtils.isRoomJoined;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
@@ -122,8 +123,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
                         new DividerDrawerItem(),
-                        new SecondarySwitchDrawerItem().withName(R.string.silent).
-                                withChecked(currentUser.getSilentRooms().contains(currentRoom))
+                        new SecondarySwitchDrawerItem().withName(R.string.silent)
+                                .withChecked(isRoomJoined(currentUser.getSilentRooms(), currentRoom))
                                 .withOnCheckedChangeListener(new OnCheckedChangeListener() {
                                     @Override
                                     public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {

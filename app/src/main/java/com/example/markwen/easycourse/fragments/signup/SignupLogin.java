@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
@@ -383,6 +384,21 @@ public class SignupLogin extends Fragment {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         parseLoginResponse(statusCode, headers, response);
+                        try {
+                            APIFunctions.saveDeviceToken(getContext(), EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    Log.e(TAG, "Token saved");
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                                    Log.e(TAG, "Token save unsuccessful "+res);
+                                }
+                            });
+                        } catch (JSONException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override

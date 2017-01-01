@@ -28,7 +28,7 @@ public class EasyCourse extends Application {
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
 
-    private static String deviceToken;
+    private String deviceToken;
 
     //TODO: http://stackoverflow.com/questions/23978828/how-do-i-use-disk-caching-in-picasso
 
@@ -71,7 +71,7 @@ public class EasyCourse extends Application {
         return appInstance;
     }
 
-    public static String getDeviceToken() {
+    public String getDeviceToken() {
         return deviceToken;
     }
 

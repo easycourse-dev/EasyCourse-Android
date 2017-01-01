@@ -47,8 +47,6 @@ public class RoomsFragment extends Fragment {
 
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     RealmResults<Room> rooms;
-
-
     public RoomsFragment() {
     }
 

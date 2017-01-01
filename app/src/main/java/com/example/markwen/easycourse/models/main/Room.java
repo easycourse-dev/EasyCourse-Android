@@ -2,6 +2,8 @@ package com.example.markwen.easycourse.models.main;
 
 import android.support.annotation.Nullable;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +87,12 @@ public class Room extends RealmObject {
         realm.commitTransaction();
     }
 
+    public static void syncRooms(JSONArray updatedRooms, Realm realm){
+        RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
+        ArrayList<String> addedRoomsId = new ArrayList<>(), removedRoomsId = new ArrayList<>();
+
+
+    }
     public static boolean isRoomInRealm(Room room, Realm realm) {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", room.getId())

@@ -19,10 +19,8 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.main.ChatRoomFragment;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
-import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.DimenHolder;
@@ -37,13 +35,12 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
@@ -124,7 +121,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .withDrawerGravity(Gravity.END)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px).withIdentifier(1).withSelectable(false),
-                        new PrimaryDrawerItem().withName(R.string.subgroups).withIcon(R.drawable.ic_chatboxes).withIdentifier(1).withSelectable(false),
                         new DividerDrawerItem(),
                         new SecondarySwitchDrawerItem().withName(R.string.silent).
                                 withChecked(currentUser.getSilentRooms().contains(currentRoom))
@@ -151,14 +147,33 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 //TODO: Add intent to Share Room
                                 break;
                             case 6:
-                                // Replace these commented area with the latest quitRoom implementation
-//                                try {
-//                                    socketIO.quitRoom(currentRoom.getId());
-//                                    socketIO.syncUser();
-//                                    return false;
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                }
+                                try {
+                                    socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                                        @Override
+                                        public void call(Object... args) {
+                                            JSONObject obj = (JSONObject) args[0];
+                                            Log.e(TAG, obj.toString());
+
+                                            if (obj.has("error")) {
+                                                Log.e(TAG, obj.toString());
+                                            } else {
+
+                                                try {
+                                                    boolean success = obj.getBoolean("success");
+                                                    if(success) {
+                                                        socketIO.syncUser();
+                                                    }
+                                                } catch (JSONException e) {
+                                                    Log.e(TAG, e.toString());
+                                                }
+                                            }
+                                        }
+                                    });
+                                    socketIO.syncUser();
+                                    return false;
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                         }
                         return true;
@@ -171,30 +186,37 @@ public class ChatRoomActivity extends AppCompatActivity {
         TextView headerCourseTitle = ((TextView) headView.findViewById(R.id.headerCourseTitle));
         headerCourseTitle.setText(currentRoom.getRoomName());
         headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        headerCourseTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplication(), CourseDetailsActivity.class);
+                i.putExtra("courseId", currentRoom.getCourseID());
+                i.putExtra("isJoined", true);
+                startActivity(i);
+            }
+        });
         ((TextView) headView.findViewById(R.id.headerCourseSubtitle)).setText(currentRoom.getCourseName());
     }
 
     private void silenceRoom(final boolean isChecked) {
         try {
-            APIFunctions.setSilentRoom(getApplicationContext(), currentRoom.getId(), isChecked, new JsonHttpResponseHandler(){
+            socketIO.silentRoom(currentRoom.getId(), isChecked, new Ack(){
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    if(isChecked){
-                        Log.e(TAG, "Room silented");
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e(TAG, "onFailure: silentRoomOnCheckedListener " + obj.toString());
                     } else {
-                        Log.e(TAG, "Room un-silented");
+                        if(isChecked){
+                            Log.e(TAG, "Room silented");
+                        } else {
+                            Log.e(TAG, "Room un-silented");
+                        }
+                        socketIO.syncUser();
                     }
-                    socketIO.syncUser();
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: silentRoomOnCheckedListener", t);
                 }
             });
         } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

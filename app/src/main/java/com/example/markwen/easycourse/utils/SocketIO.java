@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeoutException;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -509,6 +512,12 @@ public class SocketIO {
         socket.emit("getRoomMembers", jsonParam, callback);
     }
 
+    public void getUserInfoJson(String userId, Ack callback) throws JSONException{
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("userId", userId);
+        socket.emit("getUserInfo", jsonParam, callback);
+    }
+
     public void getUserInfo(String userID) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("userId", userID);
@@ -516,72 +525,74 @@ public class SocketIO {
         socket.emit("getUserInfo", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
-
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("error")) {
-                    Log.e(TAG, obj.toString());
-                } else {
-                    Log.e(TAG, "getUserInfo" + obj.toString());
-                    JSONObject userObj = null;
-                    byte[] avatar = null;
-                    String avatarUrlString = "";
-                    String emailString = "";
-                    String universityId = "";
-
-                    try {
-                        userObj = obj.getJSONObject("user");
-                        if (userObj.has("avatarUrl")) {
-                            avatarUrlString = userObj.getString("avatarUrl");
-                            URL avatarUrl = new URL(avatarUrlString);
-                            HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
-                            conn.setDoInput(true);
-                            conn.connect();
-                            //conn.setUseCaches(false);
-                            avatar = IOUtils.toByteArray(conn.getInputStream());
-                        }
-                        if (userObj.has("email")) {
-                            emailString = userObj.getString("email");
-                        } else {
-                            emailString = null;
-                        }
-                        if (userObj.has("university")) {
-                            universityId = userObj.getString("university");
-                        } else {
-                            universityId = null;
-                        }
-                    } catch (JSONException | IOException e) {
-                        Log.e(TAG, e.toString());
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, "no avatarUrl", e);
-                    }
-
-                    User user = null;
-                    try {
-                        user = new User(
-                                userObj.getString("_id"),
-                                userObj.getString("displayName"),
-                                avatar,
-                                avatarUrlString,
-                                emailString,
-                                universityId);
-                    } catch (JSONException | NullPointerException e) {
-                        Log.e(TAG, e.toString());
-                    }
-
-                    Realm.init(context);
-                    Realm realm = Realm.getDefaultInstance();
-                    User.updateUserToRealm(user, realm);
-                    realm.close();
-
-                    try {
-                        getUniversityInfo(universityId);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
+                parseUserJsonInfo((JSONObject) args[0]);
             }
         });
+    }
+
+    public User parseUserJsonInfo(JSONObject obj) {
+        if (obj.has("error")) {
+            Log.e(TAG, obj.toString());
+        } else {
+            Log.e(TAG, "getUserInfo" + obj.toString());
+            JSONObject userObj = null;
+            byte[] avatar = null;
+            String avatarUrlString = "";
+            String emailString = "";
+            String universityId = "";
+
+            try {
+                userObj = obj.getJSONObject("user");
+                if (userObj.has("avatarUrl")) {
+                    avatarUrlString = userObj.getString("avatarUrl");
+                    URL avatarUrl = new URL(avatarUrlString);
+                    HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                    conn.setDoInput(true);
+                    conn.connect();
+                    //conn.setUseCaches(false);
+                    avatar = IOUtils.toByteArray(conn.getInputStream());
+                }
+                if (userObj.has("email")) {
+                    emailString = userObj.getString("email");
+                } else {
+                    emailString = null;
+                }
+                if (userObj.has("university")) {
+                    universityId = userObj.getString("university");
+                } else {
+                    universityId = null;
+                }
+            } catch (JSONException | IOException e) {
+                Log.e(TAG, e.toString());
+            } catch (NullPointerException e) {
+                Log.e(TAG, "no avatarUrl", e);
+            }
+
+            User user = null;
+            try {
+                user = new User(
+                        userObj.getString("_id"),
+                        userObj.getString("displayName"),
+                        avatar,
+                        avatarUrlString,
+                        emailString,
+                        universityId);
+            } catch (JSONException | NullPointerException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            Realm.init(context);
+            Realm realm = Realm.getDefaultInstance();
+            User.updateUserToRealm(user, realm);
+            realm.close();
+            try {
+                getUniversityInfo(universityId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return user;
+        }
+        return null;
     }
 
     public void getUniversityInfo(String univId, Ack callback) throws JSONException {

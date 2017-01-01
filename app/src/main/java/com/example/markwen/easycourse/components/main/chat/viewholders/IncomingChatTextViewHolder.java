@@ -18,16 +18,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 /**
  * Created by nrinehart on 12/22/16.
@@ -75,12 +81,29 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
 //            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
+        if (thisUser == null) {
+            try {
+                EasyCourse.getAppInstance().getSocketIO().getUserInfoJson(message.getSenderId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
+                        fillUserInfo(thisUser, context, message);
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "setupView: ", e);
+            }
+        } else {
+            fillUserInfo(thisUser, context, message);
+        }
+    }
 
+    private void fillUserInfo(User thisUser, final Context context, final Message message) {
         if (thisUser != null) {
             try {
                 if (thisUser.getProfilePictureUrl() != null)
                     Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                            .load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                             .placeholder(R.drawable.ic_person_black_24px)
                             .into(incomingImageView);
 

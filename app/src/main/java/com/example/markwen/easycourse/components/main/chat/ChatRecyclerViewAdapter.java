@@ -119,7 +119,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     public int getItemViewType(int i) {
         if (getData() != null && getData().size() > 0) {
             final Message message = getData().get(i);
-            if (message.isToUser()) {
+            if (message.getSenderId().equals(curUser.getId())) {
 
                 if (message.getImageUrl() != null)
                     return OUTGOING_PIC;

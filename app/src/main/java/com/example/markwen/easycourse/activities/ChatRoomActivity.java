@@ -210,6 +210,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     switch (position) {
                         case 1:
                             //TODO: Add intent to classmates of all shared classes
+                            gotoRoomUserListFragment();
                             break;
                         case 2:
                             //TODO: Add intent to shared groups
@@ -218,11 +219,9 @@ public class ChatRoomActivity extends AppCompatActivity {
                             //TODO: Add intent to Share Room
                             break;
                         case 6:
-                            //TODO: Add dialog to report user
                             showReportUserDialog();
                             break;
                         case 7:
-                            //TODO: Dialog to block user and socket call
                             showBlockUserDialog();
                             break;
                         case 8:

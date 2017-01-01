@@ -30,7 +30,9 @@ import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -264,44 +267,92 @@ public class NewRoomActivity extends AppCompatActivity {
 
 
     private void doSearchRoom(final String query, final int skip, String courseId, final String courseName) {
-        try {
-            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    try {
-                        JSONObject obj = (JSONObject) args[0];
-                        JSONArray response = obj.getJSONArray("rooms");
-                        JSONObject room;
-                        if (skip == 0) { // normal
-                            rooms.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                room = (JSONObject) response.get(i);
-                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-                                rooms.add(roomObj);
-                            }
-                            updateRecyclerView(response, query);
-                        } else { // load more
-                            int roomsOrigSize = rooms.size();
-                            for (int i = 0; i < response.length(); i++) {
-                                room = (JSONObject) response.get(i);
-                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-                                if (!rooms.contains(roomObj))
-                                    rooms.add(roomObj);
-                            }
-                            if (rooms.size() > roomsOrigSize) {
-                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+        APIFunctions.searchCourseSubroom(this, courseId, query, 20, skip, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                JSONObject room;
+                try {
+                    if (skip == 0) { // normal
                         rooms.clear();
-                        updateRecyclerView(new JSONArray(), query);
+                        for (int i = 0; i < response.length(); i++) {
+                            room = (JSONObject) response.get(i);
+                            Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                            rooms.add(roomObj);
+                        }
+                        roomsRecyclerViewAdapter.notifyDataSetChanged();
+                        roomsOnScrollListener.resetState();
+                        Course selectedCourse = coursesAdapter.getSelectedCourse();
+                        if (response.length() == 0
+                                && ((selectedCourse != null && selectedCourse.getId() != null)
+                                || selectedCourse.getCoursename().equals("Private Room"))
+                                && !query.equals("")) {
+                            newRoomButton.setVisibility(View.VISIBLE);
+                            existedRoomView.setVisibility(View.GONE);
+                        } else if (response.length() == 0
+                                && ((selectedCourse != null && selectedCourse.getId() != null)
+                                || selectedCourse.getCoursename().equals("Private Room"))
+                                && query.equals("")) {
+                            existedRoomView.setVisibility(View.GONE);
+                        } else {
+                            newRoomButton.setVisibility(View.GONE);
+                            existedRoomView.setVisibility(View.VISIBLE);
+                        }
+//                        updateRecyclerView(response, query);
+                    } else { // load more
+                        int roomsOrigSize = rooms.size();
+                        for (int i = 0; i < response.length(); i++) {
+                            room = (JSONObject) response.get(i);
+                            Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                            if (!rooms.contains(roomObj))
+                                rooms.add(roomObj);
+                        }
+                        if (rooms.size() > roomsOrigSize) {
+                            roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+                        }
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
+//        try {
+//            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
+//                @Override
+//                public void call(Object... args) {
+//                    try {
+//                        JSONObject obj = (JSONObject) args[0];
+//                        JSONArray response = obj.getJSONArray("rooms");
+//                        JSONObject room;
+//                        if (skip == 0) { // normal
+//                            rooms.clear();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                rooms.add(roomObj);
+//                            }
+//                            updateRecyclerView(response, query);
+//                        } else { // load more
+//                            int roomsOrigSize = rooms.size();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                if (!rooms.contains(roomObj))
+//                                    rooms.add(roomObj);
+//                            }
+//                            if (rooms.size() > roomsOrigSize) {
+//                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+//                            }
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                        rooms.clear();
+//                        updateRecyclerView(new JSONArray(), query);
+//                    }
+//                }
+//            });
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void updateRoomInSocket(final Room room){

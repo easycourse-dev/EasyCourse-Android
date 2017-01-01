@@ -144,7 +144,7 @@ public class NewRoomActivity extends AppCompatActivity {
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     coursesAdapter.setSelectedCourse(i);
                     roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
-                    doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+                    doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
                 }
 
                 @Override
@@ -184,7 +184,7 @@ public class NewRoomActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                doSearchRoom(editable.toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+                doSearchRoom(editable.toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
             }
         });
 
@@ -192,7 +192,7 @@ public class NewRoomActivity extends AppCompatActivity {
         roomsOnScrollListener = new NewRoomRoomsEndlessRecyclerViewScrollListener(roomsLayoutManager, roomsRecyclerViewAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                doSearchRoom(newRoomName.getText().toString(), page, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+                doSearchRoom(newRoomName.getText().toString(), page, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
             }
         };
         existedRoomView.addOnScrollListener(roomsOnScrollListener);
@@ -266,7 +266,7 @@ public class NewRoomActivity extends AppCompatActivity {
     }
 
 
-    private void doSearchRoom(final String query, final int skip, String courseId, final String courseName) {
+    private void doSearchRoom(final String query, final int skip, String courseId, final String courseName, final View v) {
         APIFunctions.searchCourseSubroom(this, courseId, query, 20, skip, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -313,6 +313,12 @@ public class NewRoomActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("searchCourseSubroom", responseString);
+                Snackbar.make(v, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
 //        try {

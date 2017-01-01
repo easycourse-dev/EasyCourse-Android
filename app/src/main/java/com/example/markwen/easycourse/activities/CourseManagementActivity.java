@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.activities;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,20 +21,21 @@ import com.example.markwen.easycourse.components.main.CourseManagement.CoursesEn
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.socket.client.Ack;
 
 /**
  * Created by markw on 12/26/2016.
@@ -141,74 +143,127 @@ public class CourseManagementActivity extends AppCompatActivity {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    try {
-                        socketIO = new SocketIO(getApplicationContext());
-                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
-
-                            @Override
-                            public void call(Object... args) {
-
-                                JSONObject obj = (JSONObject) args[0];
-                                if (!obj.has("error")) {
-                                    try {
-                                        JSONArray response = obj.getJSONArray("course");
-                                        searchResults.clear();
-                                        for (int i = 0; i < response.length(); i++) {
-                                            JSONObject course = (JSONObject) response.get(i);
-                                            searchResults.add(new Course(
-                                                    course.getString("_id"),
-                                                    course.getString("name"),
-                                                    course.getString("title"),
-                                                    course.getString("description"),
-                                                    course.getInt("creditHours"),
-                                                    course.getJSONObject("university").getString("_id")
-                                                    ));
-                                        }
-                                        updateRecyclerView();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else{
-                                    Log.e("com.example.easycourse", "failure" + obj.toString());
+                    APIFunctions.searchCourse(getApplicationContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                            searchResults.clear();
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+                                    JSONObject course = (JSONObject) response.get(i);
+                                    searchResults.add(new Course(
+                                            course.getString("_id"),
+                                            course.getString("name"),
+                                            course.getString("title"),
+                                            course.getString("description"),
+                                            course.getInt("creditHours"),
+                                            course.getJSONObject("university").getString("_id")
+                                    ));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                        });
-                    } catch (URISyntaxException | JSONException e) {
-                        Log.e("emit searchCourse", e.toString());
-                    }
+                            coursesAdapter.notifyDataSetChanged();
+                            coursesOnScrollListener.resetState();
+//                            updateRecyclerView();
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            Log.e("searchCourse", responseString);
+                            Snackbar.make(courseSearch, responseString, Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+//                    try {
+//                        socketIO = new SocketIO(getApplicationContext());
+//                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
+//
+//                            @Override
+//                            public void call(Object... args) {
+//
+//                                JSONObject obj = (JSONObject) args[0];
+//                                if (!obj.has("error")) {
+//                                    try {
+//                                        JSONArray response = obj.getJSONArray("course");
+//                                        searchResults.clear();
+//                                        for (int i = 0; i < response.length(); i++) {
+//                                            JSONObject course = (JSONObject) response.get(i);
+//                                            searchResults.add(new Course(
+//                                                    course.getString("_id"),
+//                                                    course.getString("name"),
+//                                                    course.getString("title"),
+//                                                    course.getString("description"),
+//                                                    course.getInt("creditHours"),
+//                                                    course.getJSONObject("university").getString("_id")
+//                                                    ));
+//                                        }
+//                                        updateRecyclerView();
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                } else{
+//                                    Log.e("com.example.easycourse", "failure" + obj.toString());
+//                                }
+//                            }
+//                        });
+//                    } catch (URISyntaxException | JSONException e) {
+//                        Log.e("emit searchCourse", e.toString());
+//                    }
                 }
             }
         });
     }
 
-    public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, RecyclerView view) {
-        try {
-            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    if (!obj.has("error")) {
-                        int startPosition = searchResults.size();
-                        try {
-                            JSONArray response = obj.getJSONArray("course");
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject courseJSON = (JSONObject) response.get(i);
-                                Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
-                                if (!searchResults.contains(courseObj))
-                                    searchResults.add(courseObj);
-                            }
-                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else{
-                        Log.e("com.example.easycourse", "failure" + obj.toString());
+    public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {
+        APIFunctions.searchCourse(getApplicationContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                int startPosition = searchResults.size();
+                try {
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject courseJSON = (JSONObject) response.get(i);
+                        Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
+                        if (!searchResults.contains(courseObj))
+                            searchResults.add(courseObj);
                     }
+                    coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("searchCourse", responseString);
+                Snackbar.make(view, responseString, Snackbar.LENGTH_LONG).show();
+            }
+        });
+//        try {
+//            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
+//                @Override
+//                public void call(Object... args) {
+//                    JSONObject obj = (JSONObject) args[0];
+//                    if (!obj.has("error")) {
+//                        int startPosition = searchResults.size();
+//                        try {
+//                            JSONArray response = obj.getJSONArray("course");
+//                            for (int i = 0; i < response.length(); i++) {
+//                                JSONObject courseJSON = (JSONObject) response.get(i);
+//                                Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
+//                                if (!searchResults.contains(courseObj))
+//                                    searchResults.add(courseObj);
+//                            }
+//                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else{
+//                        Log.e("com.example.easycourse", "failure" + obj.toString());
+//                    }
+//                }
+//            });
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void updateRecyclerView(){

@@ -279,7 +279,7 @@ public class Room extends RealmObject {
                 JSONId = temp.getString("_id");
                 if (!isRoomJoined(realmList, JSONId)) {
                     String courseID = (String) checkIfJsonExists(temp, "course", null);
-                    Room.updateRoomToRealm(new Room(
+                    updateRoomToRealm(new Room(
                             JSONId,
                             (String) checkIfJsonExists(temp, "name", null),
                             new RealmList<Message>(),
@@ -312,7 +312,7 @@ public class Room extends RealmObject {
                 if (!isRoomJoined(jsonArray, realmId)) {
                     temp = jsonArray.getJSONObject(i);
                     String courseID = (String) checkIfJsonExists(temp, "course", null);
-                    Room.deleteRoomFromRealm(new Room(
+                    deleteRoomFromRealm(new Room(
                             (String) checkIfJsonExists(temp, "_id", null),
                             (String) checkIfJsonExists(temp, "name", null),
                             new RealmList<Message>(),

@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.utils;
 
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 
@@ -48,6 +49,28 @@ public class ListsUtils {
         for (int i = 0; i < joinedRooms.length(); i++) {
             try {
                 if (joinedRooms.getJSONObject(i).getString("_id").equals(room)) {
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCourseJoined(RealmResults<Course> joinedCourse, String course) {
+        for (int i = 0; i < joinedCourse.size(); i++) {
+            if (joinedCourse.get(i).getId().equals(course)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCourseJoined(JSONArray joinedCourse, String course) {
+        for (int i = 0; i < joinedCourse.length(); i++) {
+            try {
+                if (joinedCourse.getJSONObject(i).getString("_id").equals(course)) {
                     return true;
                 }
             } catch (JSONException e) {

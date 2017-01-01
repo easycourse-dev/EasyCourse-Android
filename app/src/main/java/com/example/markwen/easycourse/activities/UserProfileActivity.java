@@ -182,7 +182,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserInfoOnScreen(){
-        if (user.getProfilePicture().length > 0) {
+        if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {

@@ -189,6 +189,7 @@ public class SocketIO {
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
                         userObj.put("universityID", university);
+                        userObj.put("profilePicture", avatar);
                         userObj.remove("_id");
 
                         JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs

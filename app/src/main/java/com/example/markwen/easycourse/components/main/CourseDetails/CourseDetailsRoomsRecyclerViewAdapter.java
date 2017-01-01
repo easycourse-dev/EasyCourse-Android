@@ -106,7 +106,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         });
 
         // Set founder and founder avatar
-        if (room.getFounder() != null) {
+        if (room.getFounder() != null && room.getFounder().getUsername() != null) {
             User user = room.getFounder();
             holder.founderTextView.setText(user.getUsername());
             try {

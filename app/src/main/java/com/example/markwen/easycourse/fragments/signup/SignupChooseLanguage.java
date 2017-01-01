@@ -253,7 +253,7 @@ public class SignupChooseLanguage extends Fragment {
                                                     new RealmList<User>(),
                                                     memberCounts,
                                                     memberCountsDesc,
-                                                    null,
+                                                    new User(),
                                                     language,
                                                     isPublic,
                                                     isSystem), realm

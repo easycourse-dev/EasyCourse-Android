@@ -483,7 +483,7 @@ public class SignupLogin extends Fragment {
                 String language = (String) checkIfJsonExists(temp, "language", "0");
                 boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
+                room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
                 Room.updateRoomToRealm(room, realm);
                 joinedRoomList.add(room);
             }

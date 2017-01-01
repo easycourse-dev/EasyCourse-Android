@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.utils;
 
 import android.util.Log;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -16,6 +17,7 @@ public class EasyCourseFirebaseInstanceIdService extends FirebaseInstanceIdServi
     public void onTokenRefresh() {
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        EasyCourse.getAppInstance().setDeviceToken(refreshedToken);
         Log.e(TAG, "Refreshed token: " + refreshedToken);
 
         // If you want to send messages to this application instance or

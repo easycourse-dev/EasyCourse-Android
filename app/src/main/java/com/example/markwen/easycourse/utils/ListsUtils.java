@@ -1,12 +1,17 @@
 package com.example.markwen.easycourse.utils;
 
+import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import io.realm.RealmList;
+import io.realm.RealmResults;
 
 /**
  * Created by markw on 12/29/2016.
@@ -17,6 +22,59 @@ public class ListsUtils {
         for (int i = 0; i < joinedRooms.size(); i++) {
             if (joinedRooms.get(i).getId().equals(room.getId())) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRoomJoined(RealmList<Room> joinedRooms, Room room) {
+        for (int i = 0; i < joinedRooms.size(); i++) {
+            if (joinedRooms.get(i).getId().equals(room.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRoomJoined(RealmResults<Room> joinedRooms, String room) {
+        for (int i = 0; i < joinedRooms.size(); i++) {
+            if (joinedRooms.get(i).getId().equals(room)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRoomJoined(JSONArray joinedRooms, String room) {
+        for (int i = 0; i < joinedRooms.length(); i++) {
+            try {
+                if (joinedRooms.getJSONObject(i).getString("_id").equals(room)) {
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCourseJoined(RealmResults<Course> joinedCourse, String course) {
+        for (int i = 0; i < joinedCourse.size(); i++) {
+            if (joinedCourse.get(i).getId().equals(course)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCourseJoined(JSONArray joinedCourse, String course) {
+        for (int i = 0; i < joinedCourse.length(); i++) {
+            try {
+                if (joinedCourse.getJSONObject(i).getString("_id").equals(course)) {
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
         return false;

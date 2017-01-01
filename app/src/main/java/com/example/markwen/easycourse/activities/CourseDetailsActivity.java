@@ -234,7 +234,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                             new RealmList<User>(),
                                             room.getInt("memberCounts"),
                                             room.getString("memberCountsDescription"),
-                                            null,
+                                            new User(),
                                             room.getString("language"),
                                             true,
                                             true
@@ -281,7 +281,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                             new RealmList<User>(),
                                             room.getInt("memberCounts"),
                                             room.getString("memberCountsDescription"),
-                                            null,
+                                            new User(),
                                             room.getString("language"),
                                             true,
                                             true
@@ -443,7 +443,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                     new RealmList<User>(),
                                     memberCounts,
                                     memberCountsDesc,
-                                    null,
+                                    new User(),
                                     language,
                                     isPublic,
                                     isSystem

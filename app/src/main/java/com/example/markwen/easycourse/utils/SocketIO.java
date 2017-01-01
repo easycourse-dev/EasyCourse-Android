@@ -189,15 +189,21 @@ public class SocketIO {
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
                         userObj.put("universityID", university);
+                        userObj.put("profilePicture", avatar);
                         userObj.remove("_id");
 
-                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom");
-                        userObj.put("joinedRooms", userObj.getJSONArray("joinedRoom"));
+                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs
+                        JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom"); // Array of objects
+                        JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse"); // Array of objects
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
+                        Course.syncAddCourse(joinedCoursesJSON, realm);
+                        Room.syncRooms(joinedRoomsJSON, realm);
+                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
 
+                        // Adding silent rooms
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
                         for (int i = 0; i < silentRoomsJSON.length(); i++) {
                             String roomID = silentRoomsJSON.getString(i);
@@ -339,6 +345,13 @@ public class SocketIO {
         socket.emit("joinRoom", jsonParam, callback);
     }
 
+    public void silentRoom(String roomID, boolean silent, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("silent", silent);
+        socket.emit("silentRoom", jsonParam, callback);
+    }
+
     public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
@@ -380,7 +393,7 @@ public class SocketIO {
                         String language = (String) checkIfJsonExists(temp, "language", "0");
                         boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
+                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
 
                         Realm realm = Realm.getDefaultInstance();
                         Room.updateRoomToRealm(room[0], realm);

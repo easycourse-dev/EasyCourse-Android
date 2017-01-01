@@ -35,6 +35,7 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;

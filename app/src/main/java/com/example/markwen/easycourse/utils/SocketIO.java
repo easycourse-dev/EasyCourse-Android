@@ -38,8 +38,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
-
 /**
  * Created by nisarg on 9/11/16.
  */
@@ -199,9 +197,13 @@ public class SocketIO {
                         userObj.remove("_id");
 
                         JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom");
+                        JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom");
+                        JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse");
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
+//                        Room.syncRooms(joinedRoomsJSON, realm);
+//                        Course.syncCourses(joinedCoursesJSON, realm);
                         realm.beginTransaction();
 
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
@@ -353,6 +355,7 @@ public class SocketIO {
                 }
             }
         });*/
+        socket.emit("dropCourse", jsonParam,callback);
     }
 
     public void getCourseInfo(String courseId, Ack callback) throws JSONException {
@@ -433,6 +436,13 @@ public class SocketIO {
         socket.emit("joinRoom", jsonParam, callback);
     }
 
+    public void silentRoom(String roomID, boolean silent, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("silent", silent);
+        socket.emit("silentRoom", jsonParam, callback);
+    }
+
     public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
@@ -474,7 +484,7 @@ public class SocketIO {
                         String language = (String) checkIfJsonExists(temp, "language", "0");
                         boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, null, language, isPublic, isSystem);
+                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
 
                         Realm realm = Realm.getDefaultInstance();
                         Room.updateRoomToRealm(room[0], realm);

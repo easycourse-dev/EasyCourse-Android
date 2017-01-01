@@ -182,7 +182,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                             quitRoom();
                             socketIO.syncUser();
                             return true;
-
                     }
                     return false;
                 }
@@ -227,13 +226,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                             showBlockUserDialog();
                             break;
                         case 8:
-//                            try {
-//                                socketIO.quitRoom(currentRoom.getId());
-//                                socketIO.syncUser();
-//                                return true;
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
+                            quitRoom();
+                            socketIO.syncUser();
                             break;
                     }
                     return false;
@@ -253,6 +247,17 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (currentRoom.getCourseName() != null)
             headerCourseSubtitle.setText(currentRoom.getCourseName());
 
+
+        headerCourseTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplication(), CourseDetailsActivity.class);
+                i.putExtra("courseId", currentRoom.getCourseID());
+                i.putExtra("isJoined", true);
+                startActivity(i);
+            }
+        });
+
     }
 
     private void quitRoom() {
@@ -260,35 +265,50 @@ public class ChatRoomActivity extends AppCompatActivity {
             socketIO.quitRoom(currentRoom.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    Log.e(TAG, obj.toString());
 
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
+                    } else {
+
+                        try {
+                            boolean success = obj.getBoolean("success");
+                            if (success) {
+                                socketIO.syncUser();
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, e.toString());
+                        }
+                    }
                 }
             });
+            socketIO.syncUser();
         } catch (JSONException e) {
-            Log.e(TAG, "quitRoom: ", e);
+            e.printStackTrace();
         }
     }
 
+
     private void silenceRoom(final boolean isChecked) {
         try {
-            APIFunctions.setSilentRoom(getApplicationContext(), currentRoom.getId(), isChecked, new JsonHttpResponseHandler() {
+            socketIO.silentRoom(currentRoom.getId(), isChecked, new Ack() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    if (isChecked) {
-                        Log.e(TAG, "Room silented");
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e(TAG, "onFailure: silentRoomOnCheckedListener " + obj.toString());
                     } else {
-                        Log.e(TAG, "Room un-silented");
+                        if (isChecked) {
+                            Log.e(TAG, "Room silented");
+                        } else {
+                            Log.e(TAG, "Room un-silented");
+                        }
+                        socketIO.syncUser();
                     }
-                    socketIO.syncUser();
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: silentRoomOnCheckedListener", t);
                 }
             });
         } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

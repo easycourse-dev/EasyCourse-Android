@@ -26,9 +26,9 @@ public class User extends RealmObject {
     private String profilePictureUrl;
     private String email;
     private String universityID;
-    private RealmList<Course> joinedCourses;
-    private RealmList<Room> joinedRooms;
-    private RealmList<Room> silentRooms;
+    private RealmList<Course> joinedCourses = new RealmList<>();
+    private RealmList<Room> joinedRooms = new RealmList<>();
+    private RealmList<Room> silentRooms = new RealmList<>();
 
     private int friendStatus = 0;
 

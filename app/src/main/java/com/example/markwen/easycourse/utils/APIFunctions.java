@@ -107,6 +107,11 @@ public class APIFunctions {
         client.get(context, URL+"/course?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
     }
 
+    //API function to search course subrooms database
+    public static void searchCourseSubroom(Context context, String courseId, String searchQuery, int limit, int skip, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/coursesubroom?crs="+courseId+"&q="+searchQuery+"&limit="+limit+"&skip="+skip, jsonHttpResponseHandler);
+    }
+
     //API function to get language list
     public static void getLanguages(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
         client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
@@ -150,11 +155,6 @@ public class APIFunctions {
 
         client.post(context, URL+"/silentRoom", body, "application/json", jsonHttpResponseHandler);
         return true;
-    }
-
-    //API function to search room database
-    public static void searchRoom(Context context, String searchQuery, int limit, int skip, String universityID, JsonHttpResponseHandler jsonHttpResponseHandler){
-        client.get(context, URL+"/room?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
     }
 
     //API function to report a user

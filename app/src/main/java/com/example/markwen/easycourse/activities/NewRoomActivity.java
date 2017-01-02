@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
@@ -30,7 +31,9 @@ import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -61,6 +65,8 @@ public class NewRoomActivity extends AppCompatActivity {
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
     User currentUser;
+    Handler handler;
+    Runnable searchDelay;
 
     @BindView(R.id.newRoomToolbar)
     Toolbar toolbar;
@@ -103,6 +109,7 @@ public class NewRoomActivity extends AppCompatActivity {
         socketIO.syncUser();
         realm = Realm.getDefaultInstance();
         currentUser = User.getCurrentUser(this, realm);
+        handler = new Handler();
 
         // Setup courses
         RealmResults<Course> coursesResults = realm.where(Course.class).findAll();
@@ -113,7 +120,7 @@ public class NewRoomActivity extends AppCompatActivity {
                 courses.add(new Course(null, "This room belongs to...", null, null, 0, null));
             } else if (i == 1) {
                 // Add in private option Course
-                courses.add(new Course("", "Private Room", null, null, 0, null));
+                courses.add(new Course("", "Private Room", "Private Room", null, 0, null));
             } else {
                 courses.add(coursesResults.get(i - 2));
             }
@@ -139,9 +146,21 @@ public class NewRoomActivity extends AppCompatActivity {
             newRoomCoursesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    coursesAdapter.setSelectedCourse(i);
-                    roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
-                    doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+                    if (i == 0) {
+                        // On hint selected
+                        newRoomButton.setVisibility(View.GONE);
+                        resultsCard.setVisibility(View.GONE);
+                    } else if (i == 1) {
+                        // On private room selected
+                        coursesAdapter.setSelectedCourse(1);
+                        newRoomButton.setVisibility(View.VISIBLE);
+                        resultsCard.setVisibility(View.GONE);
+                    } else {
+                        resultsCard.setVisibility(View.VISIBLE);
+                        coursesAdapter.setSelectedCourse(i);
+                        roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
+                        doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
+                    }
                 }
 
                 @Override
@@ -180,8 +199,18 @@ public class NewRoomActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-                doSearchRoom(editable.toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+            public void afterTextChanged(final Editable editable) {
+                final Course selectedCourse = coursesAdapter.getSelectedCourse();
+                if (selectedCourse != null && !selectedCourse.getId().equals("")) {
+                    handler.removeCallbacks(searchDelay);
+                    searchDelay = new Runnable() {
+                        @Override
+                        public void run() {
+                            doSearchRoom(editable.toString(), 0, selectedCourse.getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
+                        }
+                    };
+                    handler.postDelayed(searchDelay, 250);
+                }
             }
         });
 
@@ -189,7 +218,7 @@ public class NewRoomActivity extends AppCompatActivity {
         roomsOnScrollListener = new NewRoomRoomsEndlessRecyclerViewScrollListener(roomsLayoutManager, roomsRecyclerViewAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                doSearchRoom(newRoomName.getText().toString(), page, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename());
+                doSearchRoom(newRoomName.getText().toString(), page, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
             }
         };
         existedRoomView.addOnScrollListener(roomsOnScrollListener);
@@ -263,45 +292,93 @@ public class NewRoomActivity extends AppCompatActivity {
     }
 
 
-    private void doSearchRoom(final String query, final int skip, String courseId, final String courseName) {
-        try {
-            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    try {
-                        JSONObject obj = (JSONObject) args[0];
-                        JSONArray response = obj.getJSONArray("rooms");
-                        JSONObject room;
-                        if (skip == 0) { // normal
-                            rooms.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                room = (JSONObject) response.get(i);
-                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-                                rooms.add(roomObj);
-                            }
-                            updateRecyclerView(response, query);
-                        } else { // load more
-                            int roomsOrigSize = rooms.size();
-                            for (int i = 0; i < response.length(); i++) {
-                                room = (JSONObject) response.get(i);
-                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-                                if (!rooms.contains(roomObj))
-                                    rooms.add(roomObj);
-                            }
-                            if (rooms.size() > roomsOrigSize) {
-                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+    private void doSearchRoom(final String query, final int skip, String courseId, final String courseName, final View v) {
+        APIFunctions.searchCourseSubroom(this, courseId, query, 20, skip, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                JSONObject room;
+                try {
+                    if (skip == 0) { // normal
                         rooms.clear();
-                        updateRecyclerView(new JSONArray(), query);
+                        for (int i = 0; i < response.length(); i++) {
+                            room = (JSONObject) response.get(i);
+                            Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                            rooms.add(roomObj);
+                        }
+                        roomsRecyclerViewAdapter.notifyDataSetChanged();
+                        roomsOnScrollListener.resetState();
+                        Course selectedCourse = coursesAdapter.getSelectedCourse();
+                        if (response.length() == 0
+                                && (selectedCourse != null && selectedCourse.getId() != null)
+                                && !query.equals("")) {
+                            newRoomButton.setVisibility(View.VISIBLE);
+                            existedRoomView.setVisibility(View.GONE);
+                        } else {
+                            newRoomButton.setVisibility(View.GONE);
+                            existedRoomView.setVisibility(View.VISIBLE);
+                        }
+//                        updateRecyclerView(response, query);
+                    } else { // load more
+                        int roomsOrigSize = rooms.size();
+                        for (int i = 0; i < response.length(); i++) {
+                            room = (JSONObject) response.get(i);
+                            Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+                            if (!rooms.contains(roomObj))
+                                rooms.add(roomObj);
+                        }
+                        if (rooms.size() > roomsOrigSize) {
+                            roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+                        }
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("searchCourseSubroom", responseString);
+                Snackbar.make(v, responseString, Snackbar.LENGTH_LONG).show();
+            }
+        });
+//        try {
+//            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
+//                @Override
+//                public void call(Object... args) {
+//                    try {
+//                        JSONObject obj = (JSONObject) args[0];
+//                        JSONArray response = obj.getJSONArray("rooms");
+//                        JSONObject room;
+//                        if (skip == 0) { // normal
+//                            rooms.clear();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                rooms.add(roomObj);
+//                            }
+//                            updateRecyclerView(response, query);
+//                        } else { // load more
+//                            int roomsOrigSize = rooms.size();
+//                            for (int i = 0; i < response.length(); i++) {
+//                                room = (JSONObject) response.get(i);
+//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
+//                                if (!rooms.contains(roomObj))
+//                                    rooms.add(roomObj);
+//                            }
+//                            if (rooms.size() > roomsOrigSize) {
+//                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
+//                            }
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                        rooms.clear();
+//                        updateRecyclerView(new JSONArray(), query);
+//                    }
+//                }
+//            });
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void updateRoomInSocket(final Room room){

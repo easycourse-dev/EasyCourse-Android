@@ -142,13 +142,18 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showLogoutDialog(v);
+                try {
+                    logout(v);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         return v;
     }
 
-    private void logout(final View v) {
+    private void logout(final View v) throws JSONException {
 
         socketIO.logout(new Ack() {
             @Override

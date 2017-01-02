@@ -7,6 +7,7 @@ import com.example.markwen.easycourse.services.MainBus;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
@@ -27,6 +28,7 @@ public class EasyCourse extends Application {
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
 
+    private String deviceToken;
 
     //TODO: http://stackoverflow.com/questions/23978828/how-do-i-use-disk-caching-in-picasso
 
@@ -45,6 +47,8 @@ public class EasyCourse extends Application {
 
         appInstance = this;
         createSockeIO();
+
+        deviceToken = FirebaseInstanceId.getInstance().getToken();
     }
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
@@ -67,7 +71,13 @@ public class EasyCourse extends Application {
         return appInstance;
     }
 
+    public void setDeviceToken(String deviceToken){
+        this.deviceToken = deviceToken;
+    }
 
+    public String getDeviceToken() {
+        return deviceToken;
+    }
 
     public boolean isInternetAvailable() {
         try {

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
@@ -64,6 +65,8 @@ public class NewRoomActivity extends AppCompatActivity {
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
     User currentUser;
+    Handler handler;
+    Runnable searchDelay;
 
     @BindView(R.id.newRoomToolbar)
     Toolbar toolbar;
@@ -106,6 +109,7 @@ public class NewRoomActivity extends AppCompatActivity {
         socketIO.syncUser();
         realm = Realm.getDefaultInstance();
         currentUser = User.getCurrentUser(this, realm);
+        handler = new Handler();
 
         // Setup courses
         RealmResults<Course> coursesResults = realm.where(Course.class).findAll();
@@ -195,10 +199,17 @@ public class NewRoomActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-                Course selectedCourse = coursesAdapter.getSelectedCourse();
+            public void afterTextChanged(final Editable editable) {
+                final Course selectedCourse = coursesAdapter.getSelectedCourse();
                 if (selectedCourse != null && !selectedCourse.getId().equals("")) {
-                    doSearchRoom(editable.toString(), 0, selectedCourse.getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
+                    handler.removeCallbacks(searchDelay);
+                    searchDelay = new Runnable() {
+                        @Override
+                        public void run() {
+                            doSearchRoom(editable.toString(), 0, selectedCourse.getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
+                        }
+                    };
+                    handler.postDelayed(searchDelay, 250);
                 }
             }
         });

@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,6 +51,8 @@ public class CourseManagementActivity extends AppCompatActivity {
     ArrayList<Course> searchResults = new ArrayList<>();
     CourseManagementCoursesRecyclerViewAdapter coursesAdapter;
     CoursesEndlessRecyclerViewScrollListener coursesOnScrollListener;
+    Handler handler;
+    Runnable searchDelay;
 
     @BindView(R.id.CourseManageToolbar)
     Toolbar toolbar;
@@ -77,6 +80,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         socketIO.syncUser();
         realm = Realm.getDefaultInstance();
+        handler = new Handler();
 
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
@@ -133,7 +137,7 @@ public class CourseManagementActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
+            public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
                     searchResults.clear();
                     for (int i = 0; i < joinedCourses.size(); i++) {
@@ -143,36 +147,43 @@ public class CourseManagementActivity extends AppCompatActivity {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    APIFunctions.searchCourse(getApplicationContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
+                    handler.removeCallbacks(searchDelay);
+                    searchDelay = new Runnable() {
                         @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                            searchResults.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                try {
-                                    JSONObject course = (JSONObject) response.get(i);
-                                    searchResults.add(new Course(
-                                            course.getString("_id"),
-                                            course.getString("name"),
-                                            course.getString("title"),
-                                            course.getString("description"),
-                                            course.getInt("creditHours"),
-                                            course.getJSONObject("university").getString("_id")
-                                    ));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            coursesAdapter.notifyDataSetChanged();
-                            coursesOnScrollListener.resetState();
+                        public void run() {
+                            APIFunctions.searchCourse(getApplicationContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                                    searchResults.clear();
+                                    for (int i = 0; i < response.length(); i++) {
+                                        try {
+                                            JSONObject course = (JSONObject) response.get(i);
+                                            searchResults.add(new Course(
+                                                    course.getString("_id"),
+                                                    course.getString("name"),
+                                                    course.getString("title"),
+                                                    course.getString("description"),
+                                                    course.getInt("creditHours"),
+                                                    course.getJSONObject("university").getString("_id")
+                                            ));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    coursesAdapter.notifyDataSetChanged();
+                                    coursesOnScrollListener.resetState();
 //                            updateRecyclerView();
-                        }
+                                }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            Log.e("searchCourse", responseString);
-                            Snackbar.make(courseSearch, responseString, Snackbar.LENGTH_LONG).show();
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    Log.e("searchCourse", responseString);
+                                    Snackbar.make(courseSearch, responseString, Snackbar.LENGTH_LONG).show();
+                                }
+                            });
                         }
-                    });
+                    };
+                    handler.postDelayed(searchDelay, 250);
 //                    try {
 //                        socketIO = new SocketIO(getApplicationContext());
 //                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {

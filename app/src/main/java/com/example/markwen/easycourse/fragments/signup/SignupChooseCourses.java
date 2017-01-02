@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.fragments.signup;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -49,6 +50,8 @@ public class SignupChooseCourses extends Fragment {
     LinearLayoutManager coursesLayoutManager;
     EndlessRecyclerViewScrollListener coursesOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
+    Handler handler;
+    Runnable searchDelay;
 
     Button nextButton;
     Button prevButton;
@@ -74,6 +77,7 @@ public class SignupChooseCourses extends Fragment {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        handler = new Handler();
     }
 
     @Override
@@ -122,7 +126,7 @@ public class SignupChooseCourses extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
+            public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
                     courses.clear();
                     ArrayList<Course> checkedCourses = coursesAdapter.getCheckedCourseList();
@@ -132,33 +136,40 @@ public class SignupChooseCourses extends Fragment {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler(){
+                    handler.removeCallbacks(searchDelay);
+                    searchDelay = new Runnable() {
                         @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                            courses.clear();
-                            for (int i = 0; i < response.length(); i++) {
-                                try {
-                                    JSONObject course = (JSONObject) response.get(i);
-                                    courses.add(new Course(
-                                            course.getString("name"),
-                                            course.getString("title"),
-                                            course.getString("_id"),
-                                            chosenUniversity));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            coursesAdapter.notifyDataSetChanged();
-                            coursesOnScrollListener.resetState();
+                        public void run() {
+                            APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler(){
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                                    courses.clear();
+                                    for (int i = 0; i < response.length(); i++) {
+                                        try {
+                                            JSONObject course = (JSONObject) response.get(i);
+                                            courses.add(new Course(
+                                                    course.getString("name"),
+                                                    course.getString("title"),
+                                                    course.getString("_id"),
+                                                    chosenUniversity));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    coursesAdapter.notifyDataSetChanged();
+                                    coursesOnScrollListener.resetState();
 //                            updateRecyclerView();
-                        }
+                                }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            Log.e("searchCourse", responseString);
-                            Snackbar.make(searchCoursesEditText, responseString, Snackbar.LENGTH_LONG).show();
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    Log.e("searchCourse", responseString);
+                                    Snackbar.make(searchCoursesEditText, responseString, Snackbar.LENGTH_LONG).show();
+                                }
+                            });
                         }
-                    });
+                    };
+                    handler.postDelayed(searchDelay, 250);
 //                    try {
 //                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
 //

@@ -27,7 +27,9 @@
                 android:layout_height="?actionBarSize"
                 android:background="@color/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|snap">
-
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -46,8 +48,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white" />
-                </LinearLayout>
 
+
+                </LinearLayout>
+                <ImageButton
+                    android:id="@+id/openRoomDetailDrawer"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_gravity="end"
+                    android:src="@drawable/ic_menu_white_24dp"
+                    style="@style/Widget.AppCompat.ActionButton" />
+                </FrameLayout>
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>

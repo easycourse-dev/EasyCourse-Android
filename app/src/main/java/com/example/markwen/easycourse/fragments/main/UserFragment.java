@@ -142,13 +142,18 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showLogoutDialog(v);
+                try {
+                    logout(v);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         return v;
     }
 
-    private void logout(final View v) {
+    private void logout(final View v) throws JSONException {
 
         socketIO.logout(new Ack() {
             @Override
@@ -241,7 +246,11 @@ public class UserFragment extends Fragment {
                 .setNegativeButton("No", null)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        logout(v);
+                        try {
+                            logout(v);
+                        } catch (JSONException e) {
+                            Log.e(TAG, e.toString());
+                        }
                     }
                 });
         AlertDialog dialog = customBuilder.create();

@@ -116,7 +116,7 @@ public class NewRoomActivity extends AppCompatActivity {
                 courses.add(new Course(null, "This room belongs to...", null, null, 0, null));
             } else if (i == 1) {
                 // Add in private option Course
-                courses.add(new Course("", "Private Room", null, null, 0, null));
+                courses.add(new Course("", "Private Room", "Private Room", null, 0, null));
             } else {
                 courses.add(coursesResults.get(i - 2));
             }
@@ -142,9 +142,21 @@ public class NewRoomActivity extends AppCompatActivity {
             newRoomCoursesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    coursesAdapter.setSelectedCourse(i);
-                    roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
-                    doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
+                    if (i == 0) {
+                        // On hint selected
+                        newRoomButton.setVisibility(View.GONE);
+                        resultsCard.setVisibility(View.GONE);
+                    } else if (i == 1) {
+                        // On private room selected
+                        coursesAdapter.setSelectedCourse(1);
+                        newRoomButton.setVisibility(View.VISIBLE);
+                        resultsCard.setVisibility(View.GONE);
+                    } else {
+                        resultsCard.setVisibility(View.VISIBLE);
+                        coursesAdapter.setSelectedCourse(i);
+                        roomsRecyclerViewAdapter.setCurrentCourse(courses.get(i));
+                        doSearchRoom(newRoomName.getText().toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), view);
+                    }
                 }
 
                 @Override
@@ -184,7 +196,10 @@ public class NewRoomActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                doSearchRoom(editable.toString(), 0, coursesAdapter.getSelectedCourse().getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
+                Course selectedCourse = coursesAdapter.getSelectedCourse();
+                if (selectedCourse != null && !selectedCourse.getId().equals("")) {
+                    doSearchRoom(editable.toString(), 0, selectedCourse.getId(), coursesAdapter.getSelectedCourse().getCoursename(), existedRoomView);
+                }
             }
         });
 
@@ -283,15 +298,9 @@ public class NewRoomActivity extends AppCompatActivity {
                         roomsOnScrollListener.resetState();
                         Course selectedCourse = coursesAdapter.getSelectedCourse();
                         if (response.length() == 0
-                                && ((selectedCourse != null && selectedCourse.getId() != null)
-                                || selectedCourse.getCoursename().equals("Private Room"))
+                                && (selectedCourse != null && selectedCourse.getId() != null)
                                 && !query.equals("")) {
                             newRoomButton.setVisibility(View.VISIBLE);
-                            existedRoomView.setVisibility(View.GONE);
-                        } else if (response.length() == 0
-                                && ((selectedCourse != null && selectedCourse.getId() != null)
-                                || selectedCourse.getCoursename().equals("Private Room"))
-                                && query.equals("")) {
                             existedRoomView.setVisibility(View.GONE);
                         } else {
                             newRoomButton.setVisibility(View.GONE);

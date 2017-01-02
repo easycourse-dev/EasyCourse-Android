@@ -4,7 +4,7 @@
     android:id="@+id/relativeLayoutChatRoom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ChatRoomActivity">
+    tools:context="io.easycourse.www.easycourse.activities.ChatRoomActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/chatRecyclerView"

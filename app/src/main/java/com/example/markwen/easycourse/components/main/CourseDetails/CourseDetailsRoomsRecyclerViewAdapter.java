@@ -84,7 +84,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
 
         // Check if this room is joined
-        Room joinedRoom = isRoomJoined(joinedRooms, room);
+        final Room joinedRoom = isRoomJoined(joinedRooms, room);
         if (joinedRoom != null) {
             holder.checkBox.setChecked(true);
         } else {
@@ -97,6 +97,11 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     dropRoom(room.getId());
                     // TODO: update checkbox after dropRoom is called
                     holder.checkBox.setChecked(false);
+                    for (int i = 0; i < joinedRooms.size(); i++) {
+                        if (joinedRooms.get(i).getId().equals(room.getId())) {
+                            joinedRooms.remove(i);
+                        }
+                    }
                 } else {
                     joinRoom(room.getId(), room.getCourseName());
                     // TODO: update checkbox after joinRoom is called
@@ -106,14 +111,18 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         });
 
         // Set founder and founder avatar
-        if (room.getFounder() != null) {
+        if (room.getFounder() != null && room.getFounder().getUsername() != null) {
             User user = room.getFounder();
             holder.founderTextView.setText(user.getUsername());
-            try {
-                // TODO: try to optimize the speed of loading image
-                downloadImage(new URL(user.getProfilePictureUrl()), holder.founderImageView);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            byte[] image = user.getProfilePicture();
+            if (image == null || image.length == 0) {
+                try {
+                    downloadImage(new URL(user.getProfilePictureUrl()), holder.founderImageView, room);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                holder.founderImageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length, null));
             }
         } else {
             holder.founderTextView.setText("Official");
@@ -156,7 +165,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return null;
     }
 
-    private void downloadImage(final URL url, final ImageView imgView){
+    private void downloadImage(final URL url, final ImageView imgView, final Room room){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -171,6 +180,10 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 30, stream);
                     imgView.setImageBitmap(image);
+
+                    // Saving image
+                    byte[] byteArray = stream.toByteArray();
+                    room.getFounder().setProfilePicture(byteArray);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -226,22 +239,22 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                             }
 
                             // Save room to Realm
-                            Room.updateRoomToRealm(
-                                    new Room(
-                                            roomId,
-                                            roomName,
-                                            new RealmList<Message>(),
-                                            courseID,
-                                            courseName,
-                                            universityID,
-                                            new RealmList<User>(),
-                                            memberCounts,
-                                            memberCountsDesc,
-                                            new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                            language,
-                                            isPublic,
-                                            isSystem),
-                                    tempRealm);
+                            Room tempRoom = new Room(
+                                    roomId,
+                                    roomName,
+                                    new RealmList<Message>(),
+                                    courseID,
+                                    courseName,
+                                    universityID,
+                                    new RealmList<User>(),
+                                    memberCounts,
+                                    memberCountsDesc,
+                                    new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                    language,
+                                    isPublic,
+                                    isSystem);
+                            joinedRooms.add(tempRoom);
+                            Room.updateRoomToRealm(tempRoom, tempRealm);
                             tempRealm.close();
 
                         } catch (JSONException e) {
@@ -291,23 +304,5 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    // TODO: synchronize dropRoom and joinRoom checkbox change
-    private void updateCheckbox(boolean status) {
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

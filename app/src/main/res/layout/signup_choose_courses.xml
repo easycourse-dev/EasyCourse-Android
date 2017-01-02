@@ -57,7 +57,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/choose_courses_recycler_view"
                 android:layout_width="300dp"
-                android:layout_height="300dp"
+                android:layout_height="350dp"
                 android:layout_gravity="center"
                 android:scrollbarSize="3dp"
                 android:scrollbarThumbVertical="@android:color/darker_gray"

@@ -3,6 +3,8 @@ package com.example.markwen.easycourse.models.main;
 import android.support.annotation.Nullable;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,9 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+import static com.example.markwen.easycourse.utils.ListsUtils.isRoomJoined;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -89,9 +94,9 @@ public class Room extends RealmObject {
 
     public static void syncRooms(JSONArray updatedRooms, Realm realm){
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
-        ArrayList<String> addedRoomsId = new ArrayList<>(), removedRoomsId = new ArrayList<>();
 
-
+        addNewRooms(updatedRooms, roomsInRealm, realm);
+        deleteOldRooms(updatedRooms, roomsInRealm, realm);
     }
     public static boolean isRoomInRealm(Room room, Realm realm) {
         RealmResults<Room> results = realm.where(Room.class)
@@ -263,5 +268,69 @@ public class Room extends RealmObject {
 
     public void setSystem(boolean system) {
         isSystem = system;
+    }
+
+    private static void addNewRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {
+        String JSONId;
+        JSONObject temp;
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                temp = jsonArray.getJSONObject(i);
+                JSONId = temp.getString("_id");
+                if (!isRoomJoined(realmList, JSONId)) {
+                    String courseID = (String) checkIfJsonExists(temp, "course", null);
+                    updateRoomToRealm(new Room(
+                            JSONId,
+                            (String) checkIfJsonExists(temp, "name", null),
+                            new RealmList<Message>(),
+                            courseID,
+                            Course.getCourseById(courseID, realm).getCoursename(),
+                            (String) checkIfJsonExists(temp, "university", null),
+                            new RealmList<User>(),
+                            Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1")),
+                            (String) checkIfJsonExists(temp, "memberCountsDescription", null),
+                            new User((String) checkIfJsonExists(temp, "founder", null), null, null, null, null, null),
+                            (String) checkIfJsonExists(temp, "language", null),
+                            (boolean) checkIfJsonExists(temp, "isPublic", true),
+                            (boolean) checkIfJsonExists(temp, "isSystem", true)
+                    ), realm);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void deleteOldRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {
+        String realmId;
+        Room realmTemp;
+        JSONObject temp;
+        for (int i = 0; i < realmList.size(); i++) {
+            try {
+                realmTemp = realmList.get(i);
+                realmId = realmTemp.getId();
+                if (!isRoomJoined(jsonArray, realmId)) {
+                    temp = jsonArray.getJSONObject(i);
+                    String courseID = (String) checkIfJsonExists(temp, "course", null);
+                    deleteRoomFromRealm(new Room(
+                            (String) checkIfJsonExists(temp, "_id", null),
+                            (String) checkIfJsonExists(temp, "name", null),
+                            new RealmList<Message>(),
+                            courseID,
+                            Course.getCourseById(courseID, realm).getCoursename(),
+                            (String) checkIfJsonExists(temp, "university", null),
+                            new RealmList<User>(),
+                            Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1")),
+                            (String) checkIfJsonExists(temp, "memberCountsDescription", null),
+                            new User((String) checkIfJsonExists(temp, "founder", null), null, null, null, null, null),
+                            (String) checkIfJsonExists(temp, "language", null),
+                            (boolean) checkIfJsonExists(temp, "isPublic", true),
+                            (boolean) checkIfJsonExists(temp, "isSystem", true)
+                    ), realm);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

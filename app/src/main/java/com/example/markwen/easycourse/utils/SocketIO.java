@@ -197,18 +197,21 @@ public class SocketIO {
                         userObj.put("id", id);
                         userObj.put("profilePictureUrl", avatarUrlString);
                         userObj.put("universityID", university);
+                        userObj.put("profilePicture", avatar);
                         userObj.remove("_id");
 
-                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom");
-                        JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom");
-                        JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse");
+                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs
+                        JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom"); // Array of objects
+                        JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse"); // Array of objects
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
-//                        Room.syncRooms(joinedRoomsJSON, realm);
-//                        Course.syncCourses(joinedCoursesJSON, realm);
+                        Course.syncAddCourse(joinedCoursesJSON, realm);
+                        Room.syncRooms(joinedRoomsJSON, realm);
+                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
 
+                        // Adding silent rooms
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
                         for (int i = 0; i < silentRoomsJSON.length(); i++) {
                             String roomID = silentRoomsJSON.getString(i);

@@ -1,5 +1,6 @@
 package com.example.markwen.easycourse.fragments.signup;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,10 +32,8 @@ import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
-import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
-import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -48,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import butterknife.BindView;
@@ -56,7 +54,6 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
@@ -102,7 +99,7 @@ public class SignupLogin extends Fragment {
     CallbackManager callbackManager;
     LinearLayout signupLinearLayout;
     SharedPreferences sharedPref;
-
+    ProgressDialog progress;
 
     Animation titleAnimEnter;
     Animation emailAnimEnter;
@@ -121,7 +118,7 @@ public class SignupLogin extends Fragment {
     }
 
 
-    //http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
+    // http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public static SignupLogin newInstance() {
         return new SignupLogin();
     }
@@ -189,6 +186,14 @@ public class SignupLogin extends Fragment {
         facebookAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
 
+        // Login progress dialog
+        progress = new ProgressDialog(getContext());
+        progress.setTitle("Log in");
+        progress.setMessage("Logging in...");
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setIndeterminate(true);
+        progress.setProgressNumberFormat(null);
+        progress.setProgressPercentFormat(null);
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -215,16 +220,18 @@ public class SignupLogin extends Fragment {
                 facebookButton.performClick();
                 facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                     final Snackbar fbLoginErrorSnackbar = Snackbar
-                            .make(v, "Facebook log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+                            .make(v, "Facebook log in failed, please check your network connection.", Snackbar.LENGTH_LONG);
                     final Snackbar fbLoginCancelSnackbar = Snackbar
                             .make(v, "Facebook log in cancelled.", Snackbar.LENGTH_LONG);
 
                     @Override
                     public void onSuccess(LoginResult loginResult) {
+                        progress.show();
 
                         APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                progress.setMessage("Login success");
                                 parseLoginResponse(statusCode, headers, response);
                             }
 
@@ -249,8 +256,6 @@ public class SignupLogin extends Fragment {
                 });
             }
         });
-
-
         startAnimations();
 
         return v;
@@ -297,7 +302,7 @@ public class SignupLogin extends Fragment {
                     verifyPasswordEditText.setText("");
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
-                            .make(v, "UserFragment could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
+                            .make(v, "Sign up failed, check if the email is already registered.", Snackbar.LENGTH_LONG);
                     APIFunctions.signUp(getContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -335,15 +340,15 @@ public class SignupLogin extends Fragment {
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "status failure " + statusCode);
-                            Log.e("com.example.easycourse", res);
+                            Log.e(TAG, "status failure " + statusCode);
+                            Log.e(TAG, res);
                             signupErrorSnackbar.show();
                         }
                     });
                 }
             } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
+                Log.e(TAG, e.toString());
             }
         }
     }
@@ -364,7 +369,6 @@ public class SignupLogin extends Fragment {
             loginButton.setBackgroundResource(R.drawable.login_button);
 
         } else { // Edittexts are hidden, do logic
-            Log.d(TAG, "Login clicked-doing login");
             // Get inputs and check if fields are empty
             // only execute login API when fields are all filled
             try {
@@ -379,9 +383,12 @@ public class SignupLogin extends Fragment {
                 final Snackbar loginErrorSnackbar = Snackbar
                         .make(v, "Log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
 
+                progress.show();
+
                 APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        progress.setMessage("Login success");
                         parseLoginResponse(statusCode, headers, response);
                     }
 
@@ -393,7 +400,7 @@ public class SignupLogin extends Fragment {
                 });
             } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
+                Log.e(TAG, e.toString());
             }
         }
     }
@@ -423,13 +430,16 @@ public class SignupLogin extends Fragment {
 
         RealmList<Room> joinedRoomList = new RealmList<>();
         RealmList<Course> joinedCourseList = new RealmList<>();
-        RealmList<Room> silentRoomList = new RealmList<>();
         Room room;
         Course course;
         try {
-            currentUser.setId(response.getString("_id"));
+            String userId = response.getString("_id");
+
+            currentUser.setId(userId);
             currentUser.setEmail(response.getString("email"));
             currentUser.setUsername(response.getString("displayName"));
+            currentUser.setUniversityID(response.getString("university"));
+
 
             // Adding courses, rooms, and silent rooms
             JSONArray joinedCourses = response.getJSONArray("joinedCourse");
@@ -472,63 +482,30 @@ public class SignupLogin extends Fragment {
                 joinedRoomList.add(room);
             }
 
-            // TODO: check if this is still needed or modify
-            JSONArray silentRooms = response.getJSONArray("silentRoom");
-            for (int i = 0; i < silentRooms.length(); i++) {
-                JSONObject object = silentRooms.getJSONObject(i);
-                room = new Room();
-                room.setId(object.getString("_id"));
-                room.setRoomName(object.getString("name"));
-                room.setCourseID(object.getString("course"));
-                room.setCourseName(object.getString("courseName"));
-                room.setPublic(object.getBoolean("isPublic"));
-                room.setSystem(object.getBoolean("isSystem"));
-                room.setLanguage(object.getString("language"));
-                room.setMemberCounts(object.getInt("memberCounts"));
-                room.setMemberList(new RealmList<User>());
-                room.getMemberList().add(currentUser);
-                silentRoomList.add(room);
+            // Setup silent rooms
+            JSONArray silentRoomsJSON = response.getJSONArray("silentRoom");
+            for (int i = 0; i < silentRoomsJSON.length(); i++) {
+                String roomID = silentRoomsJSON.getString(i);
+                Log.e(TAG, "silent room:"+roomID);
+                Room tempRoom = Room.getRoomById(realm, roomID);
+                currentUser.getSilentRooms().add(tempRoom);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        currentUser.setSilentRooms(silentRoomList);
         currentUser.setJoinedCourses(joinedCourseList);
         currentUser.setJoinedRooms(joinedRoomList);
-
+        User.updateUserToRealm(currentUser, realm);
         realm.close();
 
-        try {
-            SocketIO socketIO = new SocketIO(getContext());
-            socketIO.getUniversityInfo(response.getString("university"), new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    try {
-                        JSONObject temp = obj.getJSONObject("univ");
-                        String id = (String) checkIfJsonExists(temp, "_id", null);
-                        String name = (String) checkIfJsonExists(temp, "name", null);
+        progress.setMessage("Wrapping up...");
+        progress.dismiss();
 
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        realm.copyToRealmOrUpdate(new University(id, name));
-                        realm.copyToRealmOrUpdate(currentUser);
-                        realm.commitTransaction();
-                        realm.close();
-
-                        // Make an Intent to move on to the next activity
-                        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-                        startActivity(mainActivityIntent);
-                        getActivity().finish();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } catch (URISyntaxException | JSONException e) {
-            e.printStackTrace();
-        }
+        // Make an Intent to move on to the next activity
+        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+        startActivity(mainActivityIntent);
+        getActivity().finish();
     }
 
 

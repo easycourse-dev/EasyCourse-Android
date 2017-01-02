@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.fragments.signup;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +24,9 @@ import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrol
 import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
 import com.example.markwen.easycourse.models.signup.Course;
 import com.example.markwen.easycourse.models.signup.UserSetup;
+import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +35,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import io.socket.client.Ack;
+import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -47,6 +50,8 @@ public class SignupChooseCourses extends Fragment {
     LinearLayoutManager coursesLayoutManager;
     EndlessRecyclerViewScrollListener coursesOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
+    Handler handler;
+    Runnable searchDelay;
 
     Button nextButton;
     Button prevButton;
@@ -72,6 +77,7 @@ public class SignupChooseCourses extends Fragment {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        handler = new Handler();
     }
 
     @Override
@@ -120,7 +126,7 @@ public class SignupChooseCourses extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
+            public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
                     courses.clear();
                     ArrayList<Course> checkedCourses = coursesAdapter.getCheckedCourseList();
@@ -130,37 +136,71 @@ public class SignupChooseCourses extends Fragment {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    try {
-                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
-
-                            @Override
-                            public void call(Object... args) {
-
-                                JSONObject obj = (JSONObject) args[0];
-                                if (!obj.has("error")) {
-                                    try {
-                                        JSONArray response = obj.getJSONArray("course");
-                                        courses.clear();
-                                        for (int i = 0; i < response.length(); i++) {
+                    handler.removeCallbacks(searchDelay);
+                    searchDelay = new Runnable() {
+                        @Override
+                        public void run() {
+                            APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler(){
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                                    courses.clear();
+                                    for (int i = 0; i < response.length(); i++) {
+                                        try {
                                             JSONObject course = (JSONObject) response.get(i);
                                             courses.add(new Course(
                                                     course.getString("name"),
                                                     course.getString("title"),
                                                     course.getString("_id"),
                                                     chosenUniversity));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                        updateRecyclerView();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
                                     }
-                                } else{
-                                    Log.e("com.example.easycourse", "failure" + obj.toString());
+                                    coursesAdapter.notifyDataSetChanged();
+                                    coursesOnScrollListener.resetState();
+//                            updateRecyclerView();
                                 }
-                            }
-                        });
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", "jsonex" + e.toString());
-                    }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    Log.e("searchCourse", responseString);
+                                    Snackbar.make(searchCoursesEditText, responseString, Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    };
+                    handler.postDelayed(searchDelay, 250);
+//                    try {
+//                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
+//
+//                            @Override
+//                            public void call(Object... args) {
+//
+//                                JSONObject obj = (JSONObject) args[0];
+//                                if (!obj.has("error")) {
+//                                    try {
+//                                        JSONArray response = obj.getJSONArray("course");
+//                                        courses.clear();
+//                                        for (int i = 0; i < response.length(); i++) {
+//                                            JSONObject course = (JSONObject) response.get(i);
+//                                            courses.add(new Course(
+//                                                    course.getString("name"),
+//                                                    course.getString("title"),
+//                                                    course.getString("_id"),
+//                                                    chosenUniversity));
+//                                        }
+//                                        updateRecyclerView();
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                } else{
+//                                    Log.e("com.example.easycourse", "failure" + obj.toString());
+//                                }
+//                            }
+//                        });
+//                    } catch (JSONException e) {
+//                        Log.e("com.example.easycourse", "jsonex" + e.toString());
+//                    }
                 }
             }
         });
@@ -215,38 +255,59 @@ public class SignupChooseCourses extends Fragment {
     }
 
     public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {
-        try {
-            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    if (!obj.has("error")) {
-                        Log.e("com.example.easycourse", "success" + obj.toString());
-                        int startPosition = courses.size();
-                        try {
-                            JSONArray response = obj.getJSONArray("course");
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject courseJSON = (JSONObject) response.get(i);
-                                Course courseObj = new Course(
-                                        courseJSON.getString("name"),
-                                        courseJSON.getString("title"),
-                                        courseJSON.getString("_id"),
-                                        chosenUniversity);
-                                if (!courses.contains(courseObj))
-                                    courses.add(courseObj);
-                            }
-                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else{
-                        Log.e("com.example.easycourse", "failure" + obj.toString());
+        APIFunctions.searchCourse(getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                int startPosition = courses.size();
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        JSONObject courseJSON = (JSONObject) response.get(i);
+                        Course courseObj = new Course(
+                                courseJSON.getString("name"),
+                                courseJSON.getString("title"),
+                                courseJSON.getString("_id"),
+                                chosenUniversity);
+                        if (!courses.contains(courseObj))
+                            courses.add(courseObj);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+            }
+        });
+//        try {
+//            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
+//                @Override
+//                public void call(Object... args) {
+//                    JSONObject obj = (JSONObject) args[0];
+//                    if (!obj.has("error")) {
+//                        Log.e("com.example.easycourse", "success" + obj.toString());
+//                        int startPosition = courses.size();
+//                        try {
+//                            JSONArray response = obj.getJSONArray("course");
+//                            for (int i = 0; i < response.length(); i++) {
+//                                JSONObject courseJSON = (JSONObject) response.get(i);
+//                                Course courseObj = new Course(
+//                                        courseJSON.getString("name"),
+//                                        courseJSON.getString("title"),
+//                                        courseJSON.getString("_id"),
+//                                        chosenUniversity);
+//                                if (!courses.contains(courseObj))
+//                                    courses.add(courseObj);
+//                            }
+//                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else{
+//                        Log.e("com.example.easycourse", "failure" + obj.toString());
+//                    }
+//                }
+//            });
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void saveToUserSetup() {

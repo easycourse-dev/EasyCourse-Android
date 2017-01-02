@@ -137,7 +137,6 @@ public class CourseDetailsActivity extends AppCompatActivity {
         });
 
         // Set up rooms RecyclerView
-        doSearchRoom(0, courseId, courseName);
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         roomsAdapter = new CourseDetailsRoomsRecyclerViewAdapter(courseRooms, socketIO, isJoined, realm, this);
@@ -147,7 +146,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
         scrollListener = new CourseDetailsRoomsEndlessRecyclerViewScrollListener(roomsLayoutManager, roomsAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                doSearchRoom(page, courseId, courseName);
+                doSearchRoom(page, courseId);
             }
         };
         roomsView.addOnScrollListener(scrollListener);
@@ -182,6 +181,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                             }
                             creditHrsView.setText(creditHrsText);
                             univView.setText(universityName);
+                            doSearchRoom(0, courseId);
                         }
                     });
                 }
@@ -190,7 +190,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private void doSearchRoom(final int skip, String courseId, final String courseName) {
+    private void doSearchRoom(final int skip, final String courseId) {
         APIFunctions.searchCourseSubroom(this, courseId, "", 20, skip, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -208,7 +208,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("_id"),
                                         room.getString("name"),
                                         new RealmList<Message>(),
-                                        room.getString("course"),
+                                        courseId,
                                         courseName,
                                         universityId,
                                         new RealmList<User>(),
@@ -229,7 +229,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("_id"),
                                         room.getString("name"),
                                         new RealmList<Message>(),
-                                        room.getString("course"),
+                                        courseId,
                                         courseName,
                                         universityId,
                                         new RealmList<User>(),
@@ -256,7 +256,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("_id"),
                                         room.getString("name"),
                                         new RealmList<Message>(),
-                                        room.getString("course"),
+                                        courseId,
                                         courseName,
                                         universityId,
                                         new RealmList<User>(),
@@ -277,7 +277,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("_id"),
                                         room.getString("name"),
                                         new RealmList<Message>(),
-                                        room.getString("course"),
+                                        courseId,
                                         courseName,
                                         universityId,
                                         new RealmList<User>(),
@@ -509,7 +509,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                             updateButtonView(isJoined);
                             courseRooms.clear();
                             roomsAdapter.updateCourse(isJoined, roomsJoined);
-                            doSearchRoom(0, courseId, courseName);
+                            doSearchRoom(0, courseId);
                         }
                     });
                 }

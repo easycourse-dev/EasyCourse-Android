@@ -109,11 +109,15 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         if (room.getFounder() != null && room.getFounder().getUsername() != null) {
             User user = room.getFounder();
             holder.founderTextView.setText(user.getUsername());
-            try {
-                // TODO: try to optimize the speed of loading image
-                downloadImage(new URL(user.getProfilePictureUrl()), holder.founderImageView);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            byte[] image = user.getProfilePicture();
+            if (image == null || image.length == 0) {
+                try {
+                    downloadImage(new URL(user.getProfilePictureUrl()), holder.founderImageView, room);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                holder.founderImageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length, null));
             }
         } else {
             holder.founderTextView.setText("Official");
@@ -156,7 +160,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return null;
     }
 
-    private void downloadImage(final URL url, final ImageView imgView){
+    private void downloadImage(final URL url, final ImageView imgView, final Room room){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -171,6 +175,10 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 30, stream);
                     imgView.setImageBitmap(image);
+
+                    // Saving image
+                    byte[] byteArray = stream.toByteArray();
+                    room.getFounder().setProfilePicture(byteArray);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

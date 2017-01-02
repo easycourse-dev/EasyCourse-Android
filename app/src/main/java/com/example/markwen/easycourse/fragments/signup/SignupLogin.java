@@ -118,7 +118,7 @@ public class SignupLogin extends Fragment {
     }
 
 
-    //http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
+    // http://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public static SignupLogin newInstance() {
         return new SignupLogin();
     }
@@ -220,7 +220,7 @@ public class SignupLogin extends Fragment {
                 facebookButton.performClick();
                 facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                     final Snackbar fbLoginErrorSnackbar = Snackbar
-                            .make(v, "Facebook log in failed, please check your credentials and network connection.", Snackbar.LENGTH_LONG);
+                            .make(v, "Facebook log in failed, please check your network connection.", Snackbar.LENGTH_LONG);
                     final Snackbar fbLoginCancelSnackbar = Snackbar
                             .make(v, "Facebook log in cancelled.", Snackbar.LENGTH_LONG);
 
@@ -302,7 +302,7 @@ public class SignupLogin extends Fragment {
                     verifyPasswordEditText.setText("");
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
-                            .make(v, "UserFragment could not be created, check if the email is already registered.", Snackbar.LENGTH_LONG);
+                            .make(v, "Sign up failed, check if the email is already registered.", Snackbar.LENGTH_LONG);
                     APIFunctions.signUp(getContext(), email, password, username, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -340,15 +340,15 @@ public class SignupLogin extends Fragment {
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                            Log.e("com.example.easycourse", "status failure " + statusCode);
-                            Log.e("com.example.easycourse", res);
+                            Log.e(TAG, "status failure " + statusCode);
+                            Log.e(TAG, res);
                             signupErrorSnackbar.show();
                         }
                     });
                 }
             } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
+                Log.e(TAG, e.toString());
             }
         }
     }
@@ -369,7 +369,6 @@ public class SignupLogin extends Fragment {
             loginButton.setBackgroundResource(R.drawable.login_button);
 
         } else { // Edittexts are hidden, do logic
-            Log.d(TAG, "Login clicked-doing login");
             // Get inputs and check if fields are empty
             // only execute login API when fields are all filled
             try {
@@ -401,7 +400,7 @@ public class SignupLogin extends Fragment {
                 });
             } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Log.e("com.example.easycourse", e.toString());
+                Log.e(TAG, e.toString());
             }
         }
     }

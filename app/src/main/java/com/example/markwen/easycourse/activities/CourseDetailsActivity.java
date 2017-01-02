@@ -445,9 +445,11 @@ public class CourseDetailsActivity extends AppCompatActivity {
     }
 
     private void showDropCourseDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Dropping " + course.getCoursename() + "?")
+        AlertDialog.Builder customBuilder = new AlertDialog.Builder(this);
+
+        customBuilder.setTitle("Dropping " + course.getCoursename() + "?")
                 .setMessage("If you drop this course, then you will automatically quit all the rooms belonging to " + course.getCoursename() + ".")
+                .setNegativeButton("Maybe Not", null)
                 .setPositiveButton("Drop It", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Drop the course
@@ -486,9 +488,14 @@ public class CourseDetailsActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                })
-                .setNegativeButton("Maybe Not", null)
-                .show();
+                });
+        AlertDialog dialog = customBuilder.create();
+        dialog.show();
+
+        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if(b != null) {
+            b.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null));
+        }
     }
 
     private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined){

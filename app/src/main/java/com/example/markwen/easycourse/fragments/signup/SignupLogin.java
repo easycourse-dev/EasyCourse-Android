@@ -188,7 +188,7 @@ public class SignupLogin extends Fragment {
 
         // Login progress dialog
         progress = new ProgressDialog(getContext());
-        progress.setTitle("Log In");
+        progress.setTitle("Log in");
         progress.setMessage("Logging in...");
         progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progress.setIndeterminate(true);
@@ -499,7 +499,7 @@ public class SignupLogin extends Fragment {
         User.updateUserToRealm(currentUser, realm);
         realm.close();
 
-        progress.setMessage("Finishing...");
+        progress.setMessage("Wrapping up...");
         progress.dismiss();
 
         // Make an Intent to move on to the next activity

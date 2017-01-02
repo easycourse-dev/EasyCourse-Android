@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -13,7 +14,9 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -131,14 +134,14 @@ public class UserFragment extends Fragment {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
-            avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+            avatarImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_account_circle_black_48dp, null));
         }
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout(v);
+                showLogoutDialog(v);
             }
         });
 
@@ -228,5 +231,25 @@ public class UserFragment extends Fragment {
         super.onDestroy();
         if (realm != null)
             realm.close();
+    }
+
+    private void showLogoutDialog(final View v) {
+        AlertDialog.Builder customBuilder = new AlertDialog.Builder(getContext());
+
+        customBuilder.setTitle("Log out")
+                .setMessage("Are you sure to log out? You will stop receiving messages from your friends.")
+                .setNegativeButton("No", null)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        logout(v);
+                    }
+                });
+        AlertDialog dialog = customBuilder.create();
+        dialog.show();
+
+        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if(b != null) {
+            b.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null));
+        }
     }
 }

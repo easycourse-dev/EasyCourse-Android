@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.easycourse.www.easycourse">
+    package="com.example.markwen.easycourse">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,22 +14,22 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
-        android:name="io.easycourse.www.easycourse.EasyCourse"
+        android:name=".EasyCourse"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="io.easycourse.www.easycourse.activities.SignupLoginActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:name=".activities.SignupLoginActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
-        <activity android:name="io.easycourse.www.easycourse.activities.MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,62 +37,62 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="io.easycourse.www.easycourse.activities.ChatRoomActivity"
+            android:name=".activities.ChatRoomActivity"
             android:label=""
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name="io.easycourse.www.easycourse.activities.UserProfileActivity"
+            android:name=".activities.UserProfileActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
-        </activity>
-
-        <activity android:name="io.easycourse.www.easycourse.activities.SettingsActivity"/>
-        <activity
-            android:name="io.easycourse.www.easycourse.activities.NewRoomActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
+        <activity android:name=".activities.SettingsActivity"/>
         <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:name=".activities.NewRoomActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
         <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseDetailsActivity"
+            android:name=".activities.CourseManagementActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.CourseManagementActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.CourseManagementActivity" />
+                android:value=".activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activities.CourseDetailsActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.CourseManagementActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.CourseManagementActivity" />
         </activity>
 
         <service
-            android:name="io.easycourse.www.easycourse.services.MainService"
+            android:name=".services.MainService"
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name="io.easycourse.www.easycourse.services.NotificationBroadcastReceiver">
+        <receiver android:name=".services.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

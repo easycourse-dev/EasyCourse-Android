@@ -165,7 +165,7 @@ public class UserFragment extends Fragment {
                             realm.beginTransaction();
                         realm.deleteAll();
                         realm.commitTransaction();
-                    }catch (NullPointerException e){
+                    } catch (NullPointerException e){
                         Log.e(TAG, "onSuccess: ", e);
                     }
 

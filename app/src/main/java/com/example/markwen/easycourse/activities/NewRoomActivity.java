@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.CardView;
@@ -211,6 +212,11 @@ public class NewRoomActivity extends AppCompatActivity {
                     };
                     handler.postDelayed(searchDelay, 250);
                 }
+                if (editable.toString().equals("")) {
+                    newRoomButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.login_button_disable, null));
+                } else {
+                    newRoomButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.login_button, null));
+                }
             }
         });
 
@@ -225,6 +231,7 @@ public class NewRoomActivity extends AppCompatActivity {
         existedRoomView.setAdapter(roomsRecyclerViewAdapter);
 
         // Create new room button
+        newRoomButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.login_button_disable, null));
         newRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

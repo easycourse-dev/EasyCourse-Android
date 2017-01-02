@@ -84,7 +84,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
 
         // Check if this room is joined
-        Room joinedRoom = isRoomJoined(joinedRooms, room);
+        final Room joinedRoom = isRoomJoined(joinedRooms, room);
         if (joinedRoom != null) {
             holder.checkBox.setChecked(true);
         } else {
@@ -97,6 +97,11 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     dropRoom(room.getId());
                     // TODO: update checkbox after dropRoom is called
                     holder.checkBox.setChecked(false);
+                    for (int i = 0; i < joinedRooms.size(); i++) {
+                        if (joinedRooms.get(i).getId().equals(room.getId())) {
+                            joinedRooms.remove(i);
+                        }
+                    }
                 } else {
                     joinRoom(room.getId(), room.getCourseName());
                     // TODO: update checkbox after joinRoom is called
@@ -234,22 +239,22 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                             }
 
                             // Save room to Realm
-                            Room.updateRoomToRealm(
-                                    new Room(
-                                            roomId,
-                                            roomName,
-                                            new RealmList<Message>(),
-                                            courseID,
-                                            courseName,
-                                            universityID,
-                                            new RealmList<User>(),
-                                            memberCounts,
-                                            memberCountsDesc,
-                                            new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
-                                            language,
-                                            isPublic,
-                                            isSystem),
-                                    tempRealm);
+                            Room tempRoom = new Room(
+                                    roomId,
+                                    roomName,
+                                    new RealmList<Message>(),
+                                    courseID,
+                                    courseName,
+                                    universityID,
+                                    new RealmList<User>(),
+                                    memberCounts,
+                                    memberCountsDesc,
+                                    new User(founderId, founderName, null, founderAvatarUrl, null, universityID),
+                                    language,
+                                    isPublic,
+                                    isSystem);
+                            joinedRooms.add(tempRoom);
+                            Room.updateRoomToRealm(tempRoom, tempRealm);
                             tempRealm.close();
 
                         } catch (JSONException e) {
@@ -299,23 +304,5 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    // TODO: synchronize dropRoom and joinRoom checkbox change
-    private void updateCheckbox(boolean status) {
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

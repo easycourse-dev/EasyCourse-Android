@@ -26,6 +26,7 @@ public class Message extends RealmObject {
     private double imageHeight;
 
     private String toRoom;
+    private String toUser;
     private boolean isToUser = true;
     private Date createdAt;
 
@@ -40,7 +41,7 @@ public class Message extends RealmObject {
         this.createdAt = createdAt;
     }
 
-    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, Date createdAt) {
+    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, String toUser, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;
         this.sender = sender;
@@ -51,6 +52,7 @@ public class Message extends RealmObject {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.toRoom = toRoom;
+        this.toUser = toUser;
         this.createdAt = createdAt;
     }
 
@@ -163,6 +165,14 @@ public class Message extends RealmObject {
 
     public String getToRoom() {
         return toRoom;
+    }
+
+    public void setToUser(String toUser) {
+        this.toUser = toUser;
+    }
+
+    public String getToUser() {
+        return toUser;
     }
 
     public void setToRoom(String toRoom) {

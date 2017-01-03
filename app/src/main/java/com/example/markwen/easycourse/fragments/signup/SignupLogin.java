@@ -336,6 +336,8 @@ public class SignupLogin extends Fragment {
                             realm.commitTransaction();
                             realm.close();
 
+                            EasyCourse.getAppInstance().createSocketIO();
+
                             gotoSignupChooseCourses();
                         }
 
@@ -505,6 +507,7 @@ public class SignupLogin extends Fragment {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.e(TAG, "Token saved");
+                    EasyCourse.getAppInstance().createSocketIO();
 
                     progress.setMessage("Wrapping up...");
                     progress.dismiss();

@@ -14,4 +14,6 @@
     <color name="colorLogout">#F44336</color>
     <color name="colorTransparent">#00FFFFFF</color>
     <color name="white">#FFF</color>
+    <color name="colorChatBubbleReceivedBackground">#F3F0F3</color>
+    <color name="colorChatRoomBackground">#FFFEFF</color>
 </resources>

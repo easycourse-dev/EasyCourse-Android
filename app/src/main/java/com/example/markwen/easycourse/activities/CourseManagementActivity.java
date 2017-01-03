@@ -78,7 +78,6 @@ public class CourseManagementActivity extends AppCompatActivity {
         }
 
         socketIO = EasyCourse.getAppInstance().getSocketIO();
-        socketIO.syncUser();
         realm = Realm.getDefaultInstance();
         handler = new Handler();
 
@@ -222,6 +221,12 @@ public class CourseManagementActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        socketIO.syncUser();
     }
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {

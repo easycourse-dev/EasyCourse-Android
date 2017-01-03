@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrollListener;
@@ -32,7 +33,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -72,11 +72,8 @@ public class SignupChooseCourses extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
-        try {
-            socketIO = new SocketIO(getContext());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
+
         handler = new Handler();
     }
 

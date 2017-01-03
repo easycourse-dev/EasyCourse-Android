@@ -4,7 +4,8 @@
     android:id="@+id/relativeLayoutChatRoom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ChatRoomActivity">
+    tools:context=".activities.ChatRoomActivity"
+    android:background="@color/colorChatRoomBackground">
 
     <ProgressBar
         android:id="@+id/chatSendImageProgressBar"
@@ -21,22 +22,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/chatLinearEditBox"
-        android:paddingBottom="8dp" />
+        android:layout_marginBottom="8dp"/>
+
 
     <LinearLayout
         android:id="@+id/chatLinearEditBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:minHeight="48dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
 
         <ImageButton
             android:id="@+id/chatAddImageButton"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="5dp"
+            android:layout_margin="7dp"
             android:background="@drawable/ic_add_a_photo_black_24px"
             android:contentDescription="@string/chatMessageAccessibility" />
 
@@ -50,13 +52,12 @@
             android:imeOptions="actionSend"
             android:minLines="1" />
 
-
         <ImageButton
             android:id="@+id/chatSendImageButton"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="5dp"
+            android:layout_margin="7dp"
             android:background="@drawable/ic_send_black_24px"
             android:contentDescription="@string/chatMessageAccessibility" />
     </LinearLayout>

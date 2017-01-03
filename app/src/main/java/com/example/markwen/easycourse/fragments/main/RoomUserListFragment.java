@@ -1,12 +1,10 @@
 package com.example.markwen.easycourse.fragments.main;
 
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -161,6 +158,26 @@ public class RoomUserListFragment extends Fragment {
 
 
     public void goToPrivateRoom(final User toUser) {
+//        Room room = new Room(
+//                toUser.getId(),
+//                toUser.getUsername(),
+//                new RealmList<Message>(),
+//                null,
+//                "Private Chat",
+//                null,
+//                new RealmList<>(curUser, toUser),
+//                2,
+//                "<10",
+//                curUser,
+//                null,
+//                false,
+//                false);
+//        room.setToUser(true);
+//        updateRoomInSocket(room);
+//        Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+//        chatActivityIntent.putExtra("roomId", room.getId());
+//        activity.finish();
+//        startActivity(chatActivityIntent);
         try {
             socketIO.createRoom(toUser.getUsername(), null, new Ack() {
                 @Override
@@ -194,6 +211,7 @@ public class RoomUserListFragment extends Fragment {
                                     language,
                                     isPublic,
                                     isSystem);
+                            room.setToUser(true);
                             updateRoomInSocket(room);
                             Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
                             chatActivityIntent.putExtra("roomId", room.getId());

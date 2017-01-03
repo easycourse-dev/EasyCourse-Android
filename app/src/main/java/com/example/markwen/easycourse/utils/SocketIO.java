@@ -339,24 +339,6 @@ public class SocketIO {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courseId", courseID);
 
-        socket.emit("dropCourse", jsonParam, callback);
-        /*socket.emit("dropCourse", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (obj.has("error")) {
-                    Log.e(TAG, obj.toString());
-                } else {
-
-                    try {
-                        dropCourseSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });*/
         socket.emit("dropCourse", jsonParam,callback);
     }
 
@@ -366,70 +348,6 @@ public class SocketIO {
 
         socket.emit("getCourseInfo", jsonParam, callback);
     }
-
-//    public Future<ArrayList<Room>> searchRooms(String searchQuery, int limit, final int skip, String unversityId, final ArrayList<Room> rooms) throws JSONException {
-//        final JSONObject jsonParam = new JSONObject();
-//        jsonParam.put("text", searchQuery);
-//        jsonParam.put("university", unversityId);
-//        jsonParam.put("limit", limit);
-//        jsonParam.put("skip", skip);
-//        socket.emit("searchRoom", jsonParam, new Ack() {
-//            @Override
-//            public void call(Object... args) {
-//                JSONObject obj = (JSONObject) args[0];
-//                if (!obj.has("error")) {
-//                    try {
-//                        JSONArray roomArrayJSON = obj.getJSONArray("room");
-//                        for (int i = 0; i < roomArrayJSON.length(); i++) {
-//                            String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
-//                            String roomName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
-//                            String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
-//                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
-//                            String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
-//                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", "0"));
-//                            String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
-//                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", "0"));
-//                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
-//
-//                            Room room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, language, founderId, isSystem);
-//                            Room room2 = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, )
-//                            rooms.add(room);
-//                        }
-//                    } catch (JSONException e) {
-//                        Log.e(TAG, e.toString());
-//                    }
-//                }
-//            }
-//        });
-//
-//        // Returns a Future object to handle async
-//        return new Future<ArrayList<Room>>() {
-//            @Override
-//            public boolean cancel(boolean b) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean isCancelled() {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean isDone() {
-//                return false;
-//            }
-//
-//            @Override
-//            public ArrayList<Room> get() throws InterruptedException, ExecutionException {
-//                return rooms;
-//            }
-//
-//            @Override
-//            public ArrayList<Room> get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-//                return null;
-//            }
-//        };
-//    }
 
     public void joinRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
@@ -642,6 +560,7 @@ public class SocketIO {
                 byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
                 boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
                 String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
+                String toUser = (String) checkIfJsonExists(obj, "toUser", null);
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
@@ -657,8 +576,7 @@ public class SocketIO {
                 }
 
                 Realm realm = Realm.getDefaultInstance();
-
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();

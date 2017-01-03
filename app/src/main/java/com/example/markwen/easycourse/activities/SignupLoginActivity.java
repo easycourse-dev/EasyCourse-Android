@@ -56,5 +56,6 @@ public class SignupLoginActivity extends AppCompatActivity {
 
             transaction.replace(R.id.activity_signuplogin_container, SignupLogin.newInstance(), "SignupLogin");
             transaction.commit();
-        }    }
+        }
+    }
 }

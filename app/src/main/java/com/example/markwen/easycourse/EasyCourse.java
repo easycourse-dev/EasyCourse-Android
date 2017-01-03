@@ -46,14 +46,14 @@ public class EasyCourse extends Application {
                         .build());
 
         appInstance = this;
-        createSockeIO();
+//        createSocketIO();
 
         deviceToken = FirebaseInstanceId.getInstance().getToken();
     }
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
 
-    public void createSockeIO() {
+    public void createSocketIO() {
         try {
             socketIO = new SocketIO(this);
         } catch (URISyntaxException e) {

@@ -89,7 +89,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         currentUser = User.getCurrentUser(this, realm);
-        socketIO.syncUser();
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
@@ -128,6 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .replace(R.id.activity_chat_room_content, roomUserListFragment)
                 .commit();
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24px);
+        roomDetailDrawer.closeDrawer();
     }
 
 
@@ -177,84 +177,47 @@ public class ChatRoomActivity extends AppCompatActivity {
                             //TODO: Add intent to share room
                             return true;
                         case 5:
-                            try {
-                                socketIO.quitRoom(currentRoom.getId(), new Ack() {
-                                    @Override
-                                    public void call(Object... args) {
-                                        JSONObject obj = (JSONObject) args[0];
-                                        Log.e(TAG, obj.toString());
-
-                                        if (obj.has("error")) {
-                                            Log.e(TAG, obj.toString());
-                                        } else {
-
-                                            try {
-                                                boolean success = obj.getBoolean("success");
-                                                if (success) {
-                                                    deleteRoomInSocket(currentRoom);
-                                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                                }
-                                            } catch (JSONException e) {
-                                                Log.e(TAG, e.toString());
-                                            }
-                                        }
-                                    }
-                                });
-                                socketIO.syncUser();
-                                return true;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            quitRoom();
                             break;
                     }
                     return false;
                 }
             });
-        }else { //If private chat
+        } else { //If private chat
             builder.addDrawerItems(
-                    new PrimaryDrawerItem().withName(R.string.classmates).withIcon(R.drawable.ic_group_black_24px),
-                    new PrimaryDrawerItem().withName(R.string.sharedgroups).withIcon(R.drawable.ic_chatboxes),
-                    new DividerDrawerItem(),
-                    new SecondarySwitchDrawerItem().withName(R.string.silent).
-                            withChecked(currentUser.getSilentRooms().contains(currentRoom))
+                    new SecondaryDrawerItem().withName("Share User"),
+                    new SecondarySwitchDrawerItem().withName(R.string.block_user).
+                            withChecked(isRoomJoined(currentUser.getSilentRooms(), currentRoom))
                             .withOnCheckedChangeListener(new OnCheckedChangeListener() {
                                 @Override
                                 public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-                    new SecondaryDrawerItem().withName(R.string.share_room),
-                    new SecondaryDrawerItem().withName(R.string.block_user),
                     new SecondaryDrawerItem().withName(R.string.report_user),
-                    new SecondaryDrawerItem().withName(R.string.quit_room));
+                    new SecondaryDrawerItem().withName("Quit Chat"));
 
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                 @Override
                 public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                     switch (position) {
                         case 1:
-                            //TODO: Add intent to classmates of all shared classes
-                            gotoRoomUserListFragment();
+                            //TODO: Add share user
                             break;
-                        case 5:
-                            //TODO: Add intent to Share Room
-                            break;
-                        case 6:
-                            showReportUserDialog();
-                            break;
-                        case 7:
+                        case 2:
                             showBlockUserDialog();
                             break;
-                        case 8:
+                        case 3:
+                            showReportUserDialog();
+                            break;
+                        case 4:
                             quitRoom();
-                            socketIO.syncUser();
                             break;
                     }
                     return false;
                 }
             });
         }
-
 
         roomDetailDrawer = builder.build();
 
@@ -276,7 +239,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (currentRoom.getCourseName() != null)
             headerCourseSubtitle.setText(currentRoom.getCourseName());
 
-
         headerCourseTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -288,7 +250,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private void quitRoom() {
@@ -306,7 +267,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                         try {
                             boolean success = obj.getBoolean("success");
                             if (success) {
-                                socketIO.syncUser();
+                                deleteRoomInSocket(currentRoom);
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
                             }
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
@@ -314,7 +276,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                     }
                 }
             });
-            socketIO.syncUser();
         } catch (JSONException e) {
             e.printStackTrace();
         }

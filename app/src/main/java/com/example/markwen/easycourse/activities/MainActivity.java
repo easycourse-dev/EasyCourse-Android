@@ -72,7 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
-        socketIO.syncUser();
+        if (socketIO == null) {
+            EasyCourse.getAppInstance().createSocketIO();
+            socketIO = EasyCourse.getAppInstance().getSocketIO();
+        }
 
         // Checking if there is a user currently logged in
         // if there is, remain in MainActivity

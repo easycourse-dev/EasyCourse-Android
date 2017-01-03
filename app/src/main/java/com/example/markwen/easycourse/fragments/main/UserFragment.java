@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
@@ -28,8 +27,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.CourseManagementActivity;
@@ -144,11 +141,6 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showLogoutDialog(v);
-                try {
-                    logout(v);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
         });
 
@@ -170,15 +162,11 @@ public class UserFragment extends Fragment {
                     editor.apply();
 
                     // Clear Realm
-                    try {
-                        if (realm != null)
-                            realm.beginTransaction();
-                        realm.deleteAll();
-                        realm.commitTransaction();
-
-                    } catch (NullPointerException e){
-                        Log.e(TAG, "onSuccess: ", e);
-                    }
+                    Realm tempRealm = Realm.getDefaultInstance();
+                    tempRealm.beginTransaction();
+                    tempRealm.deleteAll();
+                    tempRealm.commitTransaction();
+                    tempRealm.close();
 
                     Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
 

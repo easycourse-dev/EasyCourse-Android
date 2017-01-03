@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -49,6 +50,8 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.textViewOutgoingTextMessage)
     TextView outgoingMessage;
 
+    private boolean timeVisible;
+
     public OutgoingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -61,31 +64,48 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
             outgoingTime.setText(reportDateOutgoing);
+            timeVisible = true;
         } else {
             outgoingTime.setVisibility(View.GONE);
+            timeVisible = false;
         }
 
+//        if (!message.isSuccessSent())
+//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+//        else
+//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
+
         if (curUser != null) {
-            try {
-                if (!curUser.getProfilePictureUrl().isEmpty())
-                    Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(outgoingImageView);
+            if (curUser.getProfilePictureUrl().isEmpty()) {
+                outgoingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+            } else {
+                Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                        .placeholder(R.drawable.ic_person_black_24px)
+                        .into(outgoingImageView);
+                outgoingName.setText(curUser.getUsername());
+                outgoingMessage.setText(message.getText());
 
-
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.toString());
             }
-            outgoingName.setText(curUser.getUsername());
-            outgoingMessage.setText(message.getText());
-
         }
 
         outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 return showPopup(outgoingLinearLayout, message, context);
+            }
+        });
+
+        outgoingLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (outgoingTime.getText().equals("time")) return;
+                if (timeVisible) {
+                    outgoingTime.setVisibility(View.GONE);
+                    timeVisible = false;
+                } else {
+                    outgoingTime.setVisibility(View.VISIBLE);
+                    timeVisible = true;
+                }
             }
         });
     }

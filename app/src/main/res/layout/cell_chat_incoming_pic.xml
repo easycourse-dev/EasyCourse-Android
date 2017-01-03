@@ -3,6 +3,7 @@
     android:id="@+id/linearIncomingPicCell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
     android:orientation="vertical"
     android:paddingTop="16dp">
 
@@ -26,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="36dp"
-            android:layout_marginStart="36dp"/>
+            android:layout_marginStart="36dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -50,11 +51,11 @@
                 android:id="@+id/imageViewIncomingPicImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxHeight="500dp"
-                android:maxWidth="300dp"
-                android:background="@drawable/cell_incoming_message"
+                android:background="@drawable/cell_message_sent"
                 android:clickable="false"
-                android:contentDescription="@string/chatMessageAccessibility" />
+                android:contentDescription="@string/chatMessageAccessibility"
+                android:maxHeight="500dp"
+                android:maxWidth="300dp" />
         </LinearLayout>
 
     </LinearLayout>

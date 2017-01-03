@@ -1,22 +1,38 @@
 package com.example.markwen.easycourse.components.main;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
+import com.example.markwen.easycourse.utils.SocketIO;
+
+import org.json.JSONException;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -30,6 +46,7 @@ import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import io.socket.client.Ack;
 
 
 /**
@@ -38,16 +55,20 @@ import io.realm.Sort;
 
 public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
 
+    private static final String TAG = "RoomRecyclerViewAdapter";
+    
     private RoomsFragment fragment;
     private Context context;
     private RealmResults<Room> rooms;
+    private SocketIO socketIO;
 
 
-    public RoomRecyclerViewAdapter(RoomsFragment fragment, Context context, RealmResults<Room> rooms) {
+    public RoomRecyclerViewAdapter(RoomsFragment fragment, Context context, RealmResults<Room> rooms, SocketIO socketIO) {
         super(context, rooms, true);
         this.fragment = fragment;
         this.context = context;
         this.rooms = rooms;
+        this.socketIO = socketIO;
     }
 
 
@@ -84,7 +105,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         final Room room = rooms.get(position);
-        RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
+        final RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
 
@@ -92,6 +113,13 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             @Override
             public void onClick(View view) {
                 fragment.startChatRoom(room);
+            }
+        });
+
+        roomViewHolder.roomCardView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return showPopup(roomViewHolder.roomCardView, room, context);
             }
         });
 
@@ -114,6 +142,76 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
             }
         }
+    }
+
+    private boolean showPopup(CardView cardView, final Room room, final Context context) {
+        if (room == null) return false;
+
+        PopupMenu popup = new PopupMenu(context, cardView);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.roomPopupQuit:
+                        showQuitDialog(room);
+                        return true;
+
+                }
+                return false;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.room_item_popup, popup.getMenu());
+        popup.show();
+        return false;
+    }
+
+    private void showQuitDialog(final Room room) {
+
+        MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .title("Quit " + room.getRoomName() + "?")
+                .titleColor(ContextCompat.getColor(context, R.color.colorAccent))
+                .positiveText("Quit")
+                .positiveColor(ContextCompat.getColor(context, R.color.colorLogout))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        quitRoom(room);
+                    }
+                })
+                .negativeText("Cancel")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.cancel();
+                    }
+                })
+                .build();
+        dialog.show();
+
+
+    }
+
+    private void quitRoom(final Room room) {
+
+        try {
+            socketIO.quitRoom(room.getId(), new Ack() {
+                @Override
+                public void call(Object... args) {
+                    fragment.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fragment.deleteRoom(room);
+                            RoomRecyclerViewAdapter.this.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "quitRoom: ", e);
+        }
+        socketIO.syncUser();
+
     }
 
     private String getMessageTime(Message message) {

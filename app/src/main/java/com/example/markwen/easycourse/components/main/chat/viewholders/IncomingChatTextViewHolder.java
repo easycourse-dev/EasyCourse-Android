@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -17,16 +18,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.socket.client.Ack;
 
 /**
  * Created by nrinehart on 12/22/16.
@@ -49,6 +56,9 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.textViewIncomingTextMessage)
     TextView incomingMessage;
 
+    private boolean timeVisible;
+
+
     public IncomingChatTextViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -65,20 +75,40 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingTime.setVisibility(View.GONE);
         }
 
+//        if (!message.isSuccessSent())
+//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+//        else
+//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
+
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
-
-        if (thisUser != null) {
+        if (thisUser == null) {
             try {
-                if (thisUser.getProfilePictureUrl() != null)
-                    Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(incomingImageView);
-
-
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.toString());
+                EasyCourse.getAppInstance().getSocketIO().getUserInfoJson(message.getSenderId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
+                        fillUserInfo(thisUser, context, message);
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "setupView: ", e);
             }
+        } else {
+            fillUserInfo(thisUser, context, message);
+        }
+    }
+
+    private void fillUserInfo(User thisUser, final Context context, final Message message) {
+        if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
+
+            if (thisUser.getProfilePictureUrl().isEmpty()) {
+                incomingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+            } else {
+                Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                        .placeholder(R.drawable.ic_person_black_24px)
+                        .into(incomingImageView);
+            }
+
             incomingName.setText(thisUser.getUsername());
             incomingMessage.setText(message.getText());
 
@@ -86,6 +116,16 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public boolean onLongClick(View view) {
                     return showPopup(incomingLinearLayout, message, context);
+                }
+            });
+
+            incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (timeVisible)
+                        incomingTime.setVisibility(View.GONE);
+                    else
+                        incomingTime.setVisibility(View.VISIBLE);
                 }
             });
         }

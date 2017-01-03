@@ -6,7 +6,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -27,6 +29,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,15 +42,26 @@ import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapt
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
+import com.example.markwen.easycourse.utils.eventbus.Event;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -77,6 +91,9 @@ public class ChatRoomFragment extends Fragment {
     EditText messageEditText;
     @BindView(R.id.chatSendImageButton)
     ImageButton sendImageButton;
+
+    @BindView(R.id.chatSendImageProgressBar)
+    ProgressBar sendImageProgressBar;
 
 
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
@@ -146,7 +163,7 @@ public class ChatRoomFragment extends Fragment {
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setupMessageToSend();
+                setupTextMessageToSend();
             }
         });
 
@@ -155,7 +172,7 @@ public class ChatRoomFragment extends Fragment {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 boolean handled = false;
                 if (i == EditorInfo.IME_ACTION_SEND) {
-                    setupMessageToSend();
+                    setupTextMessageToSend();
                     handled = true;
                 }
                 return handled;
@@ -172,16 +189,19 @@ public class ChatRoomFragment extends Fragment {
 
         MaterialDialog dialog = new MaterialDialog.Builder(activity)
                 .title("Send Image?")
-                .titleColor(getResources().getColor(R.color.colorAccent))
+                .titleColor(ContextCompat.getColor(getContext(), R.color.colorAccent))
                 .customView(R.layout.dialog_send_image, true)
                 .positiveText("Send")
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         Log.d(TAG, uri.toString());
+                        sendImageProgressBar.setVisibility(View.VISIBLE);
+                        compressAndSendImage(uri);
                     }
                 })
                 .negativeText("Cancel")
+                .negativeColor(ContextCompat.getColor(getContext(),R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -205,8 +225,9 @@ public class ChatRoomFragment extends Fragment {
             image.setImageBitmap(scaled);
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Toast.makeText(activity, "Image failed to load!", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "sendImageDialog:", e);
         }
         dialog.show();
     }
@@ -224,7 +245,6 @@ public class ChatRoomFragment extends Fragment {
                 .show();
     }
 
-    //TODO: fix add images
     private void handleAddImage(int which, View view) {
         switch (which) {
             case 0:  // choose image
@@ -243,8 +263,17 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void chooseImage() {
-        Intent chooseImageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(chooseImageIntent, CHOOSE_IMAGE_INTENT);
+        if (Build.VERSION.SDK_INT < 19 || true) {
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), CHOOSE_IMAGE_INTENT);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, CHOOSE_IMAGE_INTENT);
+        }
     }
 
     private void takeImage() {
@@ -255,11 +284,11 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-    private void setupMessageToSend() {
+    private void setupTextMessageToSend() {
         String messageText = messageEditText.getText().toString();
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
-            if (sendTextMessage(fixed)) {
+            if (sendMessage(fixed, true, null, 0, 0)) {
                 messageEditText.setText("");
                 chatRecyclerViewAdapter.notifyDataSetChanged();
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
@@ -267,23 +296,56 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
+    private void compressAndSendImage(final Uri uri) {
+        BitmapUtils.compressBitmap(uri, currentRoom.getId(), getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
+            @Override
+            public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
+                if (ChatRoomFragment.this.sendMessage(null, false, bytes, bitmap.getWidth(), bitmap.getHeight())) {
+                    chatRecyclerViewAdapter.notifyDataSetChanged();
+                    chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
+                    picSent(true);
+                }
+                picSent(false);
+            }
 
-    private boolean sendTextMessage(String messageText) {
+            @Override
+            public void onTaskFailed() {
+                picSent(false);
+            }
+        });
+    }
+
+    private void picSent(boolean wasSent) {
+        sendImageProgressBar.setVisibility(View.GONE);
+        //TODO: handle pic send failure
+//        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
+    }
+
+
+    private boolean sendMessage(String messageText, boolean isTextMessage, byte[] imageData, int imageWidth, int imageHeight) {
         try {
-            //Recieve message from socketIO
+            //Receive message from socketIO
             if (this.currentRoom.isToUser()) {
-                socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
+                else
+                    socketIO.sendMessage(null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
+
             } else {
-                socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
+                else
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, imageData, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e(TAG, "sendTextMessage: error");
+            Log.e(TAG, "sendMessage: error");
             return false;
         }
         socketIO.syncUser();
         return true;
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -306,26 +368,6 @@ public class ChatRoomFragment extends Fragment {
         if (selectedImage == null)
             Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
         sendImageDialog(selectedImage);
-
-//        switch (requestCode) {
-//            case CHOOSE_IMAGE_INTENT:
-//                    Uri selectedImage = data.getData();
-//
-//
-//
-//                    sendImageDialog(selectedImage);
-//
-//
-//                break;
-//
-//            case TAKE_IMAGE_INTENT:
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                    if (imageBitmap == null) return;
-//                    Log.d(TAG, "onActivityResult: " + imageBitmap.toString());
-//
-//                break;
-//        }
     }
 
     @Override
@@ -340,6 +382,12 @@ public class ChatRoomFragment extends Fragment {
         super.onDestroy();
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
+    }
+
+
+    @Subscribe
+    public void messageEvent(Event.MessageEvent event) {
+        this.chatRecyclerViewAdapter.notifyDataSetChanged();
     }
 
 

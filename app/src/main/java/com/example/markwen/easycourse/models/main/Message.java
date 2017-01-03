@@ -16,7 +16,7 @@ public class Message extends RealmObject {
     @PrimaryKey
     private String id;
     private String remoteId;
-    private String senderId;
+    private User sender;
     private String text;
     private String imageUrl;
     private byte[] imageData;
@@ -33,17 +33,17 @@ public class Message extends RealmObject {
     }
 
     //TODO: Testing constructor
-    public Message(String senderId, String text, String imageUrl, Date createdAt) {
-        this.senderId = senderId;
+    public Message(User sender, String text, String imageUrl, Date createdAt) {
+        this.sender = sender;
         this.text = text;
         this.imageUrl = imageUrl;
         this.createdAt = createdAt;
     }
 
-    public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, Date createdAt) {
+    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;
-        this.senderId = senderId;
+        this.sender = sender;
         this.text = text;
         this.imageUrl = imageUrl;
         this.imageData = imageData;
@@ -98,11 +98,19 @@ public class Message extends RealmObject {
     }
 
     public String getSenderId() {
-        return senderId;
+        return sender.getId();
     }
 
     public void setSenderId(String senderId) {
-        this.senderId = senderId;
+        this.sender.setId(senderId);
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public User getSender() {
+        return sender;
     }
 
     public String getText() {

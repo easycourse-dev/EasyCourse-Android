@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -24,18 +23,12 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -637,9 +630,13 @@ public class SocketIO {
         if (obj != null) {
             Message message;
             try {
+                JSONObject sender = obj.getJSONObject("sender");
+                String senderId = (String) checkIfJsonExists(sender, "_id", null);
+                String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+                String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+
                 String id = (String) checkIfJsonExists(obj, "_id", null);
                 String remoteId = (String) checkIfJsonExists(obj, "id", null);
-                String senderId = (String) checkIfJsonExists(obj, "sender", null);
                 String text = (String) checkIfJsonExists(obj, "text", null);
                 String imageUrl = (String) checkIfJsonExists(obj, "imageUrl", null);
                 byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
@@ -661,7 +658,7 @@ public class SocketIO {
 
                 Realm realm = Realm.getDefaultInstance();
 
-                message = new Message(id, remoteId, senderId, text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();

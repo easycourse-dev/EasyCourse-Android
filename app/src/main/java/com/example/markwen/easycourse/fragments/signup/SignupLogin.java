@@ -391,21 +391,6 @@ public class SignupLogin extends Fragment {
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         progress.setMessage("Login success");
                         parseLoginResponse(statusCode, headers, response);
-                        try {
-                            APIFunctions.saveDeviceToken(getContext(), EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
-                                @Override
-                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                    Log.e(TAG, "Token saved");
-                                }
-
-                                @Override
-                                public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
-                                    Log.e(TAG, "Token save unsuccessful "+response.toString());
-                                }
-                            });
-                        } catch (JSONException | UnsupportedEncodingException e) {
-                            Log.e(TAG, e.toString());
-                        }
                     }
 
                     @Override
@@ -515,13 +500,30 @@ public class SignupLogin extends Fragment {
         User.updateUserToRealm(currentUser, realm);
         realm.close();
 
-        progress.setMessage("Wrapping up...");
-        progress.dismiss();
+        try {
+            APIFunctions.saveDeviceToken(getContext(), EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.e(TAG, "Token saved");
 
-        // Make an Intent to move on to the next activity
-        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-        startActivity(mainActivityIntent);
-        getActivity().finish();
+                    progress.setMessage("Wrapping up...");
+                    progress.dismiss();
+                    // Make an Intent to move on to the next activity
+                    Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                    startActivity(mainActivityIntent);
+                    getActivity().finish();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
+                    Log.e(TAG, "Token save unsuccessful "+response.toString());
+                }
+            });
+        } catch (JSONException | UnsupportedEncodingException e) {
+            Log.e(TAG, e.toString());
+        }
+
+
     }
 
 

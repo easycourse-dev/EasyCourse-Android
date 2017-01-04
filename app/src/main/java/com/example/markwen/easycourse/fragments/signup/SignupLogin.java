@@ -49,6 +49,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -585,13 +587,23 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-
         if (password.length() < 8 || password.length() > 20) {
             passwordInputLayout.setError("Password length not between 8 and 20");
             passwordEditText.requestFocus();
             return false;
         }
 
+
+
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher("I am a string");
+        boolean b = m.find();
+
+        if (m.find()) {
+            passwordInputLayout.setError("Password cannot have a special character");
+            passwordEditText.requestFocus();
+            return false;
+        }
 
         passwordInputLayout.setErrorEnabled(false);
         return true;

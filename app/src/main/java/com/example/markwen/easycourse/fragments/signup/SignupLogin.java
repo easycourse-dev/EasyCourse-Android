@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
@@ -335,6 +336,8 @@ public class SignupLogin extends Fragment {
                             realm.commitTransaction();
                             realm.close();
 
+                            EasyCourse.getAppInstance().createSocketIO();
+
                             gotoSignupChooseCourses();
                         }
 
@@ -367,8 +370,8 @@ public class SignupLogin extends Fragment {
             usernameInputLayout.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
-
         } else { // Edittexts are hidden, do logic
+            Log.e(TAG, "Login clicked-doing login");
             // Get inputs and check if fields are empty
             // only execute login API when fields are all filled
             try {
@@ -393,7 +396,7 @@ public class SignupLogin extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
                         // Make a Snackbar to notify user with error
                         loginErrorSnackbar.show();
                     }
@@ -499,13 +502,31 @@ public class SignupLogin extends Fragment {
         User.updateUserToRealm(currentUser, realm);
         realm.close();
 
-        progress.setMessage("Wrapping up...");
-        progress.dismiss();
+        try {
+            APIFunctions.saveDeviceToken(getContext(), EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.e(TAG, "Token saved");
+                    EasyCourse.getAppInstance().createSocketIO();
 
-        // Make an Intent to move on to the next activity
-        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-        startActivity(mainActivityIntent);
-        getActivity().finish();
+                    progress.setMessage("Wrapping up...");
+                    progress.dismiss();
+                    // Make an Intent to move on to the next activity
+                    Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                    startActivity(mainActivityIntent);
+                    getActivity().finish();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
+                    Log.e(TAG, "Token save unsuccessful "+response.toString());
+                }
+            });
+        } catch (JSONException | UnsupportedEncodingException e) {
+            Log.e(TAG, e.toString());
+        }
+
+
     }
 
 

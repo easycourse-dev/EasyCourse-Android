@@ -175,6 +175,24 @@ public class APIFunctions {
         return true;
     }
 
+    //API function to save device token
+    public static boolean saveDeviceToken(Context context, String deviceToken, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("deviceToken", deviceToken);
+        jsonParam.put("deviceType", "android");
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/installation", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
     public static boolean uploadImage(Context context, File image, String fileName, String uploadType, String roomID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found

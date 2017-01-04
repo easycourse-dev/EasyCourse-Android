@@ -107,7 +107,6 @@ public class NewRoomActivity extends AppCompatActivity {
         newRoomButton.setVisibility(View.GONE);
 
         socketIO = EasyCourse.getAppInstance().getSocketIO();
-        socketIO.syncUser();
         realm = Realm.getDefaultInstance();
         currentUser = User.getCurrentUser(this, realm);
         handler = new Handler();
@@ -298,6 +297,11 @@ public class NewRoomActivity extends AppCompatActivity {
         realm.close();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        socketIO.syncUser();
+    }
 
     private void doSearchRoom(final String query, final int skip, String courseId, final String courseName, final View v) {
         APIFunctions.searchCourseSubroom(this, courseId, query, 20, skip, new JsonHttpResponseHandler() {

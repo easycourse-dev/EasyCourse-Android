@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
@@ -34,7 +35,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -199,7 +199,8 @@ public class SignupChooseLanguage extends Fragment {
                 }
             });
 
-            final SocketIO socketIO = new SocketIO(getContext());
+            final SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
+
             socketIO.joinCourse(
                     stringArrayToArrayList(userSetup.getCourseCodeArray()),
                     stringArrayToArrayList(userSetup.getLanguageCodeArray()),
@@ -265,7 +266,7 @@ public class SignupChooseLanguage extends Fragment {
                             }
                         }
                     });
-        } catch (JSONException | UnsupportedEncodingException | URISyntaxException e) {
+        } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

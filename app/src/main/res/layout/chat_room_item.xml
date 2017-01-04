@@ -45,7 +45,9 @@
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@string/chooseItemPlaceholder"
+                android:textColor="@color/colorBlackText"
                 android:textSize="16sp" />
 
             <TextView
@@ -55,7 +57,8 @@
                 android:clickable="false"
                 android:ellipsize="end"
                 android:maxLength="15"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="@color/colorBlackText" />
 
         </LinearLayout>
 
@@ -67,19 +70,8 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:baselineAligned="false">
-
-            <TextView
-                android:id="@+id/textViewChatRoomLastMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:ellipsize="end"
-                android:lines="1"
-                android:maxLength="20"
-                android:maxWidth="100dp"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+            android:baselineAligned="false"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textViewChatRoomLastTime"
@@ -87,9 +79,43 @@
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingLeft="16dp"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:textSize="13sp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2sp">
+                <TextView
+                    android:id="@+id/textViewChatRoomLastSender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:maxLength="20"
+                    android:maxWidth="100dp"
+                    android:textSize="13sp"
+                    android:gravity="end"
+                    android:layout_gravity="end"/>
+
+                <TextView
+                    android:id="@+id/textViewChatRoomLastMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:maxLength="20"
+                    android:maxWidth="100dp"
+                    android:textSize="13sp"
+                    android:gravity="end"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
 
         </LinearLayout>
 

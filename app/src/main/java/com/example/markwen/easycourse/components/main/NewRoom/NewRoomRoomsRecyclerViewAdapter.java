@@ -2,6 +2,7 @@ package com.example.markwen.easycourse.components.main.NewRoom;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -75,6 +76,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
         roomViewHolder.roomCheckbox.setClickable(false);
+        roomViewHolder.roomNameTextView.setTextColor(Color.parseColor("#333333"));
 
         if (isRoomJoined(joinedRooms, room)) {
             roomViewHolder.roomCheckbox.setChecked(true);
@@ -134,9 +136,6 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                                 isPublic,
                                                 isSystem);
                                         updateRoomInSocket(joinedRoom[0]);
-
-                                        // Get messages
-                                        socketIO.syncUser();
 
                                         // Go to that room
                                         goToChatRoom(joinedRoom[0]);

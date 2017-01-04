@@ -1,8 +1,6 @@
 package com.example.markwen.easycourse.components.main;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -15,12 +13,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -83,6 +78,8 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         TextView roomCourseTextView;
         @BindView(R.id.textViewChatRoomLastMessage)
         TextView roomLastMessageTextView;
+        @BindView(R.id.textViewChatRoomLastSender)
+        TextView roomLastSenderTextView;
         @BindView(R.id.textViewChatRoomLastTime)
         TextView roomLastTimeTextView;
         @BindView(R.id.imageViewChatRoom)
@@ -129,7 +126,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
         Message message;
         User curUser = User.getCurrentUser((Activity) this.context, realm);
-        String name = "";
+        String messageText, senderText;
         if (messages.size() > 0) {
             if (messages.get(0) != null) {
                 if (messages.get(0).getCreatedAt() != null) {
@@ -137,8 +134,18 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 } else {
                     message = messages.get(messages.size() - 1);
                 }
-
-                roomViewHolder.roomLastMessageTextView.setText(message.getText());
+                if (message.getText() == null || message.getText().equals("") || message.getImageData() != null) {
+                    messageText = "[Image]";
+                } else {
+                    messageText = message.getText();
+                }
+                if (message.getSender() == null || message.getSender().getUsername() == null) {
+                    senderText = "";
+                } else {
+                    senderText = message.getSender().getUsername() + ": ";
+                }
+                roomViewHolder.roomLastMessageTextView.setText(messageText);
+                roomViewHolder.roomLastSenderTextView.setText(senderText);
                 roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
             }
         }
@@ -203,6 +210,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                         public void run() {
                             fragment.deleteRoom(room);
                             RoomRecyclerViewAdapter.this.notifyDataSetChanged();
+                            socketIO.syncUser();
                         }
                     });
                 }
@@ -210,8 +218,6 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         } catch (JSONException e) {
             Log.e(TAG, "quitRoom: ", e);
         }
-        socketIO.syncUser();
-
     }
 
     private String getMessageTime(Message message) {

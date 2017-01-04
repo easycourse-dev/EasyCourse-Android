@@ -36,6 +36,12 @@ public class User extends RealmObject {
 
     }
 
+    public User(String id, String username, String profilePictureUrl) {
+        this.id = id;
+        this.username = username;
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
     public User(String id, String username, byte[] profilePicture, String profilePictureUrl, String email, String universityID) {
         this.id = id;
         this.username = username;

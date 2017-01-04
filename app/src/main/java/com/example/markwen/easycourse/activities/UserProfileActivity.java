@@ -7,13 +7,11 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -39,7 +38,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,11 +94,7 @@ public class UserProfileActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        try {
-            socket = new SocketIO(getApplicationContext());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        socket = EasyCourse.getAppInstance().getSocketIO();
 
         saveChangesButton.hide();
 
@@ -232,7 +226,6 @@ public class UserProfileActivity extends AppCompatActivity {
                     Log.e("com.example.easycourse", response.toString());
                     try {
                         socket.syncUser(null, response.getString("url"));
-                        socket.syncUser();
                     } catch (JSONException e) {
                         Log.e("com.example.easycourse", response.toString());
                     }

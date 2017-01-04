@@ -26,8 +26,8 @@
             android:id="@+id/textViewIncomingPicName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="36dp"
-            android:layout_marginStart="36dp" />
+            android:layout_marginLeft="40dp"
+            android:layout_marginStart="40dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageViewIncomingUserImage"
-                android:layout_width="36dp"
+                android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:clickable="false"
@@ -45,17 +45,14 @@
                 android:paddingRight="5dp"
                 android:src="@drawable/ic_person_black_24px" />
 
-
-            <!--TODO: add border-->
             <ImageView
                 android:id="@+id/imageViewIncomingPicImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/cell_message_sent"
                 android:clickable="false"
                 android:contentDescription="@string/chatMessageAccessibility"
                 android:maxHeight="500dp"
-                android:maxWidth="300dp" />
+                android:maxWidth="300dp"/>
         </LinearLayout>
 
     </LinearLayout>

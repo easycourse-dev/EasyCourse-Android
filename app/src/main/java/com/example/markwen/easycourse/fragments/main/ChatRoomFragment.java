@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,26 +41,17 @@ import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapt
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
-import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
 import com.example.markwen.easycourse.utils.eventbus.Event;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -120,7 +110,6 @@ public class ChatRoomFragment extends Fragment {
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
-        socketIO.syncUser();
 
         setupChatRecyclerView();
         setupOnClickListeners();

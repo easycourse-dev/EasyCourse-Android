@@ -39,7 +39,7 @@
                 android:id="@+id/textViewOutgoingTextName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="36dp"
+                android:layout_marginRight="40dp"
                 android:text="name" />
 
 
@@ -55,12 +55,13 @@
                     android:background="@drawable/cell_message_sent"
                     android:text="Sample Message"
                     android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:padding="8dp"/>
 
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imageViewOutgoingTextImage"
-                    android:layout_width="36dp"
+                    android:layout_width="40dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:clickable="false"

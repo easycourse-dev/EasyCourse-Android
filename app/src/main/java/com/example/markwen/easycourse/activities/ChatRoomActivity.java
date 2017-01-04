@@ -171,10 +171,10 @@ public class ChatRoomActivity extends AppCompatActivity {
                         case 1:
                             //TODO: Add intent to classmates
                             gotoRoomUserListFragment();
-                            return true;
+                            return false;
                         case 4:
                             //TODO: Add intent to share room
-                            return true;
+                            return false;
                         case 5:
                             try {
                                 socketIO.quitRoom(currentRoom.getId(), new Ack() {
@@ -200,13 +200,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                                     }
                                 });
                                 socketIO.syncUser();
-                                return true;
+                                return false;
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                             break;
                     }
-                    return false;
+                    return true;
                 }
             });
         }else { //If private chat
@@ -234,22 +234,22 @@ public class ChatRoomActivity extends AppCompatActivity {
                         case 1:
                             //TODO: Add intent to classmates of all shared classes
                             gotoRoomUserListFragment();
-                            break;
+                            return false;
                         case 5:
                             //TODO: Add intent to Share Room
-                            break;
+                            return false;
                         case 6:
                             showReportUserDialog();
-                            break;
+                            return false;
                         case 7:
                             showBlockUserDialog();
-                            break;
+                            return false;
                         case 8:
                             quitRoom();
                             socketIO.syncUser();
-                            break;
+                            return false;
                     }
-                    return false;
+                    return true;
                 }
             });
         }

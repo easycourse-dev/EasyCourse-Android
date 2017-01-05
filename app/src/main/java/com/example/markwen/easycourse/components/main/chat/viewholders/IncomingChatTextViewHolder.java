@@ -117,10 +117,14 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (timeVisible)
+                    if (incomingTime.getText().equals("time")) return;
+                    if (timeVisible) {
                         incomingTime.setVisibility(View.GONE);
-                    else
+                        timeVisible = false;
+                    } else {
                         incomingTime.setVisibility(View.VISIBLE);
+                        timeVisible = true;
+                    }
                 }
             });
         }

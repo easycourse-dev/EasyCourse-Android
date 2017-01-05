@@ -1,15 +1,12 @@
 package com.example.markwen.easycourse.components.main.chat.viewholders;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,7 +73,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 //            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            if (curUser.getProfilePictureUrl().isEmpty()) {
+            if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
                 outgoingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
             } else {
                 Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()

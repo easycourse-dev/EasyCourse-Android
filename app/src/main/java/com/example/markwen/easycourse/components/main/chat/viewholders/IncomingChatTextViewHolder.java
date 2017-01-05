@@ -1,10 +1,8 @@
 package com.example.markwen.easycourse.components.main.chat.viewholders;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -24,7 +22,6 @@ import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapt
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
-import com.example.markwen.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -101,7 +98,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     private void fillUserInfo(User thisUser, final Context context, final Message message) {
         if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
 
-            if (thisUser.getProfilePictureUrl().isEmpty()) {
+            if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
             } else {
                 Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()

@@ -108,11 +108,12 @@ public class SocketIO {
     }
 
     //sends a message to user/room
-    public void sendMessage(String message, String roomId, String toUserId, byte[] imageData, float imageWidth, float imageHeight) throws JSONException {
+    public void sendMessage(String message, String roomId, String toUserId, String sharedRoomId, byte[] imageData, float imageWidth, float imageHeight) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", UUID.randomUUID().toString());
         jsonParam.put("toRoom", roomId);
         jsonParam.put("toUser", toUserId);
+        jsonParam.put("sharedRoom", sharedRoomId);
         jsonParam.put("text", message);
 //        jsonParam.put("imageUrl", imageUrl);
         jsonParam.put("imageData", imageData);

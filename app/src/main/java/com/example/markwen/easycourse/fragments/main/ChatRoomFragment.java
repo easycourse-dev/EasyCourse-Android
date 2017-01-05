@@ -313,15 +313,15 @@ public class ChatRoomFragment extends Fragment {
             //Receive message from socketIO
             if (this.currentRoom.isToUser()) {
                 if (isTextMessage)
-                    socketIO.sendMessage(messageText, null, this.currentRoom.getId(), null, 0, 0);
+                    socketIO.sendMessage(messageText, null, null, this.currentRoom.getId(), null, 0, 0);
                 else
-                    socketIO.sendMessage(null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
 
             } else {
                 if (isTextMessage)
-                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, 0, 0);
+                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
                 else
-                    socketIO.sendMessage(null, this.currentRoom.getId(), null, imageData, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
             e.printStackTrace();

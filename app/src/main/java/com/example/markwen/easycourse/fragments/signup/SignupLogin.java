@@ -559,7 +559,7 @@ public class SignupLogin extends Fragment {
 
     // Validates the email for inconsistencies
     private boolean validateEmail() {
-        String email = emailEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim().toLowerCase();
 
         if (email.isEmpty()) {
             emailInputLayout.setError("Missing email");
@@ -587,8 +587,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (password.length() < 8 || password.length() > 20) {
-            passwordInputLayout.setError("Password length not between 8 and 20");
+        if (password.length() < 8 || password.length() > 32) {
+            passwordInputLayout.setError("Password length not between 8 and 32");
             passwordEditText.requestFocus();
             return false;
         }
@@ -597,7 +597,6 @@ public class SignupLogin extends Fragment {
 
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher("I am a string");
-        boolean b = m.find();
 
         if (m.find()) {
             passwordInputLayout.setError("Password cannot have a special character");
@@ -637,8 +636,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (username.length() < 5 || username.length() > 20) {
-            usernameInputLayout.setError("Username length not between 5 and 20");
+        if (username.length() < 1 || username.length() > 24) {
+            usernameInputLayout.setError("Username length not over 24 characters");
             usernameEditText.requestFocus();
             return false;
         }

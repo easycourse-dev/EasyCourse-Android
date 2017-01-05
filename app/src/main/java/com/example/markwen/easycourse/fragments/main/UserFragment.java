@@ -57,7 +57,7 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile, cardCourses, joinUsCard;
+    RelativeLayout cardProfile, cardCourses, joinUsCard, termsCard;
     CardView courseManageCard;
 
     User user = new User();
@@ -87,6 +87,7 @@ public class UserFragment extends Fragment {
         cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
         joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
         courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
+        termsCard = (RelativeLayout) v.findViewById(R.id.TermsPrivacyCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +114,26 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String joinUsFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeKu9p0Al-E9LAQyjeQw06KmXQQ1DyoJenH2_tRwO2sbhvA_g/viewform?c=0&w=1";
+                try {
+                    // Launch web form in Chrome
+                    Intent i = new Intent("android.intent.action.MAIN");
+                    i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
+                    i.addCategory("android.intent.category.LAUNCHER");
+                    i.setData(Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                } catch (ActivityNotFoundException e) {
+                    // Chrome is not installed
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(joinUsFormUrl));
+                    startActivity(i);
+                }
+            }
+        });
+
+        termsCard.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                String joinUsFormUrl = "http://www.easycourse.io/docs";
                 try {
                     // Launch web form in Chrome
                     Intent i = new Intent("android.intent.action.MAIN");

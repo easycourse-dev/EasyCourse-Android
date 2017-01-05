@@ -172,15 +172,15 @@ public class ChatRoomActivity extends AppCompatActivity {
                         case 1:
                             //TODO: Add intent to classmates
                             gotoRoomUserListFragment();
-                            return true;
+                            return false;
                         case 4:
                             //TODO: Add intent to share room
-                            return true;
+                            return false;
                         case 5:
                             quitRoom();
                             break;
                     }
-                    return false;
+                    return true;
                 }
             });
         } else { //If private chat
@@ -214,7 +214,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             quitRoom();
                             break;
                     }
-                    return false;
+                    return true;
                 }
             });
         }

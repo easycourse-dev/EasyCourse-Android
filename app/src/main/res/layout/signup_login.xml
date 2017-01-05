@@ -28,11 +28,13 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:animateLayoutChanges="true">
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/inputLayoutEmail"
                     android:layout_width="300dp"
@@ -119,7 +121,8 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="20dp"
                     android:clipChildren="false"
-                    android:clipToPadding="false">
+                    android:clipToPadding="false"
+                    android:animateLayoutChanges="true">
 
                     <Button
                         android:id="@+id/buttonLogin"
@@ -152,7 +155,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/buttonLogin"
-                        android:layout_marginTop="6dp">
+                        android:layout_marginTop="6dp"
+                        android:animateLayoutChanges="true">
 
                         <com.facebook.login.widget.LoginButton
                             android:id="@+id/buttonFacebookLogin"

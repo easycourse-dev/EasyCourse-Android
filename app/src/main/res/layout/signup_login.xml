@@ -73,24 +73,13 @@
                         android:textSize="16sp" />
                 </android.support.design.widget.TextInputLayout>
 
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/inputLayoutForgetPassword"
-                    android:layout_width="300dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorWhiteText"
-                    android:textColorHint="@color/colorWhiteText"
-                    app:passwordToggleEnabled="false">
-
-                    <TextView
-                        android:id="@+id/textViewForgetPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="@string/forget_password"
-                        android:gravity="center"
-                        android:textColor="@color/colorWhiteText"/>
-                </android.support.design.widget.TextInputLayout>
+                <TextView
+                    android:id="@+id/textViewForgetPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/forget_password"
+                    android:gravity="center"
+                    android:textColor="@color/colorWhiteText"/>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/inputLayoutVerifyPassword"

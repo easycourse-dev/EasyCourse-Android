@@ -77,6 +77,8 @@ public class SignupLogin extends Fragment {
     EditText verifyPasswordEditText;
     @BindView(R.id.editTextUsername)
     EditText usernameEditText;
+    @BindView(R.id.textViewForgetPassword)
+    TextView forgetPasswordTextView;
 
     @BindView(R.id.inputLayoutEmail)
     TextInputLayout emailInputLayout;
@@ -105,6 +107,7 @@ public class SignupLogin extends Fragment {
     Animation titleAnimEnter;
     Animation emailAnimEnter;
     Animation passwordAnimEnter;
+    Animation forgetPasswordAnimEnter;
     Animation verifyPasswordAnimEnter;
     Animation usernameAnimEnter;
     Animation loginAnimEnter;
@@ -176,6 +179,8 @@ public class SignupLogin extends Fragment {
         emailAnimEnter.setStartOffset(250);
         passwordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         passwordAnimEnter.setStartOffset(250);
+        forgetPasswordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
+        forgetPasswordAnimEnter.setStartOffset(250);
         verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         verifyPasswordAnimEnter.setStartOffset(250);
         usernameAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
@@ -186,6 +191,13 @@ public class SignupLogin extends Fragment {
         signupAnimEnter.setStartOffset(250 * 2);
         facebookAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
+
+        forgetPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoForgetPassword();
+            }
+        });
 
         // Login progress dialog
         progress = new MaterialDialog.Builder(getContext())
@@ -268,6 +280,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.GONE) {
             verifyPasswordInputLayout.setVisibility(View.VISIBLE);
             usernameInputLayout.setVisibility(View.VISIBLE);
+            forgetPasswordTextView.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.login_button);
             loginButton.setBackgroundResource(R.drawable.signup_button);
 
@@ -367,6 +380,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.setVisibility(View.GONE);
             usernameInputLayout.setVisibility(View.GONE);
+            forgetPasswordTextView.setVisibility(View.VISIBLE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
         } else { // Edittexts are hidden, do logic
@@ -539,11 +553,23 @@ public class SignupLogin extends Fragment {
         transaction.commit();
     }
 
+    // Call this function when going to forgetPassword
+    public void gotoForgetPassword() {
+        // Switch fragment to forgetPassword
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.activity_signuplogin_container, ForgetPassword.newInstance());
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
 
     private void startAnimations() {
         titleTextView.startAnimation(titleAnimEnter);
         emailInputLayout.startAnimation(emailAnimEnter);
         passwordInputLayout.startAnimation(passwordAnimEnter);
+        forgetPasswordTextView.startAnimation(forgetPasswordAnimEnter);
         // If signup info visible, show animation
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);

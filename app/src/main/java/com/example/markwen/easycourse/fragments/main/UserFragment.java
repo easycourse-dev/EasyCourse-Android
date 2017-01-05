@@ -4,19 +4,18 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.CourseManagementActivity;
@@ -230,26 +231,23 @@ public class UserFragment extends Fragment {
     }
 
     private void showLogoutDialog(final View v) {
-        AlertDialog.Builder customBuilder = new AlertDialog.Builder(getContext());
-
-        customBuilder.setTitle("Log out")
-                .setMessage("Are you sure to log out? You will stop receiving messages from your friends.")
-                .setNegativeButton("No", null)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+        MaterialDialog dialog = new MaterialDialog.Builder(getContext())
+                .title("Log out")
+                .content("Are you sure to log out? You will stop receiving messages from your friends.")
+                .negativeText("No")
+                .positiveText("Yes")
+                .positiveColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         try {
                             logout(v);
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
                         }
                     }
-                });
-        AlertDialog dialog = customBuilder.create();
+                })
+                .build();
         dialog.show();
-
-        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if(b != null) {
-            b.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null));
-        }
     }
 }

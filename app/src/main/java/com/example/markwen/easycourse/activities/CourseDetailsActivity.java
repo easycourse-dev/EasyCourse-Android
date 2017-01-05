@@ -1,11 +1,10 @@
 package com.example.markwen.easycourse.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetailsRoomsEndlessRecyclerViewScrollListener;
@@ -445,13 +446,15 @@ public class CourseDetailsActivity extends AppCompatActivity {
     }
 
     private void showDropCourseDialog() {
-        AlertDialog.Builder customBuilder = new AlertDialog.Builder(this);
-
-        customBuilder.setTitle("Dropping " + course.getCoursename() + "?")
-                .setMessage("If you drop this course, then you will automatically quit all the rooms belonging to " + course.getCoursename() + ".")
-                .setNegativeButton("Maybe Not", null)
-                .setPositiveButton("Drop It", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .title("Dropping " + course.getCoursename() + "?")
+                .content("If you drop this course, then you will automatically quit all the rooms belonging to " + course.getCoursename() + ".")
+                .negativeText("Maybe Not")
+                .positiveText("Drop It")
+                .positiveColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // Drop the course
                         try {
                             socketIO.dropCourse(course.getId(), new Ack() {
@@ -488,14 +491,10 @@ public class CourseDetailsActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                });
-        AlertDialog dialog = customBuilder.create();
-        dialog.show();
+                })
+                .build();
 
-        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if(b != null) {
-            b.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null));
-        }
+        dialog.show();
     }
 
     private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined){

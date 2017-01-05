@@ -24,10 +24,6 @@ public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // Vibrate phone
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(500);
-
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
@@ -41,7 +37,6 @@ public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
-        sendNotification(remoteMessage.getNotification().getBody(), "EasyCourse");
     }
 
     //Use this to create notification when the app is open
@@ -50,6 +45,10 @@ public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
+
+        // Vibrate phone
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(500);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)

@@ -46,7 +46,6 @@ public class EasyCourse extends Application {
                         .build());
 
         appInstance = this;
-//        createSocketIO();
 
         deviceToken = FirebaseInstanceId.getInstance().getToken();
     }

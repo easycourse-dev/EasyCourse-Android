@@ -16,7 +16,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -113,8 +112,6 @@ public class ChatRoomFragment extends Fragment {
 
         setupChatRecyclerView();
         setupOnClickListeners();
-
-        messageEditText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
         DownloadImagesTask task = new DownloadImagesTask();
         task.execute();

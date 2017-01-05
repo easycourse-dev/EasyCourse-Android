@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.fragments.signup;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
@@ -100,7 +100,7 @@ public class SignupLogin extends Fragment {
     CallbackManager callbackManager;
     LinearLayout signupLinearLayout;
     SharedPreferences sharedPref;
-    ProgressDialog progress;
+    MaterialDialog progress;
 
     Animation titleAnimEnter;
     Animation emailAnimEnter;
@@ -188,13 +188,12 @@ public class SignupLogin extends Fragment {
         facebookAnimEnter.setStartOffset(250 * 2);
 
         // Login progress dialog
-        progress = new ProgressDialog(getContext());
-        progress.setTitle("Log in");
-        progress.setMessage("Logging in...");
-        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progress.setIndeterminate(true);
-        progress.setProgressNumberFormat(null);
-        progress.setProgressPercentFormat(null);
+        progress = new MaterialDialog.Builder(getContext())
+                .title("Log in")
+                .content("Logging in...")
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .build();
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override

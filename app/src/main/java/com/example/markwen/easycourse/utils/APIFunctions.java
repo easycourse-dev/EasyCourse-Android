@@ -213,6 +213,14 @@ public class APIFunctions {
         return true;
     }
 
+    public static boolean forgetPassword(Context context, String email, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
+        RequestParams params = new RequestParams();
+        params.put("email", email);
+
+        client.post(context, URL+"/forgetPassword", params, jsonHttpResponseHandler);
+        return true;
+    }
+
     public static String getUserToken(Context context){
         //Get userToken from shared preferences
         SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);

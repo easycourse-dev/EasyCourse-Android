@@ -49,6 +49,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -77,6 +79,8 @@ public class SignupLogin extends Fragment {
     EditText verifyPasswordEditText;
     @BindView(R.id.editTextUsername)
     EditText usernameEditText;
+    @BindView(R.id.textViewForgetPassword)
+    TextView forgetPasswordTextView;
 
     @BindView(R.id.inputLayoutEmail)
     TextInputLayout emailInputLayout;
@@ -105,6 +109,7 @@ public class SignupLogin extends Fragment {
     Animation titleAnimEnter;
     Animation emailAnimEnter;
     Animation passwordAnimEnter;
+    Animation forgetPasswordAnimEnter;
     Animation verifyPasswordAnimEnter;
     Animation usernameAnimEnter;
     Animation loginAnimEnter;
@@ -176,6 +181,8 @@ public class SignupLogin extends Fragment {
         emailAnimEnter.setStartOffset(250);
         passwordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         passwordAnimEnter.setStartOffset(250);
+        forgetPasswordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
+        forgetPasswordAnimEnter.setStartOffset(250);
         verifyPasswordAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         verifyPasswordAnimEnter.setStartOffset(250);
         usernameAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
@@ -186,6 +193,13 @@ public class SignupLogin extends Fragment {
         signupAnimEnter.setStartOffset(250 * 2);
         facebookAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         facebookAnimEnter.setStartOffset(250 * 2);
+
+        forgetPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoForgetPassword();
+            }
+        });
 
         // Login progress dialog
         progress = new MaterialDialog.Builder(getContext())
@@ -268,6 +282,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.GONE) {
             verifyPasswordInputLayout.setVisibility(View.VISIBLE);
             usernameInputLayout.setVisibility(View.VISIBLE);
+            forgetPasswordTextView.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.login_button);
             loginButton.setBackgroundResource(R.drawable.signup_button);
 
@@ -367,6 +382,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.setVisibility(View.GONE);
             usernameInputLayout.setVisibility(View.GONE);
+            forgetPasswordTextView.setVisibility(View.VISIBLE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
         } else { // Edittexts are hidden, do logic
@@ -539,11 +555,23 @@ public class SignupLogin extends Fragment {
         transaction.commit();
     }
 
+    // Call this function when going to forgetPassword
+    public void gotoForgetPassword() {
+        // Switch fragment to forgetPassword
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.activity_signuplogin_container, ForgetPassword.newInstance());
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
 
     private void startAnimations() {
         titleTextView.startAnimation(titleAnimEnter);
         emailInputLayout.startAnimation(emailAnimEnter);
         passwordInputLayout.startAnimation(passwordAnimEnter);
+        forgetPasswordTextView.startAnimation(forgetPasswordAnimEnter);
         // If signup info visible, show animation
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);
@@ -556,7 +584,7 @@ public class SignupLogin extends Fragment {
 
     // Validates the email for inconsistencies
     private boolean validateEmail() {
-        String email = emailEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim().toLowerCase();
 
         if (email.isEmpty()) {
             emailInputLayout.setError("Missing email");
@@ -584,13 +612,22 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-
-        if (password.length() < 8 || password.length() > 20) {
-            passwordInputLayout.setError("Password length not between 8 and 20");
+        if (password.length() < 8 || password.length() > 32) {
+            passwordInputLayout.setError("Password length not between 8 and 32");
             passwordEditText.requestFocus();
             return false;
         }
 
+
+
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher("I am a string");
+
+        if (m.find()) {
+            passwordInputLayout.setError("Password cannot have a special character");
+            passwordEditText.requestFocus();
+            return false;
+        }
 
         passwordInputLayout.setErrorEnabled(false);
         return true;
@@ -624,8 +661,8 @@ public class SignupLogin extends Fragment {
             return false;
         }
 
-        if (username.length() < 5 || username.length() > 20) {
-            usernameInputLayout.setError("Username length not between 5 and 20");
+        if (username.length() < 1 || username.length() > 24) {
+            usernameInputLayout.setError("Username length not over 24 characters");
             usernameEditText.requestFocus();
             return false;
         }

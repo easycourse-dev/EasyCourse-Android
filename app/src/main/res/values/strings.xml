@@ -76,4 +76,7 @@
     <string name="report_user_hint">Optional reason...</string>
     <string name="rooms">Rooms</string>
     <string name="less_than_10"><![CDATA[(<10)]]></string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="forgetPasswordTitle">Forget password</string>
+    <string name="enter_your_email">Enter your email</string>
 </resources>

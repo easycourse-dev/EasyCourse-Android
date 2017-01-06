@@ -33,6 +33,7 @@ public class DateUtils {
     public static Date getLocalDate(Date utcDate) {
         return new Date(utcDate.getTime() + TimeZone.getDefault().getRawOffset());
     }
+    
 
     @Nullable
     public static String getTimeString(Message message, Message prevMessage) {

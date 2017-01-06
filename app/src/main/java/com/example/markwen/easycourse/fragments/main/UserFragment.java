@@ -1,14 +1,11 @@
 package com.example.markwen.easycourse.fragments.main;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -35,6 +32,7 @@ import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.activities.UserProfileActivity;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.ExternalLinkUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -57,7 +55,7 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile, cardCourses, joinUsCard;
+    RelativeLayout cardProfile, cardCourses, joinUsCard, termsCard;
     CardView courseManageCard;
 
     User user = new User();
@@ -87,6 +85,7 @@ public class UserFragment extends Fragment {
         cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
         joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
         courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
+        termsCard = (RelativeLayout) v.findViewById(R.id.TermsPrivacyCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,19 +111,15 @@ public class UserFragment extends Fragment {
 
             @Override
             public void onClick(View view) {
-                String joinUsFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeKu9p0Al-E9LAQyjeQw06KmXQQ1DyoJenH2_tRwO2sbhvA_g/viewform?c=0&w=1";
-                try {
-                    // Launch web form in Chrome
-                    Intent i = new Intent("android.intent.action.MAIN");
-                    i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
-                    i.addCategory("android.intent.category.LAUNCHER");
-                    i.setData(Uri.parse(joinUsFormUrl));
-                    startActivity(i);
-                } catch (ActivityNotFoundException e) {
-                    // Chrome is not installed
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(joinUsFormUrl));
-                    startActivity(i);
-                }
+                ExternalLinkUtils.OpenLinkInChrome("https://docs.google.com/forms/d/e/1FAIpQLSeKu9p0Al-E9LAQyjeQw06KmXQQ1DyoJenH2_tRwO2sbhvA_g/viewform?c=0&w=1", getContext());
+            }
+        });
+
+        termsCard.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                ExternalLinkUtils.OpenLinkInChrome("http://www.easycourse.io/docs", getContext());
             }
         });
 

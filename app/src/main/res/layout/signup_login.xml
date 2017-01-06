@@ -81,7 +81,7 @@
                     android:layout_height="match_parent"
                     android:text="@string/forget_password"
                     android:gravity="center"
-                    android:textColor="@color/colorWhiteText"/>
+                    android:textColor="@color/colorAccent"/>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/inputLayoutVerifyPassword"
@@ -122,6 +122,40 @@
                         android:textSize="16sp" />
                 </android.support.design.widget.TextInputLayout>
 
+                <LinearLayout
+                    android:id="@+id/termsPrivacyCheckView"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorWhiteText"
+                        android:text="I agree to "/>
+                    
+                    <TextView
+                        android:id="@+id/termsPrivacyText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorAccent"
+                        android:text="terms and privacy"/>
+                    
+                    <com.hanks.library.AnimateCheckBox
+                        android:id="@+id/termsPrivacyCheckbox"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="start"
+                        android:padding="10dp"
+                        app:animDuration="0"
+                        app:checkedColor="@color/colorAccent"
+                        app:lineColor="#fff"
+                        app:lineWidth="1.2dp"
+                        app:unCheckColor="#e0e0e0" />
+                    
+                </LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="300dp"

@@ -81,7 +81,7 @@ public class MainService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
         builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setContentTitle(room.getRoomName());
+        builder.setContentTitle(room.getName());
         builder.setContentText(message.getText());
         builder.setContentIntent(pendingIntent);
 

@@ -564,6 +564,11 @@ public class SocketIO {
                 String toUser = (String) checkIfJsonExists(obj, "toUser", null);
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
+                Room sharedRoom = null;
+                if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
+                    JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
+                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), null, sharedRoomJSON.getString("memberCountsDescription"));
+                }
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
@@ -577,7 +582,7 @@ public class SocketIO {
                 }
 
                 Realm realm = Realm.getDefaultInstance();
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, date);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();

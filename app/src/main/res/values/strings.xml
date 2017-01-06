@@ -79,4 +79,5 @@
     <string name="forget_password">Forget Password?</string>
     <string name="forgetPasswordTitle">Forget password</string>
     <string name="enter_your_email">Enter your email</string>
+    <string name="ROOM">Room</string>
 </resources>

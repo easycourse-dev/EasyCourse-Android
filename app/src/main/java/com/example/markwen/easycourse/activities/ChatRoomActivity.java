@@ -140,7 +140,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
             this.finish();
         }
-        toolbarTitleTextView.setText(currentRoom.getRoomName());
+        toolbarTitleTextView.setText(currentRoom.getName());
         toolbarSubtitleTextView.setText(currentRoom.getCourseName());
     }
 
@@ -234,7 +234,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         TextView headerCourseTitle = (TextView) headView.findViewById(R.id.headerCourseTitle);
         TextView headerCourseSubtitle = (TextView) headView.findViewById(R.id.headerCourseSubtitle);
 
-        headerCourseTitle.setText(currentRoom.getRoomName());
+        headerCourseTitle.setText(currentRoom.getName());
         headerCourseTitle.setPaintFlags(headerCourseTitle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         if (currentRoom.getCourseName() != null)
             headerCourseSubtitle.setText(currentRoom.getCourseName());

@@ -130,7 +130,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
 
         // Set other texts
-        holder.roomNameTextView.setText(room.getRoomName());
+        holder.roomNameTextView.setText(room.getName());
         holder.roomDescTextView.setText(room.getMemberCountsDesc());
     }
 

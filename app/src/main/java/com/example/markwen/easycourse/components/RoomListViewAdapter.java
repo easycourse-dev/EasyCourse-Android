@@ -66,7 +66,7 @@ public class RoomListViewAdapter extends BaseAdapter {
 
         Room room = rooms.get(i);
 
-        roomNameTextView.setText(room.getRoomName());
+        roomNameTextView.setText(room.getName());
         //roomCourseTextView.setText(room.getMemberCounts());
 
         return rowView;

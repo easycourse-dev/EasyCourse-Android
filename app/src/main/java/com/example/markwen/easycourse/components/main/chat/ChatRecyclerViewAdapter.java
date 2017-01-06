@@ -60,7 +60,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 break;
 
             case INCOMING_ROOM:
-                View incomingSharedRoomView = inflater.inflate(R.layout.cell_chat_incoming_pic, viewGroup, false);
+                View incomingSharedRoomView = inflater.inflate(R.layout.cell_chat_incoming_shared_room, viewGroup, false);
                 viewHolder = new IncomingSharedRoomViewHolder(incomingSharedRoomView, activity);
                 break;
 
@@ -75,7 +75,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 break;
 
             case OUTGOING_ROOM:
-                View outgoingSharedRoomView = inflater.inflate(R.layout.cell_chat_outgoing_pic, viewGroup, false);
+                View outgoingSharedRoomView = inflater.inflate(R.layout.cell_chat_outgoing_shared_room, viewGroup, false);
                 viewHolder = new OutgoingSharedRoomViewHolder(outgoingSharedRoomView, activity);
                 break;
         }
@@ -109,6 +109,12 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
                 break;
             }
 
+            case OUTGOING_ROOM: {
+                OutgoingSharedRoomViewHolder outgoingViewHolder = (OutgoingSharedRoomViewHolder) viewHolder;
+                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
+                break;
+            }
+
 
             case INCOMING_TEXT: {
                 IncomingChatTextViewHolder incomingViewHolder = (IncomingChatTextViewHolder) viewHolder;
@@ -118,6 +124,12 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
             case INCOMING_PIC: {
                 IncomingChatPictureViewHolder incomingViewHolder = (IncomingChatPictureViewHolder) viewHolder;
+                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
+                break;
+            }
+
+            case INCOMING_ROOM: {
+                IncomingSharedRoomViewHolder incomingViewHolder = (IncomingSharedRoomViewHolder) viewHolder;
                 incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
                 break;
             }
@@ -135,7 +147,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
                 if (message.getImageUrl() != null)
                     return OUTGOING_PIC;
-                else if(message.getRoomShareId() != null)
+                else if(message.getSharedRoom() != null)
                     return OUTGOING_ROOM;
                 else
                     return OUTGOING_TEXT;
@@ -143,7 +155,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
             } else {
                 if (message.getImageUrl() != null)
                     return INCOMING_PIC;
-                else if(message.getRoomShareId() != null)
+                else if(message.getSharedRoom() != null)
                     return INCOMING_ROOM;
                 else
                     return INCOMING_TEXT;

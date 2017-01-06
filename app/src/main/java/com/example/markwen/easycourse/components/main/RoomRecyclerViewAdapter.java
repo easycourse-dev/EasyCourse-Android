@@ -103,7 +103,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         final Room room = rooms.get(position);
         final RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
-        roomViewHolder.roomNameTextView.setText(room.getRoomName());
+        roomViewHolder.roomNameTextView.setText(room.getName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
 
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
@@ -176,7 +176,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     private void showQuitDialog(final Room room) {
 
         MaterialDialog dialog = new MaterialDialog.Builder(context)
-                .title("Quit " + room.getRoomName() + "?")
+                .title("Quit " + room.getName() + "?")
                 .titleColor(ContextCompat.getColor(context, R.color.colorAccent))
                 .positiveText("Quit")
                 .positiveColor(ContextCompat.getColor(context, R.color.colorLogout))

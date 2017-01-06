@@ -16,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -68,6 +69,8 @@ public class UserProfileActivity extends AppCompatActivity {
     FloatingActionButton editAvatarButton;
     @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
+    @BindView(R.id.userProfileLanguageView)
+    RecyclerView languageView;
 
     boolean isInEditMode = false;
 
@@ -110,7 +113,6 @@ public class UserProfileActivity extends AppCompatActivity {
         String currentUser = sharedPref.getString("currentUser", null);
         JSONObject currentUserObject;
 
-        Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
 
         try {
@@ -135,7 +137,7 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    socket.syncUser(editTextUsername.getText().toString(), null);
+                    socket.syncUser(editTextUsername.getText().toString(), null, );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

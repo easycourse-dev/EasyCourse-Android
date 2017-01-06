@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.University;
@@ -138,14 +139,19 @@ public class SocketIO {
     }
 
     //syncs realm database
-    public void syncUser(String displayName, String avatarUrl) throws JSONException {
+    public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         if(displayName != null)
             jsonParam.put("displayName", displayName);
-        if(avatarUrl != null)
-            jsonParam.put("avatarUrl", avatarUrl);
-        socket.emit("syncUser", jsonParam);
-        syncUser();
+        if(avatar != null)
+            jsonParam.put("avatarImage", avatar);
+        jsonParam.put("userLang", new JSONArray(languages));
+        socket.emit("syncUser", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+
+            }
+        });
     }
 
     public void syncUser() {
@@ -196,13 +202,16 @@ public class SocketIO {
                         JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs
                         JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom"); // Array of objects
                         JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse"); // Array of objects
+                        JSONArray userLanguagesJSON = userObj.getJSONArray("userLang");
 
                         Realm realm = Realm.getDefaultInstance();
+                        RealmList<Language> userLanguage = User.getUserFromRealm(realm, id).getUserLanguages();
                         User.updateUserFromJson(userObj.toString(), realm);
                         Course.syncAddCourse(joinedCoursesJSON, realm);
                         Room.syncRooms(joinedRoomsJSON, realm);
                         Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
+                        User.getUserFromRealm(realm, id).setUserLanguages(Language.syncLanguage(userLanguage, userLanguagesJSON, realm));
 
                         // Adding silent rooms
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);

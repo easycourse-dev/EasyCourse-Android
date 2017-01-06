@@ -31,6 +31,7 @@ import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -482,6 +483,7 @@ public class SignupLogin extends Fragment {
 
         RealmList<Room> joinedRoomList = new RealmList<>();
         RealmList<Course> joinedCourseList = new RealmList<>();
+        RealmList<Language> userLanguage = new RealmList<>();
         Room room;
         Course course;
         try {
@@ -493,7 +495,15 @@ public class SignupLogin extends Fragment {
             currentUser.setUniversityID(response.getString("university"));
 
 
-            // Adding courses, rooms, and silent rooms
+            // Adding languages, courses, rooms, and silent rooms
+            JSONArray userLanguagesJSON = response.getJSONArray("userLang");
+            Language tempLang;
+            for (int i = 0; i < userLanguagesJSON.length(); i++) {
+                tempLang = new Language(userLanguagesJSON.getString(i));
+                userLanguage.add(tempLang);
+                Language.updateLanguageToRealm(tempLang, realm);
+            }
+
             JSONArray joinedCourses = response.getJSONArray("joinedCourse");
             for (int i = 0; i < joinedCourses.length(); i++) {
                 JSONObject temp = joinedCourses.getJSONObject(i);
@@ -548,6 +558,7 @@ public class SignupLogin extends Fragment {
 
         currentUser.setJoinedCourses(joinedCourseList);
         currentUser.setJoinedRooms(joinedRoomList);
+        currentUser.setUserLanguages(userLanguage);
         User.updateUserToRealm(currentUser, realm);
         realm.close();
 
@@ -558,7 +569,7 @@ public class SignupLogin extends Fragment {
                     Log.e(TAG, "Token saved");
                     EasyCourse.getAppInstance().createSocketIO();
 
-                    progress.setMessage("Wrapping up...");
+                    progress.setContent("Wrapping up...");
                     progress.dismiss();
                     // Make an Intent to move on to the next activity
                     Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);

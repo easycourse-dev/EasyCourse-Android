@@ -214,10 +214,14 @@ public class APIFunctions {
     }
 
     public static boolean forgetPassword(Context context, String email, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
-        RequestParams params = new RequestParams();
-        params.put("email", email);
+        client.addHeader("Content-Type", "application/json");
 
-        client.post(context, URL+"/forgetPassword", params, jsonHttpResponseHandler);
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("email", email);
+
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/forgetPassword", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 

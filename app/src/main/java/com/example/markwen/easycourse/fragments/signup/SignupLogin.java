@@ -35,12 +35,14 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
+import com.example.markwen.easycourse.utils.ExternalLinkUtils;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.hanks.library.AnimateCheckBox;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -81,6 +83,10 @@ public class SignupLogin extends Fragment {
     EditText usernameEditText;
     @BindView(R.id.textViewForgetPassword)
     TextView forgetPasswordTextView;
+    @BindView(R.id.termsPrivacyText)
+    TextView termsText;
+    @BindView(R.id.termsPrivacyCheckbox)
+    AnimateCheckBox termsCheckbox;
 
     @BindView(R.id.inputLayoutEmail)
     TextInputLayout emailInputLayout;
@@ -90,6 +96,8 @@ public class SignupLogin extends Fragment {
     TextInputLayout verifyPasswordInputLayout;
     @BindView(R.id.inputLayoutUsername)
     TextInputLayout usernameInputLayout;
+    @BindView(R.id.termsPrivacyCheckView)
+    LinearLayout termsLayout;
 
 
     @BindView(R.id.buttonSignup)
@@ -112,6 +120,7 @@ public class SignupLogin extends Fragment {
     Animation forgetPasswordAnimEnter;
     Animation verifyPasswordAnimEnter;
     Animation usernameAnimEnter;
+    Animation termsAnimEnter;
     Animation loginAnimEnter;
     Animation signupAnimEnter;
     Animation facebookAnimEnter;
@@ -155,6 +164,7 @@ public class SignupLogin extends Fragment {
         // Set username and verify passwords initially gone
         verifyPasswordInputLayout.setVisibility(View.GONE);
         usernameInputLayout.setVisibility(View.GONE);
+        termsLayout.setVisibility(View.GONE);
 
         // Changing EditText background colors
         emailEditText.getBackground().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.SRC_IN);
@@ -187,6 +197,8 @@ public class SignupLogin extends Fragment {
         verifyPasswordAnimEnter.setStartOffset(250);
         usernameAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         usernameAnimEnter.setStartOffset(250);
+        termsAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
+        termsAnimEnter.setStartOffset(250);
         loginAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
         loginAnimEnter.setStartOffset(250 * 2);
         signupAnimEnter = AnimationUtils.loadAnimation(getContext(), R.anim.fade_move_in);
@@ -198,6 +210,24 @@ public class SignupLogin extends Fragment {
             @Override
             public void onClick(View view) {
                 gotoForgetPassword();
+            }
+        });
+
+        termsText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExternalLinkUtils.OpenLinkInChrome("http://www.easycourse.io/docs", getContext());
+            }
+        });
+
+        termsCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (termsCheckbox.isChecked()) {
+                    termsCheckbox.setChecked(false);
+                } else {
+                    termsCheckbox.setChecked(true);
+                }
             }
         });
 
@@ -282,6 +312,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.GONE) {
             verifyPasswordInputLayout.setVisibility(View.VISIBLE);
             usernameInputLayout.setVisibility(View.VISIBLE);
+            termsLayout.setVisibility(View.VISIBLE);
             forgetPasswordTextView.setVisibility(View.GONE);
             signupButton.setBackgroundResource(R.drawable.login_button);
             loginButton.setBackgroundResource(R.drawable.signup_button);
@@ -315,6 +346,8 @@ public class SignupLogin extends Fragment {
                     passwordMismatchSnackbar.show();
                     passwordEditText.setText("");
                     verifyPasswordEditText.setText("");
+                } else if (!termsCheckbox.isChecked()) {
+                    Snackbar.make(v, "Please agree to our terms and privacy to proceed.", Snackbar.LENGTH_LONG).show();
                 } else {
                     final Snackbar signupErrorSnackbar = Snackbar
                             .make(v, "Sign up failed, check if the email is already registered.", Snackbar.LENGTH_LONG);
@@ -382,6 +415,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.setVisibility(View.GONE);
             usernameInputLayout.setVisibility(View.GONE);
+            termsLayout.setVisibility(View.GONE);
             forgetPasswordTextView.setVisibility(View.VISIBLE);
             signupButton.setBackgroundResource(R.drawable.signup_button);
             loginButton.setBackgroundResource(R.drawable.login_button);
@@ -576,6 +610,7 @@ public class SignupLogin extends Fragment {
         if (verifyPasswordInputLayout.getVisibility() == View.VISIBLE) {
             verifyPasswordInputLayout.startAnimation(verifyPasswordAnimEnter);
             usernameInputLayout.startAnimation(usernameAnimEnter);
+            termsLayout.startAnimation(termsAnimEnter);
         }
         loginButton.startAnimation(loginAnimEnter);
         signupButton.startAnimation(signupAnimEnter);

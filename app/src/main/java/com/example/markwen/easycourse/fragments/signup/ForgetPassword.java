@@ -97,19 +97,26 @@ public class ForgetPassword extends Fragment {
                         APIFunctions.forgetPassword(getContext(), email.getText().toString(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                if (response.has("success")) {
-                                    Snackbar.make(view, "An email with a link to reset your password has been sent to the email address provided.", Snackbar.LENGTH_LONG).show();
-                                }
+                                Snackbar.make(view, "An email with a link to reset your password has been sent to the email address provided.", Snackbar.LENGTH_LONG).show();
                             }
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                                 try {
                                     String error = errorResponse.getString("error");
-                                    Snackbar.make(view, error, Snackbar.LENGTH_LONG).show();
+                                    Snackbar.make(view, statusCode + " " + error, Snackbar.LENGTH_LONG).show();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                if (statusCode == 200) {
+                                    Snackbar.make(view, "An email with a link to reset your password has been sent to the email address provided.", Snackbar.LENGTH_LONG).show();
+                                    return;
+                                }
+                                Snackbar.make(view, statusCode + " " + responseString, Snackbar.LENGTH_LONG).show();
                             }
                         });
                     } catch (JSONException | UnsupportedEncodingException | FileNotFoundException e) {

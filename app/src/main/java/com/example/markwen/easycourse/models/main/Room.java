@@ -133,6 +133,17 @@ public class Room extends RealmObject {
         return null;
     }
 
+    //Only call if isToUser
+    @Nullable
+    public static User getOtherUserIfPrivate(final Room room, final User currentUser, Realm realm) {
+        if (!room.isToUser()) return null;
+        List<User> users = room.getMemberList();
+        for (User user : users) {
+            if (!user.equals(currentUser)) return user;
+        }
+        return null;
+    }
+
 
     public boolean isToUser() {
         return isToUser;

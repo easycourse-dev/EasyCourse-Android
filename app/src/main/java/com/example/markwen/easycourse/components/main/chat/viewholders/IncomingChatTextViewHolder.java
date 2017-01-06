@@ -97,15 +97,13 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
 
     private void fillUserInfo(User thisUser, final Context context, final Message message) {
         if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
-
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
-                incomingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+                incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
             } else {
                 Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                         .placeholder(R.drawable.ic_person_black_24px)
                         .into(incomingImageView);
             }
-
             incomingName.setText(thisUser.getUsername());
             incomingMessage.setText(message.getText());
 
@@ -119,10 +117,14 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (timeVisible)
+                    if (incomingTime.getText().equals("time")) return;
+                    if (timeVisible) {
                         incomingTime.setVisibility(View.GONE);
-                    else
+                        timeVisible = false;
+                    } else {
                         incomingTime.setVisibility(View.VISIBLE);
+                        timeVisible = true;
+                    }
                 }
             });
         }

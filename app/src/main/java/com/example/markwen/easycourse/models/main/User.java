@@ -101,8 +101,8 @@ public class User extends RealmObject {
     }
 
     @Nullable
-    public static User getCurrentUser(Activity activity, Realm realm) {
-        SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+    public static User getCurrentUser(Context context, Realm realm) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String id = sharedPref.getString("userId", "");
 
         RealmResults<User> results = realm.where(User.class)

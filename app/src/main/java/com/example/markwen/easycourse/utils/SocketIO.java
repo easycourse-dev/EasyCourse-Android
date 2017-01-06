@@ -109,13 +109,22 @@ public class SocketIO {
     }
 
     //sends a message to user/room
-    public void sendMessage(String message, String roomId, String toUserId, byte[] imageData, float imageWidth, float imageHeight) throws JSONException {
+    public void sendMessage(String messageText, String toRoom, String toUserId, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
+        String uuid = UUID.randomUUID().toString();
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("id", UUID.randomUUID().toString());
-        jsonParam.put("toRoom", roomId);
+        Message message;
+        User curUser = User.getCurrentUser(context, Realm.getDefaultInstance());
+        if (toUserId == null) { //Message to room
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, new Date());
+        } else { //Message to user
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, new Date());
+        }
+        Message.updateMessageToRealm(message, Realm.getDefaultInstance());
+        jsonParam.put("id", uuid);
+        jsonParam.put("toRoom", toRoom);
         jsonParam.put("toUser", toUserId);
-        jsonParam.put("text", message);
-//        jsonParam.put("imageUrl", imageUrl);
+        jsonParam.put("text", messageText);
+//        jsonParam.put("sharedRoom", sharedRoomId);
         jsonParam.put("imageData", imageData);
         jsonParam.put("imageWidth", imageWidth);
         jsonParam.put("imageHeight", imageHeight);
@@ -141,7 +150,7 @@ public class SocketIO {
     //syncs realm database
     public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages) throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        if(displayName != null)
+        if (displayName != null)
             jsonParam.put("displayName", displayName);
         if(avatar != null)
             jsonParam.put("avatarImage", avatar);
@@ -217,7 +226,7 @@ public class SocketIO {
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
                         for (int i = 0; i < silentRoomsJSON.length(); i++) {
                             String roomID = silentRoomsJSON.getString(i);
-                            Log.e(TAG, "silent room:"+roomID);
+                            Log.e(TAG, "silent room:" + roomID);
                             Room room = Room.getRoomById(realm, roomID);
                             User.getUserFromRealm(realm, id).getSilentRooms().add(room);
                         }
@@ -228,7 +237,7 @@ public class SocketIO {
                     }
                     //User.updateUserToRealm(user, realm);
 
-                    Log.e(TAG, "syncUser: "+obj.toString());
+                    Log.e(TAG, "syncUser: " + obj.toString());
 
                 }
             }
@@ -308,7 +317,7 @@ public class SocketIO {
     }
 
     //Block user
-    public void blockUser(String otherUserId, Ack callback)  throws JSONException{
+    public void blockUser(String otherUserId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("otherUser", otherUserId);
         socket.emit("blockUser", jsonParam, callback);
@@ -333,6 +342,7 @@ public class SocketIO {
 
         socket.emit("joinCourse", jsonParam, callback);
     }
+
     public void joinCourse(String courseId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         ArrayList<String> courses = new ArrayList<>();
@@ -348,7 +358,7 @@ public class SocketIO {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courseId", courseID);
 
-        socket.emit("dropCourse", jsonParam,callback);
+        socket.emit("dropCourse", jsonParam, callback);
     }
 
     public void getCourseInfo(String courseId, Ack callback) throws JSONException {
@@ -419,13 +429,13 @@ public class SocketIO {
                         Room.updateRoomToRealm(room[0], realm);
                         realm.close();
 
-                        Log.e(TAG, "Success: "+obj.toString());
+                        Log.e(TAG, "Success: " + obj.toString());
                     } catch (JSONException e) {
-                        Log.e(TAG, "JSONEx"+e.toString());
+                        Log.e(TAG, "JSONEx" + e.toString());
                     }
 
                 } else {
-                    Log.e(TAG, "Error"+obj.toString());
+                    Log.e(TAG, "Error" + obj.toString());
                 }
             }
         });
@@ -438,7 +448,7 @@ public class SocketIO {
         socket.emit("getRoomMembers", jsonParam, callback);
     }
 
-    public void getUserInfoJson(String userId, Ack callback) throws JSONException{
+    public void getUserInfoJson(String userId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("userId", userId);
         socket.emit("getUserInfo", jsonParam, callback);
@@ -585,7 +595,7 @@ public class SocketIO {
                 }
 
                 Realm realm = Realm.getDefaultInstance();
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, date);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();

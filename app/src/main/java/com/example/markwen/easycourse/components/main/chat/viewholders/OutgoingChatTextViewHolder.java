@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 /**
  * Created by nrinehart on 12/22/16.
@@ -73,38 +74,40 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
 //            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
-                outgoingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
-            } else {
-                Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                        .placeholder(R.drawable.ic_person_black_24px)
-                        .into(outgoingImageView);
+            curUser = User.getCurrentUser(activity, Realm.getDefaultInstance());
+            if (curUser != null) {
+                if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
+                    outgoingImageView.setImageResource(R.drawable.ic_person_black_24px);
+                } else {
+                    Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                            .placeholder(R.drawable.ic_person_black_24px)
+                            .into(outgoingImageView);
+                }
                 outgoingName.setText(curUser.getUsername());
                 outgoingMessage.setText(message.getText());
-
             }
-        }
 
-        outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return showPopup(outgoingLinearLayout, message, context);
-            }
-        });
-
-        outgoingLinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (outgoingTime.getText().equals("time")) return;
-                if (timeVisible) {
-                    outgoingTime.setVisibility(View.GONE);
-                    timeVisible = false;
-                } else {
-                    outgoingTime.setVisibility(View.VISIBLE);
-                    timeVisible = true;
+            outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    return showPopup(outgoingLinearLayout, message, context);
                 }
-            }
-        });
+            });
+
+            outgoingLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (outgoingTime.getText().equals("time")) return;
+                    if (timeVisible) {
+                        outgoingTime.setVisibility(View.GONE);
+                        timeVisible = false;
+                    } else {
+                        outgoingTime.setVisibility(View.VISIBLE);
+                        timeVisible = true;
+                    }
+                }
+            });
+        }
     }
 
     private boolean showPopup(LinearLayout linearLayout, final Message message, final Context context) {

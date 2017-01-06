@@ -3,7 +3,7 @@ package com.example.markwen.easycourse;
 import android.app.Application;
 import android.util.Log;
 
-import com.example.markwen.easycourse.services.MainBus;
+import com.example.markwen.easycourse.utils.eventbus.MainBus;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -29,8 +29,6 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
 
     private String deviceToken;
-
-    //TODO: http://stackoverflow.com/questions/23978828/how-do-i-use-disk-caching-in-picasso
 
     @Override
     public void onCreate() {
@@ -60,11 +58,9 @@ public class EasyCourse extends Application {
         }
     }
 
-
     public SocketIO getSocketIO() {
         return socketIO;
     }
-
 
     public static EasyCourse getAppInstance() {
         return appInstance;
@@ -76,18 +72,6 @@ public class EasyCourse extends Application {
 
     public String getDeviceToken() {
         return deviceToken;
-    }
-
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
-            return !ipAddr.toString().equals("");
-
-        } catch (UnknownHostException e) {
-            Log.e(TAG, e.toString());
-            return false;
-        }
-
     }
 
 }

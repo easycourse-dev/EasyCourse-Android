@@ -1,4 +1,4 @@
-package com.example.markwen.easycourse.services;
+package com.example.markwen.easycourse.utils.eventbus;
 
 import android.os.Handler;
 import android.os.Looper;

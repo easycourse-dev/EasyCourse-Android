@@ -432,8 +432,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
+//        if (socketIO != null)
+//            socketIO.syncUser();
     }
 
     @Override

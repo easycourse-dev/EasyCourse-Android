@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.components.main.chat.viewholders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.CourseDetailsActivity;
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
@@ -57,10 +59,16 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
     private boolean timeVisible;
 
+    private Realm realm;
+    private User currentUser;
+
     public IncomingSharedRoomViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         this.activity = activity;
+
+        realm = Realm.getDefaultInstance();
+        currentUser = User.getCurrentUser(activity, realm);
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
@@ -108,6 +116,16 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
             incomingName.setText(thisUser.getUsername());
             textViewRoomName.setText(message.getSharedRoom().getName());
+            sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(context, CourseDetailsActivity.class);
+                    i.putExtra("courseId", message.getSharedRoom().getCourseID());
+                    i.putExtra("isJoined", false);
+
+                    context.startActivity(i);
+                }
+            });
 
             incomingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

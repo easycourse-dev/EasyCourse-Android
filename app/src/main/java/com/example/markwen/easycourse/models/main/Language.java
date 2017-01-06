@@ -7,6 +7,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.annotations.PrimaryKey;
 
 import static com.example.markwen.easycourse.utils.ListsUtils.isLanguageInList;
 
@@ -16,8 +17,9 @@ import static com.example.markwen.easycourse.utils.ListsUtils.isLanguageInList;
 
 public class Language extends RealmObject {
 
-    private String name;
+    @PrimaryKey
     private String code;
+    private String name;
     private String translation;
     private boolean isChecked;
 
@@ -70,11 +72,21 @@ public class Language extends RealmObject {
         });
     }
 
+    public static RealmList<Language> getCheckedLanguages(Realm realm) {
+        RealmResults<Language> realmResults = realm.where(Language.class).equalTo("isChecked", true).findAll();
+        RealmList<Language> results = new RealmList<>();
+        for (int i = 0; i < realmResults.size(); i++) {
+            results.add(realmResults.get(i));
+        }
+        return results;
+    }
+
     public static RealmList<Language> syncLanguage(RealmList<Language> list, JSONArray listJSON, Realm realm) {
         for (int i = 0; i < listJSON.length(); i++) {
             try {
                 if (!isLanguageInList(list, listJSON.getString(i))) {
                     list.add(new Language(listJSON.getString(i)));
+                    getLanguageByCode(listJSON.getString(i), realm).setChecked(true);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -83,6 +95,11 @@ public class Language extends RealmObject {
 
         for (int i = 0; i < list.size(); i++) {
             if (!isLanguageInList(listJSON, list.get(i).getCode())) {
+                try {
+                    getLanguageByCode(listJSON.getString(i), realm).setChecked(false);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 list.remove(i);
             }
         }

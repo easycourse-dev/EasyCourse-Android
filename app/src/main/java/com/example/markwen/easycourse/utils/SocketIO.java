@@ -148,19 +148,14 @@ public class SocketIO {
     }
 
     //syncs realm database
-    public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages) throws JSONException {
+    public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         if (displayName != null)
             jsonParam.put("displayName", displayName);
         if(avatar != null)
             jsonParam.put("avatarImage", avatar);
         jsonParam.put("userLang", new JSONArray(languages));
-        socket.emit("syncUser", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-
-            }
-        });
+        socket.emit("syncUser", jsonParam, callback);
     }
 
     public void syncUser() {

@@ -441,7 +441,7 @@ public class SignupLogin extends Fragment {
                 APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        progress.setMessage("Login success");
+                        progress.setContent("Login success");
                         parseLoginResponse(statusCode, headers, response);
                     }
 
@@ -461,6 +461,24 @@ public class SignupLogin extends Fragment {
 
     //Parses response from login to realm and sharedprefs
     public void parseLoginResponse(int statusCode, Header[] headers, JSONObject response) {
+
+        APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        Language.updateLanguageToRealm(new Language(
+                                response.getJSONObject(i).getString("code"),
+                                response.getJSONObject(i).getString("name"),
+                                response.getJSONObject(i).getString("translation")
+                        ), realm);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         String userToken = "";
 
         //for each header in array Headers scan for Auth header
@@ -501,7 +519,7 @@ public class SignupLogin extends Fragment {
             for (int i = 0; i < userLanguagesJSON.length(); i++) {
                 tempLang = new Language(userLanguagesJSON.getString(i));
                 userLanguage.add(tempLang);
-                Language.updateLanguageToRealm(tempLang, realm);
+                Language.getLanguageByCode(userLanguagesJSON.getString(i), realm).setChecked(true);
             }
 
             JSONArray joinedCourses = response.getJSONArray("joinedCourse");

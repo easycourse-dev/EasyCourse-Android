@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,18 +27,19 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.UserProfile.LanguageRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,6 +47,8 @@ import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmList;
+import io.socket.client.Ack;
 
 /**
  * Created by nisarg on 28/11/16.
@@ -71,6 +74,8 @@ public class UserProfileActivity extends AppCompatActivity {
     CircleImageView avatarImage;
     @BindView(R.id.userProfileLanguageView)
     RecyclerView languageView;
+    @BindView(R.id.userProfileLanguageLabel)
+    TextView languageLabel;
 
     boolean isInEditMode = false;
 
@@ -78,10 +83,12 @@ public class UserProfileActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socket;
+    LanguageRecyclerViewAdapter languageAdapter;
+
+    RealmList<Language> userLanguages;
 
     private static final int GALLERY_INTENT_CALLED = 1;
     private static final int GALLERY_KITKAT_INTENT_CALLED = 2;
-    private String selectedImagePath;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,40 +111,39 @@ public class UserProfileActivity extends AppCompatActivity {
         editUsernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 toggleProfileEdit();
             }
         });
 
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", null);
-        JSONObject currentUserObject;
-
         realm = Realm.getDefaultInstance();
 
-        try {
-            currentUserObject = new JSONObject(currentUser);
-            Log.e("com.example.easycourse", currentUserObject.toString());
-            user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            user.addChangeListener(new RealmChangeListener<User>() {
-                @Override
-                public void onChange(User user) {
-                    updateUserInfoOnScreen();
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        user = User.getCurrentUser(this, realm);
+        user.addChangeListener(new RealmChangeListener<User>() {
+            @Override
+            public void onChange(User user) {
+                updateUserInfoOnScreen();
+            }
+        });
 
         textViewUsername.setText(user.getUsername());
         editTextUsername.setText(user.getUsername());
+        languageLabel.setText("Chosen language(s):");
 
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    socket.syncUser(editTextUsername.getText().toString(), null, );
+                    socket.syncUser(editTextUsername.getText().toString(), null, languageAdapter.getCheckedLanguageCodeArrayList(), new Ack() {
+                        @Override
+                        public void call(Object... args) {
+
+                        }
+                    });
+                    userLanguages = languageAdapter.getCheckedLanguageList();
+                    languageAdapter.setLanguageList(userLanguages, false);
+                    languageAdapter.saveCheckedLanguages();
+                    languageAdapter.notifyDataSetChanged();
+                    languageLabel.setText("Chosen language(s):");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -170,12 +176,19 @@ public class UserProfileActivity extends AppCompatActivity {
                 } else {
                     openGallery();
                 }
-
-
             }
         });
 
-
+        // Setup language recycler view
+        userLanguages = Language.getCheckedLanguages(realm);
+        LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
+        roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        languageAdapter = new LanguageRecyclerViewAdapter(userLanguages);
+        languageAdapter.setCheckedLanguageList(userLanguages);
+        languageView.setHasFixedSize(true);
+        languageView.setLayoutManager(roomsLayoutManager);
+        languageView.addItemDecoration(new RecyclerViewDivider(this));
+        languageView.setAdapter(languageAdapter);
     }
 
     private void updateUserInfoOnScreen(){
@@ -196,6 +209,27 @@ public class UserProfileActivity extends AppCompatActivity {
             editTextUsername.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            APIFunctions.getLanguages(this, new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    RealmList<Language> allLanguages = new RealmList<>();
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            allLanguages.add(new Language(
+                                    response.getJSONObject(i).getString("code"),
+                                    response.getJSONObject(i).getString("name"),
+                                    response.getJSONObject(i).getString("translation")
+                            ));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    languageAdapter.setLanguageList(allLanguages, true);
+                    languageAdapter.notifyDataSetChanged();
+                    languageLabel.setText("All languages: ");
+                }
+            });
         } else {
             textViewUsername.setText(editTextUsername.getText());
             editTextUsername.setVisibility(View.GONE);
@@ -204,6 +238,11 @@ public class UserProfileActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editTextUsername.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
+            userLanguages.clear();
+            userLanguages = Language.getCheckedLanguages(realm);
+            languageAdapter.setLanguageList(userLanguages, false);
+            languageAdapter.notifyDataSetChanged();
+            languageLabel.setText("Chosen language(s):");
         }
     }
 
@@ -213,37 +252,28 @@ public class UserProfileActivity extends AppCompatActivity {
         if (resultCode != Activity.RESULT_OK) return;
         if (null == data) return;
         Uri originalUri = null;
+        Bitmap bitmap = null;
         if (requestCode == GALLERY_INTENT_CALLED) {
             originalUri = data.getData();
         } else if (requestCode == GALLERY_KITKAT_INTENT_CALLED) {
             originalUri = data.getData();
         }
 
-        String path = BitmapUtils.getImagePath(originalUri, this);
-        Log.e("com.example.easycourse", path);
         try {
-            APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler() {
+            bitmap = BitmapUtils.getBitmapFromUri(originalUri, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
+        try {
+            socket.syncUser(null, byteArray, languageAdapter.getCheckedLanguageCodeArrayList(), new Ack() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.e("com.example.easycourse", response.toString());
-                    try {
-                        socket.syncUser(null, response.getString("url"));
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", response.toString());
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e("com.example.easycourse", res.toString());
+                public void call(Object... args) {
+                    
                 }
             });
         } catch (JSONException e) {
-            Log.e("com.example.easycourse", e.toString());
-        } catch (UnsupportedEncodingException e) {
-            Log.e("com.example.easycourse", e.toString());
-        } catch (FileNotFoundException e) {
-            Log.e("com.example.easycourse", e.toString());
+            e.printStackTrace();
         }
     }
 

@@ -29,6 +29,8 @@ import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -157,7 +159,7 @@ public class SocketIO {
         syncUser();
     }
 
-    public void syncUser() {
+    public synchronized void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
             public void call(Object... args) {
@@ -239,13 +241,13 @@ public class SocketIO {
     private void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         //TODO: find time last on app
-//        Realm realm = Realm.getDefaultInstance();
-//        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-//        if(list.size() < 1) return;
-//        Message message = list.first();
-//        long time = message.getCreatedAt().getTime();
-//        jsonParam.put("lastUpdateTime", time);
-        jsonParam.put("lastUpdateTime", 0);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+        if(list.size() < 1) return;
+        Message message = list.first();
+        long time = message.getCreatedAt().getTime();
+        jsonParam.put("lastUpdateTime", time);
+//        jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {

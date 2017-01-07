@@ -11,14 +11,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.getJsonArrayFromStringArray;
+
 
 public class APIFunctions {
 
     static AsyncHttpClient client = new AsyncHttpClient();
     static final String URL = "https://zengjintaotest.com/api";
+    private static final String TAG = "APIFunctions";
 
     //API function for signup to server
     public static void signUp(Context context, String email, String password, String displayName, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
@@ -101,13 +107,18 @@ public class APIFunctions {
         client.get(context, URL+"/course?q="+searchQuery+"&limit="+limit+"&skip="+skip+"&univ="+universityID, jsonHttpResponseHandler);
     }
 
+    //API function to search course subrooms database
+    public static void searchCourseSubroom(Context context, String courseId, String searchQuery, int limit, int skip, JsonHttpResponseHandler jsonHttpResponseHandler){
+        client.get(context, URL+"/coursesubroom?crs="+courseId+"&q="+searchQuery+"&limit="+limit+"&skip="+skip, jsonHttpResponseHandler);
+    }
+
     //API function to get language list
     public static void getLanguages(Context context, JsonHttpResponseHandler jsonHttpResponseHandler){
         client.get(context, URL+"/defaultlanguage", jsonHttpResponseHandler);
     }
 
-    //API function to set courses and languages in user's profile
-    public static boolean setCoursesAndLanguages(Context context, int[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+    //API function to set courses and languages in  user's profile
+    public static boolean setCoursesAndLanguages(Context context, String[] languageCodeArray, String[] courseCodeArray, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         String userToken = getUserToken(context);
         //Return false if userToken is not found
         if(userToken.isEmpty())
@@ -116,8 +127,8 @@ public class APIFunctions {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();
-        JSONArray jsonLanguageCodeArray = new JSONArray(languageCodeArray);
-        JSONArray jsonCourseCodeArray = new JSONArray(courseCodeArray);
+        JSONArray jsonLanguageCodeArray = getJsonArrayFromStringArray(languageCodeArray);
+        JSONArray jsonCourseCodeArray = getJsonArrayFromStringArray(courseCodeArray);
         jsonParam.put("lang", jsonLanguageCodeArray);
         jsonParam.put("course", jsonCourseCodeArray);
         StringEntity body = new StringEntity(jsonParam.toString());
@@ -125,6 +136,8 @@ public class APIFunctions {
         client.post(context, URL+"/choosecourse", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
+
+
 
     //API function to turn on or off push notifications for a room
     public static boolean setSilentRoom(Context context, String roomID, boolean silentBoolean, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
@@ -137,10 +150,10 @@ public class APIFunctions {
 
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("room", roomID);
-        jsonParam.put("silentBoolean", silentBoolean);
+        jsonParam.put("silent", silentBoolean);
         StringEntity body = new StringEntity(jsonParam.toString());
 
-        client.post(context, URL+"/silentroom", body, "application/json", jsonHttpResponseHandler);
+        client.post(context, URL+"/silentRoom", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 
@@ -159,6 +172,51 @@ public class APIFunctions {
         StringEntity body = new StringEntity(jsonParam.toString());
 
         client.post(context, URL+"/report", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
+    //API function to save device token
+    public static boolean saveDeviceToken(Context context, String userToken, String deviceToken, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        client.addHeader("auth",userToken);
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("deviceToken", deviceToken);
+        jsonParam.put("deviceType", "android");
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/installation", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
+
+    public static boolean uploadImage(Context context, File image, String fileName, String uploadType, String roomID, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
+        String userToken = getUserToken(context);
+        //Return false if userToken is not found
+        if(userToken.isEmpty())
+            return false;
+
+        client.addHeader("auth",userToken);
+        client.addHeader("type",uploadType);
+        if(uploadType.equals("message"))
+            client.addHeader("room",roomID);
+
+        RequestParams params = new RequestParams();
+        params.put("img", image);
+        params.put("fileName", fileName);
+        params.put("mimeType", "image/jpg");
+
+        client.post(context, URL+"/uploadimage", params, jsonHttpResponseHandler);
+        return true;
+    }
+
+    public static boolean forgetPassword(Context context, String email, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException, FileNotFoundException {
+        client.addHeader("Content-Type", "application/json");
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("email", email);
+
+        StringEntity body = new StringEntity(jsonParam.toString());
+
+        client.post(context, URL+"/forgetPassword", body, "application/json", jsonHttpResponseHandler);
         return true;
     }
 

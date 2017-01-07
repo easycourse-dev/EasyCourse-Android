@@ -26,145 +26,200 @@
             android:textColor="@color/colorWhiteText"
             android:textSize="25sp" />
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/inputLayoutEmail"
-            android:layout_width="300dp"
+        <ScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="50dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText">
-
-            <EditText
-                android:id="@+id/editTextEmail"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:textColor="@color/colorWhiteText"
-                android:textSize="16sp" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/inputLayoutPassword"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText"
-            app:passwordToggleEnabled="false">
-
-            <EditText
-                android:id="@+id/editTextPassword"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:textSize="16sp" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/inputLayoutVerifyPassword"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText"
-            app:passwordToggleEnabled="false">
-
-            <EditText
-                android:id="@+id/editTextVerifyPassword"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/verify_password"
-                android:inputType="textPassword"
-                android:textSize="16sp" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/inputLayoutUsername"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText">
-
-            <EditText
-                android:id="@+id/editTextUsername"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:hint="@string/username"
-                android:inputType="text"
-                android:textSize="16sp" />
-        </android.support.design.widget.TextInputLayout>
-
-
-        <RelativeLayout
-            android:layout_width="300dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <Button
-                android:id="@+id/buttonLogin"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="147dp"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/buttonSignup"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignStart="@+id/buttonSignup"
-                android:background="@drawable/login_button"
-                android:text="@string/log_in_button"
-                android:textColor="@color/colorWhiteText" />
-
-            <Button
-                android:id="@+id/buttonSignup"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="147dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:background="@drawable/signup_button"
-                android:text="@string/sign_up_button"
-                android:textColor="@color/colorWhiteText" />
-
-
-            <FrameLayout
+            android:animateLayoutChanges="true">
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/buttonLogin"
-                android:layout_marginTop="6dp">
-
-                <com.facebook.login.widget.LoginButton
-                    android:id="@+id/buttonFacebookLogin"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true">
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/inputLayoutEmail"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                    android:layout_gravity="center"
+                    android:layout_marginTop="50dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhiteText"
+                    android:textColorHint="@color/colorWhiteText">
 
-                <Button
-                    android:id="@+id/fbThemeButton"
-                    style="?android:attr/borderlessButtonStyle"
+                    <EditText
+                        android:id="@+id/editTextEmail"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/email"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@color/colorWhiteText"
+                        android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/inputLayoutPassword"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/facebook_login_button"
-                    android:text="@string/facebook_login"
-                    android:textColor="@color/colorWhiteText" />
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhiteText"
+                    android:textColorHint="@color/colorWhiteText"
+                    app:passwordToggleEnabled="false">
 
-            </FrameLayout>
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/editTextPassword"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/password"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/textViewForgetPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/forget_password"
+                    android:gravity="center"
+                    android:textColor="@color/colorAccent"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/inputLayoutVerifyPassword"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhiteText"
+                    android:textColorHint="@color/colorWhiteText"
+                    app:passwordToggleEnabled="false">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/editTextVerifyPassword"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/verify_password"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/inputLayoutUsername"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhiteText"
+                    android:textColorHint="@color/colorWhiteText">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/editTextUsername"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/username"
+                        android:inputType="text"
+                        android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
+
+                <LinearLayout
+                    android:id="@+id/termsPrivacyCheckView"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorWhiteText"
+                        android:text="I agree to "/>
+                    
+                    <TextView
+                        android:id="@+id/termsPrivacyText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorAccent"
+                        android:text="terms and privacy"/>
+                    
+                    <com.hanks.library.AnimateCheckBox
+                        android:id="@+id/termsPrivacyCheckbox"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="start"
+                        android:padding="10dp"
+                        app:animDuration="0"
+                        app:checkedColor="@color/colorAccent"
+                        app:lineColor="#fff"
+                        app:lineWidth="1.2dp"
+                        app:unCheckColor="#e0e0e0" />
+                    
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="300dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:animateLayoutChanges="true">
+
+                    <Button
+                        android:id="@+id/buttonLogin"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="147dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/buttonSignup"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignStart="@+id/buttonSignup"
+                        android:background="@drawable/login_button"
+                        android:text="@string/log_in_button"
+                        android:textColor="@color/colorWhiteText" />
+
+                    <Button
+                        android:id="@+id/buttonSignup"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="147dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:background="@drawable/signup_button"
+                        android:text="@string/sign_up_button"
+                        android:textColor="@color/colorWhiteText" />
+
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/buttonLogin"
+                        android:layout_marginTop="6dp"
+                        android:animateLayoutChanges="true">
+
+                        <com.facebook.login.widget.LoginButton
+                            android:id="@+id/buttonFacebookLogin"
+                            android:layout_width="300dp"
+                            android:layout_height="wrap_content"
+                            android:visibility="invisible" />
+
+                        <Button
+                            android:id="@+id/fbThemeButton"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="300dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/facebook_login_button"
+                            android:text="@string/facebook_login"
+                            android:textColor="@color/colorWhiteText" />
+
+                    </FrameLayout>
+
+                </RelativeLayout>
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 

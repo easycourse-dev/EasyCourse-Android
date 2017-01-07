@@ -16,7 +16,7 @@ public class Message extends RealmObject {
     @PrimaryKey
     private String id;
     private String remoteId;
-    private String senderId;
+    private User sender;
     private String text;
     private String imageUrl;
     private byte[] imageData;
@@ -26,17 +26,25 @@ public class Message extends RealmObject {
     private double imageHeight;
 
     private String toRoom;
+    private String toUser;
     private boolean isToUser = true;
     private Date createdAt;
 
     public Message() {
-
     }
 
-    public Message(String id, String remoteId, String senderId, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, Date createdAt) {
+    //TODO: Testing constructor
+    public Message(User sender, String text, String imageUrl, Date createdAt) {
+        this.sender = sender;
+        this.text = text;
+        this.imageUrl = imageUrl;
+        this.createdAt = createdAt;
+    }
+
+    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, String toUser, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;
-        this.senderId = senderId;
+        this.sender = sender;
         this.text = text;
         this.imageUrl = imageUrl;
         this.imageData = imageData;
@@ -44,6 +52,7 @@ public class Message extends RealmObject {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.toRoom = toRoom;
+        this.toUser = toUser;
         this.createdAt = createdAt;
     }
 
@@ -72,6 +81,8 @@ public class Message extends RealmObject {
         });
     }
 
+
+
     public String getId() {
         return id;
     }
@@ -89,11 +100,19 @@ public class Message extends RealmObject {
     }
 
     public String getSenderId() {
-        return senderId;
+        return sender.getId();
     }
 
     public void setSenderId(String senderId) {
-        this.senderId = senderId;
+        this.sender.setId(senderId);
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public User getSender() {
+        return sender;
     }
 
     public String getText() {
@@ -146,6 +165,14 @@ public class Message extends RealmObject {
 
     public String getToRoom() {
         return toRoom;
+    }
+
+    public void setToUser(String toUser) {
+        this.toUser = toUser;
+    }
+
+    public String getToUser() {
+        return toUser;
     }
 
     public void setToRoom(String toRoom) {

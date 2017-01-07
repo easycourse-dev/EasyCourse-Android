@@ -1,13 +1,16 @@
 package com.example.markwen.easycourse.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.eventbus.Event;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -15,12 +18,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import io.realm.Realm;
@@ -36,17 +41,19 @@ import io.socket.emitter.Emitter;
 
 
 public class SocketIO {
-    private String CHAT_SERVER_URL = "https://zengjintaotest.com";
+    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
+    private static final String TAG = "SocketIO";
+
+
     private Context context;
     private Socket socket;
-    private Activity that;
+    private Realm realm;
 
-    public SocketIO(final Activity that, Context context) throws URISyntaxException {
+    public SocketIO(Context context) throws URISyntaxException {
         this.context = context;
-        this.that = that;
+        this.realm = Realm.getDefaultInstance();
 
         IO.Options opts = new IO.Options();
-        //opts.forceNew = true;
         opts.query = "token=" + APIFunctions.getUserToken(context);
         socket = IO.socket(CHAT_SERVER_URL, opts);
         socket.connect();
@@ -54,13 +61,14 @@ public class SocketIO {
     }
 
     //public socket on listeners
-    public void publicListener() {
+    private void publicListener() {
         socket.connect();
         socket.on("connect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 syncUser();
-                Log.e("com.example.easycourse", "connected");
+                EasyCourse.bus.post(new Event.ConnectEvent());
+                Log.d(TAG, "connected");
             }
         });
 
@@ -69,14 +77,16 @@ public class SocketIO {
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 saveMessageToRealm(obj);
+                //Bus event sent in saveMessageToRealm
+                Log.d(TAG, "message");
             }
         });
 
         socket.on("disconnect", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                //TODO: do something when disconnected
-                Log.e("com.example.easycourse", "disconnected");
+                EasyCourse.bus.post(new Event.DisconnectEvent());
+                Log.e(TAG, "disconnected");
             }
         });
 
@@ -84,27 +94,38 @@ public class SocketIO {
             @Override
             public void call(Object... args) {
                 syncUser();
-                Log.e("com.example.easycourse", "reconnected");
+                EasyCourse.bus.post(new Event.ReconnectEvent());
+                Log.e(TAG, "reconnected");
             }
         });
 
         socket.on("reconnectAttempt", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                //TODO: do something when reconnectAttempt
-                Log.e("com.example.easycourse", "reconnectAttempt");
+                EasyCourse.bus.post(new Event.ReconnectAttemptEvent());
+                Log.e(TAG, "reconnectAttempt");
             }
         });
     }
 
     //sends a message to user/room
-    public void sendMessage(String message, String roomId, String toUserId, String imageUrl, float imageWidth, float imageHeight) throws JSONException {
+    public void sendMessage(String messageText, String toRoom, String toUserId, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
+        String uuid = UUID.randomUUID().toString();
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("id", UUID.randomUUID().toString());
-        jsonParam.put("toRoom", roomId);
+        Message message;
+        User curUser = User.getCurrentUser(context, Realm.getDefaultInstance());
+        if (toUserId == null) { //Message to room
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, new Date());
+        } else { //Message to user
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, new Date());
+        }
+        Message.updateMessageToRealm(message, Realm.getDefaultInstance());
+        jsonParam.put("id", uuid);
+        jsonParam.put("toRoom", toRoom);
         jsonParam.put("toUser", toUserId);
-        jsonParam.put("text", message);
-        jsonParam.put("imageUrl", imageUrl);
+        jsonParam.put("text", messageText);
+//        jsonParam.put("sharedRoom", sharedRoomId);
+        jsonParam.put("imageData", imageData);
         jsonParam.put("imageWidth", imageWidth);
         jsonParam.put("imageHeight", imageHeight);
 
@@ -113,20 +134,30 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    if(obj.has("error")){
-                        Log.e("com.example.easycourse", obj.toString());
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
                     } else {
                         JSONObject msgObj = obj.getJSONObject("msg");
                         saveMessageToRealm(msgObj);
                     }
                 } catch (JSONException e) {
-                    Log.e("com.example.easycourse", e.toString());
+                    Log.e(TAG, e.toString());
                 }
             }
         });
     }
 
     //syncs realm database
+    public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        if (displayName != null)
+            jsonParam.put("displayName", displayName);
+        if(avatar != null)
+            jsonParam.put("avatarImage", avatar);
+        jsonParam.put("userLang", new JSONArray(languages));
+        socket.emit("syncUser", jsonParam, callback);
+    }
+
     public void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
@@ -134,12 +165,12 @@ public class SocketIO {
                 try {
                     getHistMessage();
                 } catch (JSONException e) {
-                    Log.e("com.example.easycourse", e.toString());
+                    Log.e(TAG, e.toString());
                 }
 
                 JSONObject obj = (JSONObject) args[0];
-                if(obj.has("error")){
-                    Log.e("com.example.easycourse", obj.toString());
+                if (obj.has("error")) {
+                    Log.e(TAG, obj.toString());
                 } else {
 
                     JSONObject userObj = null;
@@ -148,54 +179,97 @@ public class SocketIO {
 
                     try {
                         userObj = obj.getJSONObject("user");
-                        Log.e("com.example.easycourse", "" + userObj);
-                        avatarUrlString = userObj.getString("avatarUrl");
-                        URL avatarUrl = new URL(avatarUrlString);
-                        HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
-                        conn.setDoInput(true);
-                        conn.connect();
-                        conn.setUseCaches(false);
+                        if (userObj.has("avatarUrl")) {
+                            avatarUrlString = userObj.getString("avatarUrl");
+                            URL avatarUrl = new URL(avatarUrlString);
+                            HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                            conn.setDoInput(true);
+                            conn.connect();
 
-                        InputStream is = conn.getInputStream();
-                        avatar = IOUtils.toByteArray(conn.getInputStream());
+                            avatar = IOUtils.toByteArray(conn.getInputStream());
+                        }
 
-                    } catch (MalformedURLException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    } catch (IOException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                    } catch (JSONException | IOException e) {
+                        Log.e(TAG, e.toString());
                     }
 
-                    User user = null;
                     try {
-                        user = new User(userObj.getString("_id"), userObj.getString("displayName"), avatar, avatarUrlString, userObj.getString("email"), userObj.getString("university"));
+                        String id = (String) checkIfJsonExists(userObj, "_id", null);
+                        String university = (String) checkIfJsonExists(userObj, "university", null);
+
+                        userObj.put("id", id);
+                        userObj.put("profilePictureUrl", avatarUrlString);
+                        userObj.put("universityID", university);
+                        userObj.put("profilePicture", avatar);
+                        userObj.remove("_id");
+
+                        JSONArray silentRoomsJSON = userObj.getJSONArray("silentRoom"); // Array of room IDs
+                        JSONArray joinedRoomsJSON = userObj.getJSONArray("joinedRoom"); // Array of objects
+                        JSONArray joinedCoursesJSON = userObj.getJSONArray("joinedCourse"); // Array of objects
+                        JSONArray userLanguagesJSON = userObj.getJSONArray("userLang");
+
+                        Realm realm = Realm.getDefaultInstance();
+                        User.updateUserFromJson(userObj.toString(), realm);
+                        Course.syncAddCourse(joinedCoursesJSON, realm);
+                        Room.syncRooms(joinedRoomsJSON, realm);
+                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
+                        realm.beginTransaction();
+                        // Updating language
+                        RealmList<Language> userLanguage = Language.getCheckedLanguages(realm);
+                        for (int i = 0; i < userLanguage.size(); i++) {
+                            // Clear all first
+                            userLanguage.get(i).setChecked(false);
+                            realm.copyToRealmOrUpdate(userLanguage.get(i));
+                        }
+                        Language tempLang;
+                        for (int i = 0; i < userLanguagesJSON.length(); i++) {
+                            // Set updated ones
+                            tempLang = Language.getLanguageByCode(userLanguagesJSON.getString(i), realm);
+                            tempLang.setChecked(true);
+                            realm.copyToRealmOrUpdate(tempLang);
+                        }
+
+                        // Adding silent rooms
+                        User.getUserFromRealm(realm, id).setProfilePicture(avatar);
+                        for (int i = 0; i < silentRoomsJSON.length(); i++) {
+                            String roomID = silentRoomsJSON.getString(i);
+                            Log.e(TAG, "silent room:" + roomID);
+                            Room room = Room.getRoomById(realm, roomID);
+                            User.getUserFromRealm(realm, id).getSilentRooms().add(room);
+                        }
+                        realm.commitTransaction();
+                        realm.close();
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, e.toString());
                     }
+                    //User.updateUserToRealm(user, realm);
 
-                    Realm.init(context);
-                    Realm realm = Realm.getDefaultInstance();
+                    Log.e(TAG, "syncUser: " + obj.toString());
 
-                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
-                    User.updateUserToRealm(user, realm);
-                    Log.e("com.example.easycourse", "user in realm? " + User.isUserInRealm(user, realm));
                 }
             }
         });
     }
 
     //saves list of messages to realm
-    public void getHistMessage() throws JSONException {
+    private void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("updatedTime", System.currentTimeMillis() / 1000);
+        //TODO: find time last on app
+//        Realm realm = Realm.getDefaultInstance();
+//        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+//        if(list.size() < 1) return;
+//        Message message = list.first();
+//        long time = message.getCreatedAt().getTime();
+//        jsonParam.put("lastUpdateTime", time);
+        jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-                    if(obj.has("error")){
-                        Log.e("com.example.easycourse", obj.toString());
+
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
                         for (int i = 0; i < msgArray.length(); i++) {
@@ -203,294 +277,349 @@ public class SocketIO {
                         }
                     }
                 } catch (JSONException e) {
-                    Log.e("com.example.easycourse", e.toString());
+                    Log.e(TAG, e.toString());
                 }
             }
         });
     }
 
-    public boolean logout(){
-        final boolean[] logoutSuccess = {false};
-        socket.emit("logout", null, new Ack() {
+    public void getAllMessage() throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("lastUpdateTime", 1);
+        socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if(obj.has("success")) {
-                    logoutSuccess[0] = true;
+                try {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
+                    } else {
+                        JSONArray msgArray = obj.getJSONArray("msg");
+                        for (int i = 0; i < msgArray.length(); i++) {
+                            saveMessageToRealm(msgArray.getJSONObject(i));
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, e.toString());
                 }
             }
         });
-        return logoutSuccess[0];
     }
 
-    public Course[] searchCourses(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+    public void logout(Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("deviceToken", EasyCourse.getAppInstance().getDeviceToken());
+
+        socket.emit("logout", jsonParam, callback);
+    }
+
+    public void searchCourses(String searchQuery, int limit, int skip, String universityId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("text", searchQuery);
-        jsonParam.put("university", unversityId);
+        jsonParam.put("university", universityId);
         jsonParam.put("limit", limit);
         jsonParam.put("skip", skip);
 
-        final Course[][] courses = {null};
+        socket.emit("searchCourse", jsonParam, callback);
+    }
 
-        socket.emit("searchCourse", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (!obj.has("error")) {
-                    try {
-                        JSONArray courseArrayJSON = obj.getJSONArray("course");
-                        courses[0] = new Course[courseArrayJSON.length()];
-                        for (int i = 0; i < courseArrayJSON.length(); i++) {
-                            String id = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "id", null);
-                            String coursename = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "name", null);
-                            byte[] coursePicture = (byte[]) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePicture", null);
-                            String coursePictureUrl = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "coursePictureUrl", null);
-                            String title = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "title", null);
-                            String courseDescription = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "description", null);
-                            int creditHours = Integer.parseInt((String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "creditHours", 0));
-                            String universityID = (String) checkIfJsonExists(courseArrayJSON.getJSONObject(i), "university", null);
-                            Course course = new Course(id,coursename,coursePicture,coursePictureUrl,title,courseDescription,creditHours,universityID);
-                            courses[0][i] = course;
-                        }
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    }
+    //Block user
+    public void blockUser(String otherUserId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("otherUser", otherUserId);
+        socket.emit("blockUser", jsonParam, callback);
+    }
 
-                    Log.e("com.example.easycourse", obj.toString());
-                }
-            }
-        });
+    //Search subrooms within a course
+    public void searchCourseSubrooms(String searchQuery, int limit, int skip, String courseID, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("text", searchQuery);
+        jsonParam.put("courseId", courseID);
+        jsonParam.put("limit", limit);
+        jsonParam.put("skip", skip);
 
-        return courses[0];
+        socket.emit("searchCourseSubrooms", jsonParam, callback);
+    }
+
+    //Join courses with language keys
+    public void joinCourse(ArrayList<String> courses, ArrayList<String> languageKeys, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("courses", new JSONArray(courses));
+        jsonParam.put("lang", new JSONArray(languageKeys));
+
+        socket.emit("joinCourse", jsonParam, callback);
+    }
+
+    public void joinCourse(String courseId, ArrayList<String> languageKeys, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        ArrayList<String> courses = new ArrayList<>();
+        courses.add(courseId);
+        jsonParam.put("courses", new JSONArray(courses));
+        jsonParam.put("lang", new JSONArray(languageKeys));
+
+        socket.emit("joinCourse", jsonParam, callback);
     }
 
     //convert and save JSON message object to realm
-    public boolean dropCourse(String courseID) throws JSONException {
+    public void dropCourse(String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courseId", courseID);
 
-        final boolean[] dropCourseSuccess = {false};
-
-        socket.emit("dropCourse", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if(obj.has("error")){
-                    Log.e("com.example.easycourse", obj.toString());
-                } else{
-                    Log.e("com.example.easycourse", "dropCourse "+obj.toString());
-
-                    try {
-                        dropCourseSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });
-
-        return dropCourseSuccess[0];
+        socket.emit("dropCourse", jsonParam, callback);
     }
 
-    public Room[] searchRooms(String searchQuery, int limit, int skip, String unversityId) throws JSONException {
+    public void getCourseInfo(String courseId, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("text", searchQuery);
-        jsonParam.put("university", unversityId);
-        jsonParam.put("limit", limit);
-        jsonParam.put("skip", skip);
+        jsonParam.put("courseId", courseId);
 
-        final Room[][] rooms = {null};
-
-        socket.emit("searchRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (!obj.has("error")) {
-                    try {
-                        JSONArray roomArrayJSON = obj.getJSONArray("room");
-                        rooms[0] = new Room[roomArrayJSON.length()];
-                        for (int i = 0; i < roomArrayJSON.length(); i++) {
-                            String id = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "_id", null);
-                            String roomname = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "name", null);
-                            String courseName = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "courseName", null);
-                            String courseID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "course", null);
-                            String universityID = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "university", null);
-                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "memberCounts", 0));
-                            String founderId = (String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "founderId", null);
-                            int language = Integer.parseInt((String) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "language", 0));
-                            boolean isSystem = (boolean) checkIfJsonExists(roomArrayJSON.getJSONObject(i), "isSystem", true);
-
-                            RealmList<Message> messageList = new RealmList<Message>();
-                            RealmList<User> memberList = new RealmList<User>();
-
-                            Room room = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
-                            rooms[0][i] = room;
-                        }
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    }
-
-                    Log.e("com.example.easycourse", obj.toString());
-                }
-            }
-        });
-
-        return rooms[0];
+        socket.emit("getCourseInfo", jsonParam, callback);
     }
 
-    public Room joinRoom(String roomID) throws JSONException {
+    public void joinRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-        final Room[] room = {null};
-
-        socket.emit("joinRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if (!obj.has("error")) {
-                    try {
-                        JSONObject roomObjJSON = obj.getJSONObject("room");
-
-                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
-                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
-                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
-                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
-                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
-                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
-                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
-                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
-                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
-
-                        RealmList<Message> messageList = new RealmList<Message>();
-                        RealmList<User> memberList = new RealmList<User>();
-
-                        room[0] = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    }
-
-                    Log.e("com.example.easycourse", obj.toString());
-                } else{
-                    Log.e("com.example.easycourse", obj.toString());
-                }
-            }
-        });
-
-        return room[0];
+        socket.emit("joinRoom", jsonParam, callback);
     }
 
-    public boolean quitRoom(String roomID) throws JSONException {
+    public void silentRoom(String roomID, boolean silent, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("silent", silent);
+        socket.emit("silentRoom", jsonParam, callback);
+    }
+
+    public void quitRoom(String roomID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-        final boolean[] dropRoomSuccess = {false};
-
-        socket.emit("quitRoom", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                JSONObject obj = (JSONObject) args[0];
-                if(obj.has("error")){
-                    Log.e("com.example.easycourse", obj.toString());
-                } else{
-                    Log.e("com.example.easycourse", "quitRoom "+obj.toString());
-
-                    try {
-                        dropRoomSuccess[0] = obj.getBoolean("success");
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
-                    }
-                    syncUser();
-                }
-            }
-        });
-
-        return dropRoomSuccess[0];
+        socket.emit("quitRoom", jsonParam, callback);
     }
 
-    public Room createRoom(String name, String courseID) throws JSONException {
+    public void createRoom(String name, String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("name", name);
         jsonParam.put("course", courseID);
 
+        socket.emit("createRoom", jsonParam, callback);
+    }
+
+    public void getRoomInfo(final String roomID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+
 
         final Room[] room = {null};
 
-        socket.emit("createRoom", jsonParam, new Ack() {
+        socket.emit("getRoomInfo", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
                 if (!obj.has("error")) {
                     try {
-                        JSONObject roomObjJSON = obj.getJSONObject("room");
+                        JSONObject temp = obj.getJSONObject("room");
 
-                        String id = (String) checkIfJsonExists(roomObjJSON, "_id", null);
-                        String roomname = (String) checkIfJsonExists(roomObjJSON, "name", null);
-                        String courseName = (String) checkIfJsonExists(roomObjJSON, "courseName", null);
-                        String courseID = (String) checkIfJsonExists(roomObjJSON, "course", null);
-                        String universityID = (String) checkIfJsonExists(roomObjJSON, "university", null);
-                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "memberCounts", 0));
-                        String founderId = (String) checkIfJsonExists(roomObjJSON, "founderId", null);
-                        int language = Integer.parseInt((String) checkIfJsonExists(roomObjJSON, "language", 0));
-                        boolean isSystem = (boolean) checkIfJsonExists(roomObjJSON, "isSystem", true);
+                        String id = (String) checkIfJsonExists(temp, "_id", null);
+                        String roomName = (String) checkIfJsonExists(temp, "name", null);
+                        String courseID = (String) checkIfJsonExists(temp, "course", null);
+                        String courseName = Course.getCourseById(courseID, realm).getCoursename();
+                        String universityID = (String) checkIfJsonExists(temp, "university", null);
+                        boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                        String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                        String language = (String) checkIfJsonExists(temp, "language", "0");
+                        boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                        RealmList<Message> messageList = new RealmList<Message>();
-                        RealmList<User> memberList = new RealmList<User>();
+                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
 
-                        room[0] = new Room(id,roomname,messageList,courseID,courseName,universityID,memberList,memberCounts,language,founderId,isSystem);
+                        Realm realm = Realm.getDefaultInstance();
+                        Room.updateRoomToRealm(room[0], realm);
+                        realm.close();
+
+                        Log.e(TAG, "Success: " + obj.toString());
                     } catch (JSONException e) {
-                        Log.e("com.example.easycourse", e.toString());
+                        Log.e(TAG, "JSONEx" + e.toString());
                     }
 
-                    Log.e("com.example.easycourse", obj.toString());
-                } else{
-                    Log.e("com.example.easycourse", obj.toString());
+                } else {
+                    Log.e(TAG, "Error" + obj.toString());
                 }
             }
         });
-
-        return room[0];
     }
 
-    private void saveMessageToRealm(JSONObject obj){
-        if (obj != null) {
-            Message message = null;
+    public void getRoomMembers(String roomId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomId);
+
+        socket.emit("getRoomMembers", jsonParam, callback);
+    }
+
+    public void getUserInfoJson(String userId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("userId", userId);
+        socket.emit("getUserInfo", jsonParam, callback);
+    }
+
+    public void getUserInfo(String userID) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("userId", userID);
+
+        socket.emit("getUserInfo", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                parseUserJsonInfo((JSONObject) args[0]);
+            }
+        });
+    }
+
+    public User parseUserJsonInfo(JSONObject obj) {
+        if (obj.has("error")) {
+            Log.e(TAG, obj.toString());
+        } else {
+            Log.e(TAG, "getUserInfo" + obj.toString());
+            JSONObject userObj = null;
+            byte[] avatar = null;
+            String avatarUrlString = "";
+            String emailString = "";
+            String universityId = "";
+
             try {
-                String id = (String) checkIfJsonExists(obj, "id", null);
+                userObj = obj.getJSONObject("user");
+                if (userObj.has("avatarUrl")) {
+                    avatarUrlString = userObj.getString("avatarUrl");
+                    URL avatarUrl = new URL(avatarUrlString);
+                    HttpURLConnection conn = (HttpURLConnection) avatarUrl.openConnection();
+                    conn.setDoInput(true);
+                    conn.connect();
+                    //conn.setUseCaches(false);
+                    avatar = IOUtils.toByteArray(conn.getInputStream());
+                }
+                if (userObj.has("email")) {
+                    emailString = userObj.getString("email");
+                } else {
+                    emailString = null;
+                }
+                if (userObj.has("university")) {
+                    universityId = userObj.getString("university");
+                } else {
+                    universityId = null;
+                }
+            } catch (JSONException | IOException e) {
+                Log.e(TAG, e.toString());
+            } catch (NullPointerException e) {
+                Log.e(TAG, "no avatarUrl", e);
+            }
+
+            User user = null;
+            try {
+                user = new User(
+                        userObj.getString("_id"),
+                        userObj.getString("displayName"),
+                        avatar,
+                        avatarUrlString,
+                        emailString,
+                        universityId);
+            } catch (JSONException | NullPointerException e) {
+                Log.e(TAG, e.toString());
+            }
+
+            Realm.init(context);
+            Realm realm = Realm.getDefaultInstance();
+            User.updateUserToRealm(user, realm);
+            realm.close();
+            try {
+                getUniversityInfo(universityId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return user;
+        }
+        return null;
+    }
+
+    public void getUniversityInfo(String univId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("univId", univId);
+
+        socket.emit("getUniversityInfo", jsonParam, callback);
+    }
+
+    public void getUniversityInfo(String univId) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("univId", univId);
+
+        socket.emit("getUniversityInfo", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                try {
+                    JSONObject temp = obj.getJSONObject("univ");
+                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                    String name = (String) checkIfJsonExists(temp, "name", null);
+
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    realm.copyToRealmOrUpdate(new University(id, name));
+                    realm.commitTransaction();
+                    realm.close();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void saveMessageToRealm(JSONObject obj) {
+        if (obj != null) {
+            Message message;
+            try {
+                JSONObject sender = obj.getJSONObject("sender");
+                String senderId = (String) checkIfJsonExists(sender, "_id", null);
+                String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+                String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+
+                String id = (String) checkIfJsonExists(obj, "_id", null);
                 String remoteId = (String) checkIfJsonExists(obj, "id", null);
-                String senderId = (String) checkIfJsonExists(obj, "sender", null);
                 String text = (String) checkIfJsonExists(obj, "text", null);
                 String imageUrl = (String) checkIfJsonExists(obj, "imageUrl", null);
                 byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
                 boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
                 String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
-                double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", 0.0));
-                double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", 0.0));
-                Date date = (Date) checkIfJsonExists(obj, "date", null);
+                String toUser = (String) checkIfJsonExists(obj, "toUser", null);
+                double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
+                double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
+                String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 
-                Realm.init(context);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+
+                Date date = null;
+                try {
+                    date = formatter.parse(dateString);
+
+                } catch (ParseException e) {
+                    Log.e(TAG, "saveMessageToRealm: parseException", e);
+                }
+
                 Realm realm = Realm.getDefaultInstance();
-
-                message = new Message(id, remoteId, senderId, text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, date);
-                Log.e("com.example.easycourse", "message in realm? " + Message.isMessageInRealm(message, realm));
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
                 Message.updateMessageToRealm(message, realm);
-                Log.e("com.example.easycourse", "message in realm? " + Message.isMessageInRealm(message, realm));
+                EasyCourse.bus.post(new Event.MessageEvent(message));
+                realm.close();
             } catch (JSONException e) {
-                Log.e("com.example.easycourse", e.toString());
+                Log.e(TAG, e.toString());
             }
         }
     }
 
     //check if JSON value exists, returns default if not
-    private Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
+    public Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
         if (obj.has(searchQuery)) {
-            if(obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
+            if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
                 return obj.getString(searchQuery);
             else
                 return obj.get(searchQuery);
-        }
-        else
+        } else
             return defaultObj;
     }
 }

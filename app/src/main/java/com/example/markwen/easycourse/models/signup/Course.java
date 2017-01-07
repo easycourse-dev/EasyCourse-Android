@@ -14,10 +14,11 @@ public class Course {
     private String universityId  = "";
     private boolean isSelected = false;
 
-    public Course(String name, String title, String id) {
+    public Course(String name, String title, String id, String universityId) {
         this.name = name;
         this.title = title;
         this.id = id;
+        this.universityId = universityId;
     }
 
     public boolean isSelected() {

@@ -38,6 +38,7 @@ public class Room extends RealmObject {
     private RealmList<Message> messageList;
     private int unread = 0;
     private boolean silent = false;
+    private boolean isSharedRoom = false;
 
     //Group chatting
     private String courseID;
@@ -70,11 +71,12 @@ public class Room extends RealmObject {
         this.courseName = courseName;
     }
 
-    public Room(String id, String roomName, String courseID, String memberCountsDesc) {
+    public Room(String id, String roomName, String courseID, String memberCountsDesc, boolean isSharedRoom) {
         this.id = id;
         this.roomName = roomName;
         this.courseID = courseID;
         this.memberCountsDesc = memberCountsDesc;
+        this.isSharedRoom = isSharedRoom;
     }
 
     public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
@@ -286,6 +288,14 @@ public class Room extends RealmObject {
 
     public void setSystem(boolean system) {
         isSystem = system;
+    }
+
+    public boolean isSharedRoom() {
+        return isSharedRoom;
+    }
+
+    public void setSharedRoom(boolean sharedRoom) {
+        isSharedRoom = sharedRoom;
     }
 
     private static void addNewRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {

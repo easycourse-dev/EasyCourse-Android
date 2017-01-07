@@ -95,7 +95,7 @@ public class RoomsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        rooms = realm.where(Room.class).findAll();
+        rooms = realm.where(Room.class).equalTo("isSharedRoom", false).findAll();
         roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
         roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
         roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));

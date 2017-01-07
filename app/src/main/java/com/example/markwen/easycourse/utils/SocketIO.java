@@ -1,11 +1,9 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
-import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
@@ -38,8 +36,6 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
-
-import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by nisarg on 9/11/16.
@@ -230,6 +226,7 @@ public class SocketIO {
                             userLanguage.get(i).setChecked(false);
                             realm.copyToRealmOrUpdate(userLanguage.get(i));
                         }
+                        Log.e(TAG, userObj.toString());
                         Language tempLang;
                         for (int i = 0; i < userLanguagesJSON.length(); i++) {
                             // Set updated ones
@@ -602,7 +599,7 @@ public class SocketIO {
                 if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
                     JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
                     Log.e(TAG, sharedRoomJSON.toString());
-                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
+                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"), true);
                 }
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 
@@ -617,9 +614,7 @@ public class SocketIO {
                 }
 
                 Realm realm = Realm.getDefaultInstance();
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
-                Message.updateMessageToRealm(message, realm);
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
 
                 User senderUser = new User(senderId, senderName, senderImageUrl);
                 User.updateUserToRealm(senderUser, realm);
@@ -646,7 +641,8 @@ public class SocketIO {
                     message.setToUser(false);
                     Message.updateMessageToRealm(message, realm);
                 }
-
+                Log.e(TAG, message.toString());
+                Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();
             } catch (JSONException e) {

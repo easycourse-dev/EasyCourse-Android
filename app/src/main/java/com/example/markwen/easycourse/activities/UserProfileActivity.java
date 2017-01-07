@@ -48,7 +48,6 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmList;
 import io.socket.client.Ack;
 
@@ -121,12 +120,17 @@ public class UserProfileActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
 
         user = User.getCurrentUser(this, realm);
-        user.addChangeListener(new RealmChangeListener<User>() {
-            @Override
-            public void onChange(User user) {
-                updateUserInfoOnScreen();
-            }
-        });
+//        user.addChangeListener(new RealmChangeListener<User>() {
+//            @Override
+//            public void onChange(User user) {
+//                updateUserInfoOnScreen();
+//            }
+//        });
+
+        if (user.getProfilePicture() != null) {
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            avatarImage.setImageBitmap(bm);
+        }
 
         textViewUsername.setText(user.getUsername());
         editTextUsername.setText(user.getUsername());
@@ -279,13 +283,13 @@ public class UserProfileActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
+        final byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
         try {
             final Bitmap finalBitmap = bitmap;
             socket.syncUser(null, byteArray, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                 @Override
                 public void call(Object... args) {
-                    setUserImage(finalBitmap);
+                    setUserImage(finalBitmap, byteArray);
                 }
             });
         } catch (JSONException e) {
@@ -325,7 +329,7 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void setUserImage(final Bitmap image){
+    private void setUserImage(final Bitmap image, final byte[] profile){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -334,6 +338,10 @@ public class UserProfileActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             avatarImage.setImageBitmap(image);
+                            Realm tempRealm = Realm.getDefaultInstance();
+                            tempRealm.beginTransaction();
+                            user.setProfilePicture(profile);
+                            tempRealm.commitTransaction();
                         }
                     });
                 }

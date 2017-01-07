@@ -129,7 +129,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             }
         } else {
             holder.founderTextView.setText("Official");
-            holder.founderImageView.setImageResource(R.drawable.ic_group_black_24px);
+            holder.founderImageView.setImageResource(R.drawable.ic_person_black_24px);
         }
 
         // Set other texts

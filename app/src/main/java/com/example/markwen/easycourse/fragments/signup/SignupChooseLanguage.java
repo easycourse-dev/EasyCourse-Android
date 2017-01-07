@@ -215,9 +215,15 @@ public class SignupChooseLanguage extends Fragment {
 
             final SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
 
+            // Language handling
+            ArrayList<String> languageCodes = stringArrayToArrayList(userSetup.getLanguageCodeArray());
+            for (int i = 0; i < languageCodes.size(); i++) {
+                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(languageCodes.get(i), tempRealm).setChecked(true, tempRealm);
+            }
+
             socketIO.joinCourse(
                     stringArrayToArrayList(userSetup.getCourseCodeArray()),
-                    stringArrayToArrayList(userSetup.getLanguageCodeArray()),
+                    languageCodes,
                     new Ack() {
                         @Override
                         public void call(Object... args) {

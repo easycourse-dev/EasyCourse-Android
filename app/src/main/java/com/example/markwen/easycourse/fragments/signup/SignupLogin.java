@@ -507,6 +507,7 @@ public class SignupLogin extends Fragment {
                     currentUser.setId(userId);
                     currentUser.setEmail(response.getString("email"));
                     currentUser.setUsername(response.getString("displayName"));
+                    currentUser.setProfilePictureUrl(response.getString("avatarUrl"));
                     currentUser.setUniversityID(response.getString("university"));
 
 

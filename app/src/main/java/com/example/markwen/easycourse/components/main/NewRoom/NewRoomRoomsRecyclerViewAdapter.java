@@ -73,7 +73,7 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
     @Override
     public void onBindViewHolder(final ExistedRoomViewHolder roomViewHolder, int i) {
         final Room room = roomsList.get(i);
-        roomViewHolder.roomNameTextView.setText(room.getName());
+        roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
         roomViewHolder.roomCheckbox.setClickable(false);
         roomViewHolder.roomNameTextView.setTextColor(Color.parseColor("#333333"));

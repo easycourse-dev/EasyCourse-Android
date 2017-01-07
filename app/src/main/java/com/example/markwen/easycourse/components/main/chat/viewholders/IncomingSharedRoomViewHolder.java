@@ -3,7 +3,7 @@ package com.example.markwen.easycourse.components.main.chat.viewholders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -19,11 +19,11 @@ import android.widget.Toast;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.CourseDetailsActivity;
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
+import com.example.markwen.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -61,6 +61,7 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
     private Realm realm;
     private User currentUser;
+    private SocketIO socketIO;
 
     public IncomingSharedRoomViewHolder(View itemView, AppCompatActivity activity) {
         super(itemView);
@@ -69,6 +70,7 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
         realm = Realm.getDefaultInstance();
         currentUser = User.getCurrentUser(activity, realm);
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
@@ -115,15 +117,34 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
             }
 
             incomingName.setText(thisUser.getUsername());
-            textViewRoomName.setText(message.getSharedRoom().getName());
+            textViewRoomName.setText(message.getSharedRoom().getRoomName());
             sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(context, CourseDetailsActivity.class);
-                    i.putExtra("courseId", message.getSharedRoom().getCourseID());
-                    i.putExtra("isJoined", false);
+                    try {
+                        socketIO.joinRoom(message.getSharedRoom().getId(), new Ack() {
+                            @Override
+                            public void call(Object... args) {
+                                JSONObject obj = (JSONObject) args[0];
+                                Log.e(TAG, obj.toString());
+                                try {
+                                    if(!obj.has("error")) {
+                                        JSONObject roomObj = obj.getJSONObject("room");
+                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
+                                                .show();
+                                    } else {
+                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
+                                                .show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                    context.startActivity(i);
                 }
             });
 

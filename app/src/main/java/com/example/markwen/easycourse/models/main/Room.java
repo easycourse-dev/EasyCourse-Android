@@ -34,7 +34,7 @@ public class Room extends RealmObject {
     //Basic info of room
     @PrimaryKey
     private String id;
-    private String name;
+    private String roomName;
     private RealmList<Message> messageList;
     private int unread = 0;
     private boolean silent = false;
@@ -45,7 +45,7 @@ public class Room extends RealmObject {
     private String university;
     private RealmList<User> memberList;
     private int memberCounts;
-    private String memberCountsDescription;
+    private String memberCountsDesc;
     private String language;
 
     //UserFragment built room
@@ -59,34 +59,34 @@ public class Room extends RealmObject {
 
     }
 
-    public Room(String name, String courseName) {
-        this.name = name;
+    public Room(String roomName, String courseName) {
+        this.roomName = roomName;
         this.courseName = courseName;
     }
 
-    public Room(String id, String name, String courseName) {
+    public Room(String id, String roomName, String courseName) {
         this.id = id;
-        this.name = name;
+        this.roomName = roomName;
         this.courseName = courseName;
     }
 
-    public Room(String id, String name, String courseName, String memberCountsDesc) {
+    public Room(String id, String roomName, String courseID, String memberCountsDesc) {
         this.id = id;
-        this.name = name;
-        this.courseName = courseName;
-        this.memberCountsDescription = memberCountsDesc;
+        this.roomName = roomName;
+        this.courseID = courseID;
+        this.memberCountsDesc = memberCountsDesc;
     }
 
-    public Room(String id, String name, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
+    public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
         this.id = id;
-        this.name = name;
+        this.roomName = roomName;
         this.messageList = messageList;
         this.courseID = courseID;
         this.courseName = courseName;
         this.university = university;
         this.memberList = memberList;
         this.memberCounts = memberCounts;
-        this.memberCountsDescription = memberCountsDesc;
+        this.memberCountsDesc = memberCountsDesc;
         this.founder = founder;
         this.language = language;
         this.isPublic = isPublic;
@@ -99,12 +99,6 @@ public class Room extends RealmObject {
         realm.commitTransaction();
     }
 
-    public static void updateRoomFromJson(String json, Realm realm){
-        realm.beginTransaction();
-        realm.createOrUpdateAllFromJson(Room.class, "["+json+"]");
-        realm.commitTransaction();
-    }
-    
     public static void syncRooms(JSONArray updatedRooms, Realm realm){
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
 
@@ -171,12 +165,12 @@ public class Room extends RealmObject {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public List<Message> getMessageList() {
@@ -244,11 +238,11 @@ public class Room extends RealmObject {
     }
 
     public String getMemberCountsDesc() {
-        return memberCountsDescription;
+        return memberCountsDesc;
     }
 
     public void setMemberCountsDesc(String memberCountsDesc) {
-        this.memberCountsDescription = memberCountsDesc;
+        this.memberCountsDesc = memberCountsDesc;
     }
 
     public String getLanguage() {

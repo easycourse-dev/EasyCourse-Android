@@ -567,7 +567,8 @@ public class SocketIO {
                 Room sharedRoom = null;
                 if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
                     JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
-                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), null, sharedRoomJSON.getString("memberCountsDescription"));
+                    Log.e(TAG, sharedRoomJSON.toString());
+                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
                 }
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 

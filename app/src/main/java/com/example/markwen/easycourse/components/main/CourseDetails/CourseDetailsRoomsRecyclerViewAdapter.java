@@ -31,6 +31,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -147,7 +148,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         @BindView(R.id.CourseDetailsRoomDesc)
         TextView roomDescTextView;
         @BindView(R.id.CourseDetailsFounderImage)
-        ImageView founderImageView;
+        CircleImageView founderImageView;
         @BindView(R.id.CourseDetailsRoomFounder)
         TextView founderTextView;
         @BindView(R.id.CourseDetailsCheckbox)

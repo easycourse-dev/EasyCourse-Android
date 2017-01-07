@@ -281,10 +281,11 @@ public class UserProfileActivity extends AppCompatActivity {
         }
         byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
         try {
+            final Bitmap finalBitmap = bitmap;
             socket.syncUser(null, byteArray, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                 @Override
                 public void call(Object... args) {
-                    Log.e("syncUser", args.toString());
+                    setUserImage(finalBitmap);
                 }
             });
         } catch (JSONException e) {
@@ -322,5 +323,22 @@ public class UserProfileActivity extends AppCompatActivity {
             intent.setType("image/*");
             startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);
         }
+    }
+
+    private void setUserImage(final Bitmap image){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            avatarImage.setImageBitmap(image);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

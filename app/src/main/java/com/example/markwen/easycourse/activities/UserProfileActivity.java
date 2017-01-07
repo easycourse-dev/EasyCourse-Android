@@ -120,13 +120,6 @@ public class UserProfileActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
 
         user = User.getCurrentUser(this, realm);
-//        user.addChangeListener(new RealmChangeListener<User>() {
-//            @Override
-//            public void onChange(User user) {
-//                updateUserInfoOnScreen();
-//            }
-//        });
-
         if (user.getProfilePicture() != null) {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);

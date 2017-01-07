@@ -449,6 +449,7 @@ public class SignupLogin extends Fragment {
                     public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
                         // Make a Snackbar to notify user with error
                         loginErrorSnackbar.show();
+                        progress.dismiss();
                     }
                 });
             } catch (JSONException | UnsupportedEncodingException e) {
@@ -502,13 +503,13 @@ public class SignupLogin extends Fragment {
                 Room room;
                 Course course;
                 try {
-                    String userId = response.getString("_id");
+                    String userId = (String) checkIfJsonExists(response, "_id", null);
 
                     currentUser.setId(userId);
-                    currentUser.setEmail(response.getString("email"));
-                    currentUser.setUsername(response.getString("displayName"));
-                    currentUser.setProfilePictureUrl(response.getString("avatarUrl"));
-                    currentUser.setUniversityID(response.getString("university"));
+                    currentUser.setEmail((String) checkIfJsonExists(response, "email", null));
+                    currentUser.setUsername((String) checkIfJsonExists(response, "displayName", null));
+                    currentUser.setProfilePictureUrl((String) checkIfJsonExists(response, "avatarUrl", null));
+                    currentUser.setUniversityID((String) checkIfJsonExists(response, "university", null));
 
 
                     // Adding languages, courses, rooms, and silent rooms

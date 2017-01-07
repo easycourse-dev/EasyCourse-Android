@@ -285,7 +285,7 @@ public class UserFragment extends Fragment {
                     tempRealm.commitTransaction();
                     tempRealm.close();
                     // Setting image
-                    updateRoomInSocket(image);
+                    setImageAfterDownload(image);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -294,7 +294,7 @@ public class UserFragment extends Fragment {
         thread.start();
     }
 
-    private void updateRoomInSocket(final Bitmap image){
+    private void setImageAfterDownload(final Bitmap image){
         Thread thread = new Thread(){
             @Override
             public void run() {

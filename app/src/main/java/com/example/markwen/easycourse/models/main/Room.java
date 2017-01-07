@@ -70,6 +70,13 @@ public class Room extends RealmObject {
         this.courseName = courseName;
     }
 
+    public Room(String id, String roomName, String courseID, String memberCountsDesc) {
+        this.id = id;
+        this.roomName = roomName;
+        this.courseID = courseID;
+        this.memberCountsDesc = memberCountsDesc;
+    }
+
     public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
         this.id = id;
         this.roomName = roomName;

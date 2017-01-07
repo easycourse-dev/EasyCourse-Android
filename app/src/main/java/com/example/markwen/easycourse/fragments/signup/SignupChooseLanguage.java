@@ -195,9 +195,11 @@ public class SignupChooseLanguage extends Fragment {
             // Saving languages
             ArrayList<Language> chosenLanguages = languageAdapter.getCheckedLanguageList();
             Realm tempRealm = Realm.getDefaultInstance();
+            tempRealm.beginTransaction();
             for (int i = 0; i < chosenLanguages.size(); i++) {
                 com.example.markwen.easycourse.models.main.Language.getLanguageByCode(chosenLanguages.get(i).getCode(), tempRealm).setChecked(true);
             }
+            tempRealm.commitTransaction();
             tempRealm.close();
             //Post University
             APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {

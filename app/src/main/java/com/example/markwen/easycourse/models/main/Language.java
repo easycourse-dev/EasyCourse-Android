@@ -3,6 +3,8 @@ package com.example.markwen.easycourse.models.main;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -135,11 +137,26 @@ public class Language extends RealmObject {
         isChecked = checked;
     }
 
+    public void setChecked(boolean checked, Realm realm) {
+        realm.beginTransaction();
+        isChecked = checked;
+        realm.commitTransaction();
+    }
+
     public void setTranslation(String translation) {
         this.translation = translation;
     }
 
     public String getTranslation() {
         return translation;
+    }
+
+    public static ArrayList<String> getCheckedLanguageCodeArrayList(Realm realm) {
+        RealmResults<Language> checkedLanguageList = realm.where(Language.class).equalTo("isChecked", true).findAll();
+        ArrayList<String> result = new ArrayList<>();
+        for (int i = 0; i < checkedLanguageList.size(); i++) {
+            result.add(checkedLanguageList.get(i).getCode());
+        }
+        return result;
     }
 }

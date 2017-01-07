@@ -13,8 +13,6 @@ import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.utils.ListsUtils;
 import com.hanks.library.AnimateCheckBox;
 
-import java.util.ArrayList;
-
 import io.realm.Realm;
 import io.realm.RealmList;
 
@@ -45,13 +43,12 @@ public class LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRe
             languageTextView = (TextView) itemView.findViewById(R.id.textViewSingleItem);
             languageCheckBox = (AnimateCheckBox) itemView.findViewById(R.id.checkBoxSingleItem);
             languageLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutSingleItem);
-            languageCheckBox.setEnabled(false);
         }
     }
 
     @Override
     public LanguageRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.signup_choose_single_item, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.activity_userprofile_language_item, viewGroup, false);
         return new LanguageRecyclerViewAdapter.ViewHolder(v);
     }
 
@@ -59,24 +56,30 @@ public class LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRe
     public void onBindViewHolder(final LanguageRecyclerViewAdapter.ViewHolder languageViewHolder, int i) {
         final Language language = languageList.get(i);
         languageViewHolder.languageTextView.setText(language.getTranslation());
+        if (checkable){
+            languageViewHolder.languageCheckBox.setVisibility(View.VISIBLE);
+            languageViewHolder.languageCheckBox.setClickable(true);
+        } else {
+            languageViewHolder.languageCheckBox.setVisibility(View.GONE);
+            languageViewHolder.languageCheckBox.setClickable(false);
+        }
         if (ListsUtils.isLanguageInList(checkedLanguageList, language.getCode())) {
             languageViewHolder.languageCheckBox.setChecked(true);
         } else {
             languageViewHolder.languageCheckBox.setChecked(false);
         }
-
-        languageViewHolder.languageCheckBox.setClickable(checkable);
-
         languageViewHolder.languageCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (languageViewHolder.languageCheckBox.isChecked()) {
                     languageViewHolder.languageCheckBox.setChecked(false);
-                    language.setChecked(false);
+                    language.setChecked(false, realm);
+                    Language.getLanguageByCode(language.getCode(), realm).setChecked(false, realm);
                     checkedLanguageList.remove(language);
                 } else {
                     languageViewHolder.languageCheckBox.setChecked(true);
-                    language.setChecked(true);
+                    language.setChecked(true, realm);
+                    Language.getLanguageByCode(language.getCode(), realm).setChecked(true, realm);
                     checkedLanguageList.add(language);
                 }
             }
@@ -101,28 +104,15 @@ public class LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRe
         return checkedLanguageList;
     }
 
-    public ArrayList<String> getCheckedLanguageCodeArrayList() {
-        ArrayList<String> result = new ArrayList<>();
-        for (int i = 0; i < checkedLanguageList.size(); i++) {
-            result.add(checkedLanguageList.get(i).getCode());
-        }
-        return result;
-    }
-
-    public void setLanguageList(RealmList<Language> list, boolean bool) {
-        this.checkable = bool;
-        this.languageList.clear();
-        this.languageList.addAll(list);
-        notifyDataSetChanged();
+    public void setLanguageList(RealmList<Language> list) {
+        this.languageList = list;
     }
 
     public RealmList<Language> getLanguageList() {
         return languageList;
     }
 
-    public void saveCheckedLanguages() {
-        for (int i = 0; i < checkedLanguageList.size(); i++) {
-            Language.updateLanguageToRealm(checkedLanguageList.get(i), realm);
-        }
+    public void setCheckable(boolean bool) {
+        this.checkable = bool;
     }
 }

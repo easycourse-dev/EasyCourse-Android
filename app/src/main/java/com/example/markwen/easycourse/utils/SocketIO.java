@@ -209,13 +209,25 @@ public class SocketIO {
                         JSONArray userLanguagesJSON = userObj.getJSONArray("userLang");
 
                         Realm realm = Realm.getDefaultInstance();
-                        RealmList<Language> userLanguage = User.getUserFromRealm(realm, id).getUserLanguages();
                         User.updateUserFromJson(userObj.toString(), realm);
                         Course.syncAddCourse(joinedCoursesJSON, realm);
                         Room.syncRooms(joinedRoomsJSON, realm);
                         Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
-                        User.getUserFromRealm(realm, id).setUserLanguages(Language.syncLanguage(userLanguage, userLanguagesJSON, realm));
+                        // Updating language
+                        RealmList<Language> userLanguage = Language.getCheckedLanguages(realm);
+                        for (int i = 0; i < userLanguage.size(); i++) {
+                            // Clear all first
+                            userLanguage.get(i).setChecked(false);
+                            realm.copyToRealmOrUpdate(userLanguage.get(i));
+                        }
+                        Language tempLang;
+                        for (int i = 0; i < userLanguagesJSON.length(); i++) {
+                            // Set updated ones
+                            tempLang = Language.getLanguageByCode(userLanguagesJSON.getString(i), realm);
+                            tempLang.setChecked(true);
+                            realm.copyToRealmOrUpdate(tempLang);
+                        }
 
                         // Adding silent rooms
                         User.getUserFromRealm(realm, id).setProfilePicture(avatar);
@@ -338,12 +350,12 @@ public class SocketIO {
         socket.emit("joinCourse", jsonParam, callback);
     }
 
-    public void joinCourse(String courseId, Ack callback) throws JSONException {
+    public void joinCourse(String courseId, ArrayList<String> languageKeys, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         ArrayList<String> courses = new ArrayList<>();
         courses.add(courseId);
         jsonParam.put("courses", new JSONArray(courses));
-        jsonParam.put("lang", new JSONArray());
+        jsonParam.put("lang", new JSONArray(languageKeys));
 
         socket.emit("joinCourse", jsonParam, callback);
     }

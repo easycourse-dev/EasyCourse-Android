@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -86,6 +88,7 @@ public class UserProfileActivity extends AppCompatActivity {
     LanguageRecyclerViewAdapter languageAdapter;
 
     RealmList<Language> userLanguages;
+    RealmList<Language> allLanguages;
 
     private static final int GALLERY_INTENT_CALLED = 1;
     private static final int GALLERY_KITKAT_INTENT_CALLED = 2;
@@ -131,23 +134,30 @@ public class UserProfileActivity extends AppCompatActivity {
 
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 try {
-                    socket.syncUser(editTextUsername.getText().toString(), null, languageAdapter.getCheckedLanguageCodeArrayList(), new Ack() {
+                    socket.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                         @Override
                         public void call(Object... args) {
-
+                            JSONObject obj = (JSONObject) args[0];
+                            if (obj.has("error")) {
+                                try {
+                                    Snackbar.make(view, obj.getString("error"), Snackbar.LENGTH_LONG).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.e("syncUser", obj.toString());
+                            }
                         }
                     });
                     userLanguages = languageAdapter.getCheckedLanguageList();
-                    languageAdapter.setLanguageList(userLanguages, false);
-                    languageAdapter.saveCheckedLanguages();
+                    languageAdapter.setCheckable(false);
                     languageAdapter.notifyDataSetChanged();
                     languageLabel.setText("Chosen language(s):");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.e("com.example.easycourse", user.getUsername());
                 toggleProfileEdit();
             }
         });
@@ -181,9 +191,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // Setup language recycler view
         userLanguages = Language.getCheckedLanguages(realm);
+        allLanguages = Language.getCheckedLanguages(realm);
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        languageAdapter = new LanguageRecyclerViewAdapter(userLanguages);
+        languageAdapter = new LanguageRecyclerViewAdapter(allLanguages);
         languageAdapter.setCheckedLanguageList(userLanguages);
         languageView.setHasFixedSize(true);
         languageView.setLayoutManager(roomsLayoutManager);
@@ -212,24 +223,26 @@ public class UserProfileActivity extends AppCompatActivity {
             APIFunctions.getLanguages(this, new JsonHttpResponseHandler(){
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                    RealmList<Language> allLanguages = new RealmList<>();
+                    allLanguages.clear();
+                    languageAdapter.setLanguageList(new RealmList<Language>());
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             allLanguages.add(new Language(
-                                    response.getJSONObject(i).getString("code"),
                                     response.getJSONObject(i).getString("name"),
+                                    response.getJSONObject(i).getString("code"),
                                     response.getJSONObject(i).getString("translation")
                             ));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    languageAdapter.setLanguageList(allLanguages, true);
+                    languageAdapter.setLanguageList(allLanguages);
+                    languageAdapter.setCheckable(true);
                     languageAdapter.notifyDataSetChanged();
                     languageLabel.setText("All languages: ");
                 }
             });
+            editUsernameButton.setVisibility(View.GONE);
         } else {
             textViewUsername.setText(editTextUsername.getText());
             editTextUsername.setVisibility(View.GONE);
@@ -238,11 +251,13 @@ public class UserProfileActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editTextUsername.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
-            userLanguages.clear();
-            userLanguages = Language.getCheckedLanguages(realm);
-            languageAdapter.setLanguageList(userLanguages, false);
+            languageAdapter.setCheckable(false);
+            allLanguages.clear();
+            allLanguages = Language.getCheckedLanguages(realm);
+            languageAdapter.setLanguageList(allLanguages);
             languageAdapter.notifyDataSetChanged();
             languageLabel.setText("Chosen language(s):");
+            editUsernameButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -266,10 +281,10 @@ public class UserProfileActivity extends AppCompatActivity {
         }
         byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
         try {
-            socket.syncUser(null, byteArray, languageAdapter.getCheckedLanguageCodeArrayList(), new Ack() {
+            socket.syncUser(null, byteArray, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                 @Override
                 public void call(Object... args) {
-                    
+                    Log.e("syncUser", args.toString());
                 }
             });
         } catch (JSONException e) {

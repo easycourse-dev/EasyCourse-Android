@@ -109,16 +109,15 @@ public class SocketIO {
     }
 
     //sends a message to user/room
-    public void sendMessage(String message, String roomId, String toUserId, String sharedRoomId, byte[] imageData, float imageWidth, float imageHeight) throws JSONException {
     public void sendMessage(String messageText, String toRoom, String toUserId, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
         String uuid = UUID.randomUUID().toString();
         JSONObject jsonParam = new JSONObject();
         Message message;
         User curUser = User.getCurrentUser(context, Realm.getDefaultInstance());
         if (toUserId == null) { //Message to room
-            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, new Date());
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, null, new Date());
         } else { //Message to user
-            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, new Date());
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, null, new Date());
         }
         Message.updateMessageToRealm(message, Realm.getDefaultInstance());
         jsonParam.put("id", uuid);
@@ -214,9 +213,9 @@ public class SocketIO {
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
-                        Course.syncAddCourse(joinedCoursesJSON, realm);
-                        Room.syncRooms(joinedRoomsJSON, realm);
-                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
+//                        Course.syncAddCourse(joinedCoursesJSON, realm);
+//                        Room.syncRooms(joinedRoomsJSON, realm);
+//                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
                         // Updating language
                         RealmList<Language> userLanguage = Language.getCheckedLanguages(realm);
@@ -613,7 +612,6 @@ public class SocketIO {
 
                 Realm realm = Realm.getDefaultInstance();
                 message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
-                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();

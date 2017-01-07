@@ -22,38 +22,37 @@ public class DateUtils {
         Calendar cal1 = Calendar.getInstance();
         Calendar cal2 = Calendar.getInstance();
         cal1.setTime(date);
-        int i = cal1.get(Calendar.DATE);
-        int j = cal2.get(Calendar.DATE);
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static long timeDifferenceInMinutes(Date date1, Date date2) {
-        return TimeUnit.MINUTES.convert(date1.getTime() - date2.getTime(), TimeUnit.MILLISECONDS);
+    public static int timeDifferenceInMinutes(Date date1, Date date2) {
+        return (int)((date1.getTime()/60000) - (date2.getTime()/60000));
+    }
+
+    public static Date getLocalDate(Date utcDate) {
+        return new Date(utcDate.getTime() + TimeZone.getDefault().getRawOffset());
     }
 
     @Nullable
     public static String getTimeString(Message message, Message prevMessage) {
         if (prevMessage == null) return null;
-        Date messageDate = message.getCreatedAt();
-        if (messageDate == null) return null;
-        Date prevMessageDate = prevMessage.getCreatedAt();
-        if (prevMessageDate == null) return null;
-        long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
+        Date messageDate = getLocalDate(message.getCreatedAt());
+        Date prevMessageDate = getLocalDate(prevMessage.getCreatedAt());
+        int diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
         if (diffInMinutes >= 5) {
+            TimeZone timeZone = TimeZone.getDefault();
             //If today
             if (DateUtils.isToday(messageDate)) {
                 //Exclude date in time
-                TimeZone UTC = TimeZone.getTimeZone("UTC");
                 DateFormat df = new SimpleDateFormat("h:mm a", Locale.US);
-                df.setTimeZone(UTC);
+                df.setTimeZone(timeZone);
                 return df.format(messageDate);
 
             } else {
                 //Include date in time
-                TimeZone UTC = TimeZone.getTimeZone("UTC");
                 DateFormat df = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.US);
-                df.setTimeZone(UTC);
+                df.setTimeZone(timeZone);
                 return df.format(messageDate);
             }
 

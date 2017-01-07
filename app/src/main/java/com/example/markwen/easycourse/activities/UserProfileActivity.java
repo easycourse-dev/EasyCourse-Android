@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,9 +12,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -26,18 +28,20 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.components.main.UserProfile.LanguageRecyclerViewAdapter;
+import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +49,8 @@ import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmList;
+import io.socket.client.Ack;
 
 /**
  * Created by nisarg on 28/11/16.
@@ -68,6 +74,10 @@ public class UserProfileActivity extends AppCompatActivity {
     FloatingActionButton editAvatarButton;
     @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
+    @BindView(R.id.userProfileLanguageView)
+    RecyclerView languageView;
+    @BindView(R.id.userProfileLanguageLabel)
+    TextView languageLabel;
 
     boolean isInEditMode = false;
 
@@ -75,10 +85,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socket;
+    LanguageRecyclerViewAdapter languageAdapter;
+
+    RealmList<Language> userLanguages;
+    RealmList<Language> allLanguages;
 
     private static final int GALLERY_INTENT_CALLED = 1;
     private static final int GALLERY_KITKAT_INTENT_CALLED = 2;
-    private String selectedImagePath;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,45 +114,50 @@ public class UserProfileActivity extends AppCompatActivity {
         editUsernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 toggleProfileEdit();
             }
         });
 
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", null);
-        JSONObject currentUserObject;
-
-        Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
 
-        try {
-            currentUserObject = new JSONObject(currentUser);
-            Log.e("com.example.easycourse", currentUserObject.toString());
-            user = user.getByPrimaryKey(realm, currentUserObject.getString("_id"));
-            user.addChangeListener(new RealmChangeListener<User>() {
-                @Override
-                public void onChange(User user) {
-                    updateUserInfoOnScreen();
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        user = User.getCurrentUser(this, realm);
+        user.addChangeListener(new RealmChangeListener<User>() {
+            @Override
+            public void onChange(User user) {
+                updateUserInfoOnScreen();
+            }
+        });
 
         textViewUsername.setText(user.getUsername());
         editTextUsername.setText(user.getUsername());
+        languageLabel.setText("Chosen language(s):");
 
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 try {
-                    socket.syncUser(editTextUsername.getText().toString(), null);
+                    socket.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            JSONObject obj = (JSONObject) args[0];
+                            if (obj.has("error")) {
+                                try {
+                                    Snackbar.make(view, obj.getString("error"), Snackbar.LENGTH_LONG).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.e("syncUser", obj.toString());
+                            }
+                        }
+                    });
+                    userLanguages = languageAdapter.getCheckedLanguageList();
+                    languageAdapter.setCheckable(false);
+                    languageAdapter.notifyDataSetChanged();
+                    languageLabel.setText("Chosen language(s):");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.e("com.example.easycourse", user.getUsername());
                 toggleProfileEdit();
             }
         });
@@ -168,12 +186,20 @@ public class UserProfileActivity extends AppCompatActivity {
                 } else {
                     openGallery();
                 }
-
-
             }
         });
 
-
+        // Setup language recycler view
+        userLanguages = Language.getCheckedLanguages(realm);
+        allLanguages = Language.getCheckedLanguages(realm);
+        LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
+        roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        languageAdapter = new LanguageRecyclerViewAdapter(allLanguages);
+        languageAdapter.setCheckedLanguageList(userLanguages);
+        languageView.setHasFixedSize(true);
+        languageView.setLayoutManager(roomsLayoutManager);
+        languageView.addItemDecoration(new RecyclerViewDivider(this));
+        languageView.setAdapter(languageAdapter);
     }
 
     private void updateUserInfoOnScreen(){
@@ -194,6 +220,29 @@ public class UserProfileActivity extends AppCompatActivity {
             editTextUsername.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            APIFunctions.getLanguages(this, new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    allLanguages.clear();
+                    languageAdapter.setLanguageList(new RealmList<Language>());
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            allLanguages.add(new Language(
+                                    response.getJSONObject(i).getString("name"),
+                                    response.getJSONObject(i).getString("code"),
+                                    response.getJSONObject(i).getString("translation")
+                            ));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    languageAdapter.setLanguageList(allLanguages);
+                    languageAdapter.setCheckable(true);
+                    languageAdapter.notifyDataSetChanged();
+                    languageLabel.setText("All languages: ");
+                }
+            });
+            editUsernameButton.setVisibility(View.GONE);
         } else {
             textViewUsername.setText(editTextUsername.getText());
             editTextUsername.setVisibility(View.GONE);
@@ -202,6 +251,13 @@ public class UserProfileActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editTextUsername.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
+            languageAdapter.setCheckable(false);
+            allLanguages.clear();
+            allLanguages = Language.getCheckedLanguages(realm);
+            languageAdapter.setLanguageList(allLanguages);
+            languageAdapter.notifyDataSetChanged();
+            languageLabel.setText("Chosen language(s):");
+            editUsernameButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -211,37 +267,29 @@ public class UserProfileActivity extends AppCompatActivity {
         if (resultCode != Activity.RESULT_OK) return;
         if (null == data) return;
         Uri originalUri = null;
+        Bitmap bitmap = null;
         if (requestCode == GALLERY_INTENT_CALLED) {
             originalUri = data.getData();
         } else if (requestCode == GALLERY_KITKAT_INTENT_CALLED) {
             originalUri = data.getData();
         }
 
-        String path = BitmapUtils.getImagePath(originalUri, this);
-        Log.e("com.example.easycourse", path);
         try {
-            APIFunctions.uploadImage(getApplicationContext(), new File(path), "test123", "avatar", "", new JsonHttpResponseHandler() {
+            bitmap = BitmapUtils.getBitmapFromUri(originalUri, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
+        try {
+            final Bitmap finalBitmap = bitmap;
+            socket.syncUser(null, byteArray, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.e("com.example.easycourse", response.toString());
-                    try {
-                        socket.syncUser(null, response.getString("url"));
-                    } catch (JSONException e) {
-                        Log.e("com.example.easycourse", response.toString());
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e("com.example.easycourse", res.toString());
+                public void call(Object... args) {
+                    setUserImage(finalBitmap);
                 }
             });
         } catch (JSONException e) {
-            Log.e("com.example.easycourse", e.toString());
-        } catch (UnsupportedEncodingException e) {
-            Log.e("com.example.easycourse", e.toString());
-        } catch (FileNotFoundException e) {
-            Log.e("com.example.easycourse", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -275,5 +323,22 @@ public class UserProfileActivity extends AppCompatActivity {
             intent.setType("image/*");
             startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);
         }
+    }
+
+    private void setUserImage(final Bitmap image){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            avatarImage.setImageBitmap(image);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

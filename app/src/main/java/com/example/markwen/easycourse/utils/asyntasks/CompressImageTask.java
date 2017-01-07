@@ -8,8 +8,15 @@ import android.util.Log;
 
 import com.example.markwen.easycourse.utils.BitmapUtils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import id.zelory.compressor.Compressor;
 
 /**
  * Created by nrinehart on 12/28/16.
@@ -30,9 +37,15 @@ public class CompressImageTask extends AsyncTask<Uri, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(Uri... params) {
         Uri uri = params[0];
-
+        if(uri == null) return null;
         try {
-            File file = new File(BitmapUtils.getImagePath(uri, context));
+            File file = File.createTempFile("temp", "jpg", context.getCacheDir());
+            OutputStream outputStream = new FileOutputStream(file);
+            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+            if(inputStream == null) return null;
+            IOUtils.copy(inputStream, outputStream);
+            outputStream.close();
+            inputStream.close();
             return BitmapUtils.decodeFile(file);
 
         } catch (Exception e) {

@@ -176,12 +176,7 @@ public class APIFunctions {
     }
 
     //API function to save device token
-    public static boolean saveDeviceToken(Context context, String deviceToken, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
-        String userToken = getUserToken(context);
-        //Return false if userToken is not found
-        if(userToken.isEmpty())
-            return false;
-
+    public static boolean saveDeviceToken(Context context, String userToken, String deviceToken, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
         client.addHeader("auth",userToken);
 
         JSONObject jsonParam = new JSONObject();

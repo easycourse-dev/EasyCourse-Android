@@ -29,6 +29,7 @@ public class User extends RealmObject {
     private RealmList<Course> joinedCourses = new RealmList<>();
     private RealmList<Room> joinedRooms = new RealmList<>();
     private RealmList<Room> silentRooms = new RealmList<>();
+    private RealmList<Language> userLanguages = new RealmList<>();
 
     private int friendStatus = 0;
 
@@ -100,8 +101,8 @@ public class User extends RealmObject {
     }
 
     @Nullable
-    public static User getCurrentUser(Activity activity, Realm realm) {
-        SharedPreferences sharedPref = activity.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+    public static User getCurrentUser(Context context, Realm realm) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         String id = sharedPref.getString("userId", "");
 
         RealmResults<User> results = realm.where(User.class)
@@ -190,5 +191,13 @@ public class User extends RealmObject {
 
     public void setSilentRooms(RealmList<Room> silentRooms) {
         this.silentRooms = silentRooms;
+    }
+
+    public RealmList<Language> getUserLanguages() {
+        return userLanguages;
+    }
+
+    public void setUserLanguages(RealmList<Language> list) {
+        this.userLanguages = list;
     }
 }

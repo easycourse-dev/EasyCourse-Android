@@ -109,6 +109,7 @@ public class SocketIO {
     }
 
     //sends a message to user/room
+    public void sendMessage(String message, String roomId, String toUserId, String sharedRoomId, byte[] imageData, float imageWidth, float imageHeight) throws JSONException {
     public void sendMessage(String messageText, String toRoom, String toUserId, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
         String uuid = UUID.randomUUID().toString();
         JSONObject jsonParam = new JSONObject();
@@ -123,6 +124,9 @@ public class SocketIO {
         jsonParam.put("id", uuid);
         jsonParam.put("toRoom", toRoom);
         jsonParam.put("toUser", toUserId);
+        jsonParam.put("sharedRoom", sharedRoomId);
+        jsonParam.put("text", message);
+//        jsonParam.put("imageUrl", imageUrl);
         jsonParam.put("text", messageText);
 //        jsonParam.put("sharedRoom", sharedRoomId);
         jsonParam.put("imageData", imageData);
@@ -589,6 +593,12 @@ public class SocketIO {
                 String toUser = (String) checkIfJsonExists(obj, "toUser", null);
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
+                Room sharedRoom = null;
+                if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
+                    JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
+                    Log.e(TAG, sharedRoomJSON.toString());
+                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
+                }
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
@@ -602,6 +612,7 @@ public class SocketIO {
                 }
 
                 Realm realm = Realm.getDefaultInstance();
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
                 message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
                 Message.updateMessageToRealm(message, realm);
                 EasyCourse.bus.post(new Event.MessageEvent(message));

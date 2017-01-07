@@ -87,6 +87,16 @@
                 android:value=".activities.CourseManagementActivity" />
         </activity>
 
+        <activity
+            android:name=".activities.ShareRoomActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.ChatRoomActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatRoomActivity" />
+        </activity>
+
         <service
             android:name=".utils.EasyCourseFirebaseMessagingService">
             <intent-filter>

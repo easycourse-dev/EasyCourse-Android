@@ -174,8 +174,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                             gotoRoomUserListFragment();
                             return false;
                         case 4:
-                            //TODO: Add intent to share room
-                            return false;
+                            shareRoom();
+                            return true;
                         case 5:
                             quitRoom();
                             break;
@@ -202,7 +202,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                     switch (position) {
                         case 1:
-                            //TODO: Add share user
+                            shareRoom();
                             break;
                         case 2:
                             showBlockUserDialog();
@@ -250,6 +250,12 @@ public class ChatRoomActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void shareRoom() {
+        Intent i = new Intent(getApplication(), ShareRoomActivity.class);
+        i.putExtra("roomID", currentRoom.getId());
+        startActivity(i);
     }
 
     private void quitRoom() {

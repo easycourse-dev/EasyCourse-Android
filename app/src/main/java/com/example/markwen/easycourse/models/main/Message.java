@@ -20,6 +20,7 @@ public class Message extends RealmObject {
     private String text;
     private String imageUrl;
     private byte[] imageData;
+    private Room sharedRoom;
 
     private boolean successSent;
     private double imageWidth;
@@ -41,7 +42,7 @@ public class Message extends RealmObject {
         this.createdAt = createdAt;
     }
 
-    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, String toUser, Date createdAt) {
+    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, String toUser, Room sharedRoom, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;
         this.sender = sender;
@@ -53,6 +54,7 @@ public class Message extends RealmObject {
         this.imageHeight = imageHeight;
         this.toRoom = toRoom;
         this.toUser = toUser;
+        this.sharedRoom = sharedRoom;
         this.createdAt = createdAt;
     }
 
@@ -193,5 +195,13 @@ public class Message extends RealmObject {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Room getSharedRoom() {
+        return sharedRoom;
+    }
+
+    public void setSharedRoom(Room sharedRoom) {
+        this.sharedRoom = sharedRoom;
     }
 }

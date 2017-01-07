@@ -313,6 +313,10 @@ public class ChatRoomFragment extends Fragment {
         try {
             //Receive message from socketIO
             if (this.currentRoom.isToUser()) {
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, null, null, this.currentRoom.getId(), null, 0, 0);
+                else
+                    socketIO.sendMessage(null, null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
                 User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
                 if(otherUser == null) return false;
                 if (isTextMessage) //To user text
@@ -321,6 +325,10 @@ public class ChatRoomFragment extends Fragment {
                     socketIO.sendMessage(null, null, otherUser.getId(), null, imageData, imageWidth, imageHeight);
 
             } else {
+                if (isTextMessage)
+                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
+                else
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
                 if (isTextMessage) //To room text
                     socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
                 else    //To room pic

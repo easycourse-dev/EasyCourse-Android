@@ -312,7 +312,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void showReportUserDialog() {
-        final User otherUser = getOtherUserIfPrivate();
+        final User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
+
         if (otherUser == null) {
             Toast.makeText(this, "Error reporting user! Try again later", Toast.LENGTH_SHORT).show();
             return;
@@ -343,7 +344,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private void reportUser(final User otherUser, String reason) {
         try {
-            APIFunctions.reportUser(this, getOtherUserIfPrivate().getId(), reason, new JsonHttpResponseHandler() {
+            APIFunctions.reportUser(this, otherUser.getId(), reason, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Toast.makeText(ChatRoomActivity.this, otherUser.getUsername() + " was reported.", Toast.LENGTH_SHORT).show();
@@ -363,7 +364,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void showBlockUserDialog() {
-        final User otherUser = getOtherUserIfPrivate();
+        final User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
+
         if (otherUser == null) {
             Toast.makeText(this, "Error blocking user! Try again later", Toast.LENGTH_SHORT).show();
             return;
@@ -417,17 +419,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
-    //Only call if isToUser
-    @Nullable
-    private User getOtherUserIfPrivate() {
-        if (!currentRoom.isToUser()) return null;
-        List<User> users = currentRoom.getMemberList();
-        for (User user : users) {
-            if (!user.equals(currentUser)) return user;
-        }
-        return null;
-    }
-
     public void openCourseDetail(View v) {
         Toast.makeText(getApplicationContext(), "openCourseDetail", Toast.LENGTH_LONG).show();
     }
@@ -447,8 +438,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
+//        if (socketIO != null)
+//            socketIO.syncUser();
     }
 
     @Override
@@ -477,7 +468,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     public Toolbar getToolbar() {
         return toolbar;
     }
-    public void deleteRoomInSocket(final Room room){
+
+    public void deleteRoomInSocket(final Room room) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

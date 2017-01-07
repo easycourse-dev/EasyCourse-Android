@@ -54,6 +54,7 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 
 public class ChatRoomFragment extends Fragment {
@@ -121,7 +122,7 @@ public class ChatRoomFragment extends Fragment {
 
     //TODO: private messages
     private void setupChatRecyclerView() {
-        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAll();
+        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
         chatRecyclerView.setHasFixedSize(true);
@@ -316,11 +317,21 @@ public class ChatRoomFragment extends Fragment {
                     socketIO.sendMessage(messageText, null, null, this.currentRoom.getId(), null, 0, 0);
                 else
                     socketIO.sendMessage(null, null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
+                User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
+                if(otherUser == null) return false;
+                if (isTextMessage) //To user text
+                    socketIO.sendMessage(messageText, null, otherUser.getId(), null, null, 0, 0);
+                else //To user pic
+                    socketIO.sendMessage(null, null, otherUser.getId(), null, imageData, imageWidth, imageHeight);
 
             } else {
                 if (isTextMessage)
                     socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
                 else
+                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
+                if (isTextMessage) //To room text
+                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
+                else    //To room pic
                     socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
@@ -355,6 +366,8 @@ public class ChatRoomFragment extends Fragment {
             Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
         sendImageDialog(selectedImage);
     }
+
+
 
     @Override
     public void onResume() {

@@ -80,4 +80,5 @@
     <string name="forgetPasswordTitle">Forget password</string>
     <string name="enter_your_email">Enter your email</string>
     <string name="ROOM">Room</string>
+    <string name="chose_language_s">Chosen language(s):</string>
 </resources>

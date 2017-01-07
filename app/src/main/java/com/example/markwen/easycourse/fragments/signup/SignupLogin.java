@@ -31,6 +31,7 @@ import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -440,7 +441,7 @@ public class SignupLogin extends Fragment {
                 APIFunctions.login(getContext(), email, pwd, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        progress.setMessage("Login success");
+                        progress.setContent("Login success");
                         parseLoginResponse(statusCode, headers, response);
                     }
 
@@ -459,123 +460,148 @@ public class SignupLogin extends Fragment {
 
 
     //Parses response from login to realm and sharedprefs
-    public void parseLoginResponse(int statusCode, Header[] headers, JSONObject response) {
-        String userToken = "";
+    public void parseLoginResponse(int statusCode, final Header[] headers, final JSONObject response) {
 
-        //for each header in array Headers scan for Auth header
-        for (Header header : headers) {
-            if (header.toString().contains("Auth"))
-                userToken = header.toString().substring(header.toString().indexOf(":") + 2);
-        }
-        // Store user at SharedPreferences
-        sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("userToken", userToken);
-        editor.putString("currentUser", response.toString());
-        try {
-            editor.putString("userId", response.getString("_id"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        editor.apply();
-
-
-        RealmList<Room> joinedRoomList = new RealmList<>();
-        RealmList<Course> joinedCourseList = new RealmList<>();
-        Room room;
-        Course course;
-        try {
-            String userId = response.getString("_id");
-
-            currentUser.setId(userId);
-            currentUser.setEmail(response.getString("email"));
-            currentUser.setUsername(response.getString("displayName"));
-            currentUser.setUniversityID(response.getString("university"));
-
-
-            // Adding courses, rooms, and silent rooms
-            JSONArray joinedCourses = response.getJSONArray("joinedCourse");
-            for (int i = 0; i < joinedCourses.length(); i++) {
-                JSONObject temp = joinedCourses.getJSONObject(i);
-                String id = (String) checkIfJsonExists(temp, "_id", null);
-                String courseName = (String) checkIfJsonExists(temp, "name", null);
-                String title = (String) checkIfJsonExists(temp, "title", null);
-                String courseDescription = (String) checkIfJsonExists(temp, "description", null);
-                int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
-                String universityID = (String) checkIfJsonExists(temp, "university", null);
-
-                course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
-                Course.updateCourseToRealm(course, realm);
-                joinedCourseList.add(course);
-            }
-
-            JSONArray joinedRooms = response.getJSONArray("joinedRoom");
-            for (int i = 0; i < joinedRooms.length(); i++) {
-                JSONObject temp = joinedRooms.getJSONObject(i);
-                String id = (String) checkIfJsonExists(temp, "_id", null);
-                String roomName = (String) checkIfJsonExists(temp, "name", null);
-                String courseID = (String) checkIfJsonExists(temp, "course", null);
-                String courseName;
-                if (courseID == null) {
-                    // Private rooms don't have courseID
-                    courseName = "Private Room";
-                } else {
-                    courseName = Course.getCourseById(courseID, realm).getCoursename();
-                }
-                String universityID = (String) checkIfJsonExists(temp, "university", null);
-                boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                String language = (String) checkIfJsonExists(temp, "language", "0");
-                boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
-
-                room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
-                Room.updateRoomToRealm(room, realm);
-                joinedRoomList.add(room);
-            }
-
-            // Setup silent rooms
-            JSONArray silentRoomsJSON = response.getJSONArray("silentRoom");
-            for (int i = 0; i < silentRoomsJSON.length(); i++) {
-                String roomID = silentRoomsJSON.getString(i);
-                Log.e(TAG, "silent room:"+roomID);
-                Room tempRoom = Room.getRoomById(realm, roomID);
-                currentUser.getSilentRooms().add(tempRoom);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        currentUser.setJoinedCourses(joinedCourseList);
-        currentUser.setJoinedRooms(joinedRoomList);
-        User.updateUserToRealm(currentUser, realm);
-        realm.close();
-
-        try {
-            APIFunctions.saveDeviceToken(getContext(), EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.e(TAG, "Token saved");
-                    EasyCourse.getAppInstance().createSocketIO();
-
-                    progress.setMessage("Wrapping up...");
-                    progress.dismiss();
-                    // Make an Intent to move on to the next activity
-                    Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-                    startActivity(mainActivityIntent);
-                    getActivity().finish();
+        APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] langHeaders, JSONArray langResponse) {
+                for (int i = 0; i < langResponse.length(); i++) {
+                    try {
+                        Language.updateLanguageToRealm(new Language(
+                                langResponse.getJSONObject(i).getString("name"),
+                                langResponse.getJSONObject(i).getString("code"),
+                                langResponse.getJSONObject(i).getString("translation")
+                        ), realm);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
-                    Log.e(TAG, "Token save unsuccessful "+response.toString());
+                String userToken = "";
+
+                //for each header in array Headers scan for Auth header
+                for (Header header : headers) {
+                    if (header.toString().contains("Auth"))
+                        userToken = header.toString().substring(header.toString().indexOf(":") + 2);
                 }
-            });
-        } catch (JSONException | UnsupportedEncodingException e) {
-            Log.e(TAG, e.toString());
-        }
+                // Store user at SharedPreferences
+                sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("userToken", userToken);
+                editor.putString("currentUser", response.toString());
+                try {
+                    editor.putString("userId", response.getString("_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                editor.apply();
+
+                RealmList<Room> joinedRoomList = new RealmList<>();
+                RealmList<Course> joinedCourseList = new RealmList<>();
+                RealmList<Language> userLanguage = new RealmList<>();
+                Room room;
+                Course course;
+                try {
+                    String userId = response.getString("_id");
+
+                    currentUser.setId(userId);
+                    currentUser.setEmail(response.getString("email"));
+                    currentUser.setUsername(response.getString("displayName"));
+                    currentUser.setUniversityID(response.getString("university"));
 
 
+                    // Adding languages, courses, rooms, and silent rooms
+                    JSONArray userLanguagesJSON = response.getJSONArray("userLang");
+                    Language tempLang;
+                    for (int i = 0; i < userLanguagesJSON.length(); i++) {
+                        tempLang = Language.getLanguageByCode(userLanguagesJSON.getString(i), realm);
+                        tempLang.setChecked(true, realm);
+                        userLanguage.add(tempLang);
+                    }
+
+                    JSONArray joinedCourses = response.getJSONArray("joinedCourse");
+                    for (int i = 0; i < joinedCourses.length(); i++) {
+                        JSONObject temp = joinedCourses.getJSONObject(i);
+                        String id = (String) checkIfJsonExists(temp, "_id", null);
+                        String courseName = (String) checkIfJsonExists(temp, "name", null);
+                        String title = (String) checkIfJsonExists(temp, "title", null);
+                        String courseDescription = (String) checkIfJsonExists(temp, "description", null);
+                        int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
+                        String universityID = (String) checkIfJsonExists(temp, "university", null);
+
+                        course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
+                        Course.updateCourseToRealm(course, realm);
+                        joinedCourseList.add(course);
+                    }
+
+                    JSONArray joinedRooms = response.getJSONArray("joinedRoom");
+                    for (int i = 0; i < joinedRooms.length(); i++) {
+                        JSONObject temp = joinedRooms.getJSONObject(i);
+                        String id = (String) checkIfJsonExists(temp, "_id", null);
+                        String roomName = (String) checkIfJsonExists(temp, "name", null);
+                        String courseID = (String) checkIfJsonExists(temp, "course", null);
+                        String courseName;
+                        if (courseID == null) {
+                            // Private rooms don't have courseID
+                            courseName = "Private Room";
+                        } else {
+                            courseName = Course.getCourseById(courseID, realm).getCoursename();
+                        }
+                        String universityID = (String) checkIfJsonExists(temp, "university", null);
+                        boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                        int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                        String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                        String language = (String) checkIfJsonExists(temp, "language", "0");
+                        boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                        room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
+                        Room.updateRoomToRealm(room, realm);
+                        joinedRoomList.add(room);
+                    }
+
+                    // Setup silent rooms
+                    JSONArray silentRoomsJSON = response.getJSONArray("silentRoom");
+                    for (int i = 0; i < silentRoomsJSON.length(); i++) {
+                        String roomID = silentRoomsJSON.getString(i);
+                        Log.e(TAG, "silent room:"+roomID);
+                        Room tempRoom = Room.getRoomById(realm, roomID);
+                        currentUser.getSilentRooms().add(tempRoom);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                currentUser.setJoinedCourses(joinedCourseList);
+                currentUser.setJoinedRooms(joinedRoomList);
+                currentUser.setUserLanguages(userLanguage);
+                User.updateUserToRealm(currentUser, realm);
+                realm.close();
+
+                try {
+                    APIFunctions.saveDeviceToken(getContext(), userToken, EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.e(TAG, "Token saved");
+                            EasyCourse.getAppInstance().createSocketIO();
+
+                            progress.setContent("Wrapping up...");
+                            progress.dismiss();
+                            // Make an Intent to move on to the next activity
+                            Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                            startActivity(mainActivityIntent);
+                            getActivity().finish();
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable t, JSONObject response) {
+                            Log.e(TAG, "Token save unsuccessful " + t.toString());
+                        }
+                    });
+                } catch (JSONException | UnsupportedEncodingException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
     }
 
 

@@ -22,6 +22,7 @@ import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetail
 import com.example.markwen.easycourse.components.main.CourseDetails.CourseDetailsRoomsRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -519,7 +520,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
     private void joinCourse() {
         try {
-            socketIO.joinCourse(courseId, new Ack() {
+            socketIO.joinCourse(courseId, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                 @Override
                 public void call(Object... args) {
                     JSONObject res = (JSONObject) args[0];

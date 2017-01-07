@@ -139,6 +139,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
 
 
+
     @Override
     public int getItemViewType(int i) {
         if (getData() != null && getData().size() > 0) {

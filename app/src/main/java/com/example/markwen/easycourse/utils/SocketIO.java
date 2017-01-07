@@ -1,9 +1,11 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
@@ -30,10 +32,14 @@ import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 /**
  * Created by nisarg on 9/11/16.
@@ -161,7 +167,7 @@ public class SocketIO {
         socket.emit("syncUser", jsonParam, callback);
     }
 
-    public void syncUser() {
+    public synchronized void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
             public void call(Object... args) {
@@ -258,13 +264,13 @@ public class SocketIO {
     private void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         //TODO: find time last on app
-//        Realm realm = Realm.getDefaultInstance();
-//        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-//        if(list.size() < 1) return;
-//        Message message = list.first();
-//        long time = message.getCreatedAt().getTime();
-//        jsonParam.put("lastUpdateTime", time);
-        jsonParam.put("lastUpdateTime", 0);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+        if (list.size() < 1) return;
+        Message message = list.first();
+        long time = message.getCreatedAt().getTime();
+        jsonParam.put("lastUpdateTime", time);
+//        jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
@@ -613,6 +619,34 @@ public class SocketIO {
                 Realm realm = Realm.getDefaultInstance();
                 message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, successSent, imageWidth, imageHeight, toRoom, toUser, sharedRoom, date);
                 Message.updateMessageToRealm(message, realm);
+                message = new Message(id, remoteId, new User(senderId, senderName, senderImageUrl), text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, date);
+
+                User senderUser = new User(senderId, senderName, senderImageUrl);
+                User.updateUserToRealm(senderUser, realm);
+
+                boolean roomExists = false;
+
+                if (message.getToRoom() == null) { //If message is to user
+                    RealmResults<Room> rooms = realm.where(Room.class).equalTo("isToUser", true).findAll(); //Find private rooms
+                    for(Room room : rooms) { //For each room
+                        if(room.getMemberList().contains(senderUser)) { //If the room has the sender
+                            realm.beginTransaction();
+                            room.getMessageList().add(message); //Add the message to that room
+                            realm.copyToRealmOrUpdate(room);
+                            realm.commitTransaction();
+                            roomExists = true;
+                        }
+                    }
+
+                    if(!roomExists) { //If the room does not exist
+                        createPrivateRoom(senderUser, message); //Create a private room and add the message
+                    }
+
+                } else { //Else the message is to a room
+                    message.setToUser(false);
+                    Message.updateMessageToRealm(message, realm);
+                }
+
                 EasyCourse.bus.post(new Event.MessageEvent(message));
                 realm.close();
             } catch (JSONException e) {
@@ -631,4 +665,58 @@ public class SocketIO {
         } else
             return defaultObj;
     }
+
+    public void createPrivateRoom(final User toUser, final Message message) {
+        try {
+            this.createRoom(toUser.getUsername(), null, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    if (!obj.has("error")) {
+                        try {
+                            JSONObject temp = obj.getJSONObject("room");
+
+                            String id = (String) checkIfJsonExists(temp, "_id", null);
+                            String roomName = (String) checkIfJsonExists(temp, "name", null);
+                            String courseID = (String) checkIfJsonExists(temp, "course", null);
+                            String universityID = (String) checkIfJsonExists(temp, "university", null);
+                            boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                            String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                            String language = (String) checkIfJsonExists(temp, "language", "0");
+                            boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                            Realm realm = Realm.getDefaultInstance();
+                            User curUser = User.getCurrentUser(context, realm);
+                            Room room = new Room(
+                                    id,
+                                    roomName,
+                                    new RealmList<>(message),
+                                    courseID,
+                                    "Private Chat",
+                                    universityID,
+                                    new RealmList<>(User.getCurrentUser(context, realm), toUser),
+                                    memberCounts,
+                                    memberCountsDesc,
+                                    curUser,
+                                    language,
+                                    isPublic,
+                                    isSystem);
+                            room.setToUser(true);
+                            Room.updateRoomToRealm(room, realm);
+                            realm.close();
+
+                        } catch (JSONException e) {
+                            Log.e(TAG, "call: ", e);
+                        }
+                    } else {
+                        Log.e(TAG, "call: ");
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "goToPrivateRoom: ", e);
+        }
+    }
+
 }

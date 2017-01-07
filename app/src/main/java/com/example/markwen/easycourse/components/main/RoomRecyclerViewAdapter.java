@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.components.main;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
@@ -34,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +45,8 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import io.socket.client.Ack;
 
+import static com.example.markwen.easycourse.utils.DateUtils.getLocalDate;
+
 
 /**
  * Created by noahrinehart on 11/19/16.
@@ -51,7 +55,7 @@ import io.socket.client.Ack;
 public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
 
     private static final String TAG = "RoomRecyclerViewAdapter";
-    
+
     private RoomsFragment fragment;
     private Context context;
     private RealmResults<Room> rooms;
@@ -121,11 +125,9 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         });
 
 
-        //TODO: Add Usernames
         Realm realm = Realm.getDefaultInstance();
         List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
         Message message;
-        User curUser = User.getCurrentUser((Activity) this.context, realm);
         String messageText, senderText;
         if (messages.size() > 0) {
             if (messages.get(0) != null) {
@@ -151,7 +153,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 }
                 roomViewHolder.roomLastMessageTextView.setText(messageText);
                 roomViewHolder.roomLastSenderTextView.setText(senderText);
-                roomViewHolder.roomLastTimeTextView.setText(getMessageTime(message));
+                roomViewHolder.roomLastTimeTextView.setText(getTimeString(message));
             }
         }
     }
@@ -224,6 +226,28 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             Log.e(TAG, "quitRoom: ", e);
         }
     }
+
+    @Nullable
+    public static String getTimeString(Message message) {
+        if (message == null) return null;
+        Date messageDate = DateUtils.getLocalDate(message.getCreatedAt());
+
+        TimeZone timeZone = TimeZone.getDefault();
+        //If today
+        if (DateUtils.isToday(messageDate)) {
+            //Exclude date in time
+            DateFormat df = new SimpleDateFormat("h:mm a", Locale.US);
+            df.setTimeZone(timeZone);
+            return df.format(messageDate);
+
+        } else {
+            //Include date in time
+            DateFormat df = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.US);
+            df.setTimeZone(timeZone);
+            return df.format(messageDate);
+        }
+    }
+
 
     private String getMessageTime(Message message) {
         if (message == null) return null;

@@ -60,6 +60,10 @@ public class Room extends RealmObject {
 
     }
 
+    public Room(String id) {
+        this.id = id;
+    }
+
     public Room(String roomName, String courseName) {
         this.roomName = roomName;
         this.courseName = courseName;
@@ -71,12 +75,11 @@ public class Room extends RealmObject {
         this.courseName = courseName;
     }
 
-    public Room(String id, String roomName, String courseID, String memberCountsDesc, boolean isSharedRoom) {
+    public Room(String id, String roomName, String courseID, String memberCountsDesc) {
         this.id = id;
         this.roomName = roomName;
         this.courseID = courseID;
         this.memberCountsDesc = memberCountsDesc;
-        this.isSharedRoom = isSharedRoom;
     }
 
     public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {

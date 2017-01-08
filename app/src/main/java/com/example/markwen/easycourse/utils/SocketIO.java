@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
@@ -163,11 +164,12 @@ public class SocketIO {
         socket.emit("syncUser", jsonParam, callback);
     }
 
-    public synchronized void syncUser() {
+    public void syncUser() {
         socket.emit("syncUser", 1, new Ack() {
             @Override
             public void call(Object... args) {
                 try {
+                    Log.e(TAG, "getting hist");
                     getHistMessage();
                 } catch (JSONException e) {
                     Log.e(TAG, e.toString());
@@ -216,7 +218,7 @@ public class SocketIO {
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
 //                        Course.syncAddCourse(joinedCoursesJSON, realm);
-//                        Room.syncRooms(joinedRoomsJSON, realm);
+                        Room.syncRooms(joinedRoomsJSON, realm);
 //                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
                         // Updating language
@@ -235,14 +237,29 @@ public class SocketIO {
                             realm.copyToRealmOrUpdate(tempLang);
                         }
 
+                        // Adding joined rooms
+                        User user = User.getUserFromRealm(realm, id);
+                        RealmList<Room> joinedRooms = new RealmList<Room>();
+                        for (int i = 0; i < joinedRoomsJSON.length(); i++) {
+                            JSONObject roomObj = joinedRoomsJSON.getJSONObject(i);
+                            //Room room = new Room(roomObj.getString("id"));
+                            Room room = Room.getRoomById(realm, roomObj.getString("_id"));
+                            joinedRooms.add(room);
+                        }
+                        user.setJoinedRooms(joinedRooms);
+                        Log.e(TAG, "room size: "+user.getJoinedRooms().size());
+
                         // Adding silent rooms
-                        User.getUserFromRealm(realm, id).setProfilePicture(avatar);
+                        user.setProfilePicture(avatar);
                         for (int i = 0; i < silentRoomsJSON.length(); i++) {
                             String roomID = silentRoomsJSON.getString(i);
                             Log.e(TAG, "silent room:" + roomID);
                             Room room = Room.getRoomById(realm, roomID);
-                            User.getUserFromRealm(realm, id).getSilentRooms().add(room);
+                            user.getSilentRooms().add(room);
                         }
+
+                        realm.copyToRealmOrUpdate(user);
+
                         realm.commitTransaction();
                         realm.close();
                     } catch (JSONException e) {
@@ -263,17 +280,17 @@ public class SocketIO {
         //TODO: find time last on app
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-        if (list.size() < 1) return;
-        Message message = list.first();
-        long time = message.getCreatedAt().getTime();
-        jsonParam.put("lastUpdateTime", time);
-//        jsonParam.put("lastUpdateTime", 0);
+        if (list.size() > 0) {
+            Message message = list.first();
+            long time = message.getCreatedAt().getTime();
+            jsonParam.put("lastUpdateTime", time);
+        } else
+            jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-
                     if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {
@@ -283,7 +300,7 @@ public class SocketIO {
                         }
                     }
                 } catch (JSONException e) {
-                    Log.e(TAG, e.toString());
+                    Log.e(TAG, "error in hist "+e.toString());
                 }
             }
         });
@@ -599,7 +616,14 @@ public class SocketIO {
                 if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
                     JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
                     Log.e(TAG, sharedRoomJSON.toString());
-                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"), true);
+                    Realm realm = Realm.getDefaultInstance();
+                    SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                    String userId = sharedPref.getString("userId", null);
+                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
+                    User user = User.getUserFromRealm(realm, userId);
+                    RealmList<Room> joinedRooms = user.getJoinedRooms();
+                    //if(!ListsUtils.isRoomJoined(joinedRooms, sharedRoom))
+                    //    sharedRoom.setSharedRoom(true);
                 }
                 String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
 

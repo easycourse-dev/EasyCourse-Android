@@ -4,30 +4,31 @@
     android:id="@+id/course_card_view"
     android:layout_width="fill_parent"
     android:layout_height="82dp"
+    android:focusable="false"
     card_view:cardCornerRadius="0dp"
-    card_view:cardElevation="2dp"
-    android:focusable="false">
+    card_view:cardElevation="2dp">
 
     <RelativeLayout
         android:id="@+id/course_holder_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:selectableItemBackground"
-        android:padding="16dp"
-        android:focusable="false">
+        android:background="@color/colorWhiteText"
+        android:focusable="false"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:orientation="vertical"
-            android:focusable="false">
+            android:focusable="false"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/new_room_course_course_text"
                 style="@style/Base.TextAppearance.AppCompat.Body1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
                 android:text="@string/tempRoomName" />
 
             <TextView
@@ -35,6 +36,7 @@
                 style="@style/Base.TextAppearance.AppCompat.Caption"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
                 android:ellipsize="marquee"
                 android:maxLines="1"
                 android:text="@string/tempCourse" />

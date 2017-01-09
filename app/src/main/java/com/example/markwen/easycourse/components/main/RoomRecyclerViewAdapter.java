@@ -136,11 +136,16 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 } else {
                     message = messages.get(messages.size() - 1);
                 }
-                if (message.getText() == null || message.getText().equals("") || message.getImageData() != null) {
+
+                // Distinguish message type
+                if (message.getText() == null && message.getImageData() != null) {
                     messageText = "[Image]";
+                } else if (message.getText() == null && message.getSharedRoom() != null) {
+                    messageText = "[Shared Room]";
                 } else {
                     messageText = message.getText();
                 }
+
                 if (message.getSender() == null || message.getSender().getUsername() == null) {
                     senderText = "";
                 } else {

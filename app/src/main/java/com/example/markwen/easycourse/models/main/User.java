@@ -29,6 +29,7 @@ public class User extends RealmObject {
     private RealmList<Course> joinedCourses = new RealmList<>();
     private RealmList<Room> joinedRooms = new RealmList<>();
     private RealmList<Room> silentRooms = new RealmList<>();
+    private RealmList<Language> userLanguages = new RealmList<>();
 
     private int friendStatus = 0;
 
@@ -190,5 +191,13 @@ public class User extends RealmObject {
 
     public void setSilentRooms(RealmList<Room> silentRooms) {
         this.silentRooms = silentRooms;
+    }
+
+    public RealmList<Language> getUserLanguages() {
+        return userLanguages;
+    }
+
+    public void setUserLanguages(RealmList<Language> list) {
+        this.userLanguages = list;
     }
 }

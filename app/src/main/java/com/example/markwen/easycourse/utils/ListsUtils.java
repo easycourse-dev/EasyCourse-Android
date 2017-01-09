@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.utils;
 
 import com.example.markwen.easycourse.models.main.Course;
+import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 
@@ -93,5 +94,27 @@ public class ListsUtils {
         ArrayList<String> temp = new ArrayList<>();
         Collections.addAll(temp, array);
         return temp;
+    }
+
+    public static boolean isLanguageInList(RealmList<Language> userList, String code) {
+        for (int i = 0; i < userList.size(); i++) {
+            if (userList.get(i).getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isLanguageInList(JSONArray userList, String code) {
+        for (int i = 0; i < userList.length(); i++) {
+            try {
+                if (userList.getString(i).equals(code)) {
+                    return true;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 }

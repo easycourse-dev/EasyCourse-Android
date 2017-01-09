@@ -40,9 +40,17 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.socket.client.Ack;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -129,7 +137,15 @@ public class UserFragment extends Fragment {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
-            avatarImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_account_circle_black_48dp, null));
+            if (user.getProfilePictureUrl() != null) {
+                try {
+                    downloadImage(new URL(user.getProfilePictureUrl()));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                avatarImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_account_circle_black_48dp, null));
+            }
         }
 
         logoutButton = (Button) v.findViewById(R.id.buttonLogout);
@@ -244,5 +260,54 @@ public class UserFragment extends Fragment {
                 })
                 .build();
         dialog.show();
+    }
+
+    private void downloadImage(final URL url){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                try  {
+                    // Download image
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    Bitmap image = BitmapFactory.decodeStream(input);
+                    // Convert image
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+                    // Saving image
+                    Realm tempRealm = Realm.getDefaultInstance();
+                    User user = User.getCurrentUser(getApplicationContext(), tempRealm);
+                    tempRealm.beginTransaction();
+                    user.setProfilePicture(byteArray);
+                    tempRealm.commitTransaction();
+                    tempRealm.close();
+                    // Setting image
+                    setImageAfterDownload(image);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void setImageAfterDownload(final Bitmap image){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            avatarImage.setImageBitmap(image);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 }

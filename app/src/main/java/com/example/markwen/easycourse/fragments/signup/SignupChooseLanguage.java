@@ -144,6 +144,7 @@ public class SignupChooseLanguage extends Fragment {
     }
 
     private void fetchLanguages() {
+        final Realm tempRealm = Realm.getDefaultInstance();
 
         APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override
@@ -157,7 +158,13 @@ public class SignupChooseLanguage extends Fragment {
                         String translation = obj.getString("translation");
                         Language language = new Language(name, code, translation);
                         languageList.add(language);
+                        com.example.markwen.easycourse.models.main.Language.updateLanguageToRealm(
+                                new com.example.markwen.easycourse.models.main.Language(
+                                        name, code, translation
+                                ), tempRealm
+                        );
                     }
+                    tempRealm.close();
                     ArrayList<Language> selectedLanguages = userSetup.getSelectedLanguages();
                     languageAdapter.setCheckedLanguageList(selectedLanguages);
                     for (int i = 0; i < languageList.size(); i++) {
@@ -185,6 +192,13 @@ public class SignupChooseLanguage extends Fragment {
     // Posts the signupData
     public void postSignupData(UserSetup userSetup) {
         try {
+            // Saving languages
+            ArrayList<Language> chosenLanguages = languageAdapter.getCheckedLanguageList();
+            Realm tempRealm = Realm.getDefaultInstance();
+            for (int i = 0; i < chosenLanguages.size(); i++) {
+                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(chosenLanguages.get(i).getCode(), tempRealm).setChecked(true);
+            }
+            tempRealm.close();
             //Post University
             APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {
                 @Override
@@ -201,9 +215,15 @@ public class SignupChooseLanguage extends Fragment {
 
             final SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
 
+            // Language handling
+            ArrayList<String> languageCodes = stringArrayToArrayList(userSetup.getLanguageCodeArray());
+            for (int i = 0; i < languageCodes.size(); i++) {
+                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(languageCodes.get(i), tempRealm).setChecked(true, tempRealm);
+            }
+
             socketIO.joinCourse(
                     stringArrayToArrayList(userSetup.getCourseCodeArray()),
-                    stringArrayToArrayList(userSetup.getLanguageCodeArray()),
+                    languageCodes,
                     new Ack() {
                         @Override
                         public void call(Object... args) {

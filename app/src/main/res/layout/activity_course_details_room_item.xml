@@ -60,14 +60,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="2dp">
-                <ImageView
+
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/CourseDetailsFounderImage"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
                     android:clickable="false"
                     android:contentDescription="@string/chatMessageAccessibility"
-                    android:src="@drawable/ic_group_black_24px"
-                    />
+                    android:src="@drawable/ic_person_black_24px" />
 
                 <TextView
                     android:id="@+id/CourseDetailsRoomFounder"

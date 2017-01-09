@@ -31,6 +31,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -74,11 +75,13 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         final Room room = rooms.get(i);
         if (!isCourseJoined) {
             // Different state based on course joining status
-            holder.checkBox.setClickable(false);
+            holder.checkBox.setClickable(false); // I hope this works, but nope...
+            holder.checkBox.setVisibility(View.GONE);
             holder.roomNameTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
             holder.founderTextView.setTextColor(Color.parseColor("#a1a1a1")); // gray color
         } else {
             holder.checkBox.setClickable(true);
+            holder.checkBox.setVisibility(View.VISIBLE);
             holder.roomNameTextView.setTextColor(Color.parseColor("#333333")); // black color
             holder.founderTextView.setTextColor(Color.parseColor("#333333")); // black color
         }
@@ -126,7 +129,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             }
         } else {
             holder.founderTextView.setText("Official");
-            holder.founderImageView.setImageResource(R.drawable.ic_group_black_24px);
+            holder.founderImageView.setImageResource(R.drawable.ic_person_black_24px);
         }
 
         // Set other texts
@@ -145,7 +148,7 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         @BindView(R.id.CourseDetailsRoomDesc)
         TextView roomDescTextView;
         @BindView(R.id.CourseDetailsFounderImage)
-        ImageView founderImageView;
+        CircleImageView founderImageView;
         @BindView(R.id.CourseDetailsRoomFounder)
         TextView founderTextView;
         @BindView(R.id.CourseDetailsCheckbox)

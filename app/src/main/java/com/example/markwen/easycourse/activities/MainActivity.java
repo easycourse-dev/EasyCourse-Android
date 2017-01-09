@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
         if (userSetup != null) {
 //            parseSetupIntent(userSetup);
         }
-
     }
 
 
@@ -266,5 +265,4 @@ public class MainActivity extends AppCompatActivity {
             disconnectSnackbar.dismiss();
         }
     }
-
 }

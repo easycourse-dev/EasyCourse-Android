@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         String currentUser = sharedPref.getString("currentUser", null);
         RealmResults<Room> joinedRooms = realm.where(Room.class).findAll();
 
-        if (userToken == null || currentUser == null || joinedRooms.size() == 0) {
+        if (userToken == null || currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {

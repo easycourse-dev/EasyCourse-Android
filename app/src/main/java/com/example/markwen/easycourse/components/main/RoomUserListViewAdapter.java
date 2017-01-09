@@ -62,12 +62,12 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
 
         void setupView(final User user, final User curUser, final Context context) {
-            if(user == null) return;
+            if (user == null) return;
             nameTextView.setText(user.getUsername());
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(user == curUser) return;
+                    if (user == curUser) return;
                     fragment.goToPrivateRoom(user);
 //                    Toast.makeText(context, user.getUsername() + " clicked!", Toast.LENGTH_SHORT).show();
                 }

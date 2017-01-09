@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -44,9 +45,12 @@ public class RoomsFragment extends Fragment {
     FloatingActionMenu mainFab;
     @BindView(R.id.newRoomFab)
     FloatingActionButton newRoomFab;
+    @BindView(R.id.roomsRecyclerViewPlaceholder)
+    TextView roomsRecyclerViewPlaceholder;
 
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     RealmResults<Room> rooms;
+
     public RoomsFragment() {
     }
 
@@ -71,7 +75,8 @@ public class RoomsFragment extends Fragment {
         setupRecyclerView();
 
         socketIO.syncUser();
-        roomRecyclerViewAdapter.notifyDataSetChanged();
+        if(roomRecyclerViewAdapter != null)
+            roomRecyclerViewAdapter.notifyDataSetChanged();
 
         return v;
     }
@@ -96,13 +101,19 @@ public class RoomsFragment extends Fragment {
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).findAll();
-        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
-        roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
-        roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
-        roomRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
-        chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
-        roomRecyclerView.setLayoutManager(chatLinearManager);
+        if (rooms.size() != 0) {
+            roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
+            roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
+            roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
+            roomRecyclerView.setHasFixedSize(true);
+            LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
+            chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
+            roomRecyclerView.setLayoutManager(chatLinearManager);
+        } else {
+            roomRecyclerView.setVisibility(View.GONE);
+            roomsRecyclerViewPlaceholder.setVisibility(View.VISIBLE);
+            roomsRecyclerViewPlaceholder.setText("You don't have any joined rooms.\nAdd one by clicking the button below.");
+        }
     }
 
     public void startChatRoom(Room room) {

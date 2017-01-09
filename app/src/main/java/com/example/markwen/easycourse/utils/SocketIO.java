@@ -161,7 +161,7 @@ public class SocketIO {
         JSONObject jsonParam = new JSONObject();
         if (displayName != null)
             jsonParam.put("displayName", displayName);
-        if(avatar != null)
+        if (avatar != null)
             jsonParam.put("avatarImage", avatar);
         jsonParam.put("userLang", new JSONArray(languages));
         socket.emit("syncUser", jsonParam, callback);
@@ -599,7 +599,7 @@ public class SocketIO {
                 double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
                 double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
                 Room sharedRoom = null;
-                if(checkIfJsonExists(obj, "sharedRoom", null) != null) {
+                if (checkIfJsonExists(obj, "sharedRoom", null) != null) {
                     JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
                     Log.e(TAG, sharedRoomJSON.toString());
                     sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
@@ -622,14 +622,12 @@ public class SocketIO {
                 message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, null, date);
 
 
-
-
                 boolean roomExists = false;
 
                 if (message.getToRoom() == null) { //If message is to user
                     RealmResults<Room> rooms = realm.where(Room.class).equalTo("isToUser", true).findAll(); //Find private rooms
-                    for(Room room : rooms) { //For each room
-                        if(room.getMemberList().contains(senderUser)) { //If the room has the sender
+                    for (Room room : rooms) { //For each room
+                        if (room.getMemberList().contains(senderUser)) { //If the room has the sender
                             realm.beginTransaction();
                             room.getMessageList().add(message); //Add the message to that room
                             realm.copyToRealmOrUpdate(room);
@@ -638,7 +636,7 @@ public class SocketIO {
                         }
                     }
 
-                    if(!roomExists) { //If the room does not exist
+                    if (!roomExists) { //If the room does not exist
                         createPrivateRoom(senderUser, message); //Create a private room and add the message
                     }
 

@@ -199,7 +199,7 @@ public class UserProfileActivity extends AppCompatActivity {
         languageView.setAdapter(languageAdapter);
     }
 
-    private void updateUserInfoOnScreen(){
+    private void updateUserInfoOnScreen() {
         if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
@@ -217,7 +217,7 @@ public class UserProfileActivity extends AppCompatActivity {
             editTextUsername.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
-            APIFunctions.getLanguages(this, new JsonHttpResponseHandler(){
+            APIFunctions.getLanguages(this, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                     allLanguages.clear();
@@ -291,8 +291,6 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -309,7 +307,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        if (Build.VERSION.SDK_INT < 19 || true) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -322,8 +320,8 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void setUserImage(final Bitmap image, final byte[] profile){
-        Thread thread = new Thread(){
+    private void setUserImage(final Bitmap image, final byte[] profile) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {

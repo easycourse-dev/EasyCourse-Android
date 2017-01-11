@@ -100,7 +100,7 @@ public class RoomsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        rooms = realm.where(Room.class).findAll();
+        rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
         if (rooms.size() != 0) {
             roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
             roomRecyclerView.setAdapter(roomRecyclerViewAdapter);

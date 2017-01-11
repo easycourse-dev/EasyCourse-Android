@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -109,7 +110,7 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
 
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
-                incomingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+                incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
             } else {
                 Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                         .placeholder(R.drawable.ic_person_black_24px)

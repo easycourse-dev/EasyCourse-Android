@@ -188,7 +188,7 @@ public class ChatRoomFragment extends Fragment {
                     }
                 })
                 .negativeText("Cancel")
-                .negativeColor(ContextCompat.getColor(getContext(),R.color.colorLogout))
+                .negativeColor(ContextCompat.getColor(getContext(), R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -236,6 +236,7 @@ public class ChatRoomFragment extends Fragment {
         switch (which) {
             case 0:  // choose image
                 int permissionCheck1 = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+
                 if (permissionCheck1 == PERMISSION_DENIED) {
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                 } else {
@@ -250,7 +251,7 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void chooseImage() {
-        if (Build.VERSION.SDK_INT < 19 || true) {
+        if (Build.VERSION.SDK_INT < 19) {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -318,7 +319,7 @@ public class ChatRoomFragment extends Fragment {
                 else
                     socketIO.sendMessage(null, null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
                 User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
-                if(otherUser == null) return false;
+                if (otherUser == null) return false;
                 if (isTextMessage) //To user text
                     socketIO.sendMessage(messageText, null, otherUser.getId(), null, null, 0, 0);
                 else //To user pic
@@ -366,7 +367,6 @@ public class ChatRoomFragment extends Fragment {
             Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
         sendImageDialog(selectedImage);
     }
-
 
 
     @Override

@@ -85,7 +85,7 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
         if (curUser != null) {
             if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
-                outgoingImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_person_black_24px));
+                outgoingImageView.setImageResource(R.drawable.ic_person_black_24px);
             } else {
                 Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                         .placeholder(R.drawable.ic_person_black_24px)

@@ -82,4 +82,11 @@
     <string name="enter_your_email">Enter your email</string>
     <string name="ROOM">Room</string>
     <string name="chose_language_s">Chosen language(s):</string>
+
+
+    <!--CourseDetailsActivity-->
+    <string name="joined">Joined</string>
+    <string name="join">Join</string>
+
+
 </resources>

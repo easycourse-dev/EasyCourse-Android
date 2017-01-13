@@ -271,11 +271,19 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
+    private void joinRoom() {
+        realm.beginTransaction();
+        currentRoom.setJoinIn(true);
+        realm.copyToRealmOrUpdate(currentRoom);
+        realm.commitTransaction();
+    }
+
 
     private void setupTextMessageToSend() {
         String messageText = messageEditText.getText().toString();
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
+            joinRoom();
             if (sendMessage(fixed, true, null, 0, 0)) {
                 messageEditText.setText("");
                 chatRecyclerViewAdapter.notifyDataSetChanged();
@@ -312,12 +320,8 @@ public class ChatRoomFragment extends Fragment {
 
     private boolean sendMessage(String messageText, boolean isTextMessage, byte[] imageData, int imageWidth, int imageHeight) {
         try {
-            //Receive message from socketIO
+
             if (this.currentRoom.isToUser()) {
-                if (isTextMessage)
-                    socketIO.sendMessage(messageText, null, null, this.currentRoom.getId(), null, 0, 0);
-                else
-                    socketIO.sendMessage(null, null, null, this.currentUser.getId(), imageData, imageWidth, imageHeight);
                 User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
                 if (otherUser == null) return false;
                 if (isTextMessage) //To user text
@@ -326,10 +330,6 @@ public class ChatRoomFragment extends Fragment {
                     socketIO.sendMessage(null, null, otherUser.getId(), null, imageData, imageWidth, imageHeight);
 
             } else {
-                if (isTextMessage)
-                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
-                else
-                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
                 if (isTextMessage) //To room text
                     socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
                 else    //To room pic

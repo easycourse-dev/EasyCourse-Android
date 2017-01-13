@@ -125,7 +125,7 @@ public class SocketIO {
         } else { //Message to user
             message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, null, new Date());
         }
-        Message.updateMessageToRealm(message, Realm.getDefaultInstance());
+//        Message.updateMessageToRealm(message, Realm.getDefaultInstance());
         jsonParam.put("id", uuid);
         jsonParam.put("toRoom", toRoom);
         jsonParam.put("toUser", toUserId);
@@ -641,7 +641,9 @@ public class SocketIO {
 
                 } else { //Else the message is to a room
                     message.setToUser(false);
-                    Message.updateMessageToRealm(message, realm);
+                    String messageid = message.getId();
+                    if(!Message.isMessageInRealm(message, realm))
+                        Message.updateMessageToRealm(message, realm);
                 }
 
 

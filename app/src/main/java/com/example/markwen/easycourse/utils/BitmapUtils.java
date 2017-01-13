@@ -59,7 +59,7 @@ public class BitmapUtils {
         return bytes;
     }
 
-    public static byte[] compressBitmapToBytes(Bitmap bitmap, Context context, int percent) {
+    public static byte[] convertBitmapToBytes(Bitmap bitmap, int percent) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, percent, out);
         return out.toByteArray();
@@ -92,7 +92,7 @@ public class BitmapUtils {
         return b;
     }
 
-    public static void compressBitmap(Uri uri, String roomId, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
+    public static void compressBitmap(Uri uri, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
         CompressImageTask task = new CompressImageTask(context, listener);
         task.execute(uri);
     }

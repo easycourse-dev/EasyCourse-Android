@@ -123,7 +123,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                         realm.beginTransaction();
                         realm.copyToRealmOrUpdate(course);
                         realm.commitTransaction();
-
+                        realm.close();
                         // Set up TextViews
                         setupTextViews();
                     } catch (JSONException e) {

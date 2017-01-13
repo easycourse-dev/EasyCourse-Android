@@ -251,9 +251,8 @@ public class SocketIO {
                     } catch (JSONException e) {
                         Log.e(TAG, e.toString());
                     }
-                    //User.updateUserToRealm(user, realm);
-
-                    Log.e(TAG, "syncUser: " + obj.toString());
+//                    User.updateUserToRealm(user, realm);
+                    Log.d(TAG, "syncUser: " + obj.toString());
 
                 }
             }

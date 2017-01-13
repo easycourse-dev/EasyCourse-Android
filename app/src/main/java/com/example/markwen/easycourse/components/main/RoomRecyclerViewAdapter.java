@@ -2,6 +2,9 @@ package com.example.markwen.easycourse.components.main;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +30,7 @@ import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.DateUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -124,8 +128,24 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             }
         });
 
-
         Realm realm = Realm.getDefaultInstance();
+        User curUser = User.getCurrentUser(context, realm);
+
+        if (room.isToUser()) {
+            User otherUser = Room.getOtherUserIfPrivate(room, curUser, realm);
+            if (otherUser != null) {
+                if (otherUser.getProfilePicture() != null) {
+                    Bitmap bm = BitmapFactory.decodeByteArray(otherUser.getProfilePicture(), 0, otherUser.getProfilePicture().length);
+                    roomViewHolder.roomImageView.setImageBitmap(bm);
+                } else if (otherUser.getProfilePictureUrl() != null) {
+                    Picasso.with(context).load(otherUser.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
+                } else {
+                    roomViewHolder.roomImageView.setImageResource(R.drawable.ic_person_black_24px);
+                }
+            }
+        }
+
+
         List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
         Message message;
         String messageText, senderText;
@@ -156,6 +176,8 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 roomViewHolder.roomLastTimeTextView.setText(getTimeString(message));
             }
         }
+
+        realm.close();
     }
 
     private boolean showPopup(CardView cardView, final Room room, final Context context) {

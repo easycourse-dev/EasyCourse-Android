@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
@@ -35,7 +36,9 @@ import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +60,8 @@ import io.socket.client.Ack;
 
 public class UserProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "UserProfileActivity";
+
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
 
     @BindView(R.id.toolbarUserProfile)
@@ -77,6 +82,8 @@ public class UserProfileActivity extends AppCompatActivity {
     RecyclerView languageView;
     @BindView(R.id.userProfileLanguageLabel)
     TextView languageLabel;
+    @BindView(R.id.userProfileProgressBar)
+    ProgressBar profileProgressBar;
 
     boolean isInEditMode = false;
 
@@ -120,13 +127,26 @@ public class UserProfileActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
 
         user = User.getCurrentUser(this, realm);
-        if (user.getProfilePicture() != null) {
-            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-            avatarImage.setImageBitmap(bm);
+        if (user != null) {
+            if (user.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+                avatarImage.setImageBitmap(bm);
+            } else if (user.getProfilePictureUrl() != null) {
+                Picasso.Builder builder = new Picasso.Builder(this);
+                builder.listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        exception.printStackTrace();
+                    }
+                });
+                builder.build().load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
+            } else {
+                avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
+            }
+            textViewUsername.setText(user.getUsername());
+            editTextUsername.setText(user.getUsername());
         }
 
-        textViewUsername.setText(user.getUsername());
-        editTextUsername.setText(user.getUsername());
         languageLabel.setText("Chosen language(s):");
 
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
@@ -204,7 +224,7 @@ public class UserProfileActivity extends AppCompatActivity {
             Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
-            avatarImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_circle_black_48dp));
+            avatarImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_black_48dp));
         }
     }
 
@@ -258,36 +278,53 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void setProfilePicture(Uri uri) {
+        profileProgressBar.setVisibility(View.VISIBLE);
+        BitmapUtils.compressBitmap(uri, this, new CompressImageTask.OnCompressImageTaskCompleted() {
+            @Override
+            public void onTaskCompleted(final Bitmap bitmap, final byte[] bytes) {
+                if (bytes != null) {
+                    try {
+                        Log.d(TAG, "onTaskCompleted: calling sync user");
+                        socket.syncUser(null, bytes, null, new Ack() {
+                            @Override
+                            public void call(Object... args) {
+                                setUserImage(bitmap, bytes);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        profileProgressBar.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.e(TAG, "onTaskCompleted: ", e);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                profileProgressBar.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onTaskFailed() {
+
+            }
+        });
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK) return;
         if (null == data) return;
-        Uri originalUri = null;
-        Bitmap bitmap = null;
-        if (requestCode == GALLERY_INTENT_CALLED) {
-            originalUri = data.getData();
-        } else if (requestCode == GALLERY_KITKAT_INTENT_CALLED) {
-            originalUri = data.getData();
-        }
-
-        try {
-            bitmap = BitmapUtils.getBitmapFromUri(originalUri, this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        final byte[] byteArray = BitmapUtils.compressBitmapToBytes(bitmap, this, 50);
-        try {
-            final Bitmap finalBitmap = bitmap;
-            socket.syncUser(null, byteArray, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
-                @Override
-                public void call(Object... args) {
-                    setUserImage(finalBitmap, byteArray);
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Uri originalUri = data.getData();
+        if (originalUri != null) setProfilePicture(originalUri);
     }
 
 
@@ -333,6 +370,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             tempRealm.beginTransaction();
                             user.setProfilePicture(profile);
                             tempRealm.commitTransaction();
+                            tempRealm.close();
                         }
                     });
                 }

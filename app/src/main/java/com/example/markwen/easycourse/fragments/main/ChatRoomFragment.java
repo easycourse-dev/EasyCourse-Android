@@ -285,7 +285,7 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void compressAndSendImage(final Uri uri) {
-        BitmapUtils.compressBitmap(uri, currentRoom.getId(), getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
+        BitmapUtils.compressBitmap(uri, getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
             @Override
             public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
                 if (ChatRoomFragment.this.sendMessage(null, false, bytes, bitmap.getWidth(), bitmap.getHeight())) {

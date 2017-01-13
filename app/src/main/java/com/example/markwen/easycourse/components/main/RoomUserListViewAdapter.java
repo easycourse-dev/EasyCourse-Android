@@ -1,6 +1,9 @@
 package com.example.markwen.easycourse.components.main;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +18,7 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.fragments.main.RoomUserListFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -63,15 +67,29 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         void setupView(final User user, final User curUser, final Context context) {
             if (user == null) return;
+
+
+            if (user.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+                avatarImageView.setImageBitmap(bm);
+            } else if (user.getProfilePictureUrl() != null) {
+                Picasso.with(context).load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(avatarImageView);
+            } else {
+                avatarImageView.setImageResource(R.drawable.ic_person_black_24px);
+            }
+
+
             nameTextView.setText(user.getUsername());
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (user == curUser) return;
-                    fragment.goToPrivateRoom(user);
-//                    Toast.makeText(context, user.getUsername() + " clicked!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            if (user == curUser) { //User is current user
+                nameTextView.setTypeface(null, Typeface.BOLD);
+            } else { //User is not current user
+                cardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fragment.goToPrivateRoom(user);
+                    }
+                });
+            }
 
         }
     }

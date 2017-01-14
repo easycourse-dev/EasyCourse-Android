@@ -262,7 +262,7 @@ public class SocketIO {
     }
 
     //saves list of messages to realm
-    private void getHistMessage() throws JSONException {
+    public void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         //TODO: find time last on app
         Realm realm = Realm.getDefaultInstance();
@@ -271,7 +271,6 @@ public class SocketIO {
         Message message = list.first();
         long time = message.getCreatedAt().getTime();
         jsonParam.put("lastUpdateTime", time);
-//        jsonParam.put("lastUpdateTime", 0);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {

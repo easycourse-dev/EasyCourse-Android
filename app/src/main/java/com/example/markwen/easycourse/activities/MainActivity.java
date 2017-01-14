@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-            socketIO.getAllMessage();
+            socketIO.getHistMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -104,7 +104,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intentFromSignup = getIntent();
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
-//            parseSetupIntent(userSetup);
+            parseSetupIntent(userSetup);
+            try {
+                socketIO.getAllMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

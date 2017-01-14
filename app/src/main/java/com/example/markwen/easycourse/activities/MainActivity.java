@@ -21,6 +21,7 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
@@ -34,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             socketIO = EasyCourse.getAppInstance().getSocketIO();
         }
 
+
         // Checking if there is a user currently logged in
         // if there is, remain in MainActivity
         // if not or the user doesn't have any rooms, show SignupLoginActivity
@@ -84,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-            socketIO.getHistMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -105,11 +107,6 @@ public class MainActivity extends AppCompatActivity {
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
             parseSetupIntent(userSetup);
-            try {
-                socketIO.getAllMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }
     }
 

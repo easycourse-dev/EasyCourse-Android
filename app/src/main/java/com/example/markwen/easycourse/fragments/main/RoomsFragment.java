@@ -23,6 +23,8 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
+import org.json.JSONException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
@@ -102,6 +104,12 @@ public class RoomsFragment extends Fragment {
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
+        if(rooms.size() == 0)
+            try {
+                socketIO.getAllMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         if (rooms.size() != 0) {
             roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
             roomRecyclerView.setAdapter(roomRecyclerViewAdapter);

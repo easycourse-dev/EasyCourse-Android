@@ -262,11 +262,11 @@ public class UserFragment extends Fragment {
         dialog.show();
     }
 
-    private void downloadImage(final URL url){
-        Thread thread = new Thread(){
+    private void downloadImage(final URL url) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
-                try  {
+                try {
                     // Download image
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
@@ -294,8 +294,8 @@ public class UserFragment extends Fragment {
         thread.start();
     }
 
-    public void setImageAfterDownload(final Bitmap image){
-        Thread thread = new Thread(){
+    public void setImageAfterDownload(final Bitmap image) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {
@@ -315,8 +315,10 @@ public class UserFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-        if(bitmap != null)
-            avatarImage.setImageBitmap(bitmap);
+        if (user != null && user.getProfilePicture() != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+            if (bitmap != null)
+                avatarImage.setImageBitmap(bitmap);
+        }
     }
 }

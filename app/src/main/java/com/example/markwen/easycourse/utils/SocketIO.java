@@ -221,8 +221,8 @@ public class SocketIO {
 
                         Realm realm = Realm.getDefaultInstance();
                         User.updateUserFromJson(userObj.toString(), realm);
-//                        Course.syncAddCourse(joinedCoursesJSON, realm);
-//                        Room.syncRooms(joinedRoomsJSON, realm);
+                        Course.syncAddCourse(joinedCoursesJSON, realm);
+                        Room.syncRooms(joinedRoomsJSON, realm);
 //                        Course.syncRemoveCourse(joinedCoursesJSON, realm);
                         realm.beginTransaction();
                         // Updating language
@@ -445,7 +445,7 @@ public class SocketIO {
                         Room.updateRoomToRealm(room[0], realm);
                         realm.close();
 
-                        Log.e(TAG, "Success: " + obj.toString());
+                        Log.d(TAG, "Success: " + obj.toString());
                     } catch (JSONException e) {
                         Log.e(TAG, "JSONEx" + e.toString());
                     }
@@ -628,7 +628,7 @@ public class SocketIO {
                 message.setToUser(true);
                 Room currentRoom = Room.getRoomById(realm, toUser);
                 if (currentRoom == null)
-                    currentRoom = createPrivateRoom(senderUser);
+                    currentRoom = createPrivateRoom(senderId);
                 currentRoom.addMessageToRoom(message, realm);
 
             } else { //Is to room
@@ -644,7 +644,10 @@ public class SocketIO {
         }
     }
 
-    public Room createPrivateRoom(User toUser) {
+    public Room createPrivateRoom(String toUserId) {
+        Realm tempRealm = Realm.getDefaultInstance();
+        User toUser = tempRealm.where(User.class).equalTo("id", toUserId).findFirst();
+        User currentUser = User.getCurrentUser(context, tempRealm);
         Room room = new Room(
                 toUser.getId(),
                 toUser.getUsername(),
@@ -660,7 +663,10 @@ public class SocketIO {
                 false,
                 false);
         room.setToUser(true);
-        Room.updateRoomToRealm(room, realm);
+        tempRealm.beginTransaction();
+        tempRealm.copyToRealmOrUpdate(room);
+        tempRealm.commitTransaction();
+        tempRealm.close();
         return room;
     }
 

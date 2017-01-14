@@ -280,6 +280,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void setProfilePicture(Uri uri) {
         profileProgressBar.setVisibility(View.VISIBLE);
+
         BitmapUtils.compressBitmap(uri, this, new CompressImageTask.OnCompressImageTaskCompleted() {
             @Override
             public void onTaskCompleted(final Bitmap bitmap, final byte[] bytes) {

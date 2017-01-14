@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -17,6 +18,7 @@ import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -37,7 +39,6 @@ public class RoomsFragment extends Fragment {
 
     private Realm realm;
     private SocketIO socketIO;
-
 
     @BindView(R.id.roomsRecyclerView)
     RecyclerView roomRecyclerView;
@@ -75,7 +76,7 @@ public class RoomsFragment extends Fragment {
         setupRecyclerView();
 
         socketIO.syncUser();
-        if(roomRecyclerViewAdapter != null)
+        if (roomRecyclerViewAdapter != null)
             roomRecyclerViewAdapter.notifyDataSetChanged();
 
         return v;
@@ -119,8 +120,8 @@ public class RoomsFragment extends Fragment {
     public void startChatRoom(Room room) {
         Intent chatActivityIntent = new Intent(getContext(), ChatRoomActivity.class);
         chatActivityIntent.putExtra("roomId", room.getId());
-        getActivity().startActivity(chatActivityIntent);
         realm.close();
+        getActivity().startActivity(chatActivityIntent);
     }
 
     public void deleteRoom(Room room) {

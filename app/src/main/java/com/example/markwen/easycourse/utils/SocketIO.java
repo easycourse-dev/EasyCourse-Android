@@ -54,10 +54,13 @@ public class SocketIO {
     private Context context;
     private Socket socket;
     private Realm realm;
+    private User currentUser;
 
     public SocketIO(Context context) throws URISyntaxException {
         this.context = context;
         this.realm = Realm.getDefaultInstance();
+
+        currentUser = User.getCurrentUser(context, realm);
 
         IO.Options opts = new IO.Options();
         opts.query = "token=" + APIFunctions.getUserToken(context);
@@ -115,25 +118,24 @@ public class SocketIO {
     }
 
     //sends a message to user/room
-    public void sendMessage(String messageText, String toRoom, String toUserId, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
+    public void sendMessage(String messageText, String toRoom, String toUser, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
         String uuid = UUID.randomUUID().toString();
-        JSONObject jsonParam = new JSONObject();
         Message message;
         User curUser = User.getCurrentUser(context, Realm.getDefaultInstance());
-        if (toUserId == null) { //Message to room
+        if (toUser == null) { //Message to room
             message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, null, new Date());
         } else { //Message to user
-            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUserId, null, new Date());
+            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUser, null, new Date());
         }
-//        Message.updateMessageToRealm(message, Realm.getDefaultInstance());
+
+        JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", uuid);
         jsonParam.put("toRoom", toRoom);
-        jsonParam.put("toUser", toUserId);
+        jsonParam.put("toUser", toUser);
         jsonParam.put("sharedRoom", sharedRoomId);
         jsonParam.put("text", message);
-//        jsonParam.put("imageUrl", imageUrl);
         jsonParam.put("text", messageText);
-//        jsonParam.put("sharedRoom", sharedRoomId);
+        jsonParam.put("sharedRoom", sharedRoomId);
         jsonParam.put("imageData", imageData);
         jsonParam.put("imageWidth", imageWidth);
         jsonParam.put("imageHeight", imageHeight);
@@ -579,84 +581,93 @@ public class SocketIO {
     }
 
     private void saveMessageToRealm(JSONObject obj) {
-        if (obj != null) {
-            Message message;
-            try {
-                JSONObject sender = obj.getJSONObject("sender");
-                String senderId = (String) checkIfJsonExists(sender, "_id", null);
-                String senderName = (String) checkIfJsonExists(sender, "displayName", null);
-                String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+        if (obj == null) return;
+        Message message;
+        try {
+            JSONObject sender = obj.getJSONObject("sender");
+            String senderId = (String) checkIfJsonExists(sender, "_id", null);
+            String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+            String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
 
-                String id = (String) checkIfJsonExists(obj, "_id", null);
-                String remoteId = (String) checkIfJsonExists(obj, "id", null);
-                String text = (String) checkIfJsonExists(obj, "text", null);
-                String imageUrl = (String) checkIfJsonExists(obj, "imageUrl", null);
-                byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
-                boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
-                String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
-                String toUser = (String) checkIfJsonExists(obj, "toUser", null);
-                double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
-                double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
-                Room sharedRoom = null;
-                if (checkIfJsonExists(obj, "sharedRoom", null) != null) {
-                    JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
-                    Log.e(TAG, sharedRoomJSON.toString());
-                    sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
-                }
-                String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
-
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
-
-                Date date = null;
-                try {
-                    date = formatter.parse(dateString);
-
-                } catch (ParseException e) {
-                    Log.e(TAG, "saveMessageToRealm: parseException", e);
-                }
-
-                Realm realm = Realm.getDefaultInstance();
-                User senderUser = new User(senderId, senderName, senderImageUrl);
-                User.updateUserToRealm(senderUser, realm);
-                message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, null, date);
-
-
-                boolean roomExists = false;
-
-                if (message.getToRoom() == null) { //If message is to user
-                    RealmResults<Room> rooms = realm.where(Room.class).equalTo("isToUser", true).findAll(); //Find private rooms
-                    for (Room room : rooms) { //For each room
-                        if (room.getMemberList().contains(senderUser)) { //If the room has the sender
-                            realm.beginTransaction();
-                            room.getMessageList().add(message); //Add the message to that room
-                            realm.copyToRealmOrUpdate(room);
-                            realm.commitTransaction();
-                            roomExists = true;
-                        }
-                    }
-
-                    if (!roomExists) { //If the room does not exist
-                        createPrivateRoom(senderUser, message); //Create a private room and add the message
-                    }
-
-                } else { //Else the message is to a room
-                    message.setToUser(false);
-                    String messageid = message.getId();
-                    if(!Message.isMessageInRealm(message, realm))
-                        Message.updateMessageToRealm(message, realm);
-                }
-
-
-                EasyCourse.bus.post(new Event.MessageEvent(message));
-                realm.close();
-            } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+            String id = (String) checkIfJsonExists(obj, "_id", null);
+            String remoteId = (String) checkIfJsonExists(obj, "id", null);
+            String text = (String) checkIfJsonExists(obj, "text", null);
+            String imageUrl = (String) checkIfJsonExists(obj, "imageUrl", null);
+            byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
+            boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
+            String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
+            String toUser = (String) checkIfJsonExists(obj, "toUser", null);
+            double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
+            double imageHeight = Double.parseDouble((String) checkIfJsonExists(obj, "imageHeight", "0.0"));
+            Room sharedRoom = null;
+            if (checkIfJsonExists(obj, "sharedRoom", null) != null) {
+                JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
+                Log.e(TAG, sharedRoomJSON.toString());
+                sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
             }
+            String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            Date date = null;
+            try {
+                date = formatter.parse(dateString);
+
+            } catch (ParseException e) {
+                Log.e(TAG, "saveMessageToRealm: parseException", e);
+            }
+            Realm realm = Realm.getDefaultInstance();
+            User senderUser = new User(senderId, senderName, senderImageUrl);
+            User.updateUserToRealm(senderUser, realm);
+
+            //TODO: check for shared room
+            message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, true, imageWidth, imageHeight, toRoom, toUser, null, date);
+            if (sharedRoom != null)
+                message.setSharedRoom(sharedRoom);
+
+
+            //TODO: fix assumptions that room is already created
+            if (toRoom == null) { //Is to user
+                message.setToUser(true);
+                Room currentRoom = Room.getRoomById(realm, toUser);
+                if (currentRoom == null)
+                    currentRoom = createPrivateRoom(senderUser);
+                currentRoom.addMessageToRoom(message, realm);
+
+            } else { //Is to room
+                message.setToUser(false);
+                Room currentRoom = Room.getRoomById(realm, toRoom);
+                if (currentRoom != null)
+                    currentRoom.addMessageToRoom(message, realm);
+//                    currentRoom = createPublicRoom(toUser);
+            }
+            realm.close();
+        } catch (JSONException e) {
+            Log.e(TAG, "saveMessageToRealm: ", e);
         }
     }
 
+    public Room createPrivateRoom(User toUser) {
+        Room room = new Room(
+                toUser.getId(),
+                toUser.getUsername(),
+                new RealmList<Message>(),
+                null,
+                "Private Chat",
+                null,
+                new RealmList<>(currentUser, toUser),
+                2,
+                "<10",
+                toUser,
+                null,
+                false,
+                false);
+        room.setToUser(true);
+        Room.updateRoomToRealm(room, realm);
+        return room;
+    }
+
     //check if JSON value exists, returns default if not
-    public Object checkIfJsonExists(JSONObject obj, String searchQuery, Object defaultObj) throws JSONException {
+    public Object checkIfJsonExists(JSONObject obj, String searchQuery, Object
+            defaultObj) throws JSONException {
         if (obj.has(searchQuery)) {
             if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
                 return obj.getString(searchQuery);
@@ -665,58 +676,4 @@ public class SocketIO {
         } else
             return defaultObj;
     }
-
-    public void createPrivateRoom(final User toUser, final Message message) {
-        try {
-            this.createRoom(toUser.getUsername(), null, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    if (!obj.has("error")) {
-                        try {
-                            JSONObject temp = obj.getJSONObject("room");
-
-                            String id = (String) checkIfJsonExists(temp, "_id", null);
-                            String roomName = (String) checkIfJsonExists(temp, "name", null);
-                            String courseID = (String) checkIfJsonExists(temp, "course", null);
-                            String universityID = (String) checkIfJsonExists(temp, "university", null);
-                            boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                            String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                            String language = (String) checkIfJsonExists(temp, "language", "0");
-                            boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
-
-                            Realm realm = Realm.getDefaultInstance();
-                            User curUser = User.getCurrentUser(context, realm);
-                            Room room = new Room(
-                                    id,
-                                    roomName,
-                                    new RealmList<>(message),
-                                    courseID,
-                                    "Private Chat",
-                                    universityID,
-                                    new RealmList<>(User.getCurrentUser(context, realm), toUser),
-                                    memberCounts,
-                                    memberCountsDesc,
-                                    curUser,
-                                    language,
-                                    isPublic,
-                                    isSystem);
-                            room.setToUser(true);
-                            Room.updateRoomToRealm(room, realm);
-                            realm.close();
-
-                        } catch (JSONException e) {
-                            Log.e(TAG, "call: ", e);
-                        }
-                    } else {
-                        Log.e(TAG, "call: ");
-                    }
-                }
-            });
-        } catch (JSONException e) {
-            Log.e(TAG, "goToPrivateRoom: ", e);
-        }
-    }
-
 }

@@ -106,7 +106,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     public void gotoChatRoomFragment(Room currentRoom, User currentUser) {
-        ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
+        ChatRoomFragment chatRoomFragment  = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, chatRoomFragment)

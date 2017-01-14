@@ -120,9 +120,12 @@ public class ChatRoomFragment extends Fragment {
         return v;
     }
 
-    //TODO: private messages
     private void setupChatRecyclerView() {
-        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        if (currentRoom.isToUser())
+            messages = realm.where(Message.class).equalTo("toUser", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        else
+            messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
         chatRecyclerView.setHasFixedSize(true);
@@ -313,27 +316,25 @@ public class ChatRoomFragment extends Fragment {
 
     private void picSent(boolean wasSent) {
         sendImageProgressBar.setVisibility(View.GONE);
-        //TODO: handle pic send failure
-//        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
+        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
     }
 
 
     private boolean sendMessage(String messageText, boolean isTextMessage, byte[] imageData, int imageWidth, int imageHeight) {
         try {
-
-            if (this.currentRoom.isToUser()) {
+            if (this.currentRoom.isToUser()) { //If is to user
                 User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
                 if (otherUser == null) return false;
                 if (isTextMessage) //To user text
-                    socketIO.sendMessage(messageText, null, otherUser.getId(), null, null, 0, 0);
+                    socketIO.sendMessage(messageText, null, currentRoom.getId(), null, null, 0, 0);
                 else //To user pic
-                    socketIO.sendMessage(null, null, otherUser.getId(), null, imageData, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, null, currentRoom.getId(), null, imageData, imageWidth, imageHeight);
 
-            } else {
+            } else { //If is to room
                 if (isTextMessage) //To room text
-                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
+                    socketIO.sendMessage(messageText, currentRoom.getId(), null, null, null, 0, 0);
                 else    //To room pic
-                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
+                    socketIO.sendMessage(null, currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -386,8 +387,7 @@ public class ChatRoomFragment extends Fragment {
 
     @Subscribe
     public void messageEvent(Event.MessageEvent event) {
-        this.chatRecyclerViewAdapter.notifyDataSetChanged();
+//        this.chatRecyclerViewAdapter.notifyDataSetChanged();
     }
-
 
 }

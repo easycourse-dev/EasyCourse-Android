@@ -294,7 +294,7 @@ public class UserFragment extends Fragment {
         thread.start();
     }
 
-    private void setImageAfterDownload(final Bitmap image){
+    public void setImageAfterDownload(final Bitmap image){
         Thread thread = new Thread(){
             @Override
             public void run() {
@@ -309,5 +309,14 @@ public class UserFragment extends Fragment {
             }
         };
         thread.start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        Bitmap bitmap = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+        if(bitmap != null)
+            avatarImage.setImageBitmap(bitmap);
     }
 }

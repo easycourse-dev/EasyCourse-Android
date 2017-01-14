@@ -59,15 +59,12 @@ public class Room extends RealmObject {
 
     }
 
-    public Room(String roomName, String courseName) {
-        this.roomName = roomName;
-        this.courseName = courseName;
-    }
-
     public Room(String id, String roomName, String courseName) {
         this.id = id;
         this.roomName = roomName;
         this.courseName = courseName;
+        this.memberList = new RealmList<>();
+        this.messageList = new RealmList<>();
     }
 
     public Room(String id, String roomName, String courseID, String memberCountsDesc) {
@@ -75,6 +72,8 @@ public class Room extends RealmObject {
         this.roomName = roomName;
         this.courseID = courseID;
         this.memberCountsDesc = memberCountsDesc;
+        this.memberList = new RealmList<>();
+        this.messageList = new RealmList<>();
     }
 
     public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
@@ -151,6 +150,12 @@ public class Room extends RealmObject {
         return null;
     }
 
+    public void addMessageToRoom(Message message, Realm realm) {
+        realm.beginTransaction();
+        this.messageList.add(message);
+        realm.copyToRealmOrUpdate(this);
+        realm.commitTransaction();
+    }
 
     public boolean isToUser() {
         return isToUser;

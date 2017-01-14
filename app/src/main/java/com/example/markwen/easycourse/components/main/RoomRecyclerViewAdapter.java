@@ -146,7 +146,11 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         }
 
 
-        List<Message> messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
+        List<Message> messages;
+        if (room.isToUser())
+            messages = realm.where(Message.class).equalTo("toUser", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
+        else
+            messages = realm.where(Message.class).equalTo("toRoom", room.getId()).findAllSorted("createdAt", Sort.DESCENDING);
         Message message;
         String messageText, senderText;
         if (messages.size() > 0) {

@@ -106,7 +106,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     public void gotoChatRoomFragment(Room currentRoom, User currentUser) {
-        ChatRoomFragment chatRoomFragment  = ChatRoomFragment.newInstance(currentRoom, currentUser);
+        ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.activity_chat_room_content, chatRoomFragment)
@@ -138,10 +138,13 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
-            this.finish();
+            ChatRoomActivity.this.finish();
+            return;
         }
-        toolbarTitleTextView.setText(currentRoom.getRoomName());
-        toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        if (currentRoom.getRoomName() != null)
+            toolbarTitleTextView.setText(currentRoom.getRoomName());
+        if (currentRoom.getCourseName() != null)
+            toolbarSubtitleTextView.setText(currentRoom.getCourseName());
     }
 
     private void setupDrawer() {

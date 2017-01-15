@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
             socketIO = EasyCourse.getAppInstance().getSocketIO();
         }
 
-
         // Checking if there is a user currently logged in
         // if there is, remain in MainActivity
         // if not or the user doesn't have any rooms, show SignupLoginActivity

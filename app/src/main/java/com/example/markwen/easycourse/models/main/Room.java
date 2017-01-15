@@ -56,7 +56,6 @@ public class Room extends RealmObject {
     private boolean isSystem;
 
     public Room() {
-
     }
 
     public Room(String id, String roomName, String courseName) {
@@ -92,18 +91,39 @@ public class Room extends RealmObject {
         this.isSystem = isSystem;
     }
 
+    public Room(String id, String roomName, RealmList<Message> messageList, int unread, boolean silent, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, String language, User founder, boolean isPublic, boolean isSystem, boolean isToUser, boolean isJoinIn) {
+        this.id = id;
+        this.roomName = roomName;
+        this.messageList = messageList;
+        this.unread = unread;
+        this.silent = silent;
+        this.courseID = courseID;
+        this.courseName = courseName;
+        this.university = university;
+        this.memberList = memberList;
+        this.memberCounts = memberCounts;
+        this.memberCountsDesc = memberCountsDesc;
+        this.language = language;
+        this.founder = founder;
+        this.isPublic = isPublic;
+        this.isSystem = isSystem;
+        this.isToUser = isToUser;
+        this.isJoinIn = isJoinIn;
+    }
+
     public static void updateRoomToRealm(Room room, Realm realm) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(room);
         realm.commitTransaction();
     }
 
-    public static void syncRooms(JSONArray updatedRooms, Realm realm){
+    public static void syncRooms(JSONArray updatedRooms, Realm realm) {
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
 
         addNewRooms(updatedRooms, roomsInRealm, realm);
         deleteOldRooms(updatedRooms, roomsInRealm, realm);
     }
+
     public static boolean isRoomInRealm(Room room, Realm realm) {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", room.getId())
@@ -134,7 +154,7 @@ public class Room extends RealmObject {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", id)
                 .findAll();
-        if(results.size() > 0)
+        if (results.size() > 0)
             return results.first();
         return null;
     }

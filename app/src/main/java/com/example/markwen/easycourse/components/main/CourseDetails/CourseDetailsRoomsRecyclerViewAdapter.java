@@ -1,9 +1,11 @@
 package com.example.markwen.easycourse.components.main.CourseDetails;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -64,6 +67,26 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         }
     }
 
+    public class RoomViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.cardViewCourseDetails)
+        CardView courseDetailsCardView;
+        @BindView(R.id.CourseDetailsRoomName)
+        TextView roomNameTextView;
+        @BindView(R.id.CourseDetailsRoomDesc)
+        TextView roomDescTextView;
+        @BindView(R.id.CourseDetailsFounderImage)
+        CircleImageView founderImageView;
+        @BindView(R.id.CourseDetailsRoomFounder)
+        TextView founderTextView;
+        @BindView(R.id.CourseDetailsCheckbox)
+        AnimateCheckBox checkBox;
+
+        public RoomViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
     @Override
     public RoomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.activity_course_details_room_item, viewGroup, false);
@@ -93,6 +116,16 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         } else {
             holder.checkBox.setChecked(false);
         }
+
+        holder.courseDetailsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+                chatActivityIntent.putExtra("roomId", room.getId());
+                activity.startActivity(chatActivityIntent);
+            }
+        });
+
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,22 +175,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return rooms.size();
     }
 
-    public class RoomViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.CourseDetailsRoomName)
-        TextView roomNameTextView;
-        @BindView(R.id.CourseDetailsRoomDesc)
-        TextView roomDescTextView;
-        @BindView(R.id.CourseDetailsFounderImage)
-        CircleImageView founderImageView;
-        @BindView(R.id.CourseDetailsRoomFounder)
-        TextView founderTextView;
-        @BindView(R.id.CourseDetailsCheckbox)
-        AnimateCheckBox checkBox;
-        public RoomViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
 
     private Room isRoomJoined(ArrayList<Room> list, Room room) {
         for (int i = 0; i < list.size(); i++) {
@@ -168,11 +185,11 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return null;
     }
 
-    private void downloadImage(final URL url, final ImageView imgView, final Room room){
-        Thread thread = new Thread(){
+    private void downloadImage(final URL url, final ImageView imgView, final Room room) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
-                try  {
+                try {
                     // Download image
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);

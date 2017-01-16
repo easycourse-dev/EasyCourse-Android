@@ -3,8 +3,11 @@ package com.example.markwen.easycourse.components.main.chat.viewholders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -18,8 +21,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.User;
@@ -117,30 +123,7 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
             sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    try {
-                        socketIO.joinRoom(message.getSharedRoom().getId(), new Ack() {
-                            @Override
-                            public void call(Object... args) {
-                                JSONObject obj = (JSONObject) args[0];
-                                Log.e(TAG, obj.toString());
-                                try {
-                                    if(!obj.has("error")) {
-                                        JSONObject roomObj = obj.getJSONObject("room");
-                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
-                                                .show();
-                                    } else {
-                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
-                                                .show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
+                    showJoinRoomDialog(message, context);
                 }
             });
 
@@ -160,6 +143,58 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                         incomingTime.setVisibility(View.VISIBLE);
                 }
             });
+        }
+    }
+
+    private void showJoinRoomDialog(final Message message, final Context context) {
+        MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .title("Join room?")
+                .negativeText("No")
+                .positiveText("Yes")
+                .positiveColor(ContextCompat.getColor(context, R.color.colorAccent))
+                .negativeColor(ContextCompat.getColor(context, R.color.colorLogout))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        joinRoom(message, context);
+                    }
+                })
+                .build();
+        dialog.show();
+    }
+
+
+    private void joinRoom(Message message, final Context context) {
+        try {
+            socketIO.joinRoom(message.getSharedRoom().getId(), new Ack() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject obj = (JSONObject) args[0];
+                    Log.e(TAG, obj.toString());
+                    try {
+                        if(!obj.has("error")) {
+                            JSONObject roomObj = obj.getJSONObject("room");
+                            String msgObj  = obj.getString("msg");
+                            if(msgObj.equals("User already join this room")) {
+                                String roomId = roomObj.getString("_id");
+                                Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
+                                chatActivityIntent.putExtra("roomId", roomId);
+                                context.startActivity(chatActivityIntent);
+                            } else {
+                                Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
+                                        .show();
+                            }
+                        } else {
+                            Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
+                                    .show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 

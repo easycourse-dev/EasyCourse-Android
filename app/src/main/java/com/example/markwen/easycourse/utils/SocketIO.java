@@ -144,10 +144,12 @@ public class SocketIO {
                     break;
 
                 case ROOM_TO_ROOM:
+                    jsonParam.put("toRoom", message.getToRoom());
                     jsonParam.put("sharedRoom", message.getToRoom());
                     break;
 
                 case ROOM_TO_USER:
+                    jsonParam.put("toUser", message.getToRoom());
                     jsonParam.put("sharedRoom", message.getToRoom());
                     break;
 

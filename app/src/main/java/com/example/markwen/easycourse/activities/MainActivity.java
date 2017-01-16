@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
+            socketIO.getHistMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }

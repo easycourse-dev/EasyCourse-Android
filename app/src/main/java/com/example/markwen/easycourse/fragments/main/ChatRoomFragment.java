@@ -53,7 +53,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -166,6 +169,10 @@ public class ChatRoomFragment extends Fragment {
                 sendTextMessage();
             }
         });
+
+        if(!currentRoom.isJoinIn())
+            messageEditText.setEnabled(false);
+
 
         messageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -284,19 +291,14 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
-    private void joinRoom() {
-        realm.beginTransaction();
-        currentRoom.setJoinIn(true);
-        realm.copyToRealmOrUpdate(currentRoom);
-        realm.commitTransaction();
-    }
-
     private void compressAndSendImage(final Uri uri) {
         BitmapUtils.compressBitmap(uri, getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
             @Override
             public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
-
-                joinRoom();
+                if(!currentRoom.isJoinIn()) {
+                    Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 final String localMessageId = UUID.randomUUID().toString();
                 Message message = new Message(localMessageId, null, currentUser, null, null, bytes, null, false, bitmap.getWidth(), bitmap.getHeight(), currentRoom.getId(), currentRoom.isToUser(), new Date());
                 message.updateMessageToRealm();
@@ -388,10 +390,16 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void sendTextMessage() {
+
+        if(!currentRoom.isJoinIn()) {
+            Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String messageText = messageEditText.getText().toString();
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
-            joinRoom();
+
             final String localMessageId = UUID.randomUUID().toString();
             Message message = new Message(localMessageId, null, currentUser, fixed, null, null, null, false, 0, 0, currentRoom.getId(), currentRoom.isToUser(), new Date());
             message.updateMessageToRealm();
@@ -409,7 +417,7 @@ public class ChatRoomFragment extends Fragment {
                         JSONObject obj = (JSONObject) args[0];
                         JSONObject message = (JSONObject) checkIfJsonExists(obj, "msg", null);
 
-                        JSONObject sender = message.getJSONObject("sender");
+                        JSONObject sender = (JSONObject) checkIfJsonExists(message, "sender", null);
                         String senderId = (String) checkIfJsonExists(sender, "_id", null);
                         String senderName = (String) checkIfJsonExists(sender, "displayName", null);
                         String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
@@ -424,6 +432,15 @@ public class ChatRoomFragment extends Fragment {
                         String toUser = (String) checkIfJsonExists(message, "toUser", null);
                         float imageWidth = Float.parseFloat((String) checkIfJsonExists(message, "imageWidth", "0.0"));
                         float imageHeight = Float.parseFloat((String) checkIfJsonExists(message, "imageHeight", "0.0"));
+                        String dateCreatedAt = (String) checkIfJsonExists(message, "createdAt", null);
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                        Date date = null;
+                        try {
+                            date = formatter.parse(dateCreatedAt);
+
+                        } catch (ParseException e) {
+                            Log.e(TAG, "saveMessageToRealm: parseException", e);
+                        }
 
 
                         Realm tempRealm = Realm.getDefaultInstance();
@@ -456,7 +473,9 @@ public class ChatRoomFragment extends Fragment {
 
                         localMessage.setImageWidth(imageWidth);
                         localMessage.setImageHeight(imageHeight);
+                        localMessage.setCreatedAt(date);
                         tempRealm.commitTransaction();
+                        tempRealm.close();
                     } catch (JSONException e) {
                         Log.e(TAG, "call: ", e);
                     }

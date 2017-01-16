@@ -47,6 +47,10 @@ import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
  */
 
 public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<CourseDetailsRoomsRecyclerViewAdapter.RoomViewHolder> {
+
+    private static final String TAG = "CourseDetailsRoomsRecyc";
+
+
     private ArrayList<Room> rooms = new ArrayList<>();
     private ArrayList<Room> joinedRooms = new ArrayList<>();
     private boolean isCourseJoined = false;
@@ -120,9 +124,9 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         holder.courseDetailsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
-                chatActivityIntent.putExtra("roomId", room.getId());
-                activity.startActivity(chatActivityIntent);
+//                Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+//                chatActivityIntent.putExtra("roomId", room.getId());
+//                activity.startActivity(chatActivityIntent);
             }
         });
 
@@ -195,11 +199,16 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     connection.setDoInput(true);
                     connection.connect();
                     InputStream input = connection.getInputStream();
-                    Bitmap image = BitmapFactory.decodeStream(input);
+                    final Bitmap image = BitmapFactory.decodeStream(input);
                     // Compress image
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 30, stream);
-                    imgView.setImageBitmap(image);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imgView.setImageBitmap(image);
+                        }
+                    });
 
                     // Saving image
                     byte[] byteArray = stream.toByteArray();

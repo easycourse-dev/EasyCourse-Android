@@ -79,11 +79,11 @@ public class ShareRoomActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Room room = rooms.get(position);
 
-                try {
-                    socketIO.sendMessage(null, room.getId(), null, roomShareId, null, 0, 0);
-                } catch (JSONException e) {
-                    Log.e(TAG, e.toString());
-                }
+//                try {
+//                    socketIO.sendMessage(null, room.getId(), null, roomShareId, null, 0, 0);
+//                } catch (JSONException e) {
+//                    Log.e(TAG, e.toString());
+//                }
 
                 finish();
             }

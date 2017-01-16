@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -42,17 +43,17 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
     private AppCompatActivity activity;
 
-    @BindView(R.id.linearOutgoingChatCell)
+    @BindView(R.id.linearOutgoingSharedChatCell)
     LinearLayout outgoingLinearLayout;
-    @BindView(R.id.textViewOutgoingTextTime)
+    @BindView(R.id.textViewOutgoingSharedTextTime)
     TextView outgoingTime;
-    @BindView(R.id.imageViewOutgoingTextImage)
+    @BindView(R.id.imageViewOutgoingSharedTextImage)
     ImageView outgoingImageView;
-    @BindView(R.id.textViewOutgoingTextName)
+    @BindView(R.id.textViewOutgoingSharedTextName)
     TextView outgoingName;
-    @BindView(R.id.relativeLayoutSharedRoomHolder)
+    @BindView(R.id.relativeLayoutOutgoingSharedRoomHolder)
     RelativeLayout sharedRoomHolder;
-    @BindView(R.id.textViewChatRoomName)
+    @BindView(R.id.textViewChatSharedRoomName)
     TextView textViewRoomName;
 
 
@@ -78,10 +79,10 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
             timeVisible = false;
         }
 
-//        if (!message.isSuccessSent())
-//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
+        if (!message.isSuccessSent())
+            sharedRoomHolder.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+        else
+            sharedRoomHolder.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
             if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {

@@ -36,7 +36,7 @@
             android:paddingEnd="40dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/imageViewIncomingUserImage"
+                android:id="@+id/imageViewIncomingPicUserImage"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"

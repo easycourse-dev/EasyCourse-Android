@@ -3,6 +3,7 @@ package com.example.markwen.easycourse.components.main.chat.viewholders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -68,10 +69,10 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
             timeVisible = false;
         }
 
-//        if (!message.isSuccessSent())
-//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
+        if (!message.isSuccessSent())
+            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
+        else
+            outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
             curUser = User.getCurrentUser(activity, Realm.getDefaultInstance());

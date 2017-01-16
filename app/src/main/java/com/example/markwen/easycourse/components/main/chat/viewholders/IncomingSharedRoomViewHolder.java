@@ -45,17 +45,17 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
 
     private AppCompatActivity activity;
 
-    @BindView(R.id.linearIncomingChatCell)
+    @BindView(R.id.linearIncomingSharedChatCell)
     LinearLayout incomingLinearLayout;
-    @BindView(R.id.textViewIncomingTextTime)
+    @BindView(R.id.textViewIncomingSharedTextTime)
     TextView incomingTime;
-    @BindView(R.id.imageViewIncomingTextImage)
+    @BindView(R.id.imageViewIncomingSharedTextImage)
     ImageView incomingImageView;
-    @BindView(R.id.textViewIncomingTextName)
+    @BindView(R.id.textViewIncomingSharedTextName)
     TextView incomingName;
-    @BindView(R.id.relativeLayoutSharedRoomHolder)
+    @BindView(R.id.relativeLayoutIncomingSharedRoomHolder)
     RelativeLayout sharedRoomHolder;
-    @BindView(R.id.textViewChatRoomName)
+    @BindView(R.id.textViewIncomingSharedChatRoomName)
     TextView textViewRoomName;
 
     private boolean timeVisible;
@@ -82,11 +82,6 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         } else {
             incomingTime.setVisibility(View.GONE);
         }
-
-//        if (!message.isSuccessSent())
-//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
         if (thisUser == null) {

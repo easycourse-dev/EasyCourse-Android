@@ -137,9 +137,6 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     }
 
 
-
-
-
     @Override
     public int getItemViewType(int i) {
         if (getData() != null && getData().size() > 0) {
@@ -148,7 +145,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
                 if (message.getImageUrl() != null)
                     return OUTGOING_PIC;
-                else if(message.getSharedRoom() != null)
+                else if (message.getSharedRoom() != null)
                     return OUTGOING_ROOM;
                 else
                     return OUTGOING_TEXT;
@@ -156,7 +153,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
             } else {
                 if (message.getImageUrl() != null)
                     return INCOMING_PIC;
-                else if(message.getSharedRoom() != null)
+                else if (message.getSharedRoom() != null)
                     return INCOMING_ROOM;
                 else
                     return INCOMING_TEXT;
@@ -168,5 +165,17 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
     public void closeRealm() {
         if (realm != null)
             realm.close();
+    }
+
+    public void notifyMessageViewChanged(String messageId) {
+        if (this.getData() == null) return;
+        for (int i = this.getData().size() - 1; i <= 0; i--) {
+            Message message = this.getData().get(i);
+            if (message == null) continue;
+            if (message.getId().equals(messageId)) {
+                this.notifyItemChanged(i);
+                return;
+            }
+        }
     }
 }

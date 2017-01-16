@@ -475,7 +475,7 @@ public class SocketIO {
     public void joinCourse(ArrayList<String> courses, ArrayList<String> languageKeys, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("courses", new JSONArray(courses));
-        jsonParam.put("lang", new JSONArray(languageKeys));
+//        jsonParam.put("lang", new JSONArray(languageKeys));
 
         socket.emit("joinCourse", jsonParam, callback);
     }

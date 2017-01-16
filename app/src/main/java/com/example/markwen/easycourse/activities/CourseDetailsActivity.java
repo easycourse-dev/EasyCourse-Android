@@ -172,7 +172,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
             joinCourseButton.setText(getResources().getString(R.string.joined));
             joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_joined_button));
         } else {
-            joinCourseButton.setText(getResources().getString(R.string.joined));
+            joinCourseButton.setText(getResources().getString(R.string.join));
             joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_join_button));
         }
     }

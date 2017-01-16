@@ -165,7 +165,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+//                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                     new SecondaryDrawerItem().withName(R.string.quit_room)
             );
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -188,7 +188,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             });
         } else { //If private chat
             builder.addDrawerItems(
-                    new SecondaryDrawerItem().withName("Share User"),
+//                    new SecondaryDrawerItem().withName("Share User"),
                     new SecondarySwitchDrawerItem().withName(R.string.block_user).
                             withChecked(isRoomJoined(currentUser.getSilentRooms(), currentRoom))
                             .withOnCheckedChangeListener(new OnCheckedChangeListener() {

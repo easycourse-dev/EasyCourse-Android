@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -18,7 +17,6 @@ import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
-import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.github.clans.fab.FloatingActionButton;
@@ -30,6 +28,7 @@ import org.json.JSONException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -43,6 +42,9 @@ public class RoomsFragment extends Fragment {
 
     private Realm realm;
     private SocketIO socketIO;
+
+    private RealmChangeListener<RealmResults<Room>> realmChangeListener;
+
 
     @BindView(R.id.roomsRecyclerView)
     RecyclerView roomRecyclerView;
@@ -106,15 +108,15 @@ public class RoomsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
-        if (rooms.size() == 0)
+        rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAllAsync();
+       //if (rooms.size() == 0)
             try {
                 if (socketIO != null)
                     socketIO.getAllMessage();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        if (rooms.size() != 0) {
+
             roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
             roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
             roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
@@ -122,7 +124,16 @@ public class RoomsFragment extends Fragment {
             LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
             chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
             roomRecyclerView.setLayoutManager(chatLinearManager);
-        } else {
+            realmChangeListener = new RealmChangeListener<RealmResults<Room>>() {
+                @Override
+                public void onChange(RealmResults<Room> element) {
+                    roomRecyclerView.setVisibility(View.VISIBLE);
+                    roomsRecyclerViewPlaceholder.setVisibility(View.GONE);
+                }
+            };
+            rooms.addChangeListener(realmChangeListener);
+        
+        if (rooms.size() == 0) {
             roomRecyclerView.setVisibility(View.GONE);
             roomsRecyclerViewPlaceholder.setVisibility(View.VISIBLE);
             roomsRecyclerViewPlaceholder.setText("You don't have any joined rooms.\nAdd one by clicking the button below.");

@@ -20,8 +20,10 @@ import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.SocketIO;
+import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 
@@ -77,7 +79,8 @@ public class RoomsFragment extends Fragment {
 
         setupRecyclerView();
 
-        socketIO.syncUser();
+        if(socketIO != null)
+            socketIO.syncUser();
         if (roomRecyclerViewAdapter != null)
             roomRecyclerViewAdapter.notifyDataSetChanged();
 
@@ -104,9 +107,10 @@ public class RoomsFragment extends Fragment {
 
     private void setupRecyclerView() {
         rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
-        if(rooms.size() == 0)
+        if (rooms.size() == 0)
             try {
-                socketIO.getAllMessage();
+                if (socketIO != null)
+                    socketIO.getAllMessage();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -140,5 +144,10 @@ public class RoomsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         realm.close();
+    }
+
+    @Subscribe
+    public void refreshView(Event.SyncEvent syncEvent) {
+        this.roomRecyclerViewAdapter.notifyDataSetChanged();
     }
 }

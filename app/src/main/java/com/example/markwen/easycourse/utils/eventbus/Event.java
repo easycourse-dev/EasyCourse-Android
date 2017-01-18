@@ -31,4 +31,6 @@ public class Event {
 
     public static class ReconnectAttemptEvent{}
 
+    public static class SyncEvent{}
+
 }

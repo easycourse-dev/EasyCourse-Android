@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
-        RealmResults<Room> joinedRooms = realm.where(Room.class).findAll();
 
         if (userToken == null || currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
@@ -246,8 +245,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (socketIO != null)
             socketIO.syncUser();
-
-//        checkForInternet();
     }
 
     @Override

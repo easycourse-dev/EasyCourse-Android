@@ -427,13 +427,14 @@ public class SignupChooseCourses extends Fragment {
                                                     isSystem), realm
                                     );
                                 }
-                                tempRealm.close();
                                 goToMainActivity();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
                     });
+
+            tempRealm.close();
         } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }

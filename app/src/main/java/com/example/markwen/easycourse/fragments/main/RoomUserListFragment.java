@@ -158,77 +158,26 @@ public class RoomUserListFragment extends Fragment {
 
 
     public void goToPrivateRoom(final User toUser) {
-//        Room room = new Room(
-//                toUser.getId(),
-//                toUser.getUsername(),
-//                new RealmList<Message>(),
-//                null,
-//                "Private Chat",
-//                null,
-//                new RealmList<>(curUser, toUser),
-//                2,
-//                "<10",
-//                curUser,
-//                null,
-//                false,
-//                false);
-//        room.setToUser(true);
-//        updateRoomInSocket(room);
-//        Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
-//        chatActivityIntent.putExtra("roomId", room.getId());
-//        activity.finish();
-//        startActivity(chatActivityIntent);
-        try {
-            socketIO.createRoom(toUser.getUsername(), null, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    if (!obj.has("error")) {
-                        try {
-                            JSONObject temp = obj.getJSONObject("room");
-
-                            String id = (String) checkIfJsonExists(temp, "_id", null);
-                            String roomName = (String) checkIfJsonExists(temp, "name", null);
-                            String courseID = (String) checkIfJsonExists(temp, "course", null);
-                            String universityID = (String) checkIfJsonExists(temp, "university", null);
-                            boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
-                            int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
-                            String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
-                            String language = (String) checkIfJsonExists(temp, "language", "0");
-                            boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
-
-                            Room room = new Room(
-                                    id,
-                                    roomName,
-                                    new RealmList<Message>(),
-                                    courseID,
-                                    "Private Chat",
-                                    universityID,
-                                    new RealmList<>(curUser, toUser),
-                                    memberCounts,
-                                    memberCountsDesc,
-                                    curUser,
-                                    language,
-                                    isPublic,
-                                    isSystem);
-                            room.setToUser(true);
-                            updateRoomInSocket(room);
-                            Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
-                            chatActivityIntent.putExtra("roomId", room.getId());
-                            activity.finish();
-                            startActivity(chatActivityIntent);
-
-                        } catch (JSONException e) {
-                            Log.e(TAG, "call: ", e);
-                        }
-                    } else {
-                        Log.e(TAG, "call: ");
-                    }
-                }
-            });
-        } catch (JSONException e) {
-            Log.e(TAG, "goToPrivateRoom: ", e);
-        }
+        Room room = new Room(
+                toUser.getId(),
+                toUser.getUsername(),
+                new RealmList<Message>(),
+                null,
+                "Private Chat",
+                null,
+                new RealmList<>(curUser, toUser),
+                2,
+                "<10",
+                curUser,
+                null,
+                false,
+                false);
+        room.setToUser(true);
+        updateRoomInSocket(room);
+        Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+        chatActivityIntent.putExtra("roomId", room.getId());
+        activity.finish();
+        startActivity(chatActivityIntent);
     }
 
     public void updateRoomInSocket(final Room room){

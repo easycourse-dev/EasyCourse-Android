@@ -21,6 +21,7 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
@@ -34,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
+            socketIO.getHistMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
-
 
 
         setSupportActionBar(toolbar);
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intentFromSignup = getIntent();
         UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
         if (userSetup != null) {
-//            parseSetupIntent(userSetup);
+            parseSetupIntent(userSetup);
         }
     }
 
@@ -117,9 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
-        RealmResults<Room> joinedRooms = realm.where(Room.class).findAll();
 
-        if (userToken == null || currentUser == null || joinedRooms.size() == 0) {
+        if (userToken == null || currentUser == null) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
@@ -244,8 +245,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (socketIO != null)
             socketIO.syncUser();
-
-//        checkForInternet();
     }
 
     @Override

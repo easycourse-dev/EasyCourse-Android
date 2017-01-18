@@ -72,11 +72,6 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingTime.setVisibility(View.GONE);
         }
 
-//        if (!message.isSuccessSent())
-//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            incomingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
-
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
         if (thisUser == null) {
             try {

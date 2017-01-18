@@ -3,12 +3,14 @@ package com.example.markwen.easycourse.fragments.main;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -48,6 +50,14 @@ import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +65,9 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import io.socket.client.Ack;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
 
 
 public class ChatRoomFragment extends Fragment {
@@ -72,6 +85,7 @@ public class ChatRoomFragment extends Fragment {
     private Room currentRoom;
     private User currentUser;
 
+    private Uri imageUri;
 
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
@@ -120,9 +134,12 @@ public class ChatRoomFragment extends Fragment {
         return v;
     }
 
-    //TODO: private messages
     private void setupChatRecyclerView() {
-        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        if (currentRoom.isToUser())
+            messages = realm.where(Message.class).equalTo("toUser", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        else
+            messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
         chatRecyclerView.setHasFixedSize(true);
@@ -138,7 +155,6 @@ public class ChatRoomFragment extends Fragment {
         });
     }
 
-
     private void setupOnClickListeners() {
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,16 +166,20 @@ public class ChatRoomFragment extends Fragment {
         sendImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setupTextMessageToSend();
+                sendTextMessage();
             }
         });
+
+        if(!currentRoom.isJoinIn())
+            messageEditText.setEnabled(false);
+
 
         messageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 boolean handled = false;
                 if (i == EditorInfo.IME_ACTION_SEND) {
-                    setupTextMessageToSend();
+                    sendTextMessage();
                     handled = true;
                 }
                 return handled;
@@ -188,7 +208,7 @@ public class ChatRoomFragment extends Fragment {
                     }
                 })
                 .negativeText("Cancel")
-                .negativeColor(ContextCompat.getColor(getContext(),R.color.colorLogout))
+                .negativeColor(ContextCompat.getColor(getContext(), R.color.colorLogout))
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -219,7 +239,6 @@ public class ChatRoomFragment extends Fragment {
         dialog.show();
     }
 
-
     private void showImageDialog() {
         new MaterialDialog.Builder(activity)
                 .items(R.array.addImageDialog)
@@ -241,7 +260,6 @@ public class ChatRoomFragment extends Fragment {
                 } else {
                     chooseImage();
                 }
-
                 break;
             case 1:  // take image
                 takeImage();
@@ -250,7 +268,7 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void chooseImage() {
-        if (Build.VERSION.SDK_INT < 19 || true) {
+        if (Build.VERSION.SDK_INT < 19) {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -265,34 +283,97 @@ public class ChatRoomFragment extends Fragment {
 
     private void takeImage() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photo = new File(Environment.getExternalStorageDirectory(), new Date().toString() + ".jpg");
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
+        imageUri = Uri.fromFile(photo);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);
         }
     }
 
-
-    private void setupTextMessageToSend() {
-        String messageText = messageEditText.getText().toString();
-        String fixed = messageText.replace("\\", "");
-        if (!TextUtils.isEmpty(fixed)) {
-            if (sendMessage(fixed, true, null, 0, 0)) {
-                messageEditText.setText("");
-                chatRecyclerViewAdapter.notifyDataSetChanged();
-                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
-            }
-        }
-    }
-
     private void compressAndSendImage(final Uri uri) {
-        BitmapUtils.compressBitmap(uri, currentRoom.getId(), getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
+        BitmapUtils.compressBitmap(uri, getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
             @Override
             public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
-                if (ChatRoomFragment.this.sendMessage(null, false, bytes, bitmap.getWidth(), bitmap.getHeight())) {
-                    chatRecyclerViewAdapter.notifyDataSetChanged();
-                    chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount() + 1);
-                    picSent(true);
+                if(!currentRoom.isJoinIn()) {
+                    Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                picSent(false);
+                final String localMessageId = UUID.randomUUID().toString();
+                Message message = new Message(localMessageId, null, currentUser, null, null, bytes, null, false, bitmap.getWidth(), bitmap.getHeight(), currentRoom.getId(), currentRoom.isToUser(), new Date());
+                message.updateMessageToRealm();
+
+                int selector;
+                if (currentRoom.isToUser())
+                    selector = SocketIO.PIC_TO_USER;
+                else
+                    selector = SocketIO.PIC_TO_ROOM;
+
+                socketIO.sendMessage(message, selector, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        try {
+                            JSONObject obj = (JSONObject) args[0];
+                            JSONObject message = (JSONObject) checkIfJsonExists(obj, "msg", null);
+
+                            JSONObject sender = message.getJSONObject("sender");
+                            String senderId = (String) checkIfJsonExists(sender, "_id", null);
+                            String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+                            String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+
+                            String id = (String) checkIfJsonExists(message, "_id", null);
+                            String remoteId = (String) checkIfJsonExists(message, "id", null);
+                            String text = (String) checkIfJsonExists(message, "text", null);
+                            String imageUrl = (String) checkIfJsonExists(message, "imageUrl", null);
+                            byte[] imageData = (byte[]) checkIfJsonExists(message, "imageData", null);
+                            boolean successSent = (boolean) checkIfJsonExists(message, "successSent", false);
+                            String toRoom = (String) checkIfJsonExists(message, "toRoom", null);
+                            String toUser = (String) checkIfJsonExists(message, "toUser", null);
+                            float imageWidth = Float.parseFloat((String) checkIfJsonExists(message, "imageWidth", "0.0"));
+                            float imageHeight = Float.parseFloat((String) checkIfJsonExists(message, "imageHeight", "0.0"));
+
+
+                            Realm tempRealm = Realm.getDefaultInstance();
+                            tempRealm.beginTransaction();
+                            User senderUser = tempRealm.where(User.class).equalTo("id", senderId).findFirst();
+                            if (senderUser == null) {
+                                senderUser = tempRealm.createObject(User.class, senderId);
+                            }
+                            senderUser.setUsername(senderName);
+                            senderUser.setProfilePictureUrl(senderImageUrl);
+
+
+                            Message localMessage = tempRealm.where(Message.class).equalTo("id", localMessageId).findFirst();
+                            if (localMessage == null) {
+                                localMessage = tempRealm.createObject(Message.class, localMessageId);
+                            }
+                            localMessage.setRemoteId(remoteId);
+                            localMessage.setText(text);
+                            localMessage.setImageUrl(imageUrl);
+                            localMessage.setImageData(imageData);
+                            localMessage.setSuccessSent(true);
+
+                            if (toRoom != null) {
+                                localMessage.setToRoom(toRoom);
+                                localMessage.setToUser(false);
+                            } else {
+                                localMessage.setToRoom(toUser);
+                                localMessage.setToUser(true);
+                            }
+
+                            localMessage.setImageWidth(imageWidth);
+                            localMessage.setImageHeight(imageHeight);
+                            tempRealm.commitTransaction();
+                        } catch (JSONException e) {
+                            Log.e(TAG, "call: ", e);
+                        }
+                    }
+                });
+
+                chatRecyclerViewAdapter.notifyMessageViewChanged(localMessageId);
+                chatRecyclerViewAdapter.notifyDataSetChanged();
+
+                picSent(true);
             }
 
             @Override
@@ -304,35 +385,107 @@ public class ChatRoomFragment extends Fragment {
 
     private void picSent(boolean wasSent) {
         sendImageProgressBar.setVisibility(View.GONE);
-        //TODO: handle pic send failure
-//        if (!wasSent) Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
+        if (!wasSent)
+            Toast.makeText(activity, "Failed to send pic!", Toast.LENGTH_SHORT).show();
     }
 
+    private void sendTextMessage() {
 
-    private boolean sendMessage(String messageText, boolean isTextMessage, byte[] imageData, int imageWidth, int imageHeight) {
-        try {
-            //Receive message from socketIO
-            if (this.currentRoom.isToUser()) {
-                User otherUser = Room.getOtherUserIfPrivate(currentRoom, currentUser, realm);
-                if(otherUser == null) return false;
-                if (isTextMessage) //To user text
-                    socketIO.sendMessage(messageText, null, otherUser.getId(), null, null, 0, 0);
-                else //To user pic
-                    socketIO.sendMessage(null, null, otherUser.getId(), null, imageData, imageWidth, imageHeight);
-
-            } else {
-                if (isTextMessage)
-                    socketIO.sendMessage(messageText, this.currentRoom.getId(), null, null, null, 0, 0);
-                else
-                    socketIO.sendMessage(null, this.currentRoom.getId(), null, null, imageData, imageWidth, imageHeight);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "sendMessage: error");
-            return false;
+        if(!currentRoom.isJoinIn()) {
+            Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
+            return;
         }
-        socketIO.syncUser();
-        return true;
+
+        String messageText = messageEditText.getText().toString();
+        String fixed = messageText.replace("\\", "");
+        if (!TextUtils.isEmpty(fixed)) {
+
+            final String localMessageId = UUID.randomUUID().toString();
+            Message message = new Message(localMessageId, null, currentUser, fixed, null, null, null, false, 0, 0, currentRoom.getId(), currentRoom.isToUser(), new Date());
+            message.updateMessageToRealm();
+
+            int selector;
+            if (currentRoom.isToUser())
+                selector = SocketIO.TEXT_TO_USER;
+            else
+                selector = SocketIO.TEXT_TO_ROOM;
+
+            socketIO.sendMessage(message, selector, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    try {
+                        JSONObject obj = (JSONObject) args[0];
+                        JSONObject message = (JSONObject) checkIfJsonExists(obj, "msg", null);
+
+                        JSONObject sender = (JSONObject) checkIfJsonExists(message, "sender", null);
+                        String senderId = (String) checkIfJsonExists(sender, "_id", null);
+                        String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+                        String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+
+                        String id = (String) checkIfJsonExists(message, "_id", null);
+                        String remoteId = (String) checkIfJsonExists(message, "id", null);
+                        String text = (String) checkIfJsonExists(message, "text", null);
+                        String imageUrl = (String) checkIfJsonExists(message, "imageUrl", null);
+                        byte[] imageData = (byte[]) checkIfJsonExists(message, "imageData", null);
+                        boolean successSent = (boolean) checkIfJsonExists(message, "successSent", false);
+                        String toRoom = (String) checkIfJsonExists(message, "toRoom", null);
+                        String toUser = (String) checkIfJsonExists(message, "toUser", null);
+                        float imageWidth = Float.parseFloat((String) checkIfJsonExists(message, "imageWidth", "0.0"));
+                        float imageHeight = Float.parseFloat((String) checkIfJsonExists(message, "imageHeight", "0.0"));
+                        String dateCreatedAt = (String) checkIfJsonExists(message, "createdAt", null);
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                        Date date = null;
+                        try {
+                            date = formatter.parse(dateCreatedAt);
+
+                        } catch (ParseException e) {
+                            Log.e(TAG, "saveMessageToRealm: parseException", e);
+                        }
+
+
+                        Realm tempRealm = Realm.getDefaultInstance();
+                        tempRealm.beginTransaction();
+                        User senderUser = tempRealm.where(User.class).equalTo("id", senderId).findFirst();
+                        if (senderUser == null) {
+                            senderUser = tempRealm.createObject(User.class, senderId);
+                        }
+                        senderUser.setUsername(senderName);
+                        senderUser.setProfilePictureUrl(senderImageUrl);
+
+
+                        Message localMessage = tempRealm.where(Message.class).equalTo("id", localMessageId).findFirst();
+                        if (localMessage == null) {
+                            localMessage = tempRealm.createObject(Message.class, localMessageId);
+                        }
+                        localMessage.setRemoteId(remoteId);
+                        localMessage.setText(text);
+                        localMessage.setImageUrl(imageUrl);
+                        localMessage.setImageData(imageData);
+                        localMessage.setSuccessSent(true);
+
+                        if (toRoom != null) {
+                            localMessage.setToRoom(toRoom);
+                            localMessage.setToUser(false);
+                        } else {
+                            localMessage.setToRoom(toUser);
+                            localMessage.setToUser(true);
+                        }
+
+                        localMessage.setImageWidth(imageWidth);
+                        localMessage.setImageHeight(imageHeight);
+                        localMessage.setCreatedAt(date);
+                        tempRealm.commitTransaction();
+                        tempRealm.close();
+                    } catch (JSONException e) {
+                        Log.e(TAG, "call: ", e);
+                    }
+                }
+            });
+
+//            chatRecyclerViewAdapter.notifyMessageViewChanged(localMessageId);
+            chatRecyclerViewAdapter.notifyDataSetChanged();
+            messageEditText.setText("");
+        }
     }
 
 
@@ -345,7 +498,6 @@ public class ChatRoomFragment extends Fragment {
                 }
                 break;
             }
-
         }
     }
 
@@ -353,12 +505,17 @@ public class ChatRoomFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK) return;
-        Uri selectedImage = data.getData();
-        if (selectedImage == null)
-            Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
-        sendImageDialog(selectedImage);
-    }
 
+        if (requestCode == TAKE_IMAGE_INTENT) {
+            Uri selectedImage = imageUri;
+            sendImageDialog(selectedImage);
+        } else {
+            Uri selectedImage = data.getData();
+            if (selectedImage == null)
+                Toast.makeText(getContext(), "Image not found!", Toast.LENGTH_SHORT).show();
+            sendImageDialog(selectedImage);
+        }
+    }
 
 
     @Override
@@ -373,12 +530,6 @@ public class ChatRoomFragment extends Fragment {
         super.onDestroy();
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
-    }
-
-
-    @Subscribe
-    public void messageEvent(Event.MessageEvent event) {
-        this.chatRecyclerViewAdapter.notifyDataSetChanged();
     }
 
 

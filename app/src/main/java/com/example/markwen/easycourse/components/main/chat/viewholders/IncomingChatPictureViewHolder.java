@@ -46,7 +46,7 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
     TextView incomingPicTime;
     @BindView(R.id.textViewIncomingPicName)
     TextView incomingPicName;
-    @BindView(R.id.imageViewIncomingUserImage)
+    @BindView(R.id.imageViewIncomingPicUserImage)
     ImageView incomingPicUserImage;
     @BindView(R.id.imageViewIncomingPicImage)
     ImageView incomingPicImageView;
@@ -67,11 +67,6 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         } else {
             incomingPicTime.setVisibility(View.GONE);
         }
-
-//        if (!message.isSuccessSent())
-//            incomingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            incomingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         User thisUser = User.getUserFromRealm(realm, message.getSenderId());
         if (thisUser == null) {

@@ -70,9 +70,6 @@
                     android:src="@drawable/ic_person_black_24px" />
 
             </LinearLayout>
-
         </LinearLayout>
-
-
     </LinearLayout>
 </LinearLayout>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,7 @@ import com.example.markwen.easycourse.models.main.Course;
 import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.University;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
@@ -55,7 +57,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
     SocketIO socketIO;
 
     Course course;
-    String courseId, courseName, title, courseDesc, universityId, universityName;
+    String courseId, universityName;
     int creditHrs = 0;
     boolean isJoined;
     ArrayList<Room> courseRooms = new ArrayList<>();
@@ -97,6 +99,12 @@ public class CourseDetailsActivity extends AppCompatActivity {
         Intent courseManageIntent = getIntent();
         courseId = courseManageIntent.getStringExtra("courseId");
         isJoined = courseManageIntent.getBooleanExtra("isJoined", false);
+        course = realm.where(Course.class).equalTo("id", courseId).findFirst();
+        if (course != null) {
+            University university = realm.where(University.class).equalTo("id", course.getUniversityID()).findFirst();
+            if (university != null) universityName = university.getName();
+            setupTextViews();
+        }
         try {
             socketIO.getCourseInfo(courseId, new Ack() {
                 @Override
@@ -104,14 +112,18 @@ public class CourseDetailsActivity extends AppCompatActivity {
                     JSONObject obj = (JSONObject) args[0];
                     try {
                         JSONObject res = obj.getJSONObject("course");
-                        courseName = res.getString("name");
-                        title = res.getString("title");
-                        courseDesc = res.getString("description");
+                        String courseName = res.getString("name");
+                        String title = res.getString("title");
+                        String courseDesc = res.getString("description");
                         creditHrs = res.getInt("creditHours");
-                        universityId = res.getJSONObject("university").getString("_id");
+                        String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        realm.copyToRealmOrUpdate(course);
+                        realm.commitTransaction();
+                        realm.close();
                         // Set up TextViews
                         setupTextViews();
                     } catch (JSONException e) {
@@ -157,11 +169,11 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
     private void updateButtonView(Boolean joined) {
         if (joined) {
-            joinCourseButton.setText("Joined");
-            joinCourseButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.course_details_joined_button, null));
+            joinCourseButton.setText(getResources().getString(R.string.joined));
+            joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_joined_button));
         } else {
-            joinCourseButton.setText("Join");
-            joinCourseButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.course_details_join_button, null));
+            joinCourseButton.setText(getResources().getString(R.string.join));
+            joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_join_button));
         }
     }
 
@@ -173,8 +185,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            courseNameView.setText(courseName);
-                            titleView.setText(title);
+                            courseNameView.setText(course.getCoursename());
+                            titleView.setText(course.getTitle());
                             String creditHrsText;
                             if (creditHrs == 1) {
                                 creditHrsText = "1 credit";
@@ -211,16 +223,16 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        courseName,
-                                        universityId,
+                                        course.getCoursename(),
+                                        course.getUniversityID(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
                                         new User(
-                                                founderJSON.getString("_id"),
-                                                founderJSON.getString("displayName"),
+                                                (String) socketIO.checkIfJsonExists(founderJSON, "_id", null),
+                                                (String) socketIO.checkIfJsonExists(founderJSON, "displayName", null),
                                                 null,
-                                                founderJSON.getString("avatarUrl"),
+                                                (String) socketIO.checkIfJsonExists(founderJSON, "avatarUrl", null),
                                                 null, null),
                                         null,
                                         true,
@@ -232,8 +244,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        courseName,
-                                        universityId,
+                                        course.getCoursename(),
+                                        course.getUniversityID(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -259,8 +271,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        courseName,
-                                        universityId,
+                                        course.getCoursename(),
+                                        course.getUniversityID(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -280,8 +292,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        courseName,
-                                        universityId,
+                                        course.getCoursename(),
+                                        course.getUniversityID(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -305,7 +317,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.e("searchCourseSubroom", responseString);
+                Log.e("searchCourseSubroom", responseString, throwable);
                 Snackbar.make(roomsView, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
@@ -429,8 +441,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
 //        }
     }
 
-    private void updateRecyclerView(){
-        Thread thread = new Thread(){
+    private void updateRecyclerView() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {
@@ -498,8 +510,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined){
-        Thread thread = new Thread(){
+    private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {

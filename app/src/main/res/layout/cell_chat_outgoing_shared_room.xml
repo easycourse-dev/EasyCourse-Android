@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/linearOutgoingChatCell"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:paddingTop="16dp">
+    android:id="@+id/linearOutgoingSharedChatCell"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="16dp">
 
     <TextView
-        android:id="@+id/textViewOutgoingTextTime"
+        android:id="@+id/textViewOutgoingSharedTextTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -34,7 +34,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textViewOutgoingTextName"
+                android:id="@+id/textViewOutgoingSharedTextName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="40dp"
@@ -47,7 +47,7 @@
                 android:orientation="horizontal">
 
                 <RelativeLayout
-                    android:id="@+id/relativeLayoutSharedRoomHolder"
+                    android:id="@+id/relativeLayoutOutgoingSharedRoomHolder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -82,12 +82,12 @@
                             android:clickable="false"
                             android:ellipsize="end"
                             android:maxLength="15"
-                            android:textSize="12sp"
+                            android:text="@string/ROOM"
                             android:textColor="@color/white"
-                            android:text="@string/ROOM"/>
+                            android:textSize="12sp" />
 
                         <TextView
-                            android:id="@+id/textViewChatRoomName"
+                            android:id="@+id/textViewChatSharedRoomName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:clickable="false"
@@ -95,15 +95,14 @@
                             android:maxLines="1"
                             android:text="@string/chooseItemPlaceholder"
                             android:textColor="@color/white"
-                            android:textSize="16sp"
-                            />
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                 </RelativeLayout>
 
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imageViewOutgoingTextImage"
+                    android:id="@+id/imageViewOutgoingSharedTextImage"
                     android:layout_width="40dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"

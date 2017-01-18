@@ -38,7 +38,6 @@ public class Room extends RealmObject {
     private RealmList<Message> messageList;
     private int unread = 0;
     private boolean silent = false;
-    private boolean isSharedRoom = false;
 
     //Group chatting
     private String courseID;
@@ -57,22 +56,14 @@ public class Room extends RealmObject {
     private boolean isSystem;
 
     public Room() {
-
-    }
-
-    public Room(String id) {
-        this.id = id;
-    }
-
-    public Room(String roomName, String courseName) {
-        this.roomName = roomName;
-        this.courseName = courseName;
     }
 
     public Room(String id, String roomName, String courseName) {
         this.id = id;
         this.roomName = roomName;
         this.courseName = courseName;
+        this.memberList = new RealmList<>();
+        this.messageList = new RealmList<>();
     }
 
     public Room(String id, String roomName, String courseID, String memberCountsDesc) {
@@ -80,6 +71,8 @@ public class Room extends RealmObject {
         this.roomName = roomName;
         this.courseID = courseID;
         this.memberCountsDesc = memberCountsDesc;
+        this.memberList = new RealmList<>();
+        this.messageList = new RealmList<>();
     }
 
     public Room(String id, String roomName, RealmList<Message> messageList, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, User founder, String language, boolean isPublic, boolean isSystem) {
@@ -98,18 +91,39 @@ public class Room extends RealmObject {
         this.isSystem = isSystem;
     }
 
+    public Room(String id, String roomName, RealmList<Message> messageList, int unread, boolean silent, String courseID, String courseName, String university, RealmList<User> memberList, int memberCounts, String memberCountsDesc, String language, User founder, boolean isPublic, boolean isSystem, boolean isToUser, boolean isJoinIn) {
+        this.id = id;
+        this.roomName = roomName;
+        this.messageList = messageList;
+        this.unread = unread;
+        this.silent = silent;
+        this.courseID = courseID;
+        this.courseName = courseName;
+        this.university = university;
+        this.memberList = memberList;
+        this.memberCounts = memberCounts;
+        this.memberCountsDesc = memberCountsDesc;
+        this.language = language;
+        this.founder = founder;
+        this.isPublic = isPublic;
+        this.isSystem = isSystem;
+        this.isToUser = isToUser;
+        this.isJoinIn = isJoinIn;
+    }
+
     public static void updateRoomToRealm(Room room, Realm realm) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(room);
         realm.commitTransaction();
     }
 
-    public static void syncRooms(JSONArray updatedRooms, Realm realm){
+    public static void syncRooms(JSONArray updatedRooms, Realm realm) {
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
 
         addNewRooms(updatedRooms, roomsInRealm, realm);
         deleteOldRooms(updatedRooms, roomsInRealm, realm);
     }
+
     public static boolean isRoomInRealm(Room room, Realm realm) {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", room.getId())
@@ -140,7 +154,7 @@ public class Room extends RealmObject {
         RealmResults<Room> results = realm.where(Room.class)
                 .equalTo("id", id)
                 .findAll();
-        if(results.size() > 0)
+        if (results.size() > 0)
             return results.first();
         return null;
     }
@@ -156,6 +170,12 @@ public class Room extends RealmObject {
         return null;
     }
 
+    public void addMessageToRoom(Message message, Realm realm) {
+        realm.beginTransaction();
+        this.messageList.add(message);
+        realm.copyToRealmOrUpdate(this);
+        realm.commitTransaction();
+    }
 
     public boolean isToUser() {
         return isToUser;
@@ -291,14 +311,6 @@ public class Room extends RealmObject {
 
     public void setSystem(boolean system) {
         isSystem = system;
-    }
-
-    public boolean isSharedRoom() {
-        return isSharedRoom;
-    }
-
-    public void setSharedRoom(boolean sharedRoom) {
-        isSharedRoom = sharedRoom;
     }
 
     private static void addNewRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {

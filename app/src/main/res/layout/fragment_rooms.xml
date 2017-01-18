@@ -8,18 +8,20 @@
 
     <!--TODO: Add placeholder layout-->
 
-    <LinearLayout
-        android:id="@+id/roomsLinearContainer"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/roomsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/roomsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/roomsRecyclerViewPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="16dp"/>
 
 
     <com.github.clans.fab.FloatingActionMenu
@@ -67,9 +69,9 @@
             android:layout_gravity="bottom|right"
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
-            app:fab_size="mini"
+            android:src="@drawable/ic_people_white_24px"
             app:fab_label="Join/Create Room"
-            android:src="@drawable/ic_people_white_24px" />
+            app:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>
 </android.support.design.widget.CoordinatorLayout>

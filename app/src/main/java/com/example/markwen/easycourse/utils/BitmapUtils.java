@@ -8,8 +8,11 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,12 +20,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * Created by noahrinehart on 11/5/16.
  */
 
 public class BitmapUtils {
+
 
     public static byte[] bitmapToByteArray(Bitmap bmp) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -59,7 +65,7 @@ public class BitmapUtils {
         return bytes;
     }
 
-    public static byte[] compressBitmapToBytes(Bitmap bitmap, Context context, int percent) {
+    public static byte[] convertBitmapToBytes(Bitmap bitmap, int percent) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, percent, out);
         return out.toByteArray();
@@ -92,7 +98,7 @@ public class BitmapUtils {
         return b;
     }
 
-    public static void compressBitmap(Uri uri, String roomId, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
+    public static void compressBitmap(Uri uri, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
         CompressImageTask task = new CompressImageTask(context, listener);
         task.execute(uri);
     }

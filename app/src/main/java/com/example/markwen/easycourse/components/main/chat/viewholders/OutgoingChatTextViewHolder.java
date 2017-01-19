@@ -59,7 +59,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, final Context context, final ChatRecyclerViewAdapter adapter) {
-        String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
+        final String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
             outgoingTime.setText(reportDateOutgoing);
@@ -98,7 +98,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
             outgoingLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (outgoingTime.getText().equals("time")) return;
+                    if (reportDateOutgoing == null) return;
                     if (timeVisible) {
                         outgoingTime.setVisibility(View.GONE);
                         timeVisible = false;

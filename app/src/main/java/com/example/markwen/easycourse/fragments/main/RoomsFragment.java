@@ -31,6 +31,8 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
+import static com.example.markwen.easycourse.EasyCourse.bus;
+
 /**
  * Created by Mark Wen on 10/18/2016.
  */
@@ -68,6 +70,7 @@ public class RoomsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        bus.register(this);
     }
 
     @Override
@@ -159,6 +162,7 @@ public class RoomsFragment extends Fragment {
 
     @Subscribe
     public void refreshView(Event.SyncEvent syncEvent) {
-        this.roomRecyclerViewAdapter.notifyDataSetChanged();
+        if(roomRecyclerViewAdapter != null)
+            this.roomRecyclerViewAdapter.notifyDataSetChanged();
     }
 }

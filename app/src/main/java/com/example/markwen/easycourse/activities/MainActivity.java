@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         //Binds all the views
         ButterKnife.bind(this);
 
+
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(TAG, "onSuccess: setCoursesAndLanguages");
+                    EasyCourse.bus.post( new Event.SyncEvent());
                 }
 
                 @Override

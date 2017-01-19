@@ -145,6 +145,10 @@ public class ChatRoomActivity extends AppCompatActivity {
             toolbarTitleTextView.setText(currentRoom.getRoomName());
         if (currentRoom.getCourseName() != null)
             toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        if(currentRoom.getCourseName() == null) {
+            toolbarSubtitleTextView.setVisibility(View.GONE);
+            toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+        }
     }
 
     private void setupDrawer() {

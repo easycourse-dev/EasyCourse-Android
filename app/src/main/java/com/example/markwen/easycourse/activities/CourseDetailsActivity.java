@@ -229,10 +229,10 @@ public class CourseDetailsActivity extends AppCompatActivity {
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
                                         new User(
-                                                (String) socketIO.checkIfJsonExists(founderJSON, "_id", null),
-                                                (String) socketIO.checkIfJsonExists(founderJSON, "displayName", null),
+                                                (String) checkIfJsonExists(founderJSON, "_id", null),
+                                                (String) checkIfJsonExists(founderJSON, "displayName", null),
                                                 null,
-                                                (String) socketIO.checkIfJsonExists(founderJSON, "avatarUrl", null),
+                                                (String) checkIfJsonExists(founderJSON, "avatarUrl", null),
                                                 null, null),
                                         null,
                                         true,

@@ -516,13 +516,6 @@ public class ChatRoomFragment extends Fragment {
 
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         realm.close();

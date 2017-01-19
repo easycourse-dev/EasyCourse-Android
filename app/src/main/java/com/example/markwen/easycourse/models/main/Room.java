@@ -117,6 +117,14 @@ public class Room extends RealmObject {
         realm.commitTransaction();
     }
 
+    public void updateRoomToRealm(){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(this);
+        realm.commitTransaction();
+        realm.close();
+    }
+
     public static void syncRooms(JSONArray updatedRooms, Realm realm) {
         RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
 

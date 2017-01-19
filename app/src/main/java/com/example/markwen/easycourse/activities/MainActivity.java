@@ -167,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
         }
+        if(socketIO != null)
+            try {
+                socketIO.getAllMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     }
 
     private void setupNavigation() {
@@ -241,13 +247,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
-    }
 
     @Override
     protected void onDestroy() {

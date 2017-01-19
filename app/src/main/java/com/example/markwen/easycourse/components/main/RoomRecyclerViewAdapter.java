@@ -1,10 +1,8 @@
 package com.example.markwen.easycourse.components.main;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -48,8 +46,6 @@ import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import io.socket.client.Ack;
-
-import static com.example.markwen.easycourse.utils.DateUtils.getLocalDate;
 
 
 /**
@@ -102,14 +98,14 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.chat_room_item, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cell_room_list, viewGroup, false);
         RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = new RoomRecyclerViewAdapter.RoomViewHolder(v);
         return roomViewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        final Room room = rooms.get(position);
+        final Room room = rooms.get(viewHolder.getAdapterPosition());
         final RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
@@ -131,6 +127,12 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         Realm realm = Realm.getDefaultInstance();
         User curUser = User.getCurrentUser(context, realm);
 
+        Picasso.with(context).cancelRequest(roomViewHolder.roomImageView);
+
+        if (!room.isToUser()) {
+            roomViewHolder.roomImageView.setImageResource(R.drawable.ic_group_black_24px);
+        }
+
         if (room.isToUser()) {
             User otherUser = Room.getOtherUserIfPrivate(room, curUser, realm);
             if (otherUser != null) {
@@ -138,7 +140,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                     Bitmap bm = BitmapFactory.decodeByteArray(otherUser.getProfilePicture(), 0, otherUser.getProfilePicture().length);
                     roomViewHolder.roomImageView.setImageBitmap(bm);
                 } else if (otherUser.getProfilePictureUrl() != null) {
-                    Picasso.with(context).load(otherUser.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
+                    Picasso.with(context).load(otherUser.getProfilePictureUrl()).error(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
                 } else {
                     roomViewHolder.roomImageView.setImageResource(R.drawable.ic_person_black_24px);
                 }
@@ -177,6 +179,10 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
                 roomViewHolder.roomLastSenderTextView.setText(senderText);
                 roomViewHolder.roomLastTimeTextView.setText(getTimeString(message));
             }
+        } else {
+            roomViewHolder.roomLastMessageTextView.setText(null);
+            roomViewHolder.roomLastSenderTextView.setText(null);
+            roomViewHolder.roomLastTimeTextView.setText(getTimeString(null));
         }
 
         realm.close();
@@ -231,23 +237,29 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
     private void quitRoom(final Room room) {
-
-        try {
-            socketIO.quitRoom(room.getId(), new Ack() {
-                @Override
-                public void call(Object... args) {
-                    fragment.getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            fragment.deleteRoom(room);
-                            RoomRecyclerViewAdapter.this.notifyDataSetChanged();
-                            socketIO.syncUser();
-                        }
-                    });
-                }
-            });
-        } catch (JSONException e) {
-            Log.e(TAG, "quitRoom: ", e);
+        if(!room.isValid()) return;
+        if (room.isToUser()) {
+            fragment.deleteRoom(room);
+            RoomRecyclerViewAdapter.this.notifyDataSetChanged();
+            socketIO.syncUser();
+        } else {
+            try {
+                socketIO.quitRoom(room.getId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        fragment.getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fragment.deleteRoom(room);
+                                RoomRecyclerViewAdapter.this.notifyDataSetChanged();
+                                socketIO.syncUser();
+                            }
+                        });
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e(TAG, "quitRoom: ", e);
+            }
         }
     }
 

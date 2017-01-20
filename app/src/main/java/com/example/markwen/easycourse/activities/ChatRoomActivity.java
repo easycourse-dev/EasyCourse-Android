@@ -169,7 +169,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-//                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                   new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                     new SecondaryDrawerItem().withName(R.string.quit_room)
             );
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -181,7 +181,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             gotoRoomUserListFragment();
                             return false;
                         case 4:
-//                            shareRoom();
+                            shareRoom();
                             return true;
                         case 5:
                             showQuitRoomDialog();

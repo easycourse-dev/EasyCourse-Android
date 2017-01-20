@@ -139,12 +139,13 @@ public class SocketIO {
 
                 case ROOM_TO_ROOM:
                     jsonParam.put("toRoom", message.getToRoom());
-                    jsonParam.put("sharedRoom", message.getToRoom());
+                    jsonParam.put("sharedRoom", message.getSharedRoom().getId());
                     break;
 
                 case ROOM_TO_USER:
                     jsonParam.put("toUser", message.getToRoom());
-                    jsonParam.put("sharedRoom", message.getToRoom());
+                    jsonParam.put("sharedRoom", message.getSharedRoom().getId()
+                    );
                     break;
 
                 case PIC_TO_ROOM:
@@ -180,6 +181,11 @@ public class SocketIO {
     }
 
     public synchronized void syncUser() {
+        try {
+            getAllMessage();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         socket.emit("syncUser", 1, new Ack() {
             @Override
             public void call(Object... args) {

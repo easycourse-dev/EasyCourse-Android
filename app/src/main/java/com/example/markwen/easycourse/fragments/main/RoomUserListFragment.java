@@ -162,17 +162,22 @@ public class RoomUserListFragment extends Fragment {
                 toUser.getId(),
                 toUser.getUsername(),
                 new RealmList<Message>(),
+                0,
+                false,
                 null,
-                "Private Chat",
+                null,
                 null,
                 new RealmList<>(curUser, toUser),
                 2,
                 "<10",
-                curUser,
                 null,
+                curUser,
                 false,
-                false);
-        room.setToUser(true);
+                false,
+                true,
+                true);
+
+
         updateRoomInSocket(room);
         Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
         chatActivityIntent.putExtra("roomId", room.getId());

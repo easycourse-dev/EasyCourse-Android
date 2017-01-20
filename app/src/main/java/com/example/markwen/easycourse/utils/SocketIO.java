@@ -1,13 +1,10 @@
 package com.example.markwen.easycourse.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import com.example.markwen.easycourse.EasyCourse;
-import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Course;
-import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.University;
@@ -28,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -61,13 +57,11 @@ public class SocketIO {
     private Context context;
     private Socket socket;
     private Realm realm;
-    private User currentUser;
 
     public SocketIO(Context context) throws URISyntaxException {
         this.context = context;
         this.realm = Realm.getDefaultInstance();
 
-        currentUser = User.getCurrentUser(context, realm);
 
         IO.Options opts = new IO.Options();
         opts.query = "token=" + APIFunctions.getUserToken(context);
@@ -92,8 +86,8 @@ public class SocketIO {
             @Override
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
-                saveMessageToRealm(obj);
-                //Bus event sent in saveMessageToRealm
+                saveJsonMessageToRealm(obj);
+                //Bus event sent in saveJsonMessageToRealm
                 Log.d(TAG, "message");
             }
         });
@@ -173,48 +167,6 @@ public class SocketIO {
 
         socket.emit("message", jsonParam, ack);
     }
-
-
-//    //sends a message to user/room
-//    public void sendMessage(String messageText, String toRoom, String toUser, String sharedRoomId, byte[] imageData, double imageWidth, double imageHeight) throws JSONException {
-//        String uuid = UUID.randomUUID().toString();
-//        Message message;
-//        User curUser = User.getCurrentUser(context, Realm.getDefaultInstance());
-//        if (toUser == null) { //Message to room
-//            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, toRoom, null, null, new Date());
-//        } else { //Message to user
-//            message = new Message(uuid, null, curUser, messageText, null, imageData, false, imageWidth, imageHeight, null, toUser, null, new Date());
-//        }
-//
-//        JSONObject jsonParam = new JSONObject();
-//        jsonParam.put("id", uuid);
-//        jsonParam.put("toRoom", toRoom);
-//        jsonParam.put("toUser", toUser);
-//        jsonParam.put("sharedRoom", sharedRoomId);
-//        jsonParam.put("text", message);
-//        jsonParam.put("text", messageText);
-//        jsonParam.put("sharedRoom", sharedRoomId);
-//        jsonParam.put("imageData", imageData);
-//        jsonParam.put("imageWidth", imageWidth);
-//        jsonParam.put("imageHeight", imageHeight);
-//
-//        socket.emit("message", jsonParam, new Ack() {
-//            @Override
-//            public void call(Object... args) {
-//                try {
-//                    JSONObject obj = (JSONObject) args[0];
-//                    if (obj.has("error")) {
-//                        Log.e(TAG, obj.toString());
-//                    } else {
-//                        JSONObject msgObj = obj.getJSONObject("msg");
-//                        saveMessageToRealm(msgObj);
-//                    }
-//                } catch (JSONException e) {
-//                    Log.e(TAG, e.toString());
-//                }
-//            }
-//        });
-//    }
 
     //syncs realm database
     public void syncUser(String displayName, byte[] avatar, ArrayList<String> languages, Ack callback) throws JSONException {
@@ -324,13 +276,29 @@ public class SocketIO {
                             room.setFounder(founderUser);
                             room.setPublic(roomIsPublic);
                             room.setSystem(roomIsSystem);
+                            realm.copyToRealmOrUpdate(founderUser);
+                            realm.copyToRealmOrUpdate(room);
                             realm.commitTransaction();
                             joinedRooms.add(room);
                         }
                     }
 
                     JSONArray silentRoomArray = (JSONArray) checkIfJsonExists(userObj, "silentRoom", null);
-                    //TODO: implement silentrooms
+                    RealmList<Room> silentRooms = new RealmList<>();
+                    if (silentRoomArray != null) {
+                        for (int i = 0; i < silentRoomArray.length(); i++) {
+                            String roomId = joinedRoomArray.getString(i);
+                            realm.beginTransaction();
+                            Room room = realm.where(Room.class).equalTo("id", roomId).findFirst();
+                            if (room == null) {
+                                room = realm.createObject(Room.class, roomId);
+                            }
+                            room.setSilent(true);
+                            realm.copyToRealmOrUpdate(room);
+                            realm.commitTransaction();
+                            silentRooms.add(room);
+                        }
+                    }
 
                     JSONArray contactsArray = (JSONArray) checkIfJsonExists(userObj, "contacts", null);
                     RealmList<User> contacts = new RealmList<>();
@@ -344,24 +312,28 @@ public class SocketIO {
                             String contactUniversity = (String) checkIfJsonExists(contactObj, "university", null);
                             String contactAvatar = (String) checkIfJsonExists(contactObj, "avatarUrl", null);
 
-                            //TODO: contact joined courses
-//                        JSONArray contactJoinedCourses = (JSONArray) checkIfJsonExists(contactObj, "joinedCourse", null);
-//                        RealmList<Course> contactCourses = new RealmList<>();
-//                        for (int j = 0; j < contactJoinedCourses.length(); j++) {
-//                            String contactJoinedCourseId = contactJoinedCourses.getString(i);
-//                            Course contactCourse = realm.where(Course.class).equalTo("id", contactJoinedCourseId).findFirst();
-//                            if(contactCourse == null)
-//                                contactCourse = new Course(contactJoinedCourseId, null, null);
-//                            contactCourses.add(contactCourse);
-//                        }
+                            JSONArray contactJoinedCourses = (JSONArray) checkIfJsonExists(contactObj, "joinedCourse", null);
+                            RealmList<Course> contactCourses = new RealmList<>();
+//                            if (contactJoinedCourses != null) {
+//                                for (int j = 0; j < contactJoinedCourses.length(); j++) {
+//                                    String contactJoinedCourseId = contactJoinedCourses.getString(i);
+//                                    realm.beginTransaction();
+//                                    Course contactCourse = realm.where(Course.class).equalTo("id", contactJoinedCourseId).findFirst();
+//                                    if (contactCourse == null)
+//                                        contactCourse = realm.createObject(Course.class, contactJoinedCourseId);
+//                                    realm.commitTransaction();
+//                                    contactCourses.add(contactCourse);
+//                                }
+//                            }
                             int contactStatus = Integer.parseInt((String) checkIfJsonExists(contactObj, "status", 0));
 
                             User contact = realm.where(User.class).equalTo("id", contactId).findFirst();
                             if (contact == null)
-                                contact = new User(contactId, contactName, null, contactAvatar, contactEmail, contactUniversity, null, null, null, null, contactStatus);
+                                contact = new User(contactId, contactName, null, contactAvatar, contactEmail, contactUniversity, contactCourses, null, null, null, contactStatus);
                             realm.beginTransaction();
                             realm.copyToRealmOrUpdate(contact);
                             realm.commitTransaction();
+                            createPrivateRoom(contactId);
                         }
                     }
 
@@ -374,11 +346,11 @@ public class SocketIO {
                     currentUser.setUniversityID(userUniversity);
                     currentUser.setJoinedCourses(userCourses);
                     currentUser.setJoinedRooms(joinedRooms);
+                    currentUser.setSilentRooms(silentRooms);
                     realm.copyToRealmOrUpdate(currentUser);
                     realm.commitTransaction();
 
                     EasyCourse.bus.post(new Event.SyncEvent());
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -388,6 +360,16 @@ public class SocketIO {
         });
     }
 
+    public void getHistMessage(Ack ack) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
+        if (list.size() < 1) return;
+        Message message = list.first();
+        long time = message.getCreatedAt().getTime();
+        jsonParam.put("lastUpdateTime", time);
+        socket.emit("getHistMessage", jsonParam, ack);
+    }
 
     //saves list of messages to realm
     public void getHistMessage() throws JSONException {
@@ -409,7 +391,7 @@ public class SocketIO {
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
                         for (int i = 0; i < msgArray.length(); i++) {
-                            saveMessageToRealm(msgArray.getJSONObject(i));
+                            saveJsonMessageToRealm(msgArray.getJSONObject(i));
                         }
                     }
                 } catch (JSONException e) {
@@ -432,7 +414,7 @@ public class SocketIO {
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
                         for (int i = 0; i < msgArray.length(); i++) {
-                            saveMessageToRealm(msgArray.getJSONObject(i));
+                            saveJsonMessageToRealm(msgArray.getJSONObject(i));
                         }
                     }
                 } catch (JSONException e) {
@@ -532,6 +514,12 @@ public class SocketIO {
         socket.emit("quitRoom", jsonParam, callback);
     }
 
+    public void removeFriend(String userId, Ack callback) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("otherUser", userId);
+        socket.emit("removeFriend", jsonParam, callback);
+    }
+
     public void createRoom(String name, String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("name", name);
@@ -544,8 +532,6 @@ public class SocketIO {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
 
-
-        final Room[] room = {null};
 
         socket.emit("getRoomInfo", jsonParam, new Ack() {
             @Override
@@ -566,11 +552,8 @@ public class SocketIO {
                         String language = (String) checkIfJsonExists(temp, "language", "0");
                         boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
-                        room[0] = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
-
-                        Realm realm = Realm.getDefaultInstance();
-                        Room.updateRoomToRealm(room[0], realm);
-                        realm.close();
+                        Room room = new Room(id, roomName, null, courseID, courseName, universityID, null, memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
+                        room.updateRoomToRealm();
 
                         Log.d(TAG, "Success: " + obj.toString());
                     } catch (JSONException e) {
@@ -706,7 +689,7 @@ public class SocketIO {
         });
     }
 
-    private void saveMessageToRealm(JSONObject obj) {
+    private void saveJsonMessageToRealm(JSONObject obj) {
         if (obj == null) return;
         Message message;
         try {
@@ -720,7 +703,6 @@ public class SocketIO {
             String text = (String) checkIfJsonExists(obj, "text", null);
             String imageUrl = (String) checkIfJsonExists(obj, "imageUrl", null);
             byte[] imageData = (byte[]) checkIfJsonExists(obj, "imageData", null);
-            boolean successSent = (boolean) checkIfJsonExists(obj, "successSent", false);
             String toRoom = (String) checkIfJsonExists(obj, "toRoom", null);
             String toUser = (String) checkIfJsonExists(obj, "toUser", null);
             double imageWidth = Double.parseDouble((String) checkIfJsonExists(obj, "imageWidth", "0.0"));
@@ -728,8 +710,7 @@ public class SocketIO {
             Room sharedRoom = null;
             if (checkIfJsonExists(obj, "sharedRoom", null) != null) {
                 JSONObject sharedRoomJSON = obj.getJSONObject("sharedRoom");
-                Log.e(TAG, sharedRoomJSON.toString());
-                sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
+                sharedRoom = createOrFindSharedRoom(sharedRoomJSON);
             }
             String dateString = (String) checkIfJsonExists(obj, "createdAt", null);
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
@@ -738,77 +719,88 @@ public class SocketIO {
                 date = formatter.parse(dateString);
 
             } catch (ParseException e) {
-                Log.e(TAG, "saveMessageToRealm: parseException", e);
+                Log.e(TAG, "saveJsonMessageToRealm: parseException", e);
             }
             Realm realm = Realm.getDefaultInstance();
+
             User senderUser = new User(senderId, senderName, senderImageUrl);
             User.updateUserToRealm(senderUser, realm);
 
-            //TODO: check for shared room
-            message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, sharedRoom, true, imageWidth, imageHeight, toRoom, false, date);
-            if (toRoom == null)
-                message.setToUser(true);
-
-            if (sharedRoom != null)
-                message.setSharedRoom(sharedRoom);
-
-
-            //TODO: fix assumptions that room is already created
-            if (toRoom == null) { //Is to user
-                message.setToUser(true);
+            if (toRoom != null) { //To room
+                message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, sharedRoom, true, imageWidth, imageHeight, toRoom, false, date);
+            } else { //To user
+                message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, sharedRoom, true, imageWidth, imageHeight, senderId, true, date);
                 Room currentRoom = Room.getRoomById(realm, toUser);
                 if (currentRoom == null)
                     currentRoom = createPrivateRoom(senderId);
-                currentRoom.addMessageToRoom(message, realm);
-
-            } else { //Is to room
-                message.setToUser(false);
-                Room currentRoom = Room.getRoomById(realm, toRoom);
-                if (currentRoom != null)
-                    currentRoom.addMessageToRoom(message, realm);
-//                    currentRoom = createPublicRoom(toUser);
+                realm.beginTransaction();
+                currentRoom.setJoinIn(true);
+                realm.copyToRealmOrUpdate(currentRoom);
+                realm.commitTransaction();
             }
+
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(message);
+            realm.commitTransaction();
             realm.close();
+            EasyCourse.bus.post(new Event.MessageEvent(message));
         } catch (JSONException e) {
-            Log.e(TAG, "saveMessageToRealm: ", e);
+            Log.e(TAG, "saveJsonMessageToRealm: ", e);
         }
     }
 
-    public Room createPrivateRoom(String toUserId) {
+    private Room createPrivateRoom(String toUserId) {
         Realm tempRealm = Realm.getDefaultInstance();
         User toUser = tempRealm.where(User.class).equalTo("id", toUserId).findFirst();
         User currentUser = User.getCurrentUser(context, tempRealm);
+
         Room room = new Room(
                 toUser.getId(),
                 toUser.getUsername(),
                 new RealmList<Message>(),
+                0,
+                false,
                 null,
-                "Private Chat",
+                null,
                 null,
                 new RealmList<>(currentUser, toUser),
                 2,
                 "<10",
-                toUser,
                 null,
+                currentUser,
                 false,
-                false);
-        room.setToUser(true);
+                false,
+                true,
+                true);
+
         tempRealm.beginTransaction();
-        tempRealm.copyToRealmOrUpdate(room);
+        Room tempRoom = tempRealm.copyToRealmOrUpdate(room);
         tempRealm.commitTransaction();
         tempRealm.close();
-        return room;
+        return tempRoom;
     }
 
-    //check if JSON value exists, returns default if not
-    public static Object checkIfJsonExists(JSONObject obj, String searchQuery, Object
-            defaultObj) throws JSONException {
-        if (obj.has(searchQuery)) {
-            if (obj.get(searchQuery) instanceof String || obj.get(searchQuery) instanceof Integer)
-                return obj.getString(searchQuery);
-            else
-                return obj.get(searchQuery);
-        } else
-            return defaultObj;
+    private Room createOrFindSharedRoom(JSONObject sharedRoomObj) throws JSONException {
+        Realm tempRealm = Realm.getDefaultInstance();
+        String roomId = (String) checkIfJsonExists(sharedRoomObj, "id", null);
+        Room realmRoom = tempRealm.where(Room.class).equalTo("id", roomId).findFirst();
+        if (realmRoom != null) return realmRoom;
+
+        String name = (String) checkIfJsonExists(sharedRoomObj, "name", null);
+        String course = (String) checkIfJsonExists(sharedRoomObj, "course", null);
+        String memberCountsDescription = (String) checkIfJsonExists(sharedRoomObj, "memberCountsDescription", null);
+
+        Room room = new Room(
+                roomId,
+                name,
+                course,
+                memberCountsDescription
+        );
+
+        tempRealm.beginTransaction();
+        Room tempRoom = tempRealm.copyToRealmOrUpdate(room);
+        tempRealm.commitTransaction();
+        tempRealm.close();
+        return tempRoom;
     }
 }

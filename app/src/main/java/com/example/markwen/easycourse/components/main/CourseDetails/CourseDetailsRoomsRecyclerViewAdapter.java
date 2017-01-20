@@ -135,7 +135,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
             public void onClick(View view) {
                 if (holder.checkBox.isChecked()) {
                     dropRoom(room.getId());
-                    // TODO: update checkbox after dropRoom is called
                     holder.checkBox.setChecked(false);
                     for (int i = 0; i < joinedRooms.size(); i++) {
                         if (joinedRooms.get(i).getId().equals(room.getId())) {
@@ -144,7 +143,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     }
                 } else {
                     joinRoom(room.getId(), room.getCourseName());
-                    // TODO: update checkbox after joinRoom is called
                     holder.checkBox.setChecked(true);
                 }
             }

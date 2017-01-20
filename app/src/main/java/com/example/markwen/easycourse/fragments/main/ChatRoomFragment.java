@@ -135,10 +135,7 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void setupChatRecyclerView() {
-        if (currentRoom.isToUser())
-            messages = realm.where(Message.class).equalTo("toUser", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
-        else
-            messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
 
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
@@ -170,7 +167,7 @@ public class ChatRoomFragment extends Fragment {
             }
         });
 
-        if(!currentRoom.isJoinIn())
+        if (!currentRoom.isJoinIn() && !currentRoom.isToUser())
             messageEditText.setEnabled(false);
 
 
@@ -295,7 +292,7 @@ public class ChatRoomFragment extends Fragment {
         BitmapUtils.compressBitmap(uri, getContext(), new CompressImageTask.OnCompressImageTaskCompleted() {
             @Override
             public void onTaskCompleted(Bitmap bitmap, byte[] bytes) {
-                if(!currentRoom.isJoinIn()) {
+                if (!currentRoom.isJoinIn() && currentRoom.isToUser()) {
                     Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -391,7 +388,7 @@ public class ChatRoomFragment extends Fragment {
 
     private void sendTextMessage() {
 
-        if(!currentRoom.isJoinIn()) {
+        if (!currentRoom.isJoinIn() && !currentRoom.isToUser()) {
             Toast.makeText(getContext(), "You have not joined this room!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -517,13 +514,6 @@ public class ChatRoomFragment extends Fragment {
         }
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
-    }
 
     @Override
     public void onDestroy() {

@@ -64,7 +64,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
-        String reportDateIncoming = DateUtils.getTimeString(message, prevMessage);
+        final String reportDateIncoming = DateUtils.getTimeString(message, prevMessage);
         if (reportDateIncoming != null) {
             incomingTime.setVisibility(View.VISIBLE);
             incomingTime.setText(reportDateIncoming);
@@ -79,18 +79,18 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void call(Object... args) {
                         User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
-                        fillUserInfo(thisUser, context, message);
+                        fillUserInfo(thisUser, context, message, reportDateIncoming);
                     }
                 });
             } catch (JSONException e) {
                 Log.e(TAG, "setupView: ", e);
             }
         } else {
-            fillUserInfo(thisUser, context, message);
+            fillUserInfo(thisUser, context, message, reportDateIncoming);
         }
     }
 
-    private void fillUserInfo(User thisUser, final Context context, final Message message) {
+    private void fillUserInfo(User thisUser, final Context context, final Message message, final String reportDateIncoming) {
         if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
@@ -112,7 +112,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             incomingLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (incomingTime.getText().equals("time")) return;
+                    if (reportDateIncoming == null) return;
                     if (timeVisible) {
                         incomingTime.setVisibility(View.GONE);
                         timeVisible = false;

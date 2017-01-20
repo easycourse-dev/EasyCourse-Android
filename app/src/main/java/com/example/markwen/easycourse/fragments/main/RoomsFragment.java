@@ -16,6 +16,7 @@ import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
+import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.eventbus.Event;
@@ -29,7 +30,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmList;
 import io.realm.RealmResults;
+
+import static com.example.markwen.easycourse.EasyCourse.bus;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -68,6 +72,7 @@ public class RoomsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        bus.register(this);
     }
 
     @Override
@@ -81,8 +86,7 @@ public class RoomsFragment extends Fragment {
 
         setupRecyclerView();
 
-        if(socketIO != null)
-            socketIO.syncUser();
+
         if (roomRecyclerViewAdapter != null)
             roomRecyclerViewAdapter.notifyDataSetChanged();
 
@@ -112,7 +116,7 @@ public class RoomsFragment extends Fragment {
        //if (rooms.size() == 0)
             try {
                 if (socketIO != null)
-                    socketIO.getAllMessage();
+                    socketIO.getHistMessage();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -148,7 +152,14 @@ public class RoomsFragment extends Fragment {
     }
 
     public void deleteRoom(Room room) {
-        Room.deleteRoomFromRealm(room, realm);
+        Realm tempRelm = Realm.getDefaultInstance();
+        RealmResults<Message> messages = tempRelm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
+        tempRelm.beginTransaction();
+        room.deleteFromRealm();
+        if(messages.isValid())
+            messages.deleteAllFromRealm();
+        tempRelm.commitTransaction();
+        tempRelm.close();
     }
 
     @Override
@@ -158,7 +169,14 @@ public class RoomsFragment extends Fragment {
     }
 
     @Subscribe
-    public void refreshView(Event.SyncEvent syncEvent) {
-        this.roomRecyclerViewAdapter.notifyDataSetChanged();
+    public void refreshViewAfterSync(Event.SyncEvent syncEvent) {
+        if(roomRecyclerViewAdapter != null)
+            this.roomRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void refreshViewAfterMessage(Event.MessageEvent messageEvent) {
+        if(roomRecyclerViewAdapter != null)
+            this.roomRecyclerViewAdapter.notifyDataSetChanged();
     }
 }

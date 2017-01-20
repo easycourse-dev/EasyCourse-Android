@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         //Binds all the views
         ButterKnife.bind(this);
 
+
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(TAG, "onSuccess: setCoursesAndLanguages");
+                    EasyCourse.bus.post( new Event.SyncEvent());
                 }
 
                 @Override
@@ -165,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
         }
+        if(socketIO != null)
+            try {
+                socketIO.getAllMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     }
 
     private void setupNavigation() {
@@ -239,13 +247,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (socketIO != null)
-            socketIO.syncUser();
-    }
 
     @Override
     protected void onDestroy() {

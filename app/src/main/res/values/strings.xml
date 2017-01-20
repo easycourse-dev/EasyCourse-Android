@@ -28,7 +28,7 @@
 
     <!--Chat-->
     <string name="chatMessageAccessibility">User Image</string>
-    <string name="messageSendBoxHint">Enter a message</string>
+    <string name="messageSendBoxHint">Say something&#8230;</string>
 
     <!--Menu-->
     <string name="action_settings">Settings</string>

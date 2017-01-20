@@ -145,6 +145,10 @@ public class ChatRoomActivity extends AppCompatActivity {
             toolbarTitleTextView.setText(currentRoom.getRoomName());
         if (currentRoom.getCourseName() != null)
             toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        if (currentRoom.getCourseName() == null) {
+            toolbarSubtitleTextView.setVisibility(View.GONE);
+            toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+        }
     }
 
     private void setupDrawer() {
@@ -272,38 +276,64 @@ public class ChatRoomActivity extends AppCompatActivity {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        try {
-                            socketIO.quitRoom(currentRoom.getId(), new Ack() {
-                                @Override
-                                public void call(Object... args) {
-                                    JSONObject obj = (JSONObject) args[0];
-                                    Log.e(TAG, obj.toString());
-
-                                    if (obj.has("error")) {
-                                        Log.e(TAG, obj.toString());
-                                    } else {
-
-                                        try {
-                                            boolean success = obj.getBoolean("success");
-                                            if (success) {
-                                                deleteRoomInSocket(currentRoom);
-                                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                            }
-                                        } catch (JSONException e) {
-                                            Log.e(TAG, e.toString());
-                                        }
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        quitRoom();
                     }
                 })
                 .build();
         dialog.show();
     }
 
+    private void quitRoom() {
+        try {
+            if (currentRoom.isToUser()) {
+                socketIO.removeFriend(currentRoom.getId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        JSONObject obj = (JSONObject) args[0];
+
+                        if (obj.has("error")) {
+                            Log.e(TAG, "call: " + obj.toString());
+                        } else {
+                            try {
+                                boolean success = obj.getBoolean("success");
+                                if (success) {
+                                    deleteRoomInSocket(currentRoom);
+                                    startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "call: ", e);
+                            }
+                        }
+                    }
+                });
+            } else {
+                socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        JSONObject obj = (JSONObject) args[0];
+
+                        if (obj.has("error")) {
+                            Log.e(TAG, obj.toString());
+                        } else {
+
+                            try {
+                                boolean success = obj.getBoolean("success");
+                                if (success) {
+                                    deleteRoomInSocket(currentRoom);
+                                    startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "call: ", e);
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        socketIO.syncUser();
+    }
 
     private void silenceRoom(final boolean isChecked) {
         try {
@@ -449,14 +479,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
         }
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        if (socketIO != null)
-//            socketIO.syncUser();
     }
 
     @Override

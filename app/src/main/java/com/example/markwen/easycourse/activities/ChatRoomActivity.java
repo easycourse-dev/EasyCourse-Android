@@ -286,26 +286,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     private void quitRoom() {
         try {
             if (currentRoom.isToUser()) {
-                socketIO.removeFriend(currentRoom.getId(), new Ack() {
-                    @Override
-                    public void call(Object... args) {
-                        JSONObject obj = (JSONObject) args[0];
-
-                        if (obj.has("error")) {
-                            Log.e(TAG, "call: " + obj.toString());
-                        } else {
-                            try {
-                                boolean success = obj.getBoolean("success");
-                                if (success) {
-                                    deleteRoomInSocket(currentRoom);
-                                    startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
-                                }
-                            } catch (JSONException e) {
-                                Log.e(TAG, "call: ", e);
-                            }
-                        }
-                    }
-                });
+                deleteRoomInSocket(currentRoom);
             } else {
                 socketIO.quitRoom(currentRoom.getId(), new Ack() {
                     @Override

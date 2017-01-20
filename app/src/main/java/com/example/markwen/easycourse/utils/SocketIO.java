@@ -514,12 +514,6 @@ public class SocketIO {
         socket.emit("quitRoom", jsonParam, callback);
     }
 
-    public void removeFriend(String userId, Ack callback) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("otherUser", userId);
-        socket.emit("removeFriend", jsonParam, callback);
-    }
-
     public void createRoom(String name, String courseID, Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("name", name);

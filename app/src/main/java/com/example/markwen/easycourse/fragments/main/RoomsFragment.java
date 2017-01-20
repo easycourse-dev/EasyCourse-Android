@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
@@ -16,24 +15,18 @@ import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.activities.NewRoomActivity;
 import com.example.markwen.easycourse.components.main.RoomRecyclerViewAdapter;
 import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
-import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
+import com.example.markwen.easycourse.utils.ListsUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
-import com.example.markwen.easycourse.utils.eventbus.Event;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.squareup.otto.Subscribe;
-
-import org.json.JSONException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmList;
 import io.realm.RealmResults;
-
-import static com.example.markwen.easycourse.EasyCourse.bus;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -47,8 +40,6 @@ public class RoomsFragment extends Fragment {
     private Realm realm;
     private SocketIO socketIO;
 
-    private RealmChangeListener<RealmResults<Room>> realmChangeListener;
-
 
     @BindView(R.id.roomsRecyclerView)
     RecyclerView roomRecyclerView;
@@ -56,12 +47,9 @@ public class RoomsFragment extends Fragment {
     FloatingActionMenu mainFab;
     @BindView(R.id.newRoomFab)
     FloatingActionButton newRoomFab;
-    @BindView(R.id.roomsRecyclerViewPlaceholder)
-    TextView roomsRecyclerViewPlaceholder;
 
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     RealmResults<Room> rooms;
-
     public RoomsFragment() {
     }
 
@@ -72,7 +60,6 @@ public class RoomsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
-        bus.register(this);
     }
 
     @Override
@@ -86,9 +73,8 @@ public class RoomsFragment extends Fragment {
 
         setupRecyclerView();
 
-
-        if (roomRecyclerViewAdapter != null)
-            roomRecyclerViewAdapter.notifyDataSetChanged();
+        socketIO.syncUser();
+        roomRecyclerViewAdapter.notifyDataSetChanged();
 
         return v;
     }
@@ -112,71 +98,36 @@ public class RoomsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAllAsync();
-       //if (rooms.size() == 0)
-            try {
-                if (socketIO != null)
-                    socketIO.getHistMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
-            roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
-            roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
-            roomRecyclerView.setHasFixedSize(true);
-            LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
-            chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
-            roomRecyclerView.setLayoutManager(chatLinearManager);
-            realmChangeListener = new RealmChangeListener<RealmResults<Room>>() {
-                @Override
-                public void onChange(RealmResults<Room> element) {
-                    roomRecyclerView.setVisibility(View.VISIBLE);
-                    roomsRecyclerViewPlaceholder.setVisibility(View.GONE);
-                }
-            };
-            rooms.addChangeListener(realmChangeListener);
-        
-        if (rooms.size() == 0) {
-            roomRecyclerView.setVisibility(View.GONE);
-            roomsRecyclerViewPlaceholder.setVisibility(View.VISIBLE);
-            roomsRecyclerViewPlaceholder.setText("You don't have any joined rooms.\nAdd one by clicking the button below.");
+        rooms = realm.where(Room.class).equalTo("isSharedRoom", false).findAll();
+        RealmList<Room> filteredRooms = new RealmList<>();
+        for(Room room: rooms){
+            if(ListsUtils.isRoomJoined(User.getCurrentUser(getContext(), realm).getJoinedRooms(), room))
+                filteredRooms.add(room);
         }
+        rooms = filteredRooms.where().findAll();
+        roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(this, getContext(), rooms, socketIO);
+        roomRecyclerView.setAdapter(roomRecyclerViewAdapter);
+        roomRecyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
+        roomRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
+        chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
+        roomRecyclerView.setLayoutManager(chatLinearManager);
     }
 
     public void startChatRoom(Room room) {
         Intent chatActivityIntent = new Intent(getContext(), ChatRoomActivity.class);
         chatActivityIntent.putExtra("roomId", room.getId());
-        realm.close();
         getActivity().startActivity(chatActivityIntent);
+        realm.close();
     }
 
     public void deleteRoom(Room room) {
-        Realm tempRelm = Realm.getDefaultInstance();
-        RealmResults<Message> messages = tempRelm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
-        tempRelm.beginTransaction();
-        room.deleteFromRealm();
-        if(messages.isValid())
-            messages.deleteAllFromRealm();
-        tempRelm.commitTransaction();
-        tempRelm.close();
+        Room.deleteRoomFromRealm(room, realm);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         realm.close();
-    }
-
-    @Subscribe
-    public void refreshViewAfterSync(Event.SyncEvent syncEvent) {
-        if(roomRecyclerViewAdapter != null)
-            this.roomRecyclerViewAdapter.notifyDataSetChanged();
-    }
-
-    @Subscribe
-    public void refreshViewAfterMessage(Event.MessageEvent messageEvent) {
-        if(roomRecyclerViewAdapter != null)
-            this.roomRecyclerViewAdapter.notifyDataSetChanged();
     }
 }

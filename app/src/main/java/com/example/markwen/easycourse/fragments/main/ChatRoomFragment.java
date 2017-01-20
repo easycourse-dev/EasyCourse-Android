@@ -412,6 +412,17 @@ public class ChatRoomFragment extends Fragment {
                 public void call(Object... args) {
                     try {
                         JSONObject obj = (JSONObject) args[0];
+
+                        if (obj.has("error")) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), "You blocked this user!g", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            return;
+                        }
+
                         JSONObject message = (JSONObject) checkIfJsonExists(obj, "msg", null);
 
                         JSONObject sender = (JSONObject) checkIfJsonExists(message, "sender", null);

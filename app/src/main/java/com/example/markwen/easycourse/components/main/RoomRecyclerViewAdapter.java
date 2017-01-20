@@ -1,6 +1,8 @@
 package com.example.markwen.easycourse.components.main;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -22,6 +24,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
+import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
@@ -31,6 +35,7 @@ import com.example.markwen.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -237,30 +242,53 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
     private void quitRoom(final Room room) {
-        if(!room.isValid()) return;
-        if (room.isToUser()) {
-            fragment.deleteRoom(room);
-            RoomRecyclerViewAdapter.this.notifyDataSetChanged();
-            socketIO.syncUser();
-        } else {
-            try {
+        try {
+            if (room.isToUser()) {
+                socketIO.removeFriend(room.getId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        JSONObject obj = (JSONObject) args[0];
+
+                        if (obj.has("error")) {
+                            Log.e(TAG, "call: " + obj.toString());
+                        } else {
+                            try {
+                                boolean success = obj.getBoolean("success");
+                                if (success) {
+                                    deleteRoomInSocket(room);
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "call: ", e);
+                            }
+                        }
+                    }
+                });
+            } else {
                 socketIO.quitRoom(room.getId(), new Ack() {
                     @Override
                     public void call(Object... args) {
-                        fragment.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                fragment.deleteRoom(room);
-                                RoomRecyclerViewAdapter.this.notifyDataSetChanged();
-                                socketIO.syncUser();
+                        JSONObject obj = (JSONObject) args[0];
+
+                        if (obj.has("error")) {
+                            Log.e(TAG, obj.toString());
+                        } else {
+
+                            try {
+                                boolean success = obj.getBoolean("success");
+                                if (success) {
+                                    deleteRoomInSocket(room);
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "call: ", e);
                             }
-                        });
+                        }
                     }
                 });
-            } catch (JSONException e) {
-                Log.e(TAG, "quitRoom: ", e);
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        socketIO.syncUser();
     }
 
     @Nullable
@@ -285,21 +313,14 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
 
-    private String getMessageTime(Message message) {
-        if (message == null) return null;
-        Date messageDate = message.getCreatedAt();
-        if (messageDate == null) return null;
-        Date now = new Date();
-        long diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, now);
-        if (diffInMinutes <= 1) {
-            //If within a minute
-            return "Just Now";
-        } else if (diffInMinutes <= 1440) {
-            DateFormat df = new SimpleDateFormat("hh:mm a", Locale.US);
-            return df.format(messageDate);
-        } else {
-            DateFormat df = new SimpleDateFormat("mm dd", Locale.US);
-            return df.format(messageDate);
-        }
+    public void deleteRoomInSocket(final Room room) {
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Realm tempRealm = Realm.getDefaultInstance();
+                Room.deleteRoomFromRealm(room, tempRealm);
+                tempRealm.close();
+            }
+        });
     }
 }

@@ -295,13 +295,19 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
 
-    private void deleteRoomInSocket(final Room room) {
+    public void deleteRoomInSocket(final Room room) {
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Realm tempRealm = Realm.getDefaultInstance();
-                Room.deleteRoomFromRealm(room, tempRealm);
-                tempRealm.close();
+                tempRealm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        Room realmRoom = realm.where(Room.class).equalTo("id", room.getId()).findFirst();
+                        realmRoom.deleteFromRealm();
+                        notifyDataSetChanged();
+                    }
+                });
             }
         });
     }

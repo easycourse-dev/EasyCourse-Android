@@ -493,8 +493,20 @@ public class ChatRoomActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Room.deleteRoomFromRealm(room, realm);
-                realm.close();
+                Realm tempRealm = Realm.getDefaultInstance();
+                tempRealm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        Room realmRoom = realm.where(Room.class).equalTo("id", room.getId()).findFirst();
+                        realmRoom.deleteFromRealm();
+
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        Log.e(TAG, "onError: ", error);
+                    }
+                });
             }
         });
     }

@@ -22,13 +22,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.DateUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -43,6 +36,13 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.DateUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -285,7 +285,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         if (message == null) return null;
         Date messageDate = DateUtils.getLocalDate(message.getCreatedAt());
 
-        TimeZone timeZone = TimeZone.getDefault();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
         //If today
         if (DateUtils.isToday(messageDate)) {
             //Exclude date in time

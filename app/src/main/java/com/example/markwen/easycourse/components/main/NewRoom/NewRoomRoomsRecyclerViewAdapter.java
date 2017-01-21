@@ -135,7 +135,10 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
                                                 language,
                                                 isPublic,
                                                 isSystem);
-                                        updateRoomInSocket(joinedRoom[0]);
+                                        joinedRoom[0].setJoinIn(true);
+                                        Realm tempRealm = Realm.getDefaultInstance();
+                                        Room.updateRoomToRealm(joinedRoom[0], tempRealm);
+                                        tempRealm.close();
 
                                         // Go to that room
                                         goToChatRoom(joinedRoom[0]);
@@ -191,23 +194,5 @@ public class NewRoomRoomsRecyclerViewAdapter extends RecyclerView.Adapter<NewRoo
     public void setCurrentCourse(Course course) {
         this.selectedCourseId = course.getId();
         this.selectedCourseName = course.getCoursename();
-    }
-
-    private void updateRoomInSocket(final Room room){
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Room.updateRoomToRealm(room, realm);
-                            joinedRooms.add(room);
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

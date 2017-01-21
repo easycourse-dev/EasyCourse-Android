@@ -273,6 +273,7 @@ public class NewRoomActivity extends AppCompatActivity {
                                                 language,
                                                 isPublic,
                                                 isSystem);
+                                        room.setJoinIn(true);
                                         updateRoomInSocket(room);
 
                                         Intent chatActivityIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
@@ -327,7 +328,6 @@ public class NewRoomActivity extends AppCompatActivity {
                             newRoomButton.setVisibility(View.GONE);
                             existedRoomView.setVisibility(View.VISIBLE);
                         }
-//                        updateRecyclerView(response, query);
                     } else { // load more
                         int roomsOrigSize = rooms.size();
                         for (int i = 0; i < response.length(); i++) {
@@ -351,44 +351,6 @@ public class NewRoomActivity extends AppCompatActivity {
                 Snackbar.make(v, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
-//        try {
-//            socketIO.searchCourseSubrooms(query, 20, skip, courseId, new Ack() {
-//                @Override
-//                public void call(Object... args) {
-//                    try {
-//                        JSONObject obj = (JSONObject) args[0];
-//                        JSONArray response = obj.getJSONArray("rooms");
-//                        JSONObject room;
-//                        if (skip == 0) { // normal
-//                            rooms.clear();
-//                            for (int i = 0; i < response.length(); i++) {
-//                                room = (JSONObject) response.get(i);
-//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-//                                rooms.add(roomObj);
-//                            }
-//                            updateRecyclerView(response, query);
-//                        } else { // load more
-//                            int roomsOrigSize = rooms.size();
-//                            for (int i = 0; i < response.length(); i++) {
-//                                room = (JSONObject) response.get(i);
-//                                Room roomObj = new Room(room.getString("_id"), room.getString("name"), courseName);
-//                                if (!rooms.contains(roomObj))
-//                                    rooms.add(roomObj);
-//                            }
-//                            if (rooms.size() > roomsOrigSize) {
-//                                roomsRecyclerViewAdapter.notifyItemRangeInserted(roomsOrigSize, 20);
-//                            }
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                        rooms.clear();
-//                        updateRecyclerView(new JSONArray(), query);
-//                    }
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
     }
 
     public void updateRoomInSocket(final Room room){
@@ -400,40 +362,6 @@ public class NewRoomActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Room.updateRoomToRealm(room, realm);
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
-    }
-
-    private void updateRecyclerView(final JSONArray response, final String query){
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            roomsRecyclerViewAdapter.notifyDataSetChanged();
-                            roomsOnScrollListener.resetState();
-                            Course selectedCourse = coursesAdapter.getSelectedCourse();
-                            if (response.length() == 0
-                                    && ((selectedCourse != null && selectedCourse.getId() != null)
-                                        || selectedCourse.getCoursename().equals("Private Room"))
-                                    && !query.equals("")) {
-                                newRoomButton.setVisibility(View.VISIBLE);
-                                existedRoomView.setVisibility(View.GONE);
-                            } else if (response.length() == 0
-                                    && ((selectedCourse != null && selectedCourse.getId() != null)
-                                    || selectedCourse.getCoursename().equals("Private Room"))
-                                    && query.equals("")) {
-                                existedRoomView.setVisibility(View.GONE);
-                            } else {
-                                newRoomButton.setVisibility(View.GONE);
-                                existedRoomView.setVisibility(View.VISIBLE);
-                            }
                         }
                     });
                 }

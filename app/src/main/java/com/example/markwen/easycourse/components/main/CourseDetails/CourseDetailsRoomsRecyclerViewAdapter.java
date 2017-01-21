@@ -1,6 +1,5 @@
 package com.example.markwen.easycourse.components.main.CourseDetails;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -281,9 +279,9 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                                     isPublic,
                                     isSystem);
                             joinedRooms.add(tempRoom);
+                            tempRoom.setJoinIn(true);
                             Room.updateRoomToRealm(tempRoom, tempRealm);
                             tempRealm.close();
-
                         } catch (JSONException e) {
                             Log.e("joinRoom", e.toString());
                         }

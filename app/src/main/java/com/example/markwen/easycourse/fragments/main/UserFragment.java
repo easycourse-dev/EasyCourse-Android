@@ -63,7 +63,7 @@ public class UserFragment extends Fragment {
     Button logoutButton;
     ImageView avatarImage;
     TextView textViewUsername;
-    RelativeLayout cardProfile, cardCourses, joinUsCard, termsCard;
+    RelativeLayout cardProfile, cardCourses, joinUsCard, termsCard, surveyCard;
     CardView courseManageCard;
 
     User user = new User();
@@ -94,6 +94,7 @@ public class UserFragment extends Fragment {
         joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
         courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
         termsCard = (RelativeLayout) v.findViewById(R.id.TermsPrivacyCard);
+        surveyCard = (RelativeLayout) v.findViewById(R.id.surveyCard);
 
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +113,14 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(view.getContext(), CourseManagementActivity.class));
+            }
+        });
+
+        surveyCard.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                ExternalLinkUtils.OpenLinkInChrome("https://goo.gl/forms/ipUtAuM0onOvuyX63", getContext());
             }
         });
 

@@ -16,16 +16,6 @@ import android.view.MenuItem;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.components.main.ViewPagerAdapter;
-import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
-import io.easycourse.www.easycourse.fragments.main.UserFragment;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.models.signup.UserSetup;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.eventbus.Event;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.otto.Subscribe;
 
@@ -37,6 +27,16 @@ import java.io.UnsupportedEncodingException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.main.ViewPagerAdapter;
+import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
+import io.easycourse.www.easycourse.fragments.main.UserFragment;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.models.signup.UserSetup;
+import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.SocketIO;
+import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 
 import static io.easycourse.www.easycourse.EasyCourse.bus;
@@ -244,6 +244,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EasyCourse.getAppInstance().setNotification(false);
+        EasyCourse.getAppInstance().setInRoom("");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EasyCourse.getAppInstance().setNotification(true);
+    }
 
     @Override
     protected void onDestroy() {

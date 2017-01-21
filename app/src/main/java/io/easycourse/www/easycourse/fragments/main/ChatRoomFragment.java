@@ -260,7 +260,12 @@ public class ChatRoomFragment extends Fragment {
                 }
                 break;
             case 1:  // take image
-                takeImage();
+                int permissionCheck2 = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (permissionCheck2 == PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                } else {
+                    takeImage();
+                }
                 break;
         }
     }

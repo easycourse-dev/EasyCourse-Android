@@ -11,10 +11,14 @@ import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import java.util.Map;
+
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.ChatRoomActivity;
 
 /**
  * Created by nisarg on 30/12/16.
@@ -24,24 +28,28 @@ public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-
-        // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+        String roomId = "";
+        Map<String, String> data =  remoteMessage.getData();
+        Log.e(TAG, data.toString());
+        if (data.containsKey("senderId")) {
+            roomId = data.get("senderId");
+        } else if (data.containsKey("toRoom")) {
+            roomId = data.get("toRoom");
         }
 
-        // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+        if (EasyCourse.getAppInstance().getNotification() && !EasyCourse.getAppInstance().getInRoom().equals(roomId)) {
+            sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getNotification().getTitle(), roomId);
+        } else if (EasyCourse.getAppInstance().getNotification()) {
+            // Vibrate phone
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(500);
         }
     }
 
-    //Use this to create notification when the app is open
-    private void sendNotification(String messageBody, String messageTitle) {
-        Intent intent = new Intent(this, MainActivity.class);
+    // Use this to create notification when the app is open
+    private void sendNotification(String messageBody, String messageTitle, String roomId) {
+        Intent intent = new Intent(this, ChatRoomActivity.class);
+        intent.putExtra("roomId", roomId);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

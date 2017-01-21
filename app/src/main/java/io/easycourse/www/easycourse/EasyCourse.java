@@ -3,8 +3,6 @@ package io.easycourse.www.easycourse;
 import android.app.Application;
 import android.util.Log;
 
-import io.easycourse.www.easycourse.utils.eventbus.MainBus;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -13,6 +11,8 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.net.URISyntaxException;
 
+import io.easycourse.www.easycourse.utils.SocketIO;
+import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.Realm;
 
 /**
@@ -25,6 +25,8 @@ public class EasyCourse extends Application {
 
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
+    private String inRoom;
+    private boolean notification;
 
     private String deviceToken;
 
@@ -72,4 +74,20 @@ public class EasyCourse extends Application {
         return deviceToken;
     }
 
+    public void setNotification(boolean notify) {
+        this.notification = notify;
+    }
+
+    public boolean getNotification() {
+        return notification;
+    }
+
+    // When not in a room, set it to "" instead of null
+    public void setInRoom(String inRoom) {
+        this.inRoom = inRoom;
+    }
+
+    public String getInRoom() {
+        return inRoom;
+    }
 }

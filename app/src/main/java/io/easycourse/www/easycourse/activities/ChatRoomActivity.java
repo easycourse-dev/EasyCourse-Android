@@ -21,15 +21,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.fragments.main.ChatRoomFragment;
-import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.eventbus.Event;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
@@ -51,11 +42,18 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.fragments.main.ChatRoomFragment;
+import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.ListsUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
+import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.socket.client.Ack;
-
-import static io.easycourse.www.easycourse.utils.ListsUtils.isRoomJoined;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
@@ -141,7 +139,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
-            ChatRoomActivity.this.finish();
+            finish();
             return;
         }
         if (currentRoom.getRoomName() != null)
@@ -471,6 +469,18 @@ public class ChatRoomActivity extends AppCompatActivity {
                 fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EasyCourse.getAppInstance().setInRoom(currentRoom.getId());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EasyCourse.getAppInstance().setInRoom("");
     }
 
     @Override

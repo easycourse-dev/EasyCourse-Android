@@ -13,15 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
-import io.easycourse.www.easycourse.models.main.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
+import io.easycourse.www.easycourse.models.main.User;
 import io.realm.Realm;
 
 /**
@@ -76,7 +76,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
 
             nameTextView.setText(user.getUsername());
-            if (user == curUser) { //User is current user
+            if (user.getId().equals(curUser.getId())) { //User is current user
                 nameTextView.setTypeface(null, Typeface.BOLD);
             } else { //User is not current user
                 cardView.setOnClickListener(new View.OnClickListener() {

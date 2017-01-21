@@ -208,16 +208,16 @@ public class ChatRoomActivity extends AppCompatActivity {
                 @Override
                 public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                     switch (position) {
-                        case 1:
+                        case 0:
 //                            shareRoom();
                             break;
-                        case 2:
+                        case 1:
                             showBlockUserDialog();
                             break;
-                        case 3:
+                        case 2:
                             showReportUserDialog();
                             break;
-                        case 4:
+                        case 3:
                             showQuitRoomDialog();
                             break;
                     }
@@ -284,11 +284,15 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     private void quitRoom() {
+        final String roomId = currentRoom.getId();
         try {
             if (currentRoom.isToUser()) {
-                deleteRoomInSocket(currentRoom);
+//                deleteRoomInSocket(currentRoom);
+                Room realmRoom = realm.where(Room.class).equalTo("id", roomId).findFirst();
+                Room.deleteRoomFromRealm(realmRoom, realm);
+                startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
             } else {
-                socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                socketIO.quitRoom(roomId, new Ack() {
                     @Override
                     public void call(Object... args) {
                         JSONObject obj = (JSONObject) args[0];
@@ -300,7 +304,11 @@ public class ChatRoomActivity extends AppCompatActivity {
                             try {
                                 boolean success = obj.getBoolean("success");
                                 if (success) {
-                                    deleteRoomInSocket(currentRoom);
+//                                    deleteRoomInSocket(currentRoom);
+                                    Realm tempRealm = Realm.getDefaultInstance();
+                                    Room realmRoom = tempRealm.where(Room.class).equalTo("id", roomId).findFirst();
+                                    Room.deleteRoomFromRealm(realmRoom, tempRealm);
+                                    tempRealm.close();
                                     startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
                                 }
                             } catch (JSONException e) {
@@ -487,27 +495,5 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     public Toolbar getToolbar() {
         return toolbar;
-    }
-
-    public void deleteRoomInSocket(final Room room) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Realm tempRealm = Realm.getDefaultInstance();
-                tempRealm.executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        Room realmRoom = realm.where(Room.class).equalTo("id", room.getId()).findFirst();
-                        realmRoom.deleteFromRealm();
-
-                    }
-                }, new Realm.Transaction.OnError() {
-                    @Override
-                    public void onError(Throwable error) {
-                        Log.e(TAG, "onError: ", error);
-                    }
-                });
-            }
-        });
     }
 }

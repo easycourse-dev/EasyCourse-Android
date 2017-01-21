@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -65,6 +66,7 @@ import io.realm.Sort;
 import io.socket.client.Ack;
 
 import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class ChatRoomFragment extends Fragment {
@@ -285,7 +287,7 @@ public class ChatRoomFragment extends Fragment {
     private void takeImage() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photo = new File(Environment.getExternalStorageDirectory(), new Date().toString() + ".jpg");
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getContext(), getApplicationContext().getPackageName() + ".provider", photo));
         imageUri = Uri.fromFile(photo);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);

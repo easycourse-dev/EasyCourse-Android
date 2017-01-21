@@ -51,6 +51,16 @@ public class Message extends RealmObject {
         this.createdAt = createdAt;
     }
 
+    public Message(String id, User sender, Room sharedRoom, String toRoom, boolean successSent, boolean isToUser, Date createdAt) {
+        this.id = id;
+        this.sharedRoom = sharedRoom;
+        this.toRoom = toRoom;
+        this.successSent = successSent;
+        this.isToUser = isToUser;
+        this.createdAt = createdAt;
+        this.sender = sender;
+    }
+
     public Message updateMessageToRealm() {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();

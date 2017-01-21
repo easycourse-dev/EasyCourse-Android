@@ -91,37 +91,37 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                 Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
                         .placeholder(R.drawable.ic_person_black_24px)
                         .into(outgoingImageView);
-                outgoingName.setText(curUser.getUsername());
-                textViewRoomName.setText(message.getSharedRoom().getRoomName());
-                sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            socketIO.joinRoom(message.getSharedRoom().getId(), new Ack() {
-                                @Override
-                                public void call(Object... args) {
-                                    JSONObject obj = (JSONObject) args[0];
-                                    Log.e(TAG, obj.toString());
-                                    try {
-                                        if(!obj.has("error")) {
-                                            JSONObject roomObj = obj.getJSONObject("room");
-                                            Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
-                                                    .show();
-                                        } else {
-                                            Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
-                                                    .show();
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
             }
+            outgoingName.setText(curUser.getUsername());
+            textViewRoomName.setText(message.getSharedRoom().getRoomName());
+            sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        socketIO.joinRoom(message.getSharedRoom().getId(), new Ack() {
+                            @Override
+                            public void call(Object... args) {
+                                JSONObject obj = (JSONObject) args[0];
+                                Log.e(TAG, obj.toString());
+                                try {
+                                    if(!obj.has("error")) {
+                                        JSONObject roomObj = obj.getJSONObject("room");
+                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
+                                                .show();
+                                    } else {
+                                        Snackbar.make(activity.getWindow().getDecorView().getRootView(), "Error: Course not joined.", Snackbar.LENGTH_LONG)
+                                                .show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         outgoingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {

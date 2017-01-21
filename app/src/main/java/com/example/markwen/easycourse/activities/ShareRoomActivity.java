@@ -83,7 +83,7 @@ public class ShareRoomActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
 
-        rooms = realm.where(Room.class).findAll();
+        rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
 
         RoomListViewAdapter adapter = new RoomListViewAdapter(getApplicationContext(), rooms);
         roomsList.setAdapter(adapter);
@@ -110,20 +110,106 @@ public class ShareRoomActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendSharedRoomMessage(Room room) {
+    private void sendSharedRoomMessage(Room destRoom) {
         User currentUser = User.getCurrentUser(this, realm);
         final String localMessageId = UUID.randomUUID().toString();
-        Room currentRoom = realm.where(Room.class).equalTo("id", roomShareId).findFirst();
-        Message message = new Message(localMessageId, null, currentUser, null, null, null, room, false, 0, 0, roomShareId, currentRoom.isToUser(), new Date());
+        Room sharedRoom = realm.where(Room.class).equalTo("id", roomShareId).findFirst();
+//        Message message = new Message(localMessageId, null, currentUser, null, null, null, currentRoom, false, 0, 0, roomShareId, currentRoom.isToUser(), new Date());
+        Message message = new Message(localMessageId, null, currentUser, null, null, null, sharedRoom, false, 0, 0, destRoom.getId(), destRoom.isToUser(), new Date());
         message.updateMessageToRealm();
 
         int selector;
-        if (currentRoom.isToUser())
+        if (destRoom.isToUser())
             selector = SocketIO.ROOM_TO_USER;
         else
             selector = SocketIO.ROOM_TO_ROOM;
 
         socketIO.sendMessage(message, selector, new Ack() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject obj = (JSONObject) args[0];
+                    JSONObject message = (JSONObject) checkIfJsonExists(obj, "msg", null);
+                    Log.e(TAG, message.toString());
+
+                    JSONObject sender = (JSONObject) checkIfJsonExists(message, "sender", null);
+                    String senderId = (String) checkIfJsonExists(sender, "_id", null);
+                    String senderName = (String) checkIfJsonExists(sender, "displayName", null);
+                    String senderImageUrl = (String) checkIfJsonExists(sender, "avatarUrl", null);
+
+                    String id = (String) checkIfJsonExists(message, "_id", null);
+                    String remoteId = (String) checkIfJsonExists(message, "id", null);
+                    String text = (String) checkIfJsonExists(message, "text", null);
+                    String imageUrl = (String) checkIfJsonExists(message, "imageUrl", null);
+                    byte[] imageData = (byte[]) checkIfJsonExists(message, "imageData", null);
+                    boolean successSent = (boolean) checkIfJsonExists(message, "successSent", false);
+                    String toRoom = (String) checkIfJsonExists(message, "toRoom", null);
+                    String toUser = (String) checkIfJsonExists(message, "toUser", null);
+                    float imageWidth = Float.parseFloat((String) checkIfJsonExists(message, "imageWidth", "0.0"));
+                    float imageHeight = Float.parseFloat((String) checkIfJsonExists(message, "imageHeight", "0.0"));
+                    String dateCreatedAt = (String) checkIfJsonExists(message, "createdAt", null);
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                    Date date = null;
+                    try {
+                        date = formatter.parse(dateCreatedAt);
+
+                    } catch (ParseException e) {
+                        Log.e(TAG, "saveMessageToRealm: parseException", e);
+                    }
+                    Realm tempRealm = Realm.getDefaultInstance();
+                    tempRealm.beginTransaction();
+
+                    Room sharedRoom = null;
+                    if(checkIfJsonExists(message, "sharedRoom", null) != null) {
+                        JSONObject sharedRoomJSON = message.getJSONObject("sharedRoom");
+                        //Log.e(TAG, sharedRoomJSON.toString());
+                       // sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
+                        sharedRoom = tempRealm.where(Room.class).equalTo("id", sharedRoomJSON.getString("id")).findFirst();
+                        if (sharedRoom == null) {
+                            sharedRoom = tempRealm.createObject(Room.class, sharedRoomJSON.getString("id"));
+                        }
+                        sharedRoom.setRoomName(sharedRoomJSON.getString("name"));
+                        sharedRoom.setCourseID(sharedRoomJSON.getString("course"));
+                        sharedRoom.setMemberCountsDesc(sharedRoomJSON.getString("memberCountsDescription"));
+                    }
+
+                    User senderUser = tempRealm.where(User.class).equalTo("id", senderId).findFirst();
+                    if (senderUser == null) {
+                        senderUser = tempRealm.createObject(User.class, senderId);
+                    }
+                    senderUser.setUsername(senderName);
+                    senderUser.setProfilePictureUrl(senderImageUrl);
+
+
+                    Message localMessage = tempRealm.where(Message.class).equalTo("id", localMessageId).findFirst();
+                    if (localMessage == null) {
+                        localMessage = tempRealm.createObject(Message.class, localMessageId);
+                    }
+                    localMessage.setRemoteId(remoteId);
+                    localMessage.setText(text);
+                    localMessage.setImageUrl(imageUrl);
+                    localMessage.setImageData(imageData);
+                    localMessage.setSuccessSent(true);
+                    localMessage.setSharedRoom(sharedRoom);
+                    if (toRoom != null) {
+                        localMessage.setToRoom(toRoom);
+                        localMessage.setToUser(false);
+                    } else {
+                        localMessage.setToRoom(toUser);
+                        localMessage.setToUser(true);
+                    }
+
+                    localMessage.setImageWidth(imageWidth);
+                    localMessage.setImageHeight(imageHeight);
+                    localMessage.setCreatedAt(date);
+                    tempRealm.commitTransaction();
+                    tempRealm.close();
+                } catch (JSONException e) {
+                    Log.e(TAG, "call: ", e);
+                }
+            }
+        });
+        /*socketIO.sendMessage(message, selector, new Ack() {
             @Override
             public void call(Object... args) {
                 try {
@@ -151,9 +237,6 @@ public class ShareRoomActivity extends AppCompatActivity {
                         Log.e(TAG, sharedRoomJSON.toString());
                         sharedRoom = new Room(sharedRoomJSON.getString("id"), sharedRoomJSON.getString("name"), sharedRoomJSON.getString("course"), sharedRoomJSON.getString("memberCountsDescription"));
                     }
-
-
-
 
                     String dateCreatedAt = (String) checkIfJsonExists(message, "createdAt", null);
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
@@ -185,7 +268,6 @@ public class ShareRoomActivity extends AppCompatActivity {
                     localMessage.setImageUrl(imageUrl);
                     localMessage.setImageData(imageData);
                     localMessage.setSuccessSent(true);
-
                     if (toRoom != null) {
                         localMessage.setToRoom(toRoom);
                         localMessage.setToUser(false);
@@ -199,13 +281,15 @@ public class ShareRoomActivity extends AppCompatActivity {
                     localMessage.setImageWidth(imageWidth);
                     localMessage.setImageHeight(imageHeight);
                     localMessage.setCreatedAt(date);
+                    tempRealm.copyToRealmOrUpdate(localMessage);
+
                     tempRealm.commitTransaction();
                     tempRealm.close();
                 } catch (JSONException e) {
                     Log.e(TAG, "call: ", e);
                 }
             }
-        });
+        });*/
     }
 
 

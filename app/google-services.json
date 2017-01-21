@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:786775566885:android:c6d205310efb47bf",
         "android_client_info": {
-          "package_name": "com.example.markwen.easycourse"
+          "package_name": "io.easycourse.www.easycourse"
         }
       },
       "oauth_client": [

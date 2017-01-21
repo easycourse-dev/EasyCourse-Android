@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.markwen.easycourse.fragments.main.RoomUserListFragment">
+    tools:context="com.easycourse.www.easycourse.io.easycourse.www.easycourse.fragments.main.RoomUserListFragment">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/room_user_list_recyclerview"
         android:layout_width="match_parent"

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearIncomingSharedChatCell"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="16dp">
+
+    <TextView
+        android:id="@+id/textViewIncomingSharedTextTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        android:weightSum="5">
+
+        <TextView
+            android:id="@+id/textViewIncomingSharedTextName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginStart="40dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewIncomingSharedTextImage"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:clickable="false"
+                android:contentDescription="@string/chatMessageAccessibility"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:src="@drawable/ic_person_black_24px" />
+
+
+            <RelativeLayout
+                android:id="@+id/relativeLayoutIncomingSharedRoomHolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/cell_message_received"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/imageViewChatRoom"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="false"
+                    android:contentDescription="@string/chatMessageAccessibility"
+                    android:src="@drawable/ic_group_black_24px" />
+
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutChatRoomTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/imageViewChatRoom"
+                    android:layout_toRightOf="@id/imageViewChatRoom"
+                    android:ellipsize="end"
+                    android:maxLength="15"
+                    android:orientation="vertical"
+                    android:paddingEnd="16dp"
+                    android:paddingStart="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:ellipsize="end"
+                        android:maxLength="15"
+                        android:textSize="12sp"
+                        android:textColor="@color/colorBlackText"
+                        android:text="@string/ROOM"/>
+
+                    <TextView
+                        android:id="@+id/textViewIncomingSharedChatRoomName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/chooseItemPlaceholder"
+                        android:textColor="@color/colorBlackText"
+                        android:textSize="16sp"
+                        />
+                </LinearLayout>
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

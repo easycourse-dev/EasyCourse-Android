@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "786775566885",
+    "firebase_url": "https://easycourse-3d60d.firebaseio.com",
+    "project_id": "easycourse-3d60d",
+    "storage_bucket": "easycourse-3d60d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786775566885:android:c6d205310efb47bf",
+        "android_client_info": {
+          "package_name": "io.easycourse.www.easycourse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786775566885-5mmfuv7h83kuurjhd9snj3ddl3k9vj67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhD7QU8kfkSH8JE8CAm8-HdtLDJBHfSU4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

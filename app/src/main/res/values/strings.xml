@@ -1,3 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="appName">EasyCourse</string>
     <string name="app_name">EasyCourse</string>
+
+    <!--Signup-->
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="signup">Signup</string>
+    <string name="username">Username</string>
+    <string name="verify_password">Verify password</string>
+    <string name="facebook_login">Facebook</string>
+    <string name="log_in_button">Log In</string>
+    <string name="sign_up_button">Sign Up</string>
+    <string name="chooseUniversityTitle">Choose Your University</string>
+    <string name="chooseCoursesTitle">Choose Your Course(s)</string>
+    <string name="chooseLanguageTitle">Choose Your Language(s)</string>
+    <string name="chooseItemPlaceholder">No items!</string>
+    <string name="chooseCoursesItemPlaceholder">CS 17700...</string>
+    <string name="chooseCourseItemDescriptionPlaceholder">Problem Solving And Object-Oriented Programming</string>
+    <string name="signupNext">Next</string>
+    <string name="signupPrev">Back</string>
+    <string name="signupFinish">Finish</string>
+
+    <!--Test textview-->
+    <string name="textViewTest">Test: 1 2 3 4 5 6 7 8 9 10</string>
+
+    <!--Chat-->
+    <string name="chatMessageAccessibility">User Image</string>
+    <string name="messageSendBoxHint">Say something&#8230;</string>
+
+    <!--Menu-->
+    <string name="action_settings">Settings</string>
+
+    <!--Popup-->
+    <string name="popupCopy">Copy</string>
+    <string name="popupDelete">Delete</string>
+    <string name="popupQuit">Quit Room</string>
+
+    <!--Dialogs-->
+    <string-array name="addImageDialog">
+        <item>Choose an image</item>
+        <item>Take an image</item>
+    </string-array>
+
+    <!--Settings-->
+    <string name="notificationsSettings">Notifications</string>
+    <string name="vibrateSettings">Vibrate</string>
+    <string name="soundSettings">Sound</string>
+
+    <string name="facebook_app_id">284790891905413</string>
+    <string name="chooseCoursesHint">e.g. ECON251</string>
+    <string name="log_out_button_text">Log Out</string>
+    <string name="room_name">Enter Room Name</string>
+    <string name="create_room">Create Room</string>
+    <string name="please_join_a_course_first">Please join a course first.</string>
+    <string name="your_courses">your courses:</string>
+    <string name="existed_rooms">Existing rooms:</string>
+    <string name="tempCourse">CS18000</string>
+    <string name="tempRoomName">CS180NoArrayListPlease...</string>
+    <string name="search_course_hint">Search for new courses</string>
+    <string name="no_course_warning">Please enroll into a course.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="classmates">Classmates</string>
+    <string name="subgroups">Subgroups</string>
+    <string name="sharedgroups">Shared Groups</string>
+    <string name="silent">Silent</string>
+    <string name="share_room">Share Room</string>
+    <string name="block_user">Block User</string>
+    <string name="report_user">Report User</string>
+    <string name="quit_room">Quit Room</string>
+
+
+    <string name="report_user_hint">Optional reason...</string>
+    <string name="rooms">Rooms</string>
+    <string name="less_than_10"><![CDATA[(<10)]]></string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="forgetPasswordTitle">Forget password</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="ROOM">Room</string>
+    <string name="chose_language_s">Chosen language(s):</string>
+
+
+    <!--CourseDetailsActivity-->
+    <string name="joined">Joined</string>
+    <string name="join">Join</string>
+
+
 </resources>

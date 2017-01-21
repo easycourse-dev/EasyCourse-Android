@@ -68,6 +68,15 @@ public class ListsUtils {
         return false;
     }
 
+    public static com.example.markwen.easycourse.models.signup.Course isCourseJoined(ArrayList<com.example.markwen.easycourse.models.signup.Course> joinedCourse, String course) {
+        for (int i = 0; i < joinedCourse.size(); i++) {
+            if (joinedCourse.get(i).getId().equals(course)) {
+                return joinedCourse.get(i);
+            }
+        }
+        return null;
+    }
+
     public static boolean isCourseJoined(JSONArray joinedCourse, String course) {
         for (int i = 0; i < joinedCourse.length(); i++) {
             try {

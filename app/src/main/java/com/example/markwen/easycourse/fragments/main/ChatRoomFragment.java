@@ -3,7 +3,6 @@ package com.example.markwen.easycourse.fragments.main;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -46,8 +45,6 @@ import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
 import com.example.markwen.easycourse.utils.asyntasks.DownloadImagesTask;
-import com.example.markwen.easycourse.utils.eventbus.Event;
-import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -147,6 +144,7 @@ public class ChatRoomFragment extends Fragment {
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
+                currentRoom.setUnread(0);
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
             }
         });
@@ -411,13 +409,17 @@ public class ChatRoomFragment extends Fragment {
                 @Override
                 public void call(Object... args) {
                     try {
-                        JSONObject obj = (JSONObject) args[0];
+                        final JSONObject obj = (JSONObject) args[0];
 
                         if (obj.has("error")) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getContext(), "You blocked this user!g", Toast.LENGTH_LONG).show();
+                                    try {
+                                        Toast.makeText(getContext(), obj.getString("error"), Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
                             return;

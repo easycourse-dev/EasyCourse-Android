@@ -280,7 +280,7 @@ public class SignupLogin extends Fragment {
                         APIFunctions.facebookLogin(getContext(), loginResult.getAccessToken().getToken(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                progress.setMessage("Login success");
+                                progress.setContent("Login success");
                                 parseLoginResponse(statusCode, headers, response);
                             }
 
@@ -561,6 +561,7 @@ public class SignupLogin extends Fragment {
                         boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
                         room = new Room(id, roomName, new RealmList<Message>(), courseID, courseName, universityID, new RealmList<User>(), memberCounts, memberCountsDesc, new User(), language, isPublic, isSystem);
+                        room.setJoinIn(true);
                         Room.updateRoomToRealm(room, realm);
                         joinedRoomList.add(room);
                     }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.models.signup.Course;
+import com.example.markwen.easycourse.utils.ListsUtils;
 import com.hanks.library.AnimateCheckBox;
 
 import java.util.ArrayList;
@@ -73,8 +74,10 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
         // Check if this course is checked before
         if (isCourseChecked(checkedCourseList, course)) {
             courseViewHolder.courseCheckBox.setChecked(true);
+            course.setSelected(true);
         } else {
             courseViewHolder.courseCheckBox.setChecked(false);
+            course.setSelected(false);
         }
 
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
@@ -83,11 +86,11 @@ public class SignupChooseCoursesAdapter extends RecyclerView.Adapter<SignupChoos
                 if (!courseViewHolder.nameTextView.getText().equals(course.getName())) return;
                 if (course.isSelected()) {
                     course.setSelected(false);
-                    courseViewHolder.courseCheckBox.setChecked(course.isSelected());
-                    checkedCourseList.remove(course);
+                    courseViewHolder.courseCheckBox.setChecked(false);
+                    checkedCourseList.remove(ListsUtils.isCourseJoined(checkedCourseList, course.getId()));
                 } else {
                     course.setSelected(true);
-                    courseViewHolder.courseCheckBox.setChecked(course.isSelected());
+                    courseViewHolder.courseCheckBox.setChecked(true);
                     checkedCourseList.add(course);
                 }
             }

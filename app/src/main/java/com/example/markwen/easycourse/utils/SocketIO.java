@@ -728,6 +728,13 @@ public class SocketIO {
 
             if (toRoom != null) { //To room
                 message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, sharedRoom, true, imageWidth, imageHeight, toRoom, false, date);
+                Room currentRoom = Room.getRoomById(realm, toRoom);
+                if (currentRoom != null) {
+                    realm.beginTransaction();
+                    currentRoom.incUnread(1);
+                    realm.copyToRealmOrUpdate(currentRoom);
+                    realm.commitTransaction();
+                }
             } else { //To user
                 message = new Message(id, remoteId, senderUser, text, imageUrl, imageData, sharedRoom, true, imageWidth, imageHeight, senderId, true, date);
                 Room currentRoom = Room.getRoomById(realm, toUser);
@@ -735,6 +742,7 @@ public class SocketIO {
                     currentRoom = createPrivateRoom(senderId);
                 realm.beginTransaction();
                 currentRoom.setJoinIn(true);
+                currentRoom.incUnread(1);
                 realm.copyToRealmOrUpdate(currentRoom);
                 realm.commitTransaction();
             }
@@ -796,11 +804,7 @@ public class SocketIO {
                 course,
                 memberCountsDescription
         );
-
-        tempRealm.beginTransaction();
-        Room tempRoom = tempRealm.copyToRealmOrUpdate(room);
-        tempRealm.commitTransaction();
-        tempRealm.close();
-        return tempRoom;
+        Room.updateRoomToRealm(room, tempRealm);
+        return Room.getRoomById(tempRealm, roomId);
     }
 }

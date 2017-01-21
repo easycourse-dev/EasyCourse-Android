@@ -21,8 +21,6 @@ import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.components.main.ViewPagerAdapter;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.fragments.main.UserFragment;
-import com.example.markwen.easycourse.models.main.Message;
-import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
@@ -35,13 +33,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.example.markwen.easycourse.EasyCourse.bus;
 
@@ -103,12 +99,12 @@ public class MainActivity extends AppCompatActivity {
 
         bus.register(this);
 
-        //Get data from signup, may be null, fields may be null
-        Intent intentFromSignup = getIntent();
-        UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
-        if (userSetup != null) {
-            parseSetupIntent(userSetup);
-        }
+//        //Get data from signup, may be null, fields may be null, but why...
+//        Intent intentFromSignup = getIntent();
+//        UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
+//        if (userSetup != null) {
+//            parseSetupIntent(userSetup);
+//        }
     }
 
 

@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
 import com.example.markwen.easycourse.activities.MainActivity;
@@ -29,7 +30,6 @@ import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.Course;
-import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
@@ -65,6 +65,7 @@ public class SignupChooseCourses extends Fragment {
     ArrayList<Course> courses = new ArrayList<>();
     Handler handler;
     Runnable searchDelay;
+    MaterialDialog progress;
 
     Button nextButton;
     Button prevButton;
@@ -86,6 +87,14 @@ public class SignupChooseCourses extends Fragment {
         super.onCreate(savedInstanceState);
         userSetup = ((SignupLoginActivity) getActivity()).userSetup;
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+
+        // Signup progress dialog
+        progress = new MaterialDialog.Builder(getContext())
+                .title("Sign up")
+                .content("Signing up...")
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .build();
 
         handler = new Handler();
     }
@@ -168,7 +177,6 @@ public class SignupChooseCourses extends Fragment {
                                     }
                                     coursesAdapter.notifyDataSetChanged();
                                     coursesOnScrollListener.resetState();
-//                            updateRecyclerView();
                                 }
 
                                 @Override
@@ -180,37 +188,6 @@ public class SignupChooseCourses extends Fragment {
                         }
                     };
                     handler.postDelayed(searchDelay, 250);
-//                    try {
-//                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
-//
-//                            @Override
-//                            public void call(Object... args) {
-//
-//                                JSONObject obj = (JSONObject) args[0];
-//                                if (!obj.has("error")) {
-//                                    try {
-//                                        JSONArray response = obj.getJSONArray("course");
-//                                        courses.clear();
-//                                        for (int i = 0; i < response.length(); i++) {
-//                                            JSONObject course = (JSONObject) response.get(i);
-//                                            courses.add(new Course(
-//                                                    course.getString("name"),
-//                                                    course.getString("title"),
-//                                                    course.getString("_id"),
-//                                                    chosenUniversity));
-//                                        }
-//                                        updateRecyclerView();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                } else{
-//                                    Log.e("com.example.easycourse", "failure" + obj.toString());
-//                                }
-//                            }
-//                        });
-//                    } catch (JSONException e) {
-//                        Log.e("com.example.easycourse", "jsonex" + e.toString());
-//                    }
                 }
             }
         });
@@ -230,11 +207,9 @@ public class SignupChooseCourses extends Fragment {
                 public void onClick(View v) {
                     saveToUserSetup();
 //                    gotoSignupChooseLanguage(v);
+                    progress.show();
                     userSetup.setLanguageCodeArray(new String[0]);
                     postSignupData(userSetup);
-
-
-
                 }
             });
 
@@ -291,38 +266,6 @@ public class SignupChooseCourses extends Fragment {
                 coursesAdapter.notifyItemRangeInserted(startPosition, 20);
             }
         });
-//        try {
-//            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
-//                @Override
-//                public void call(Object... args) {
-//                    JSONObject obj = (JSONObject) args[0];
-//                    if (!obj.has("error")) {
-//                        Log.e("com.example.easycourse", "success" + obj.toString());
-//                        int startPosition = courses.size();
-//                        try {
-//                            JSONArray response = obj.getJSONArray("course");
-//                            for (int i = 0; i < response.length(); i++) {
-//                                JSONObject courseJSON = (JSONObject) response.get(i);
-//                                Course courseObj = new Course(
-//                                        courseJSON.getString("name"),
-//                                        courseJSON.getString("title"),
-//                                        courseJSON.getString("_id"),
-//                                        chosenUniversity);
-//                                if (!courses.contains(courseObj))
-//                                    courses.add(courseObj);
-//                            }
-//                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    } else{
-//                        Log.e("com.example.easycourse", "failure" + obj.toString());
-//                    }
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
     }
 
     public void saveToUserSetup() {
@@ -338,15 +281,6 @@ public class SignupChooseCourses extends Fragment {
 
     public void postSignupData(UserSetup userSetup) {
         try {
-            final Realm tempRealm = Realm.getDefaultInstance();
-//            // Saving languages
-//            ArrayList<Language> chosenLanguages = languageAdapter.getCheckedLanguageList();
-//            Realm tempRealm = Realm.getDefaultInstance();
-//            for (int i = 0; i < chosenLanguages.size(); i++) {
-//                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(chosenLanguages.get(i).getCode(), tempRealm).setChecked(true);
-//            }
-//            tempRealm.close();
-            //Post University
             APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -360,17 +294,12 @@ public class SignupChooseCourses extends Fragment {
                 }
             });
 
-            final SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
-
-            // Language handling
-            ArrayList<String> languageCodes = stringArrayToArrayList(userSetup.getLanguageCodeArray());
-            for (int i = 0; i < languageCodes.size(); i++) {
-                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(languageCodes.get(i), tempRealm).setChecked(true, tempRealm);
-            }
+            progress.setContent("Sign up success");
+            SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
 
             socketIO.joinCourse(
                     stringArrayToArrayList(userSetup.getCourseCodeArray()),
-                    languageCodes,
+                    new ArrayList<String>(),
                     new Ack() {
                         @Override
                         public void call(Object... args) {
@@ -379,6 +308,7 @@ public class SignupChooseCourses extends Fragment {
                                 JSONArray courseArrayJSON = res.getJSONArray("joinedCourse");
                                 JSONArray roomArrayJSON = res.getJSONArray("joinedRoom");
                                 JSONObject temp;
+                                Room tempRoom;
                                 Realm realm = Realm.getDefaultInstance();
 
                                 // Courses handling
@@ -410,31 +340,30 @@ public class SignupChooseCourses extends Fragment {
                                     final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
 
                                     // Save user to Realm
-                                    Room.updateRoomToRealm(
-                                            new Room(
-                                                    id,
-                                                    roomName,
-                                                    new RealmList<Message>(),
-                                                    courseID,
-                                                    courseName,
-                                                    universityID,
-                                                    new RealmList<User>(),
-                                                    memberCounts,
-                                                    memberCountsDesc,
-                                                    new User(),
-                                                    language,
-                                                    isPublic,
-                                                    isSystem), realm
-                                    );
+                                    tempRoom = new Room(
+                                            id,
+                                            roomName,
+                                            new RealmList<Message>(),
+                                            courseID,
+                                            courseName,
+                                            universityID,
+                                            new RealmList<User>(),
+                                            memberCounts,
+                                            memberCountsDesc,
+                                            new User(),
+                                            language,
+                                            isPublic,
+                                            isSystem);
+                                    tempRoom.setJoinIn(true);
+                                    Room.updateRoomToRealm(tempRoom, realm);
                                 }
+                                progress.dismiss();
                                 goToMainActivity();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
                     });
-
-            tempRealm.close();
         } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }

@@ -233,6 +233,11 @@ public class Room extends RealmObject {
         this.unread = unread;
     }
 
+    // Increment unread
+    public void incUnread(int unread) {
+        this.unread += unread;
+    }
+
     public boolean isSilent() {
         return silent;
     }

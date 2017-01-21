@@ -16,8 +16,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -29,29 +27,20 @@ import android.widget.TextView;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.components.main.UserProfile.LanguageRecyclerViewAdapter;
-import com.example.markwen.easycourse.components.signup.RecyclerViewDivider;
 import com.example.markwen.easycourse.models.main.Language;
 import com.example.markwen.easycourse.models.main.User;
-import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.BitmapUtils;
 import com.example.markwen.easycourse.utils.SocketIO;
 import com.example.markwen.easycourse.utils.asyntasks.CompressImageTask;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.socket.client.Ack;
 
 /**
@@ -78,10 +67,10 @@ public class UserProfileActivity extends AppCompatActivity {
     FloatingActionButton editAvatarButton;
     @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
-    @BindView(R.id.userProfileLanguageView)
-    RecyclerView languageView;
-    @BindView(R.id.userProfileLanguageLabel)
-    TextView languageLabel;
+//    @BindView(R.id.userProfileLanguageView)
+//    RecyclerView languageView;
+//    @BindView(R.id.userProfileLanguageLabel)
+//    TextView languageLabel;
     @BindView(R.id.userProfileProgressBar)
     ProgressBar profileProgressBar;
 
@@ -91,10 +80,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socket;
-    LanguageRecyclerViewAdapter languageAdapter;
+//    LanguageRecyclerViewAdapter languageAdapter;
 
-    RealmList<Language> userLanguages;
-    RealmList<Language> allLanguages;
+//    RealmList<Language> userLanguages;
+//    RealmList<Language> allLanguages;
 
     private static final int GALLERY_INTENT_CALLED = 1;
     private static final int GALLERY_KITKAT_INTENT_CALLED = 2;
@@ -131,7 +120,7 @@ public class UserProfileActivity extends AppCompatActivity {
             if (user.getProfilePicture() != null) {
                 Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
                 avatarImage.setImageBitmap(bm);
-            } else if (user.getProfilePictureUrl() != null) {
+            } else if (user.getProfilePictureUrl() != null && user.getProfilePictureUrl().length() > 1) {
                 Picasso.Builder builder = new Picasso.Builder(this);
                 builder.listener(new Picasso.Listener() {
                     @Override
@@ -147,7 +136,7 @@ public class UserProfileActivity extends AppCompatActivity {
             editTextUsername.setText(user.getUsername());
         }
 
-        languageLabel.setText("Chosen language(s):");
+//        languageLabel.setText("Chosen language(s):");
 
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,10 +157,10 @@ public class UserProfileActivity extends AppCompatActivity {
                             }
                         }
                     });
-                    userLanguages = languageAdapter.getCheckedLanguageList();
-                    languageAdapter.setCheckable(false);
-                    languageAdapter.notifyDataSetChanged();
-                    languageLabel.setText("Chosen language(s):");
+//                    userLanguages = languageAdapter.getCheckedLanguageList();
+//                    languageAdapter.setCheckable(false);
+//                    languageAdapter.notifyDataSetChanged();
+//                    languageLabel.setText("Chosen language(s):");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -207,16 +196,16 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         // Setup language recycler view
-        userLanguages = Language.getCheckedLanguages(realm);
-        allLanguages = Language.getCheckedLanguages(realm);
-        LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
-        roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        languageAdapter = new LanguageRecyclerViewAdapter(allLanguages);
-        languageAdapter.setCheckedLanguageList(userLanguages);
-        languageView.setHasFixedSize(true);
-        languageView.setLayoutManager(roomsLayoutManager);
-        languageView.addItemDecoration(new RecyclerViewDivider(this));
-        languageView.setAdapter(languageAdapter);
+//        userLanguages = Language.getCheckedLanguages(realm);
+//        allLanguages = Language.getCheckedLanguages(realm);
+//        LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
+//        roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+//        languageAdapter = new LanguageRecyclerViewAdapter(allLanguages);
+//        languageAdapter.setCheckedLanguageList(userLanguages);
+//        languageView.setHasFixedSize(true);
+//        languageView.setLayoutManager(roomsLayoutManager);
+//        languageView.addItemDecoration(new RecyclerViewDivider(this));
+//        languageView.setAdapter(languageAdapter);
     }
 
     private void updateUserInfoOnScreen() {
@@ -237,28 +226,28 @@ public class UserProfileActivity extends AppCompatActivity {
             editTextUsername.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
-            APIFunctions.getLanguages(this, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                    allLanguages.clear();
-                    languageAdapter.setLanguageList(new RealmList<Language>());
-                    for (int i = 0; i < response.length(); i++) {
-                        try {
-                            allLanguages.add(new Language(
-                                    response.getJSONObject(i).getString("name"),
-                                    response.getJSONObject(i).getString("code"),
-                                    response.getJSONObject(i).getString("translation")
-                            ));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    languageAdapter.setLanguageList(allLanguages);
-                    languageAdapter.setCheckable(true);
-                    languageAdapter.notifyDataSetChanged();
-                    languageLabel.setText("All languages: ");
-                }
-            });
+//            APIFunctions.getLanguages(this, new JsonHttpResponseHandler() {
+//                @Override
+//                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+//                    allLanguages.clear();
+//                    languageAdapter.setLanguageList(new RealmList<Language>());
+//                    for (int i = 0; i < response.length(); i++) {
+//                        try {
+//                            allLanguages.add(new Language(
+//                                    response.getJSONObject(i).getString("name"),
+//                                    response.getJSONObject(i).getString("code"),
+//                                    response.getJSONObject(i).getString("translation")
+//                            ));
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    languageAdapter.setLanguageList(allLanguages);
+//                    languageAdapter.setCheckable(true);
+//                    languageAdapter.notifyDataSetChanged();
+//                    languageLabel.setText("All languages: ");
+//                }
+//            });
             editUsernameButton.setVisibility(View.GONE);
         } else {
             textViewUsername.setText(editTextUsername.getText());
@@ -268,12 +257,12 @@ public class UserProfileActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editTextUsername.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
-            languageAdapter.setCheckable(false);
-            allLanguages.clear();
-            allLanguages = Language.getCheckedLanguages(realm);
-            languageAdapter.setLanguageList(allLanguages);
-            languageAdapter.notifyDataSetChanged();
-            languageLabel.setText("Chosen language(s):");
+//            languageAdapter.setCheckable(false);
+//            allLanguages.clear();
+//            allLanguages = Language.getCheckedLanguages(realm);
+//            languageAdapter.setLanguageList(allLanguages);
+//            languageAdapter.notifyDataSetChanged();
+//            languageLabel.setText("Chosen language(s):");
             editUsernameButton.setVisibility(View.VISIBLE);
         }
     }

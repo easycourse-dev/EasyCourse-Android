@@ -35,6 +35,21 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
@@ -43,23 +58,10 @@ import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
+import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 import io.easycourse.www.easycourse.utils.asyntasks.DownloadImagesTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -327,8 +329,16 @@ public class ChatRoomFragment extends Fragment {
                             String toUser = (String) JSONUtils.checkIfJsonExists(message, "toUser", null);
                             float imageWidth = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageWidth", "0.0"));
                             float imageHeight = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageHeight", "0.0"));
+                            String dateCreatedAt = (String) JSONUtils.checkIfJsonExists(message, "createdAt", null);
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                            formatter.setTimeZone(Calendar.getInstance().getTimeZone());
+                            Date date = null;
+                            try {
+                                date = formatter.parse(dateCreatedAt);
 
-
+                            } catch (ParseException e) {
+                                Log.e(TAG, "saveMessageToRealm: parseException", e);
+                            }
                             Realm tempRealm = Realm.getDefaultInstance();
                             tempRealm.beginTransaction();
                             User senderUser = tempRealm.where(User.class).equalTo("id", senderId).findFirst();
@@ -359,6 +369,7 @@ public class ChatRoomFragment extends Fragment {
 
                             localMessage.setImageWidth(imageWidth);
                             localMessage.setImageHeight(imageHeight);
+                            localMessage.setCreatedAt(date);
                             tempRealm.commitTransaction();
                         } catch (JSONException e) {
                             Log.e(TAG, "call: ", e);
@@ -445,13 +456,13 @@ public class ChatRoomFragment extends Fragment {
                         float imageHeight = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageHeight", "0.0"));
                         String dateCreatedAt = (String) JSONUtils.checkIfJsonExists(message, "createdAt", null);
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                        formatter.setTimeZone(TimeZone.getTimeZone("GMT")); // Super weird...
                         Date date = null;
                         try {
                             date = formatter.parse(dateCreatedAt);
                         } catch (ParseException e) {
                             Log.e(TAG, "saveMessageToRealm: parseException", e);
                         }
-
 
                         Realm tempRealm = Realm.getDefaultInstance();
                         tempRealm.beginTransaction();

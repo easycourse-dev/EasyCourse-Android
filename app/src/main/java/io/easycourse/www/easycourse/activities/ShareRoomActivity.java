@@ -10,14 +10,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.components.RoomListViewAdapter;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.SocketIO;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,11 +17,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.RoomListViewAdapter;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.JSONUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.socket.client.Ack;
@@ -148,6 +148,7 @@ public class ShareRoomActivity extends AppCompatActivity {
                     float imageHeight = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageHeight", "0.0"));
                     String dateCreatedAt = (String) JSONUtils.checkIfJsonExists(message, "createdAt", null);
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                    formatter.setTimeZone(TimeZone.getTimeZone("GMT")); // Super weird...
                     Date date = null;
                     try {
                         date = formatter.parse(dateCreatedAt);

@@ -3,14 +3,6 @@ package io.easycourse.www.easycourse.utils;
 import android.content.Context;
 import android.util.Log;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.University;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.eventbus.Event;
-
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +17,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.University;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -712,6 +712,7 @@ public class SocketIO {
             }
             String dateString = (String) JSONUtils.checkIfJsonExists(obj, "createdAt", null);
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            formatter.setTimeZone(TimeZone.getTimeZone("GMT")); // Super weird...
             Date date = null;
             try {
                 date = formatter.parse(dateString);

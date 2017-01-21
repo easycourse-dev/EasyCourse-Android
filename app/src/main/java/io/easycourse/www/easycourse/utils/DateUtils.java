@@ -37,7 +37,7 @@ public class DateUtils {
     @Nullable
     public static String getTimeString(Message message, Message prevMessage) {
         Date messageDate = getLocalDate(message.getCreatedAt());
-        TimeZone timeZone = TimeZone.getDefault();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
 
         if (prevMessage == null) {
             //Include date in time

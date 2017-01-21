@@ -144,7 +144,13 @@ public class ChatRoomFragment extends Fragment {
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
-                currentRoom.setUnread(0);
+//                final String roomId = currentRoom.getId();
+//                realm.executeTransactionAsync(new Realm.Transaction() {
+//                    @Override
+//                    public void execute(Realm realm) {
+//                        Room.getRoomById(realm, roomId).setUnread(0);
+//                    }
+//                });
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
             }
         });

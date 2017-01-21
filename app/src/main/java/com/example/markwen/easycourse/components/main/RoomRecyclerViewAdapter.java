@@ -2,7 +2,6 @@ package com.example.markwen.easycourse.components.main;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -24,8 +23,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.markwen.easycourse.R;
-import com.example.markwen.easycourse.activities.ChatRoomActivity;
-import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.fragments.main.RoomsFragment;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
@@ -51,6 +48,7 @@ import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import io.socket.client.Ack;
+import su.levenetc.android.badgeview.BadgeView;
 
 
 /**
@@ -93,6 +91,8 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         TextView roomLastTimeTextView;
         @BindView(R.id.imageViewChatRoom)
         ImageView roomImageView;
+        @BindView(R.id.imageViewBadge)
+        BadgeView badgeView;
 
         RoomViewHolder(View itemView) {
             super(itemView);
@@ -114,6 +114,13 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         final RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = (RoomRecyclerViewAdapter.RoomViewHolder) viewHolder;
         roomViewHolder.roomNameTextView.setText(room.getRoomName());
         roomViewHolder.roomCourseTextView.setText(room.getCourseName());
+
+        if (room.getUnread() <= 0) {
+            roomViewHolder.badgeView.setVisibility(View.GONE);
+        } else {
+            roomViewHolder.badgeView.setVisibility(View.VISIBLE);
+            roomViewHolder.badgeView.setValue(room.getUnread());
+        }
 
         roomViewHolder.roomCardView.setOnClickListener(new View.OnClickListener() {
             @Override

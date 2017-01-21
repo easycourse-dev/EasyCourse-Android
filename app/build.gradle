@@ -36,7 +36,7 @@ dependencies {
 
 
     // socket.io
-    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
+    compile 'com.google.firebase:firebase-appindexing:10.0.1'
     compile ('io.socket:socket.io-client:0.8.2') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
@@ -111,6 +111,8 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
 
+    //BadgeView
+    compile 'com.github.elevenetc:badgeview:v1.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

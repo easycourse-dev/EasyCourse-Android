@@ -106,6 +106,9 @@ public class ChatRoomActivity extends AppCompatActivity {
     }
 
     public void gotoChatRoomFragment(Room currentRoom, User currentUser) {
+        realm.beginTransaction();
+        currentRoom.setUnread(0);
+        realm.commitTransaction();
         ChatRoomFragment chatRoomFragment = ChatRoomFragment.newInstance(currentRoom, currentUser);
         getSupportFragmentManager()
                 .beginTransaction()

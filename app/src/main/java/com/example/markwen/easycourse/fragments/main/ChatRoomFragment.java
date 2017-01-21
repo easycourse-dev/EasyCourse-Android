@@ -146,13 +146,6 @@ public class ChatRoomFragment extends Fragment {
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
-//                final String roomId = currentRoom.getId();
-//                realm.executeTransactionAsync(new Realm.Transaction() {
-//                    @Override
-//                    public void execute(Realm realm) {
-//                        Room.getRoomById(realm, roomId).setUnread(0);
-//                    }
-//                });
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
             }
         });
@@ -455,7 +448,6 @@ public class ChatRoomFragment extends Fragment {
                         Date date = null;
                         try {
                             date = formatter.parse(dateCreatedAt);
-
                         } catch (ParseException e) {
                             Log.e(TAG, "saveMessageToRealm: parseException", e);
                         }
@@ -539,6 +531,9 @@ public class ChatRoomFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        realm.beginTransaction();
+        currentRoom.setUnread(0);
+        realm.commitTransaction();
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
     }

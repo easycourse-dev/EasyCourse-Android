@@ -86,7 +86,7 @@ public class SocketIO {
             @Override
             public void call(Object... args) {
                 JSONObject obj = (JSONObject) args[0];
-                saveJsonMessageToRealm(obj);
+                saveJsonMessageToRealm(obj, true);
                 //Bus event sent in saveJsonMessageToRealm
                 Log.d(TAG, "message");
             }
@@ -397,7 +397,7 @@ public class SocketIO {
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
                         for (int i = 0; i < msgArray.length(); i++) {
-                            saveJsonMessageToRealm(msgArray.getJSONObject(i));
+                            saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
                         }
                     }
                 } catch (JSONException e) {
@@ -420,7 +420,7 @@ public class SocketIO {
                     } else {
                         JSONArray msgArray = obj.getJSONArray("msg");
                         for (int i = 0; i < msgArray.length(); i++) {
-                            saveJsonMessageToRealm(msgArray.getJSONObject(i));
+                            saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
                         }
                     }
                 } catch (JSONException e) {
@@ -689,7 +689,7 @@ public class SocketIO {
         });
     }
 
-    private void saveJsonMessageToRealm(JSONObject obj) {
+    private void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
         if (obj == null) return;
         Message message;
         try {
@@ -717,7 +717,6 @@ public class SocketIO {
             Date date = null;
             try {
                 date = formatter.parse(dateString);
-
             } catch (ParseException e) {
                 Log.e(TAG, "saveJsonMessageToRealm: parseException", e);
             }
@@ -731,7 +730,9 @@ public class SocketIO {
                 Room currentRoom = Room.getRoomById(realm, toRoom);
                 if (currentRoom != null) {
                     realm.beginTransaction();
-                    currentRoom.incUnread(1);
+                    if (unread) {
+                        currentRoom.incUnread(1);
+                    }
                     realm.copyToRealmOrUpdate(currentRoom);
                     realm.commitTransaction();
                 }
@@ -742,7 +743,9 @@ public class SocketIO {
                     currentRoom = createPrivateRoom(senderId);
                 realm.beginTransaction();
                 currentRoom.setJoinIn(true);
-                currentRoom.incUnread(1);
+                if (unread) {
+                    currentRoom.incUnread(1);
+                }
                 realm.copyToRealmOrUpdate(currentRoom);
                 realm.commitTransaction();
             }

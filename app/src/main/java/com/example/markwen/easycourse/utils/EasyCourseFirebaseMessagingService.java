@@ -52,7 +52,7 @@ public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setColor(getResources().getColor(R.color.colorPrimary))
+                .setColor(getColor(R.color.colorPrimary))
                 .setSmallIcon(R.drawable.ic_stat_ic_notification)
                 .setContentTitle(messageTitle)
                 .setContentText(messageBody)

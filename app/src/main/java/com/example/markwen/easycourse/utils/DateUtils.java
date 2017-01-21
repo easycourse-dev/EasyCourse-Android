@@ -33,15 +33,24 @@ public class DateUtils {
     public static Date getLocalDate(Date utcDate) {
         return new Date(utcDate.getTime() + TimeZone.getDefault().getRawOffset());
     }
+    
 
     @Nullable
     public static String getTimeString(Message message, Message prevMessage) {
-        if (prevMessage == null) return null;
         Date messageDate = getLocalDate(message.getCreatedAt());
+        TimeZone timeZone = TimeZone.getDefault();
+
+        if (prevMessage == null) {
+            //Include date in time
+            DateFormat df = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.US);
+            df.setTimeZone(timeZone);
+            return df.format(messageDate);
+        }
         Date prevMessageDate = getLocalDate(prevMessage.getCreatedAt());
         int diffInMinutes = DateUtils.timeDifferenceInMinutes(messageDate, prevMessageDate);
+
+
         if (diffInMinutes >= 5) {
-            TimeZone timeZone = TimeZone.getDefault();
             //If today
             if (DateUtils.isToday(messageDate)) {
                 //Exclude date in time

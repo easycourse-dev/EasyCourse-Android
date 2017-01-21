@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/linearIncomingChatCell"
+              android:id="@+id/linearIncomingSharedChatCell"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:paddingTop="16dp">
 
     <TextView
-        android:id="@+id/textViewIncomingTextTime"
+        android:id="@+id/textViewIncomingSharedTextTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -21,7 +21,7 @@
         android:weightSum="5">
 
         <TextView
-            android:id="@+id/textViewIncomingTextName"
+            android:id="@+id/textViewIncomingSharedTextName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
@@ -33,7 +33,7 @@
             android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/imageViewIncomingTextImage"
+                android:id="@+id/imageViewIncomingSharedTextImage"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
@@ -45,7 +45,7 @@
 
 
             <RelativeLayout
-                android:id="@+id/relativeLayoutSharedRoomHolder"
+                android:id="@+id/relativeLayoutIncomingSharedRoomHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -85,7 +85,7 @@
                         android:text="@string/ROOM"/>
 
                     <TextView
-                        android:id="@+id/textViewChatRoomName"
+                        android:id="@+id/textViewIncomingSharedChatRoomName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:clickable="false"

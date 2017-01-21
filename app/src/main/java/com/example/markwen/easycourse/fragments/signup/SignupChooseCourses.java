@@ -1,6 +1,7 @@
 package com.example.markwen.easycourse.fragments.signup;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -20,10 +21,15 @@ import android.widget.EditText;
 
 import com.example.markwen.easycourse.EasyCourse;
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.MainActivity;
 import com.example.markwen.easycourse.activities.SignupLoginActivity;
 import com.example.markwen.easycourse.components.signup.EndlessRecyclerViewScrollListener;
 import com.example.markwen.easycourse.components.signup.SignupChooseCoursesAdapter;
+import com.example.markwen.easycourse.models.main.Message;
+import com.example.markwen.easycourse.models.main.Room;
+import com.example.markwen.easycourse.models.main.User;
 import com.example.markwen.easycourse.models.signup.Course;
+import com.example.markwen.easycourse.models.signup.Language;
 import com.example.markwen.easycourse.models.signup.UserSetup;
 import com.example.markwen.easycourse.utils.APIFunctions;
 import com.example.markwen.easycourse.utils.SocketIO;
@@ -33,9 +39,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import io.realm.Realm;
+import io.realm.RealmList;
+import io.socket.client.Ack;
+
+import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
+import static com.example.markwen.easycourse.utils.ListsUtils.stringArrayToArrayList;
 
 /**
  * Created by Mark Wen on 10/18/2016.
@@ -89,7 +102,7 @@ public class SignupChooseCourses extends Fragment {
         final EditText searchCoursesEditText = (EditText) rootView.findViewById(R.id.edit_choose_courses);
         nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
-        clearEditTextButton = (Button)rootView.findViewById(R.id.buttonClearEditText);
+        clearEditTextButton = (Button) rootView.findViewById(R.id.buttonClearEditText);
 
         courses = userSetup.getSelectedCourses();
         coursesAdapter = new SignupChooseCoursesAdapter(courses);
@@ -137,7 +150,7 @@ public class SignupChooseCourses extends Fragment {
                     searchDelay = new Runnable() {
                         @Override
                         public void run() {
-                            APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler(){
+                            APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                                     courses.clear();
@@ -216,7 +229,12 @@ public class SignupChooseCourses extends Fragment {
                 @Override
                 public void onClick(View v) {
                     saveToUserSetup();
-                    gotoSignupChooseLanguage(v);
+//                    gotoSignupChooseLanguage(v);
+                    userSetup.setLanguageCodeArray(new String[0]);
+                    postSignupData(userSetup);
+
+
+
                 }
             });
 
@@ -233,8 +251,8 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
-    public void updateRecyclerView(){
-        Thread thread = new Thread(){
+    public void updateRecyclerView() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {
@@ -252,7 +270,7 @@ public class SignupChooseCourses extends Fragment {
     }
 
     public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {
-        APIFunctions.searchCourse(getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler(){
+        APIFunctions.searchCourse(getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 int startPosition = courses.size();
@@ -315,6 +333,119 @@ public class SignupChooseCourses extends Fragment {
         }
         userSetup.setCourseCodeArray(courseStringList);
         userSetup.setSelectedCourses(checkedCourses);
+    }
+
+
+    public void postSignupData(UserSetup userSetup) {
+        try {
+            final Realm tempRealm = Realm.getDefaultInstance();
+//            // Saving languages
+//            ArrayList<Language> chosenLanguages = languageAdapter.getCheckedLanguageList();
+//            Realm tempRealm = Realm.getDefaultInstance();
+//            for (int i = 0; i < chosenLanguages.size(); i++) {
+//                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(chosenLanguages.get(i).getCode(), tempRealm).setChecked(true);
+//            }
+//            tempRealm.close();
+            //Post University
+            APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "Successfully posted university id");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    // Make a Snackbar to notify user with error
+                    Log.d(TAG, "Failed to post university id");
+                }
+            });
+
+            final SocketIO socketIO = EasyCourse.getAppInstance().getSocketIO();
+
+            // Language handling
+            ArrayList<String> languageCodes = stringArrayToArrayList(userSetup.getLanguageCodeArray());
+            for (int i = 0; i < languageCodes.size(); i++) {
+                com.example.markwen.easycourse.models.main.Language.getLanguageByCode(languageCodes.get(i), tempRealm).setChecked(true, tempRealm);
+            }
+
+            socketIO.joinCourse(
+                    stringArrayToArrayList(userSetup.getCourseCodeArray()),
+                    languageCodes,
+                    new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            JSONObject res = (JSONObject) args[0];
+                            try {
+                                JSONArray courseArrayJSON = res.getJSONArray("joinedCourse");
+                                JSONArray roomArrayJSON = res.getJSONArray("joinedRoom");
+                                JSONObject temp;
+                                Realm realm = Realm.getDefaultInstance();
+
+                                // Courses handling
+                                for (int i = 0; i < courseArrayJSON.length(); i++) {
+                                    temp = courseArrayJSON.getJSONObject(i);
+                                    String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    String courseName = (String) checkIfJsonExists(temp, "name", null);
+                                    String title = (String) checkIfJsonExists(temp, "title", null);
+                                    String courseDescription = (String) checkIfJsonExists(temp, "description", null);
+                                    int creditHours = Integer.parseInt((String) checkIfJsonExists(temp, "creditHours", "0"));
+                                    String universityID = (String) checkIfJsonExists(temp, "university", null);
+
+                                    com.example.markwen.easycourse.models.main.Course course = new com.example.markwen.easycourse.models.main.Course(id, courseName, title, courseDescription, creditHours, universityID);
+                                    com.example.markwen.easycourse.models.main.Course.updateCourseToRealm(course, realm);
+                                }
+
+                                // Rooms handling
+                                for (int i = 0; i < roomArrayJSON.length(); i++) {
+                                    temp = roomArrayJSON.getJSONObject(i);
+                                    final String id = (String) checkIfJsonExists(temp, "_id", null);
+                                    final String roomName = (String) checkIfJsonExists(temp, "name", null);
+                                    final String courseID = (String) checkIfJsonExists(temp, "course", null);
+                                    final String courseName = com.example.markwen.easycourse.models.main.Course.getCourseById(courseID, realm).getCoursename();
+                                    final String universityID = (String) checkIfJsonExists(temp, "university", null);
+                                    final boolean isPublic = (boolean) checkIfJsonExists(temp, "isPublic", true);
+                                    final int memberCounts = Integer.parseInt((String) checkIfJsonExists(temp, "memberCounts", "1"));
+                                    final String memberCountsDesc = (String) checkIfJsonExists(temp, "memberCountsDescription", null);
+                                    final String language = (String) checkIfJsonExists(temp, "language", "0");
+                                    final boolean isSystem = (boolean) checkIfJsonExists(temp, "isSystem", true);
+
+                                    // Save user to Realm
+                                    Room.updateRoomToRealm(
+                                            new Room(
+                                                    id,
+                                                    roomName,
+                                                    new RealmList<Message>(),
+                                                    courseID,
+                                                    courseName,
+                                                    universityID,
+                                                    new RealmList<User>(),
+                                                    memberCounts,
+                                                    memberCountsDesc,
+                                                    new User(),
+                                                    language,
+                                                    isPublic,
+                                                    isSystem), realm
+                                    );
+                                }
+                                goToMainActivity();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+            tempRealm.close();
+        } catch (JSONException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Function to go to MainActivity
+    private void goToMainActivity() {
+        Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+        mainActivityIntent.putExtra("UserSetup", userSetup);
+        startActivity(mainActivityIntent);
+        getActivity().finish();
     }
 
 

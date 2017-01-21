@@ -1,9 +1,11 @@
 package com.example.markwen.easycourse.components.main.CourseDetails;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.markwen.easycourse.R;
+import com.example.markwen.easycourse.activities.ChatRoomActivity;
 import com.example.markwen.easycourse.models.main.Message;
 import com.example.markwen.easycourse.models.main.Room;
 import com.example.markwen.easycourse.models.main.User;
@@ -44,6 +47,10 @@ import static com.example.markwen.easycourse.utils.JSONUtils.checkIfJsonExists;
  */
 
 public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<CourseDetailsRoomsRecyclerViewAdapter.RoomViewHolder> {
+
+    private static final String TAG = "CourseDetailsRoomsRecyc";
+
+
     private ArrayList<Room> rooms = new ArrayList<>();
     private ArrayList<Room> joinedRooms = new ArrayList<>();
     private boolean isCourseJoined = false;
@@ -61,6 +68,26 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         RealmResults<Room> joinedRoomsResults = realm.where(Room.class).findAll();
         for (int i = 0; i < joinedRoomsResults.size(); i++) {
             joinedRooms.add(joinedRoomsResults.get(i));
+        }
+    }
+
+    public class RoomViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.cardViewCourseDetails)
+        CardView courseDetailsCardView;
+        @BindView(R.id.CourseDetailsRoomName)
+        TextView roomNameTextView;
+        @BindView(R.id.CourseDetailsRoomDesc)
+        TextView roomDescTextView;
+        @BindView(R.id.CourseDetailsFounderImage)
+        CircleImageView founderImageView;
+        @BindView(R.id.CourseDetailsRoomFounder)
+        TextView founderTextView;
+        @BindView(R.id.CourseDetailsCheckbox)
+        AnimateCheckBox checkBox;
+
+        public RoomViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
 
@@ -93,12 +120,21 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         } else {
             holder.checkBox.setChecked(false);
         }
+
+        holder.courseDetailsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+//                chatActivityIntent.putExtra("roomId", room.getId());
+//                activity.startActivity(chatActivityIntent);
+            }
+        });
+
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (holder.checkBox.isChecked()) {
                     dropRoom(room.getId());
-                    // TODO: update checkbox after dropRoom is called
                     holder.checkBox.setChecked(false);
                     for (int i = 0; i < joinedRooms.size(); i++) {
                         if (joinedRooms.get(i).getId().equals(room.getId())) {
@@ -107,7 +143,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
                     }
                 } else {
                     joinRoom(room.getId(), room.getCourseName());
-                    // TODO: update checkbox after joinRoom is called
                     holder.checkBox.setChecked(true);
                 }
             }
@@ -142,22 +177,6 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return rooms.size();
     }
 
-    public class RoomViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.CourseDetailsRoomName)
-        TextView roomNameTextView;
-        @BindView(R.id.CourseDetailsRoomDesc)
-        TextView roomDescTextView;
-        @BindView(R.id.CourseDetailsFounderImage)
-        CircleImageView founderImageView;
-        @BindView(R.id.CourseDetailsRoomFounder)
-        TextView founderTextView;
-        @BindView(R.id.CourseDetailsCheckbox)
-        AnimateCheckBox checkBox;
-        public RoomViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-    }
 
     private Room isRoomJoined(ArrayList<Room> list, Room room) {
         for (int i = 0; i < list.size(); i++) {
@@ -168,21 +187,26 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
         return null;
     }
 
-    private void downloadImage(final URL url, final ImageView imgView, final Room room){
-        Thread thread = new Thread(){
+    private void downloadImage(final URL url, final ImageView imgView, final Room room) {
+        Thread thread = new Thread() {
             @Override
             public void run() {
-                try  {
+                try {
                     // Download image
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.connect();
                     InputStream input = connection.getInputStream();
-                    Bitmap image = BitmapFactory.decodeStream(input);
+                    final Bitmap image = BitmapFactory.decodeStream(input);
                     // Compress image
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG, 30, stream);
-                    imgView.setImageBitmap(image);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imgView.setImageBitmap(image);
+                        }
+                    });
 
                     // Saving image
                     byte[] byteArray = stream.toByteArray();

@@ -33,9 +33,7 @@ public class User extends RealmObject {
 
     private int friendStatus = 0;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String id, String username, String profilePictureUrl) {
         this.id = id;
@@ -50,6 +48,20 @@ public class User extends RealmObject {
         this.profilePictureUrl = profilePictureUrl;
         this.email = email;
         this.universityID = universityID;
+    }
+
+    public User(String id, String username, byte[] profilePicture, String profilePictureUrl, String email, String universityID, RealmList<Course> joinedCourses, RealmList<Room> joinedRooms, RealmList<Room> silentRooms, RealmList<Language> userLanguages, int friendStatus) {
+        this.id = id;
+        this.username = username;
+        this.profilePicture = profilePicture;
+        this.profilePictureUrl = profilePictureUrl;
+        this.email = email;
+        this.universityID = universityID;
+        this.joinedCourses = joinedCourses;
+        this.joinedRooms = joinedRooms;
+        this.silentRooms = silentRooms;
+        this.userLanguages = userLanguages;
+        this.friendStatus = friendStatus;
     }
 
     public static void updateUserToRealm(User user, Realm realm) {

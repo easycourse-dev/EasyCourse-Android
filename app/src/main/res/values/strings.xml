@@ -28,7 +28,7 @@
 
     <!--Chat-->
     <string name="chatMessageAccessibility">User Image</string>
-    <string name="messageSendBoxHint">Enter a message</string>
+    <string name="messageSendBoxHint">Say something&#8230;</string>
 
     <!--Menu-->
     <string name="action_settings">Settings</string>
@@ -56,7 +56,7 @@
     <string name="create_room">Create Room</string>
     <string name="please_join_a_course_first">Please join a course first.</string>
     <string name="your_courses">your courses:</string>
-    <string name="existed_rooms">existed rooms:</string>
+    <string name="existed_rooms">Existing rooms:</string>
     <string name="tempCourse">CS18000</string>
     <string name="tempRoomName">CS180NoArrayListPlease...</string>
     <string name="search_course_hint">Search for new courses</string>
@@ -73,6 +73,7 @@
     <string name="report_user">Report User</string>
     <string name="quit_room">Quit Room</string>
 
+
     <string name="report_user_hint">Optional reason...</string>
     <string name="rooms">Rooms</string>
     <string name="less_than_10"><![CDATA[(<10)]]></string>
@@ -81,4 +82,11 @@
     <string name="enter_your_email">Enter your email</string>
     <string name="ROOM">Room</string>
     <string name="chose_language_s">Chosen language(s):</string>
+
+
+    <!--CourseDetailsActivity-->
+    <string name="joined">Joined</string>
+    <string name="join">Join</string>
+
+
 </resources>

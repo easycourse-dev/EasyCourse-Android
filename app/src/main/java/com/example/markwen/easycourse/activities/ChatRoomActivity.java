@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -138,10 +138,17 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (this.currentRoom == null) {
             Log.d(TAG, "current room not found!");
             Toast.makeText(this, "Current room not found!", Toast.LENGTH_SHORT).show();
-            this.finish();
+            ChatRoomActivity.this.finish();
+            return;
         }
-        toolbarTitleTextView.setText(currentRoom.getRoomName());
-        toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        if (currentRoom.getRoomName() != null)
+            toolbarTitleTextView.setText(currentRoom.getRoomName());
+        if (currentRoom.getCourseName() != null)
+            toolbarSubtitleTextView.setText(currentRoom.getCourseName());
+        if (currentRoom.getCourseName() == null) {
+            toolbarSubtitleTextView.setVisibility(View.GONE);
+            toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+        }
     }
 
     private void setupDrawer() {
@@ -162,7 +169,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                   new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                     new SecondaryDrawerItem().withName(R.string.quit_room)
             );
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -177,7 +184,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             shareRoom();
                             return true;
                         case 5:
-                            quitRoom();
+                            showQuitRoomDialog();
                             break;
                     }
                     return true;
@@ -185,7 +192,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             });
         } else { //If private chat
             builder.addDrawerItems(
-                    new SecondaryDrawerItem().withName("Share User"),
+//                    new SecondaryDrawerItem().withName("Share User"),
                     new SecondarySwitchDrawerItem().withName(R.string.block_user).
                             withChecked(isRoomJoined(currentUser.getSilentRooms(), currentRoom))
                             .withOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -202,7 +209,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                     switch (position) {
                         case 1:
-                            shareRoom();
+//                            shareRoom();
                             break;
                         case 2:
                             showBlockUserDialog();
@@ -211,7 +218,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             showReportUserDialog();
                             break;
                         case 4:
-                            quitRoom();
+                            showQuitRoomDialog();
                             break;
                     }
                     return true;
@@ -258,35 +265,56 @@ public class ChatRoomActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    private void showQuitRoomDialog() {
+
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .title("Quit Room?")
+                .negativeText("No")
+                .positiveText("Yes")
+                .positiveColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null))
+                .negativeColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        quitRoom();
+                    }
+                })
+                .build();
+        dialog.show();
+    }
+
     private void quitRoom() {
         try {
-            socketIO.quitRoom(currentRoom.getId(), new Ack() {
-                @Override
-                public void call(Object... args) {
-                    JSONObject obj = (JSONObject) args[0];
-                    Log.e(TAG, obj.toString());
+            if (currentRoom.isToUser()) {
+                deleteRoomInSocket(currentRoom);
+            } else {
+                socketIO.quitRoom(currentRoom.getId(), new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        JSONObject obj = (JSONObject) args[0];
 
-                    if (obj.has("error")) {
-                        Log.e(TAG, obj.toString());
-                    } else {
+                        if (obj.has("error")) {
+                            Log.e(TAG, obj.toString());
+                        } else {
 
-                        try {
-                            boolean success = obj.getBoolean("success");
-                            if (success) {
-                                deleteRoomInSocket(currentRoom);
-                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                            try {
+                                boolean success = obj.getBoolean("success");
+                                if (success) {
+                                    deleteRoomInSocket(currentRoom);
+                                    startActivity(new Intent(ChatRoomActivity.this, MainActivity.class));
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "call: ", e);
                             }
-                        } catch (JSONException e) {
-                            Log.e(TAG, e.toString());
                         }
                     }
-                }
-            });
+                });
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        socketIO.syncUser();
     }
-
 
     private void silenceRoom(final boolean isChecked) {
         try {
@@ -434,14 +462,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        if (socketIO != null)
-//            socketIO.syncUser();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -473,8 +493,20 @@ public class ChatRoomActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Room.deleteRoomFromRealm(room, realm);
-                realm.close();
+                Realm tempRealm = Realm.getDefaultInstance();
+                tempRealm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        Room realmRoom = realm.where(Room.class).equalTo("id", room.getId()).findFirst();
+                        realmRoom.deleteFromRealm();
+
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        Log.e(TAG, "onError: ", error);
+                    }
+                });
             }
         });
     }

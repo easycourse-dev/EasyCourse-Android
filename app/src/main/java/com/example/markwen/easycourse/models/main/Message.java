@@ -27,35 +27,46 @@ public class Message extends RealmObject {
     private double imageHeight;
 
     private String toRoom;
-    private String toUser;
     private boolean isToUser = true;
     private Date createdAt;
 
     public Message() {
     }
 
-    //TODO: Testing constructor
-    public Message(User sender, String text, String imageUrl, Date createdAt) {
-        this.sender = sender;
-        this.text = text;
-        this.imageUrl = imageUrl;
-        this.createdAt = createdAt;
-    }
 
-    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, boolean successSent, double imageWidth, double imageHeight, String toRoom, String toUser, Room sharedRoom, Date createdAt) {
+
+    public Message(String id, String remoteId, User sender, String text, String imageUrl, byte[] imageData, Room sharedRoom, boolean successSent, double imageWidth, double imageHeight, String toRoom, boolean isToUser, Date createdAt) {
         this.id = id;
         this.remoteId = remoteId;
         this.sender = sender;
         this.text = text;
         this.imageUrl = imageUrl;
         this.imageData = imageData;
+        this.sharedRoom = sharedRoom;
         this.successSent = successSent;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.toRoom = toRoom;
-        this.toUser = toUser;
-        this.sharedRoom = sharedRoom;
+        this.isToUser = isToUser;
         this.createdAt = createdAt;
+    }
+
+    public Message(String id, User sender, Room sharedRoom, String toRoom, boolean successSent, boolean isToUser, Date createdAt) {
+        this.id = id;
+        this.sharedRoom = sharedRoom;
+        this.toRoom = toRoom;
+        this.successSent = successSent;
+        this.isToUser = isToUser;
+        this.createdAt = createdAt;
+        this.sender = sender;
+    }
+
+    public Message updateMessageToRealm() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Message realmMessage = realm.copyToRealmOrUpdate(this);
+        realm.commitTransaction();
+        return realmMessage;
     }
 
     public static void updateMessageToRealm(Message message, Realm realm) {
@@ -169,20 +180,8 @@ public class Message extends RealmObject {
         return toRoom;
     }
 
-    public void setToUser(String toUser) {
-        this.toUser = toUser;
-    }
-
-    public String getToUser() {
-        return toUser;
-    }
-
     public void setToRoom(String toRoom) {
         this.toRoom = toRoom;
-    }
-
-    public boolean isToUser() {
-        return isToUser;
     }
 
     public void setToUser(boolean toUser) {

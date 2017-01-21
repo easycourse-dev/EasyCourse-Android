@@ -300,7 +300,6 @@ public class NewRoomActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        socketIO.syncUser();
     }
 
     private void doSearchRoom(final String query, final int skip, String courseId, final String courseName, final View v) {

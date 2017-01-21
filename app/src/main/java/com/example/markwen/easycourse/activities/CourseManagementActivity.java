@@ -176,7 +176,7 @@ public class CourseManagementActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                    Log.e("searchCourse", responseString);
+                                    Log.e("searchCourse", responseString, throwable);
                                     Snackbar.make(courseSearch, responseString, Snackbar.LENGTH_LONG).show();
                                 }
                             });

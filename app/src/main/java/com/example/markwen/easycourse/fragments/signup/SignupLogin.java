@@ -114,6 +114,8 @@ public class SignupLogin extends Fragment {
     LinearLayout signupLinearLayout;
     SharedPreferences sharedPref;
     MaterialDialog progress;
+    boolean showTextErrors = false;
+
 
     Animation titleAnimEnter;
     Animation emailAnimEnter;
@@ -246,6 +248,7 @@ public class SignupLogin extends Fragment {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(signupButton.getWindowToken(), 0);
                 signup(v);
+                showTextErrors = true;
             }
         });
 
@@ -255,6 +258,7 @@ public class SignupLogin extends Fragment {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(loginButton.getWindowToken(), 0);
                 emailLogin(v);
+                showTextErrors = true;
             }
         });
 
@@ -463,7 +467,7 @@ public class SignupLogin extends Fragment {
     //Parses response from login to realm and sharedprefs
     public void parseLoginResponse(int statusCode, final Header[] headers, final JSONObject response) {
 
-        APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler(){
+        APIFunctions.getLanguages(getContext(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] langHeaders, JSONArray langResponse) {
                 for (int i = 0; i < langResponse.length(); i++) {
@@ -565,7 +569,7 @@ public class SignupLogin extends Fragment {
                     JSONArray silentRoomsJSON = response.getJSONArray("silentRoom");
                     for (int i = 0; i < silentRoomsJSON.length(); i++) {
                         String roomID = silentRoomsJSON.getString(i);
-                        Log.e(TAG, "silent room:"+roomID);
+                        Log.e(TAG, "silent room:" + roomID);
                         Room tempRoom = Room.getRoomById(realm, roomID);
                         currentUser.getSilentRooms().add(tempRoom);
                     }
@@ -580,7 +584,7 @@ public class SignupLogin extends Fragment {
                 realm.close();
 
                 try {
-                    APIFunctions.saveDeviceToken(getContext(), userToken, EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler(){
+                    APIFunctions.saveDeviceToken(getContext(), userToken, EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             Log.e(TAG, "Token saved");
@@ -682,7 +686,6 @@ public class SignupLogin extends Fragment {
         }
 
 
-
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher("I am a string");
 
@@ -756,16 +759,20 @@ public class SignupLogin extends Fragment {
         public void afterTextChanged(Editable s) {
             switch (view.getId()) {
                 case R.id.editTextEmail:
-                    validateEmail();
+                    if (showTextErrors)
+                        validateEmail();
                     break;
                 case R.id.editTextPassword:
-                    validatePassword();
+                    if (showTextErrors)
+                        validatePassword();
                     break;
                 case R.id.editTextVerifyPassword:
-                    validateVerifyPassword();
+                    if (showTextErrors)
+                        validateVerifyPassword();
                     break;
                 case R.id.editTextUsername:
-                    validateUsername();
+                    if (showTextErrors)
+                        validateUsername();
                     break;
             }
         }

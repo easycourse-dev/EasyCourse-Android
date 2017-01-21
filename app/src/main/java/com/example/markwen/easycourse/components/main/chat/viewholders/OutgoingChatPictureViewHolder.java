@@ -70,7 +70,7 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
             try {
                 if (!curUser.getProfilePictureUrl().isEmpty())
                     Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
+                            .load(curUser.getProfilePictureUrl()).resize(40, 40).centerInside()
                             .placeholder(R.drawable.ic_person_black_24px)
                             .into(outgoingPicUserView);
 

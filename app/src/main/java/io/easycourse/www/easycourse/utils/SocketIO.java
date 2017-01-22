@@ -209,7 +209,6 @@ public class SocketIO {
                     String userAvatarUrl = (String) JSONUtils.checkIfJsonExists(userObj, "avatarUrl", null);
                     String userUniversity = (String) JSONUtils.checkIfJsonExists(userObj, "university", null);
 
-
                     JSONArray userLangObj = (JSONArray) JSONUtils.checkIfJsonExists(obj, "userLang", null);
                     //TODO: implement userLangs
 

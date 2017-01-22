@@ -15,15 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManagementCoursesRecyclerViewAdapter;
-import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
-import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -35,6 +26,16 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManagementCoursesRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
+import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.University;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -87,8 +88,9 @@ public class CourseManagementActivity extends AppCompatActivity {
         // Get UniversityID
         chosenUniversity = User.getCurrentUser(this, realm).getUniversityID();
         if (chosenUniversity == null) {
-            // Temporary placeholder with Purdue University ID
-            chosenUniversity = "586085386edf9b0011913a9c";
+            // TODO: for some reason universityId in currentUser is sometimes missing...
+            chosenUniversity = realm.where(University.class).findAll().first().getId();
+            Log.e("Univ", chosenUniversity);
         }
 
         // Get already registered classes

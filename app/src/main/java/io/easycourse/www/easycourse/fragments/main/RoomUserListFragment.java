@@ -13,15 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.ChatRoomActivity;
-import io.easycourse.www.easycourse.components.main.RoomUserListViewAdapter;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.SocketIO;
-
 import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +25,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+import io.easycourse.www.easycourse.components.main.RoomUserListViewAdapter;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.socket.client.Ack;
@@ -123,12 +122,7 @@ public class RoomUserListFragment extends Fragment {
                             User user = new User(id, displayName, null, avatarUrl, null, null);
                             users.add(user);
                         }
-                        RoomUserListFragment.this.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setupRecyclerView();
-                            }
-                        });
+                        setupRecyclerView();
                     } catch (Exception e) {
                         Log.e(TAG, "call: ", e);
                     }
@@ -141,17 +135,30 @@ public class RoomUserListFragment extends Fragment {
 
 
     private void setupRecyclerView() {
-        Collections.sort(users, new Comparator<User>() {
+        Thread thread = new Thread(){
             @Override
-            public int compare(User o1, User o2) {
-                return o1.getUsername().compareTo(o2.getUsername());
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Collections.sort(users, new Comparator<User>() {
+                                @Override
+                                public int compare(User o1, User o2) {
+                                    return o1.getUsername().compareTo(o2.getUsername());
+                                }
+                            });
+                            roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users, getCurrentFragment());
+                            roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                            roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);
+                            roomUserListRecyclerView.setHasFixedSize(true);
+                            chatProgressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
             }
-        });
-        roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users, this);
-        roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);
-        roomUserListRecyclerView.setHasFixedSize(true);
-        chatProgressBar.setVisibility(View.GONE);
+        };
+        thread.start();
     }
 
 
@@ -190,6 +197,10 @@ public class RoomUserListFragment extends Fragment {
                 Room.updateRoomToRealm(room, realm);
             }
         });
+    }
+
+    private RoomUserListFragment getCurrentFragment() {
+        return this;
     }
 
     @Override

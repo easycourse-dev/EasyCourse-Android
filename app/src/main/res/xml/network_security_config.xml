@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">zengjintaotest.com</domain>
         <trust-anchors>
             <certificates src="system"/>
+            <certificates src="@raw/www_easycourseserver_com"/>
+            <certificates src="@raw/www_easycourseserver_com_bundle"/>
         </trust-anchors>
     </domain-config>
 </network-security-config>

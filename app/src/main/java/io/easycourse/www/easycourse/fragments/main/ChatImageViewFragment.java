@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
@@ -36,6 +37,8 @@ public class ChatImageViewFragment extends Fragment {
 
     @BindView(R.id.relative_layout_chat_image)
     RelativeLayout relativeLayout;
+    @BindView(R.id.chatImageUselessView)
+    View uselessView;
     @BindView(R.id.chatImageView)
     ImageView chatImageView;
     @BindView(R.id.chatImageProgressBar)
@@ -55,6 +58,8 @@ public class ChatImageViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_chat_image_view, container, false);
         ButterKnife.bind(this, v);
 
+
+
         Callback imageLoadedCallback = new Callback() {
 
             @Override
@@ -62,7 +67,7 @@ public class ChatImageViewFragment extends Fragment {
                 if (photoAttacher != null) {
                     photoAttacher.update();
                 } else {
-                    photoAttacher = new PhotoViewAttacher(chatImageView);
+                    photoAttacher = getPhotoViewAttacher();
                 }
                 chatProgressBar.setVisibility(View.GONE);
             }
@@ -77,7 +82,7 @@ public class ChatImageViewFragment extends Fragment {
                     if (photoAttacher != null) {
                         photoAttacher.update();
                     } else {
-                        photoAttacher = new PhotoViewAttacher(chatImageView);
+                        photoAttacher = getPhotoViewAttacher();
                     }
                     chatProgressBar.setVisibility(View.GONE);
                 }
@@ -87,17 +92,20 @@ public class ChatImageViewFragment extends Fragment {
         Picasso.with(getContext()).load(url).into(chatImageView, imageLoadedCallback);
 
 
-        relativeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeFragment();
-            }
-        });
-
-
         return v;
 
 
+    }
+
+    private PhotoViewAttacher getPhotoViewAttacher() {
+        PhotoViewAttacher photoViewAttacher = new PhotoViewAttacher(chatImageView);
+        photoViewAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+            @Override
+            public void onViewTap(View view, float x, float y) {
+                closeFragment();
+            }
+        });
+        return photoViewAttacher;
     }
 
     private void closeFragment() {

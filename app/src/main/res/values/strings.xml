@@ -30,6 +30,12 @@
     <string name="chatMessageAccessibility">User Image</string>
     <string name="messageSendBoxHint">Say something&#8230;</string>
 
+
+    <!--Chat Image View-->
+    <string name="share">Share</string>
+    <string name="forward">Forward</string>
+    <string name="download">Download</string>
+
     <!--Menu-->
     <string name="action_settings">Settings</string>
 

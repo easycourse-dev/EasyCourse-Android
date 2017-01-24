@@ -116,8 +116,9 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUser = sharedPref.getString("currentUser", null);
+        String universityId = User.getCurrentUser(this, realm).getUniversityID();
 
-        if (userToken == null || currentUser == null) {
+        if (userToken == null || currentUser == null || universityId == null || universityId.length() < 1) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {

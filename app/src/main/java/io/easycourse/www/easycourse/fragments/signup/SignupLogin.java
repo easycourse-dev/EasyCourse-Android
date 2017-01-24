@@ -27,16 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.MainActivity;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.Language;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -58,6 +48,16 @@ import java.util.regex.Pattern;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.MainActivity;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.Language;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -389,7 +389,7 @@ public class SignupLogin extends Fragment {
 
                             EasyCourse.getAppInstance().createSocketIO();
 
-                            gotoSignupChooseCourses();
+                            gotoSignupChooseUniversity();
                         }
 
                         @Override
@@ -592,10 +592,14 @@ public class SignupLogin extends Fragment {
 
                             progress.setContent("Wrapping up...");
                             progress.dismiss();
-                            // Make an Intent to move on to the next activity
-                            Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
-                            startActivity(mainActivityIntent);
-                            getActivity().finish();
+                            if (currentUser.getUniversityID() == null || currentUser.getUniversityID().length() < 1) {
+                                gotoSignupChooseUniversity();
+                            } else {
+                                // Make an Intent to move on to the MainActivity
+                                Intent mainActivityIntent = new Intent(getContext(), MainActivity.class);
+                                startActivity(mainActivityIntent);
+                                getActivity().finish();
+                            }
                         }
 
                         @Override
@@ -612,7 +616,7 @@ public class SignupLogin extends Fragment {
 
 
     // Call this function when going to SignupChooseUniversity
-    public void gotoSignupChooseCourses() {
+    public void gotoSignupChooseUniversity() {
         // Switch fragment to SignupChooseUniversity
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();

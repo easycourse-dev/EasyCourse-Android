@@ -115,10 +115,14 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
 
         String userToken = sharedPref.getString("userToken", null);
-        String currentUser = sharedPref.getString("currentUser", null);
-        String universityId = User.getCurrentUser(this, realm).getUniversityID();
+        String currentUserString = sharedPref.getString("currentUser", null);
+        User currentUser = User.getCurrentUser(this, realm);
+        String universityId = null;
+        if (currentUser != null) {
+            universityId = currentUser.getUniversityID();
+        }
 
-        if (userToken == null || currentUser == null || universityId == null || universityId.length() < 1) {
+        if (userToken == null || currentUserString == null || universityId == null || universityId.length() < 1) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {

@@ -91,7 +91,7 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void fillUserInfo(User thisUser, final Context context, final Message message, final String reportDateIncoming) {
-        if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
+        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, Realm.getDefaultInstance()).getId())) {
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
             } else {

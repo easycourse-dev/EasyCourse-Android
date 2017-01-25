@@ -42,7 +42,7 @@ import io.socket.emitter.Emitter;
 
 public class SocketIO {
 //    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
-    private static final String CHAT_SERVER_URL = "https://www.easycourseserver.com";
+    private static final String CHAT_SERVER_URL = "https://easycourse-production-server.herokuapp.com";
     private static final String TAG = "SocketIO";
 
     public static final int TEXT_TO_ROOM = 0;
@@ -353,6 +353,8 @@ public class SocketIO {
                     currentUser.setSilentRooms(silentRooms);
                     realm.copyToRealmOrUpdate(currentUser);
                     realm.commitTransaction();
+
+                    EasyCourse.getAppInstance().setUniversityId(context, userUniversity);
 
                     EasyCourse.bus.post(new Event.SyncEvent());
 

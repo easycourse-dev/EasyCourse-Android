@@ -16,13 +16,16 @@ import android.view.MenuItem;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.MySSLSocketFactory;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,6 +70,18 @@ public class MainActivity extends AppCompatActivity {
 
         //Binds all the views
         ButterKnife.bind(this);
+
+        AsyncHttpClient client = APIFunctions.client;
+        try {
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(null, null);
+            MySSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+            sf.setHostnameVerifier(MySSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            client.setSSLSocketFactory(sf);
+        }
+        catch (Exception e) {
+
+        }
 
 
         realm = Realm.getDefaultInstance();
@@ -115,9 +130,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
 
         String userToken = sharedPref.getString("userToken", null);
-        String currentUser = sharedPref.getString("currentUser", null);
+        String currentUserString = sharedPref.getString("currentUser", null);
+        String universityId = sharedPref.getString("universityId", null);
 
-        if (userToken == null || currentUser == null) {
+        if (userToken == null || currentUserString == null || universityId == null || universityId.length() < 1) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);
             startActivity(launchIntent);
             if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {

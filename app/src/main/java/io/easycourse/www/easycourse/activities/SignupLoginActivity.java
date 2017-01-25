@@ -11,6 +11,7 @@ import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.signup.SignupChooseUniversity;
 import io.easycourse.www.easycourse.fragments.signup.SignupLogin;
 import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
 
 import io.realm.Realm;
@@ -34,9 +35,15 @@ public class SignupLoginActivity extends AppCompatActivity {
         // Setup userSetup model to hold data
         userSetup = new UserSetup();
         Realm realm = Realm.getDefaultInstance();
+        String universityId = null;
+        User currentUser = User.getCurrentUser(this, realm);
+        if (currentUser != null) {
+            universityId = currentUser.getUniversityID();
+        }
+
         // Use SharedPreferences to get users
         SharedPreferences sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-        String currentUser = sharedPref.getString("currentUser", "");
+        String currentUserString = sharedPref.getString("currentUser", "");
         RealmResults<Course> joinedCourses = realm.where(Course.class).findAll();
 
         // Hide toolbar for this specific activity and null check
@@ -44,13 +51,15 @@ public class SignupLoginActivity extends AppCompatActivity {
             getSupportActionBar().hide();
 
         if (savedInstanceState == null) {
-            if (!currentUser.equals("") && joinedCourses.size() == 0) {
+            // Check if it wants to go to signupChooseUniversity
+            if (!currentUserString.equals("") && joinedCourses.size() == 0 && universityId == null) {
                 SignupChooseUniversity chooseUniversity = new SignupChooseUniversity();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.activity_signuplogin_container, chooseUniversity).commit();
                 return;
             }
+
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
 

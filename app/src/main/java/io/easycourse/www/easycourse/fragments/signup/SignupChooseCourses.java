@@ -20,6 +20,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.MainActivity;
@@ -32,19 +42,9 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.Course;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
-import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.easycourse.www.easycourse.utils.ListsUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.socket.client.Ack;
@@ -279,11 +279,21 @@ public class SignupChooseCourses extends Fragment {
 
 
     public void postSignupData(UserSetup userSetup) {
+        final String univId = userSetup.getUniversityID();
         try {
-            APIFunctions.updateUser(getContext(), userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+            APIFunctions.updateUser(getContext(), univId, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(TAG, "Successfully posted university id");
+                    Realm realm = Realm.getDefaultInstance();
+                    User currUser = User.getCurrentUser(getContext(), realm);
+                    if (currUser != null){
+                        realm.beginTransaction();
+                        currUser.setUniversityID(univId);
+                        realm.commitTransaction();
+                    }
+                    realm.close();
+                    EasyCourse.getAppInstance().setUniversityId(getContext(), univId);
                 }
 
                 @Override
@@ -309,6 +319,8 @@ public class SignupChooseCourses extends Fragment {
                                 JSONObject temp;
                                 Room tempRoom;
                                 Realm realm = Realm.getDefaultInstance();
+                                RealmList<io.easycourse.www.easycourse.models.main.Course> joinedCourses = new RealmList<>();
+                                RealmList<Room> joinedRooms = new RealmList<>();
 
                                 // Courses handling
                                 for (int i = 0; i < courseArrayJSON.length(); i++) {
@@ -322,6 +334,7 @@ public class SignupChooseCourses extends Fragment {
 
                                     io.easycourse.www.easycourse.models.main.Course course = new io.easycourse.www.easycourse.models.main.Course(id, courseName, title, courseDescription, creditHours, universityID);
                                     io.easycourse.www.easycourse.models.main.Course.updateCourseToRealm(course, realm);
+                                    joinedCourses.add(course);
                                 }
 
                                 // Rooms handling
@@ -355,7 +368,21 @@ public class SignupChooseCourses extends Fragment {
                                             isSystem);
                                     tempRoom.setJoinIn(true);
                                     Room.updateRoomToRealm(tempRoom, realm);
+                                    joinedRooms.add(tempRoom);
                                 }
+
+                                // TODO: Saving current user
+//                                User currentUser = User.getCurrentUser(getContext(), realm);
+//                                realm.beginTransaction();
+//                                currentUser.setJoinedCourses(joinedCourses);
+//                                currentUser.setJoinedRooms(joinedRooms);
+//                                currentUser.setSilentRooms(new RealmList<Room>());
+//                                currentUser.setUniversityID(univId);
+//                                realm.copyToRealmOrUpdate(currentUser);
+//                                realm.commitTransaction();
+//                                EasyCourse.getAppInstance().setCurrentUser(currentUser);
+//                                realm.close();
+
                                 progress.dismiss();
                                 goToMainActivity();
                             } catch (JSONException e) {

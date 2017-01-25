@@ -387,6 +387,7 @@ public class SignupLogin extends Fragment {
                             realm.commitTransaction();
                             realm.close();
 
+                            EasyCourse.getAppInstance().setCurrentUser(currentUser);
                             EasyCourse.getAppInstance().createSocketIO();
 
                             gotoSignupChooseUniversity();
@@ -582,6 +583,8 @@ public class SignupLogin extends Fragment {
                 currentUser.setUserLanguages(userLanguage);
                 User.updateUserToRealm(currentUser, realm);
                 realm.close();
+
+                EasyCourse.getAppInstance().setCurrentUser(currentUser);
 
                 try {
                     APIFunctions.saveDeviceToken(getContext(), userToken, EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler() {

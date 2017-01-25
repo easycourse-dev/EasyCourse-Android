@@ -293,6 +293,7 @@ public class SignupChooseCourses extends Fragment {
                         realm.commitTransaction();
                     }
                     realm.close();
+                    EasyCourse.getAppInstance().setCurrentUser(currUser);
                 }
 
                 @Override
@@ -318,6 +319,8 @@ public class SignupChooseCourses extends Fragment {
                                 JSONObject temp;
                                 Room tempRoom;
                                 Realm realm = Realm.getDefaultInstance();
+                                RealmList<io.easycourse.www.easycourse.models.main.Course> joinedCourses = new RealmList<>();
+                                RealmList<Room> joinedRooms = new RealmList<>();
 
                                 // Courses handling
                                 for (int i = 0; i < courseArrayJSON.length(); i++) {
@@ -331,6 +334,7 @@ public class SignupChooseCourses extends Fragment {
 
                                     io.easycourse.www.easycourse.models.main.Course course = new io.easycourse.www.easycourse.models.main.Course(id, courseName, title, courseDescription, creditHours, universityID);
                                     io.easycourse.www.easycourse.models.main.Course.updateCourseToRealm(course, realm);
+                                    joinedCourses.add(course);
                                 }
 
                                 // Rooms handling
@@ -364,7 +368,21 @@ public class SignupChooseCourses extends Fragment {
                                             isSystem);
                                     tempRoom.setJoinIn(true);
                                     Room.updateRoomToRealm(tempRoom, realm);
+                                    joinedRooms.add(tempRoom);
                                 }
+
+                                // TODO: Saving current user
+//                                User currentUser = User.getCurrentUser(getContext(), realm);
+//                                realm.beginTransaction();
+//                                currentUser.setJoinedCourses(joinedCourses);
+//                                currentUser.setJoinedRooms(joinedRooms);
+//                                currentUser.setSilentRooms(new RealmList<Room>());
+//                                currentUser.setUniversityID(univId);
+//                                realm.copyToRealmOrUpdate(currentUser);
+//                                realm.commitTransaction();
+//                                EasyCourse.getAppInstance().setCurrentUser(currentUser);
+//                                realm.close();
+
                                 progress.dismiss();
                                 goToMainActivity();
                             } catch (JSONException e) {

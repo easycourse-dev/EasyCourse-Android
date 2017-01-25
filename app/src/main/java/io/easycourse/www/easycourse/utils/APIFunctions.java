@@ -23,8 +23,8 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 public class APIFunctions {
 
     public static AsyncHttpClient client = new AsyncHttpClient();
-//    private static final String URL = "https://zengjintaotest.com/api";
-    private static final String URL = "https://easycourse-production-server.herokuapp.com/api";
+    private static final String URL = "https://zengjintaotest.com/api";
+//    private static final String URL = "https://easycourse-production-server.herokuapp.com/api";
     private static final String TAG = "APIFunctions";
 
     //API function for signup to server

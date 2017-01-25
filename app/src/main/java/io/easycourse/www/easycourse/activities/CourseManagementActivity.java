@@ -88,8 +88,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         // Get UniversityID
         chosenUniversity = User.getCurrentUser(this, realm).getUniversityID();
         if (chosenUniversity == null) {
-            // TODO: for some reason universityId in currentUser is sometimes missing...
-            chosenUniversity = realm.where(University.class).findAll().first().getId();
+            chosenUniversity = EasyCourse.getAppInstance().getCurrentUser().getUniversityID();
             Log.e("Univ", chosenUniversity);
         }
 

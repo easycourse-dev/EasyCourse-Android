@@ -41,7 +41,7 @@ import io.socket.emitter.Emitter;
 
 
 public class SocketIO {
-//    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
+    //    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
     private static final String CHAT_SERVER_URL = "https://easycourse-production-server.herokuapp.com";
     private static final String TAG = "SocketIO";
 
@@ -742,13 +742,15 @@ public class SocketIO {
                 Room currentRoom = Room.getRoomById(realm, toUser);
                 if (currentRoom == null)
                     currentRoom = createPrivateRoom(senderId);
-                realm.beginTransaction();
-                currentRoom.setJoinIn(true);
-                if (unread) {
-                    currentRoom.incUnread(1);
+                if (currentRoom != null) {
+                    realm.beginTransaction();
+                    currentRoom.setJoinIn(true);
+                    if (unread) {
+                        currentRoom.incUnread(1);
+                    }
+                    realm.copyToRealmOrUpdate(currentRoom);
+                    realm.commitTransaction();
                 }
-                realm.copyToRealmOrUpdate(currentRoom);
-                realm.commitTransaction();
             }
 
             realm.beginTransaction();
@@ -765,6 +767,8 @@ public class SocketIO {
         Realm tempRealm = Realm.getDefaultInstance();
         User toUser = tempRealm.where(User.class).equalTo("id", toUserId).findFirst();
         User currentUser = User.getCurrentUser(context, tempRealm);
+
+        if (toUserId.equals(currentUser.getId())) return null;
 
         Room room = new Room(
                 toUser.getId(),

@@ -32,8 +32,6 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.University;
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
@@ -86,11 +84,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         noCourseText.setVisibility(View.GONE);
 
         // Get UniversityID
-        chosenUniversity = User.getCurrentUser(this, realm).getUniversityID();
-        if (chosenUniversity == null) {
-            chosenUniversity = EasyCourse.getAppInstance().getCurrentUser().getUniversityID();
-            Log.e("Univ", chosenUniversity);
-        }
+        chosenUniversity = EasyCourse.getAppInstance().getUniversityId();
 
         // Get already registered classes
         RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();

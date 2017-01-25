@@ -2,8 +2,8 @@ package io.easycourse.www.easycourse;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -13,7 +13,6 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.net.URISyntaxException;
 
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.Realm;
@@ -30,7 +29,7 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
     private String inRoom;
     private boolean notification;
-    private User currentUser;
+    private String universityId;
 
     private String deviceToken;
 
@@ -95,12 +94,12 @@ public class EasyCourse extends Application {
         return inRoom;
     }
 
-    public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
+    public void setUniversityId(String univId) {
+        this.universityId = univId;
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public String getUniversityId() {
+        return universityId;
     }
 
     @Override

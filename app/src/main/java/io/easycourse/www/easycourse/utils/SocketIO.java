@@ -354,7 +354,7 @@ public class SocketIO {
                     realm.copyToRealmOrUpdate(currentUser);
                     realm.commitTransaction();
 
-                    EasyCourse.getAppInstance().setCurrentUser(currentUser);
+                    EasyCourse.getAppInstance().setUniversityId(userUniversity);
 
                     EasyCourse.bus.post(new Event.SyncEvent());
 

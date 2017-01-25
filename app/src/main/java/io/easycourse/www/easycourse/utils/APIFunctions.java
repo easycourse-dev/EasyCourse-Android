@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.MySSLSocketFactory;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.security.KeyStore;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 

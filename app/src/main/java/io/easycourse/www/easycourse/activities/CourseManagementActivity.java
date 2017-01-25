@@ -84,7 +84,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         noCourseText.setVisibility(View.GONE);
 
         // Get UniversityID
-        chosenUniversity = EasyCourse.getAppInstance().getUniversityId();
+        chosenUniversity = EasyCourse.getAppInstance().getUniversityId(this);
 
         // Get already registered classes
         RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();

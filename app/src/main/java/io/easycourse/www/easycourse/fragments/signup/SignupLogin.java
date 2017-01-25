@@ -585,7 +585,7 @@ public class SignupLogin extends Fragment {
                 User.updateUserToRealm(currentUser, realm);
                 realm.close();
 
-                EasyCourse.getAppInstance().setUniversityId(univId);
+                EasyCourse.getAppInstance().setUniversityId(getContext(), univId);
 
 
                 try {

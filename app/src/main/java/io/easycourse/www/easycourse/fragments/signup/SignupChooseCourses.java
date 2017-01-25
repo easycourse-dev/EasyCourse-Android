@@ -293,7 +293,7 @@ public class SignupChooseCourses extends Fragment {
                         realm.commitTransaction();
                     }
                     realm.close();
-                    EasyCourse.getAppInstance().setUniversityId(univId);
+                    EasyCourse.getAppInstance().setUniversityId(getContext(), univId);
                 }
 
                 @Override

@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUserString = sharedPref.getString("currentUser", null);
-        String universityId = EasyCourse.getAppInstance().getUniversityId();
+        String universityId = sharedPref.getString("universityId", null);
 
         if (userToken == null || currentUserString == null || universityId == null || universityId.length() < 1) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);

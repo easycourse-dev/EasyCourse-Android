@@ -180,6 +180,7 @@ public class UserFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("userToken", null);
                     editor.putString("currentUser", null);
+                    editor.putString("universityId", null);
                     editor.apply();
 
                     // Clear Realm
@@ -213,6 +214,7 @@ public class UserFragment extends Fragment {
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("userToken", null);
                 editor.putString("currentUser", null);
+                editor.putString("universityId", null);
                 editor.apply();
 
                 // Clear Realm

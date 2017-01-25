@@ -2,6 +2,7 @@ package io.easycourse.www.easycourse;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
@@ -29,7 +30,6 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
     private String inRoom;
     private boolean notification;
-    private String universityId;
 
     private String deviceToken;
 
@@ -94,12 +94,16 @@ public class EasyCourse extends Application {
         return inRoom;
     }
 
-    public void setUniversityId(String univId) {
-        this.universityId = univId;
+    public void setUniversityId(Context context, String univId) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("universityId", univId);
+        editor.apply();
     }
 
-    public String getUniversityId() {
-        return universityId;
+    public String getUniversityId(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        return sharedPref.getString("universityId", null);
     }
 
     @Override

@@ -1,7 +1,9 @@
 package io.easycourse.www.easycourse;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
+import android.support.multidex.MultiDex;
 
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -89,5 +91,11 @@ public class EasyCourse extends Application {
 
     public String getInRoom() {
         return inRoom;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

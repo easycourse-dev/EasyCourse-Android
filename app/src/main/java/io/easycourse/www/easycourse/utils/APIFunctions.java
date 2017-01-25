@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.MySSLSocketFactory;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
@@ -14,15 +15,16 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 
 public class APIFunctions {
 
-    static AsyncHttpClient client = new AsyncHttpClient();
+    public static AsyncHttpClient client = new AsyncHttpClient();
 //    private static final String URL = "https://zengjintaotest.com/api";
-    private static final String URL = "https://www.easycourseserver.com/api";
+    private static final String URL = "https://easycourse-production-server.herokuapp.com/api";
     private static final String TAG = "APIFunctions";
 
     //API function for signup to server

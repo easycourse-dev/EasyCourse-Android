@@ -387,7 +387,6 @@ public class SignupLogin extends Fragment {
                             realm.commitTransaction();
                             realm.close();
 
-                            EasyCourse.getAppInstance().setCurrentUser(currentUser);
                             EasyCourse.getAppInstance().createSocketIO();
 
                             gotoSignupChooseUniversity();
@@ -506,14 +505,16 @@ public class SignupLogin extends Fragment {
                 RealmList<Language> userLanguage = new RealmList<>();
                 Room room;
                 Course course;
+                String univId = null;
                 try {
                     String userId = (String) JSONUtils.checkIfJsonExists(response, "_id", null);
+                    univId = (String) JSONUtils.checkIfJsonExists(response, "university", null);
 
                     currentUser.setId(userId);
                     currentUser.setEmail((String) JSONUtils.checkIfJsonExists(response, "email", null));
                     currentUser.setUsername((String) JSONUtils.checkIfJsonExists(response, "displayName", null));
                     currentUser.setProfilePictureUrl((String) JSONUtils.checkIfJsonExists(response, "avatarUrl", null));
-                    currentUser.setUniversityID((String) JSONUtils.checkIfJsonExists(response, "university", null));
+                    currentUser.setUniversityID(univId);
 
 
                     // Adding languages, courses, rooms, and silent rooms
@@ -584,9 +585,11 @@ public class SignupLogin extends Fragment {
                 User.updateUserToRealm(currentUser, realm);
                 realm.close();
 
-                EasyCourse.getAppInstance().setCurrentUser(currentUser);
+                EasyCourse.getAppInstance().setUniversityId(getContext(), univId);
+
 
                 try {
+                    final String finalUnivId = univId;
                     APIFunctions.saveDeviceToken(getContext(), userToken, EasyCourse.getAppInstance().getDeviceToken(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -595,7 +598,7 @@ public class SignupLogin extends Fragment {
 
                             progress.setContent("Wrapping up...");
                             progress.dismiss();
-                            if (currentUser.getUniversityID() == null || currentUser.getUniversityID().length() < 1) {
+                            if (finalUnivId == null || finalUnivId.length() < 1) {
                                 gotoSignupChooseUniversity();
                             } else {
                                 // Make an Intent to move on to the MainActivity

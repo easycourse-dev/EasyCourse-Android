@@ -2,8 +2,9 @@ package io.easycourse.www.easycourse;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
+import android.content.SharedPreferences;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -13,7 +14,6 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.net.URISyntaxException;
 
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.Realm;
@@ -30,7 +30,6 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
     private String inRoom;
     private boolean notification;
-    private User currentUser;
 
     private String deviceToken;
 
@@ -95,12 +94,16 @@ public class EasyCourse extends Application {
         return inRoom;
     }
 
-    public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
+    public void setUniversityId(Context context, String univId) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("universityId", univId);
+        editor.apply();
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public String getUniversityId(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        return sharedPref.getString("universityId", null);
     }
 
     @Override

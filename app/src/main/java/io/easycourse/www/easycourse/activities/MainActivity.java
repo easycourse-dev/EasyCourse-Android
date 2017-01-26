@@ -131,14 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         String userToken = sharedPref.getString("userToken", null);
         String currentUserString = sharedPref.getString("currentUser", null);
-        User currentUser = User.getCurrentUser(this, realm);
-        if (currentUser == null) {
-            currentUser = EasyCourse.getAppInstance().getCurrentUser();
-        }
-        String universityId = null;
-        if (currentUser != null) {
-            universityId = currentUser.getUniversityID();
-        }
+        String universityId = sharedPref.getString("universityId", null);
 
         if (userToken == null || currentUserString == null || universityId == null || universityId.length() < 1) {
             launchIntent.setClass(getApplicationContext(), SignupLoginActivity.class);

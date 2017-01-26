@@ -32,8 +32,6 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.University;
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
@@ -86,12 +84,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         noCourseText.setVisibility(View.GONE);
 
         // Get UniversityID
-        chosenUniversity = User.getCurrentUser(this, realm).getUniversityID();
-        if (chosenUniversity == null) {
-            // TODO: for some reason universityId in currentUser is sometimes missing...
-            chosenUniversity = realm.where(University.class).findAll().first().getId();
-            Log.e("Univ", chosenUniversity);
-        }
+        chosenUniversity = EasyCourse.getAppInstance().getUniversityId(this);
 
         // Get already registered classes
         RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
@@ -173,7 +166,6 @@ public class CourseManagementActivity extends AppCompatActivity {
                                     }
                                     coursesAdapter.notifyDataSetChanged();
                                     coursesOnScrollListener.resetState();
-//                            updateRecyclerView();
                                 }
 
                                 @Override
@@ -185,41 +177,6 @@ public class CourseManagementActivity extends AppCompatActivity {
                         }
                     };
                     handler.postDelayed(searchDelay, 250);
-//                    try {
-//                        socketIO = new SocketIO(getApplicationContext());
-//                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
-//
-//                            @Override
-//                            public void call(Object... args) {
-//
-//                                JSONObject obj = (JSONObject) args[0];
-//                                if (!obj.has("error")) {
-//                                    try {
-//                                        JSONArray response = obj.getJSONArray("course");
-//                                        searchResults.clear();
-//                                        for (int i = 0; i < response.length(); i++) {
-//                                            JSONObject course = (JSONObject) response.get(i);
-//                                            searchResults.add(new Course(
-//                                                    course.getString("_id"),
-//                                                    course.getString("name"),
-//                                                    course.getString("title"),
-//                                                    course.getString("description"),
-//                                                    course.getInt("creditHours"),
-//                                                    course.getJSONObject("university").getString("_id")
-//                                                    ));
-//                                        }
-//                                        updateRecyclerView();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                } else{
-//                                    Log.e("com.example.easycourse", "failure" + obj.toString());
-//                                }
-//                            }
-//                        });
-//                    } catch (URISyntaxException | JSONException e) {
-//                        Log.e("emit searchCourse", e.toString());
-//                    }
                 }
             }
         });
@@ -255,50 +212,5 @@ public class CourseManagementActivity extends AppCompatActivity {
                 Snackbar.make(view, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
-//        try {
-//            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
-//                @Override
-//                public void call(Object... args) {
-//                    JSONObject obj = (JSONObject) args[0];
-//                    if (!obj.has("error")) {
-//                        int startPosition = searchResults.size();
-//                        try {
-//                            JSONArray response = obj.getJSONArray("course");
-//                            for (int i = 0; i < response.length(); i++) {
-//                                JSONObject courseJSON = (JSONObject) response.get(i);
-//                                Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
-//                                if (!searchResults.contains(courseObj))
-//                                    searchResults.add(courseObj);
-//                            }
-//                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    } else{
-//                        Log.e("com.example.easycourse", "failure" + obj.toString());
-//                    }
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    public void updateRecyclerView(){
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            coursesAdapter.notifyDataSetChanged();
-                            coursesOnScrollListener.resetState();
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

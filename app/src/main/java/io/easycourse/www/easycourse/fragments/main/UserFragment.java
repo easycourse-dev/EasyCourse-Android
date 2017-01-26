@@ -25,15 +25,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.CourseManagementActivity;
-import io.easycourse.www.easycourse.activities.SignupLoginActivity;
-import io.easycourse.www.easycourse.activities.UserProfileActivity;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -47,6 +38,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.CourseManagementActivity;
+import io.easycourse.www.easycourse.activities.SignupLoginActivity;
+import io.easycourse.www.easycourse.activities.UserProfileActivity;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -180,6 +180,7 @@ public class UserFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("userToken", null);
                     editor.putString("currentUser", null);
+                    editor.putString("universityId", null);
                     editor.apply();
 
                     // Clear Realm
@@ -188,8 +189,6 @@ public class UserFragment extends Fragment {
                     tempRealm.deleteAll();
                     tempRealm.commitTransaction();
                     tempRealm.close();
-
-                    Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
 
                     // Go back to SignupLoginActivity
                     startActivity(new Intent(getContext(), SignupLoginActivity.class));
@@ -215,6 +214,7 @@ public class UserFragment extends Fragment {
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("userToken", null);
                 editor.putString("currentUser", null);
+                editor.putString("universityId", null);
                 editor.apply();
 
                 // Clear Realm

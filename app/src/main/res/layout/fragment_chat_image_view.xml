@@ -66,7 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
+            android:background="@drawable/transparent_button_ripple"
             android:src="@drawable/ic_file_download_black_24px" />
 
     </LinearLayout>

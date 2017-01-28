@@ -44,6 +44,7 @@ public class SocketIO {
     private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
 //    private static final String CHAT_SERVER_URL = "https://www.easycourseserver.com";
 
+
     private static final String TAG = "SocketIO";
 
     public static final int TEXT_TO_ROOM = 0;
@@ -204,13 +205,13 @@ public class SocketIO {
 
 
                     //Parse and create User
-                    String userId = (String) JSONUtils.checkIfJsonExists(userObj, "_id", null);
+//                    String userId = (String) JSONUtils.checkIfJsonExists(userObj, "_id", null);
                     String userEmail = (String) JSONUtils.checkIfJsonExists(userObj, "email", null);
                     String userDisplayName = (String) JSONUtils.checkIfJsonExists(userObj, "displayName", null);
                     String userAvatarUrl = (String) JSONUtils.checkIfJsonExists(userObj, "avatarUrl", null);
                     String userUniversity = (String) JSONUtils.checkIfJsonExists(userObj, "university", null);
 
-                    JSONArray userLangObj = (JSONArray) JSONUtils.checkIfJsonExists(obj, "userLang", null);
+//                    JSONArray userLangObj = (JSONArray) JSONUtils.checkIfJsonExists(obj, "userLang", null);
                     //TODO: implement userLangs
 
 
@@ -244,7 +245,7 @@ public class SocketIO {
 
                     JSONArray joinedRoomArray = (JSONArray) JSONUtils.checkIfJsonExists(userObj, "joinedRoom", null);
                     RealmList<Room> joinedRooms = new RealmList<>();
-                    if (joinedCourseArray != null) {
+                    if (joinedRoomArray != null) {
                         for (int i = 0; i < joinedRoomArray.length(); i++) {
                             JSONObject roomObj = joinedRoomArray.getJSONObject(i);
                             String roomId = (String) JSONUtils.checkIfJsonExists(roomObj, "_id", null);
@@ -292,7 +293,7 @@ public class SocketIO {
                     RealmList<Room> silentRooms = new RealmList<>();
                     if (silentRoomArray != null) {
                         for (int i = 0; i < silentRoomArray.length(); i++) {
-                            String roomId = joinedRoomArray.getString(i);
+                            String roomId = silentRoomArray.getString(i);
                             realm.beginTransaction();
                             Room room = realm.where(Room.class).equalTo("id", roomId).findFirst();
                             if (room == null) {
@@ -317,7 +318,7 @@ public class SocketIO {
                             String contactUniversity = (String) JSONUtils.checkIfJsonExists(contactObj, "university", null);
                             String contactAvatar = (String) JSONUtils.checkIfJsonExists(contactObj, "avatarUrl", null);
 
-                            JSONArray contactJoinedCourses = (JSONArray) JSONUtils.checkIfJsonExists(contactObj, "joinedCourse", null);
+//                            JSONArray contactJoinedCourses = (JSONArray) JSONUtils.checkIfJsonExists(contactObj, "joinedCourse", null);
                             RealmList<Course> contactCourses = new RealmList<>();
 //                            if (contactJoinedCourses != null) {
 //                                for (int j = 0; j < contactJoinedCourses.length(); j++) {
@@ -365,17 +366,6 @@ public class SocketIO {
 
             }
         });
-    }
-
-    public void getHistMessage(Ack ack) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-        if (list.size() < 1) return;
-        Message message = list.first();
-        long time = message.getCreatedAt().getTime();
-        jsonParam.put("lastUpdateTime", time);
-        socket.emit("getHistMessage", jsonParam, ack);
     }
 
     //saves list of messages to realm
@@ -743,13 +733,15 @@ public class SocketIO {
                 Room currentRoom = Room.getRoomById(realm, toUser);
                 if (currentRoom == null)
                     currentRoom = createPrivateRoom(senderId);
-                realm.beginTransaction();
-                currentRoom.setJoinIn(true);
-                if (unread) {
-                    currentRoom.incUnread(1);
+                if (currentRoom != null) {
+                    realm.beginTransaction();
+                    currentRoom.setJoinIn(true);
+                    if (unread) {
+                        currentRoom.incUnread(1);
+                    }
+                    realm.copyToRealmOrUpdate(currentRoom);
+                    realm.commitTransaction();
                 }
-                realm.copyToRealmOrUpdate(currentRoom);
-                realm.commitTransaction();
             }
 
             realm.beginTransaction();
@@ -766,6 +758,8 @@ public class SocketIO {
         Realm tempRealm = Realm.getDefaultInstance();
         User toUser = tempRealm.where(User.class).equalTo("id", toUserId).findFirst();
         User currentUser = User.getCurrentUser(context, tempRealm);
+
+        if (currentUser == null || toUserId.equals(currentUser.getId())) return null;
 
         Room room = new Room(
                 toUser.getId(),

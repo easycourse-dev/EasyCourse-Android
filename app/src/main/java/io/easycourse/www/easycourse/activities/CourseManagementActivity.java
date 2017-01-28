@@ -76,6 +76,13 @@ public class CourseManagementActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("My Courses");
         }
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CourseManagementActivity.this.onBackPressed();
+            }
+        });
+
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         realm = Realm.getDefaultInstance();
         handler = new Handler();

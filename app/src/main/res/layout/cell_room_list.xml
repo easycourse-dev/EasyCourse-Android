@@ -17,22 +17,46 @@
         android:background="?android:selectableItemBackground"
         android:padding="16dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageViewChatRoom"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="false"
-            android:contentDescription="@string/chatMessageAccessibility"
-            android:src="@drawable/ic_person_black_24px" />
+        <FrameLayout
+            android:id="@+id/imageViewChatRoomFrame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewChatRoom"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:clickable="false"
+                android:contentDescription="@string/chatMessageAccessibility"
+                android:src="@drawable/ic_person_black_24px" />
 
+            <RelativeLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp">
+
+                <su.levenetc.android.badgeview.BadgeView
+                    android:id="@+id/imageViewBadge"
+                    card_view:badgePadding="3dp"
+                    card_view:badgeBackgroundColor="@color/colorLogout"
+                    card_view:badgeTextColor="@color/colorWhiteText"
+                    card_view:badgeTextSize="8sp"
+                    card_view:badgeAnimationDuration="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true" />
+
+            </RelativeLayout>
+
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/linearLayoutChatRoomTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/imageViewChatRoom"
-            android:layout_toRightOf="@id/imageViewChatRoom"
+            android:layout_toEndOf="@id/imageViewChatRoomFrame"
+            android:layout_toRightOf="@id/imageViewChatRoomFrame"
             android:ellipsize="end"
             android:maxLength="15"
             android:orientation="vertical"

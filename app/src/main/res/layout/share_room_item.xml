@@ -27,7 +27,6 @@
             android:contentDescription="@string/chatMessageAccessibility"
             android:src="@drawable/ic_group_black_24px" />
 
-
         <LinearLayout
             android:id="@+id/linearLayoutChatRoomTitle"
             android:layout_width="wrap_content"

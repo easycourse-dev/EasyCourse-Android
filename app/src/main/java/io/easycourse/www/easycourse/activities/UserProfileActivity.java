@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -58,6 +59,10 @@ public class UserProfileActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.textViewUsername)
     TextView textViewUsername;
+    @BindView(R.id.textViewEmail)
+    TextView textViewEmail;
+    @BindView(R.id.emailContainerLinearLayout)
+    LinearLayout emailContainer;
     @BindView(R.id.editTextUsername)
     EditText editTextUsername;
     @BindView(R.id.saveChangesButton)
@@ -135,6 +140,10 @@ public class UserProfileActivity extends AppCompatActivity {
             }
             textViewUsername.setText(user.getUsername());
             editTextUsername.setText(user.getUsername());
+            if(user.getEmail() != null){
+                emailContainer.setVisibility(View.VISIBLE);
+                textViewEmail.setText(user.getEmail());
+            }
         }
 
 //        languageLabel.setText("Chosen language(s):");

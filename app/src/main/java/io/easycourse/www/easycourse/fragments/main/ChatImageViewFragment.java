@@ -131,11 +131,7 @@ public class ChatImageViewFragment extends Fragment {
             public void onClick(View view) {
                 chatImageViewShare.setEnabled(false);
                 vibrator.vibrate(20);
-                if (url != null) {
-                    shareImageFromUrl();
-                } else {
-                    shareImageFromData();
-                }
+                shareImage();
                 chatImageViewShare.setEnabled(true);
 
 
@@ -146,7 +142,10 @@ public class ChatImageViewFragment extends Fragment {
         chatImageViewDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                chatImageViewDownload.setEnabled(false);
+                vibrator.vibrate(20);
                 downloadImage();
+                chatImageViewShare.setEnabled(true);
             }
         });
 
@@ -163,42 +162,19 @@ public class ChatImageViewFragment extends Fragment {
 
     }
 
-    private void shareImageFromUrl() {
-        Uri bmpUri = getLocalBitmapUri(chatImageView);
-        if (bmpUri != null) {
-            // Construct a ShareIntent with link to image
+    private void shareImage() {
+        chatImageView.buildDrawingCache();
+        Bitmap bm = chatImageView.getDrawingCache();
+        Uri uri = BitmapUtils.getImageUri(getContext(), bm);
+        if(uri != null) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
             shareIntent.setType("image/*");
-            // Launch sharing dialog for image
             startActivity(Intent.createChooser(shareIntent, "Share Image"));
         }
     }
 
-    //    http://stackoverflow.com/questions/23527767/open-failed-eacces-permission-denied
-    private void shareImageFromData() {
-//                Bitmap bitmap = chatImageView.getDrawingCache();
-//                File root = Environment.getExternalStorageDirectory();
-//                File cachePath = null;
-//                try {
-//                    cachePath = File.createTempFile("temp", "jpg", getContext().getCacheDir());
-//                    cachePath.createNewFile();
-//                    FileOutputStream ostream = new FileOutputStream(cachePath);
-//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);
-//                    ostream.close();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//
-//                if (cachePath != null) {
-//                    Intent share = new Intent(Intent.ACTION_SEND);
-//                    share.setType("image/*");
-//                    share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(cachePath));
-//
-//                    startActivity(Intent.createChooser(share, "Share Image"));
-//                }
-    }
 
     private void downloadImage() {
         if (!isStoragePermissionGranted()) return;
@@ -239,32 +215,6 @@ public class ChatImageViewFragment extends Fragment {
         getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 
-    public Uri getLocalBitmapUri(ImageView imageView) {
-        // Extract Bitmap from ImageView drawable
-        Drawable drawable = imageView.getDrawable();
-        Bitmap bmp = null;
-        if (drawable instanceof BitmapDrawable) {
-            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-        } else {
-            return null;
-        }
-        // Store image to default external storage directory
-        Uri bmpUri = null;
-        try {
-            File file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
-            file.getParentFile().mkdirs();
-            FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            bmpUri = Uri.fromFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bmpUri;
-    }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -272,7 +222,5 @@ public class ChatImageViewFragment extends Fragment {
             downloadImage();
         }
     }
-
-
 
 }

@@ -52,7 +52,7 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingPicTime.setVisibility(View.VISIBLE);

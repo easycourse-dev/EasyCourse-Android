@@ -19,9 +19,9 @@ import io.realm.RealmResults;
  * Created by nrinehart on 12/27/16.
  */
 
-public class DownloadImagesTask extends AsyncTask<Void, Void, Void> {
+public class DownloadImagesToRealmTask extends AsyncTask<Void, Void, Void> {
 
-    private static final String TAG = "DownloadImagesTask";
+    private static final String TAG = "DownloadImagesToRealmTask";
 
     @Override
     protected Void doInBackground(Void... params) {

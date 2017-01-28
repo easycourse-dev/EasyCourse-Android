@@ -53,13 +53,13 @@
             android:background="@drawable/transparent_button_ripple"
             android:src="@drawable/ic_share_black_24px" />
 
-        <ImageButton
-            android:id="@+id/chatImageViewForward"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:background="@drawable/transparent_button_ripple"
-            android:src="@drawable/ic_forward_black_24px" />
+        <!--<ImageButton-->
+            <!--android:id="@+id/chatImageViewForward"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="64dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@drawable/transparent_button_ripple"-->
+            <!--android:src="@drawable/ic_forward_black_24px" />-->
 
         <ImageButton
             android:id="@+id/chatImageViewDownload"

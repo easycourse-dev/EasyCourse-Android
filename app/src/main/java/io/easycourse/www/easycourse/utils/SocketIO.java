@@ -274,7 +274,7 @@ public class SocketIO {
 
                             User founderUser = realm.where(User.class).equalTo("id", roomFounder).findFirst();
                             if (founderUser == null) {
-                                founderUser = realm.createObject(User.class);
+                                founderUser = realm.createObject(User.class, roomFounder);
                                 founderUser.setId(roomFounder);
                             }
 

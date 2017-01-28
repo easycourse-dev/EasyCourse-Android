@@ -1,14 +1,18 @@
 package io.easycourse.www.easycourse.fragments.main;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,14 +31,20 @@ import io.easycourse.www.easycourse.utils.BitmapUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.utils.asyntasks.DownloadImageTask;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
@@ -44,6 +54,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ChatImageViewFragment extends Fragment {
 
     private static final String TAG = "ChatImageViewFragment";
+    private static final int REQUEST_STORAGE = 1;
+
 
     private String url;
     private byte[] imageData;
@@ -60,8 +72,8 @@ public class ChatImageViewFragment extends Fragment {
     ProgressBar chatProgressBar;
     @BindView(R.id.chatImageViewShare)
     ImageButton chatImageViewShare;
-    @BindView(R.id.chatImageViewForward)
-    ImageButton chatImageViewForward;
+    //    @BindView(R.id.chatImageViewForward)
+//    ImageButton chatImageViewForward;
     @BindView(R.id.chatImageViewDownload)
     ImageButton chatImageViewDownload;
 
@@ -82,7 +94,6 @@ public class ChatImageViewFragment extends Fragment {
         vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
 
         chatImageView.setDrawingCacheEnabled(true);
-
 
         Callback imageLoadedCallback = new Callback() {
 
@@ -135,9 +146,16 @@ public class ChatImageViewFragment extends Fragment {
         chatImageViewDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                downloadImage();
             }
         });
+
+//        chatImageViewForward.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
 
 
         return v;
@@ -158,7 +176,7 @@ public class ChatImageViewFragment extends Fragment {
         }
     }
 
-//    http://stackoverflow.com/questions/23527767/open-failed-eacces-permission-denied
+    //    http://stackoverflow.com/questions/23527767/open-failed-eacces-permission-denied
     private void shareImageFromData() {
 //                Bitmap bitmap = chatImageView.getDrawingCache();
 //                File root = Environment.getExternalStorageDirectory();
@@ -180,6 +198,30 @@ public class ChatImageViewFragment extends Fragment {
 //
 //                    startActivity(Intent.createChooser(share, "Share Image"));
 //                }
+    }
+
+    private void downloadImage() {
+        if (!isStoragePermissionGranted()) return;
+        chatImageView.buildDrawingCache();
+        Bitmap bm = chatImageView.getDrawingCache();
+        DownloadImageTask task = new DownloadImageTask(bm, getContext());
+        task.execute();
+    }
+
+
+
+    private boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (getActivity().checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 
     private PhotoViewAttacher getPhotoViewAttacher() {
@@ -221,5 +263,16 @@ public class ChatImageViewFragment extends Fragment {
         }
         return bmpUri;
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            downloadImage();
+        }
+    }
+
+
 
 }

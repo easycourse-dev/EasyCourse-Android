@@ -61,7 +61,7 @@ import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
-import io.easycourse.www.easycourse.utils.asyntasks.DownloadImagesTask;
+import io.easycourse.www.easycourse.utils.asyntasks.DownloadImagesToRealmTask;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -129,7 +129,7 @@ public class ChatRoomFragment extends Fragment {
         setupChatRecyclerView();
         setupOnClickListeners();
 
-        DownloadImagesTask task = new DownloadImagesTask();
+        DownloadImagesToRealmTask task = new DownloadImagesToRealmTask();
         task.execute();
 
         return v;

@@ -101,6 +101,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         }
 
         // Clear button
+        clearButton.setVisibility(View.GONE);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,6 +141,9 @@ public class CourseManagementActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
+                    // Hide clear button
+                    clearButton.setVisibility(View.GONE);
+                    // Show already joined courses
                     searchResults.clear();
                     for (int i = 0; i < joinedCourses.size(); i++) {
                         searchResults.add(joinedCourses.get(i));
@@ -148,6 +152,9 @@ public class CourseManagementActivity extends AppCompatActivity {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
+                    // Show clear button
+                    clearButton.setVisibility(View.VISIBLE);
+                    // Do search
                     handler.removeCallbacks(searchDelay);
                     searchDelay = new Runnable() {
                         @Override

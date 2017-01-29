@@ -101,6 +101,13 @@ public class NewRoomActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Join/Create Room");
         }
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NewRoomActivity.this.onBackPressed();
+            }
+        });
+
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
         newRoomButton.setVisibility(View.GONE);

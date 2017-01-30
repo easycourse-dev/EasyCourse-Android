@@ -1,5 +1,7 @@
 package io.easycourse.www.easycourse.models.main;
 
+import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,14 +13,12 @@ import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 import static io.easycourse.www.easycourse.utils.JSONUtils.checkIfJsonExists;
-import static io.easycourse.www.easycourse.utils.ListsUtils.isCourseJoined;
-import static io.easycourse.www.easycourse.utils.ListsUtils.isRoomJoined;
 
 /**
  * Created by noahrinehart on 11/5/16.
  */
 
-public class Course extends RealmObject {
+public class Course extends RealmObject implements ParentListItem{
 
     @PrimaryKey
     private String id;
@@ -173,5 +173,17 @@ public class Course extends RealmObject {
 
     public void setUniversityID(String universityID) {
         this.universityID = universityID;
+    }
+
+    @Override
+    public RealmResults<Room> getChildItemList() {
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Room> rooms = realm.where(Room.class).equalTo("isJoinIn", true).equalTo("courseID", this.id).findAll();
+        return rooms;
+    }
+
+    @Override
+    public boolean isInitiallyExpanded() {
+        return true;
     }
 }

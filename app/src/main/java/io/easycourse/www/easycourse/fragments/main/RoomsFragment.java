@@ -10,16 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.ChatRoomActivity;
-import io.easycourse.www.easycourse.activities.NewRoomActivity;
-import io.easycourse.www.easycourse.components.main.RoomRecyclerViewAdapter;
-import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.eventbus.Event;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.squareup.otto.Subscribe;
@@ -28,6 +18,18 @@ import org.json.JSONException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+import io.easycourse.www.easycourse.activities.NewRoomActivity;
+import io.easycourse.www.easycourse.components.main.RoomRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.main.RoomsFragment.RoomsExpandableRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.utils.SocketIO;
+import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -45,6 +47,7 @@ public class RoomsFragment extends Fragment {
     private SocketIO socketIO;
 
     private RealmChangeListener<RealmResults<Room>> realmChangeListener;
+    private RealmChangeListener<RealmResults<Course>> realmCourseChangeListener;
 
 
     @BindView(R.id.roomsRecyclerView)
@@ -57,7 +60,9 @@ public class RoomsFragment extends Fragment {
     TextView roomsRecyclerViewPlaceholder;
 
     RoomRecyclerViewAdapter roomRecyclerViewAdapter;
+    RoomsExpandableRecyclerViewAdapter roomsExpandableRecyclerViewAdapter;
     RealmResults<Room> rooms;
+    RealmResults<Course> courses;
 
     public RoomsFragment() {
     }
@@ -81,8 +86,11 @@ public class RoomsFragment extends Fragment {
 
         setupFAB();
 
-        setupRecyclerView();
+        //setupRecyclerView();
+        setupExpandableRecyclerView();
 
+        if (roomsExpandableRecyclerViewAdapter != null)
+            roomsExpandableRecyclerViewAdapter.notifyDataSetChanged();
 
         if (roomRecyclerViewAdapter != null)
             roomRecyclerViewAdapter.notifyDataSetChanged();
@@ -139,6 +147,32 @@ public class RoomsFragment extends Fragment {
             roomsRecyclerViewPlaceholder.setVisibility(View.VISIBLE);
             roomsRecyclerViewPlaceholder.setText("You don't have any joined rooms.\nAdd one by clicking the button below.");
         }
+    }
+
+    private void setupExpandableRecyclerView() {
+        RealmResults<Course> courses = realm.where(Course.class).findAll();
+        //if (rooms.size() == 0)
+        try {
+            if (socketIO != null)
+                socketIO.getHistMessage();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        roomsExpandableRecyclerViewAdapter = new RoomsExpandableRecyclerViewAdapter(this, getContext(), courses, socketIO);
+        roomRecyclerView.setAdapter(roomsExpandableRecyclerViewAdapter);
+
+        LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
+        chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
+        roomRecyclerView.setLayoutManager(chatLinearManager);
+        realmCourseChangeListener = new RealmChangeListener<RealmResults<Course>>() {
+            @Override
+            public void onChange(RealmResults<Course> element) {
+                roomRecyclerView.setVisibility(View.VISIBLE);
+                roomsRecyclerViewPlaceholder.setVisibility(View.GONE);
+            }
+        };
+        courses.addChangeListener(realmCourseChangeListener);
     }
 
     public void startChatRoom(Room room) {

@@ -288,7 +288,7 @@ public class ChatRoomFragment extends Fragment {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photo = new File(Environment.getExternalStorageDirectory(), new Date().toString() + ".jpg");
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getContext(), getApplicationContext().getPackageName() + ".provider", photo));
-        imageUri = Uri.fromFile(photo);
+        imageUri = FileProvider.getUriForFile(getContext(), getApplicationContext().getPackageName() + ".provider", photo);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);
         }

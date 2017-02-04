@@ -34,6 +34,7 @@ import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -249,7 +250,7 @@ public class NewRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final String selectedCourseName = coursesAdapter.getSelectedCourse().getCoursename();
-                if (newRoomName.getText().toString().equals("")){
+                if (newRoomName.getText().toString().equals("")) {
                     Snackbar.make(view, "Please enter a room name", Snackbar.LENGTH_LONG).show();
                 } else if (coursesAdapter.getSelectedCourse() == null) {
                     Snackbar.make(view, "Please select a class that this room belongs to", Snackbar.LENGTH_LONG).show();
@@ -367,20 +368,12 @@ public class NewRoomActivity extends AppCompatActivity {
         });
     }
 
-    public void updateRoomInSocket(final Room room){
-        Thread thread = new Thread(){
+    public void updateRoomInSocket(final Room room) {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Room.updateRoomToRealm(room, realm);
-                        }
-                    });
-                }
+                Room.updateRoomToRealm(room, realm);
             }
-        };
-        thread.start();
+        });
     }
 }

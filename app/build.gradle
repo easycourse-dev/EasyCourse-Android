@@ -15,9 +15,12 @@ android {
         multiDexEnabled true
     }
     buildTypes {
+        debug {
+            buildConfigField "String", "SERVER_URL", '"https://zengjintaotest.com"'
+        }
+
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "SERVER_URL", '"https://easycourse-production-server.herokuapp.com"'
         }
     }
     compileOptions {

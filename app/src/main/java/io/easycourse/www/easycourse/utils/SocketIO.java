@@ -428,6 +428,33 @@ public class SocketIO {
         });
     }
 
+    public void getRoomMessage(String roomID, long time, int limit) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        Realm realm = Realm.getDefaultInstance();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("fromTime", time);
+        jsonParam.put("limit", limit);
+        socket.emit("getRoomMessage", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject obj = (JSONObject) args[0];
+
+                    if (obj.has("error")) {
+                        Log.e(TAG, obj.toString());
+                    } else {
+                        JSONArray msgArray = obj.getJSONArray("msg");
+                        for (int i = 0; i < msgArray.length(); i++) {
+                            saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+    }
+
     public void logout(Ack callback) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("deviceToken", EasyCourse.getAppInstance().getDeviceToken());

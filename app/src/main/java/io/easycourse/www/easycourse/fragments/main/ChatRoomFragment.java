@@ -126,6 +126,12 @@ public class ChatRoomFragment extends Fragment {
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
 
+        try {
+            socketIO.getRoomMessage(currentRoom.getId(), 0, 100);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         setupChatRecyclerView();
         setupOnClickListeners();
 

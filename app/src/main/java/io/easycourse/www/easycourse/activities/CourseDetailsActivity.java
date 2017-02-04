@@ -13,10 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.CourseDetails.CourseDetailsRoomsEndlessRecyclerViewScrollListener;
@@ -30,6 +32,7 @@ import io.easycourse.www.easycourse.models.main.University;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -52,8 +55,11 @@ import io.socket.client.Ack;
 
 public class CourseDetailsActivity extends AppCompatActivity {
 
+    private static final String TAG = "CourseDetailsActivity";
+
     Realm realm;
     SocketIO socketIO;
+    User currentUser;
 
     Course course;
     String courseId, universityName;
@@ -65,6 +71,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
     @BindView(R.id.CourseDetailsToolbar)
     Toolbar toolbar;
+    @BindView(R.id.courseDetailsProgressBar)
+    ProgressBar progressBar;
     @BindView(R.id.CourseDetailsCourseName)
     TextView courseNameView;
     @BindView(R.id.CourseDetailsTitle)
@@ -94,6 +102,10 @@ public class CourseDetailsActivity extends AppCompatActivity {
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         realm = Realm.getDefaultInstance();
 
+        currentUser = User.getCurrentUser(this, realm);
+
+        progressBar.setVisibility(View.VISIBLE);
+
         // Set up local variables
         Intent courseManageIntent = getIntent();
         courseId = courseManageIntent.getStringExtra("courseId");
@@ -104,6 +116,15 @@ public class CourseDetailsActivity extends AppCompatActivity {
             if (university != null) universityName = university.getName();
             setupTextViews();
         }
+        fetchCourseInfo();
+
+        setupJoinButton();
+
+        setupRecyclerView();
+
+    }
+
+    private void fetchCourseInfo() {
         try {
             socketIO.getCourseInfo(courseId, new Ack() {
                 @Override
@@ -126,14 +147,16 @@ public class CourseDetailsActivity extends AppCompatActivity {
                         // Set up TextViews
                         setupTextViews();
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "call: ", e);
                     }
                 }
             });
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "call: ", e);
         }
+    }
 
+    private void setupJoinButton() {
         // Set up join button
         updateButtonView(isJoined);
         joinCourseButton.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +171,9 @@ public class CourseDetailsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    private void setupRecyclerView() {
         // Set up rooms RecyclerView
         LinearLayoutManager roomsLayoutManager = new LinearLayoutManager(this);
         roomsLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -177,30 +202,23 @@ public class CourseDetailsActivity extends AppCompatActivity {
     }
 
     private void setupTextViews() {
-        Thread thread = new Thread() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            courseNameView.setText(course.getCoursename());
-                            titleView.setText(course.getTitle());
-                            String creditHrsText;
-                            if (creditHrs == 1) {
-                                creditHrsText = "1 credit";
-                            } else {
-                                creditHrsText = creditHrs + " credits";
-                            }
-                            creditHrsView.setText(creditHrsText);
-                            univView.setText(universityName);
-                            doSearchRoom(0, courseId);
-                        }
-                    });
+                courseNameView.setText(course.getCoursename());
+                titleView.setText(course.getTitle());
+                String creditHrsText;
+                if (creditHrs == 1) {
+                    creditHrsText = "1 credit";
+                } else {
+                    creditHrsText = creditHrs + " credits";
                 }
+                creditHrsView.setText(creditHrsText);
+                univView.setText(universityName);
+                progressBar.setVisibility(View.GONE);
+                doSearchRoom(0, courseId);
             }
-        };
-        thread.start();
+        });
     }
 
     private void doSearchRoom(final int skip, final String courseId) {
@@ -310,7 +328,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                         }
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "call: ", e);
                 }
             }
 
@@ -429,32 +447,15 @@ public class CourseDetailsActivity extends AppCompatActivity {
 //                            }
 //                        }
 //                    } catch (JSONException e) {
-//                        e.printStackTrace();
+//                        Log.e(TAG, "call: ", e)();
 //                        courseRooms.clear();
 //                        updateRecyclerView();
 //                    }
 //                }
 //            });
 //        } catch (JSONException e) {
-//            e.printStackTrace();
+//            Log.e(TAG, "call: ", e)();
 //        }
-    }
-
-    private void updateRecyclerView() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            roomsAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 
     private void showDropCourseDialog() {
@@ -468,40 +469,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // Drop the course
-                        try {
-                            socketIO.dropCourse(course.getId(), new Ack() {
-                                @Override
-                                public void call(Object... args) {
-                                    try {
-                                        Realm tempRealm = Realm.getDefaultInstance();
-                                        JSONObject obj = (JSONObject) args[0];
-                                        boolean status = obj.getBoolean("success");
-                                        ArrayList<Room> deletedRooms = new ArrayList<>();
-                                        if (status) {
-                                            JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
-                                            String quitedRoomId;
-                                            Room quitedRoom;
-                                            for (int i = 0; i < quitedRoomsJSON.length(); i++) {
-                                                // Quit rooms in Realm
-                                                quitedRoomId = quitedRoomsJSON.getString(i);
-                                                quitedRoom = Room.getRoomById(tempRealm, quitedRoomId);
-                                                deletedRooms.add(quitedRoom);
-                                                Room.deleteRoomFromRealm(quitedRoom, tempRealm);
-                                            }
-                                            Course.deleteCourseFromRealm(course, tempRealm);
-                                            tempRealm.close();
-                                            // Update view
-                                            isJoined = false;
-                                            courseUpdateView(course.getId(), course.getCoursename(), deletedRooms);
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        dropCourse();
                     }
                 })
                 .build();
@@ -510,23 +478,15 @@ public class CourseDetailsActivity extends AppCompatActivity {
     }
 
     private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined) {
-        Thread thread = new Thread() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateButtonView(isJoined);
-                            courseRooms.clear();
-                            roomsAdapter.updateCourse(isJoined, roomsJoined);
-                            doSearchRoom(0, courseId);
-                        }
-                    });
-                }
+                updateButtonView(isJoined);
+                courseRooms.clear();
+                roomsAdapter.updateCourse(isJoined, roomsJoined);
+                doSearchRoom(0, courseId);
             }
-        };
-        thread.start();
+        });
     }
 
     private void joinCourse() {
@@ -552,7 +512,13 @@ public class CourseDetailsActivity extends AppCompatActivity {
                             String universityID = (String) JSONUtils.checkIfJsonExists(temp, "university", null);
 
                             Course course = new Course(id, courseName, title, courseDescription, creditHours, universityID);
-                            Course.updateCourseToRealm(course, tempRealm);
+                            User tempCurrentUser = User.getCurrentUser(CourseDetailsActivity.this, tempRealm);
+                            tempRealm.beginTransaction();
+                            if (tempCurrentUser != null) {
+                                tempCurrentUser.getJoinedCourses().add(course);
+                                tempRealm.copyToRealmOrUpdate(tempCurrentUser);
+                            }
+                            tempRealm.commitTransaction();
                         }
 
                         // Rooms handling
@@ -595,12 +561,50 @@ public class CourseDetailsActivity extends AppCompatActivity {
                         isJoined = true;
                         courseUpdateView(course.getId(), course.getCoursename(), newRooms);
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "call: ", e);
                     }
                 }
             });
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "call: ", e);
+        }
+        currentUser = User.getCurrentUser(this, realm);
+    }
+
+    private void dropCourse() {
+        try {
+            socketIO.dropCourse(course.getId(), new Ack() {
+                @Override
+                public void call(Object... args) {
+                    try {
+                        Realm tempRealm = Realm.getDefaultInstance();
+                        JSONObject obj = (JSONObject) args[0];
+                        boolean status = obj.getBoolean("success");
+                        ArrayList<Room> deletedRooms = new ArrayList<>();
+                        if (status) {
+                            JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
+                            String quitedRoomId;
+                            Room quitedRoom;
+                            for (int i = 0; i < quitedRoomsJSON.length(); i++) {
+                                // Quit rooms in Realm
+                                quitedRoomId = quitedRoomsJSON.getString(i);
+                                quitedRoom = Room.getRoomById(tempRealm, quitedRoomId);
+                                deletedRooms.add(quitedRoom);
+                                Room.deleteRoomFromRealm(quitedRoom, tempRealm);
+                            }
+                            Course.deleteCourseFromRealm(course, tempRealm);
+                            tempRealm.close();
+                            // Update view
+                            isJoined = false;
+                            courseUpdateView(course.getId(), course.getCoursename(), deletedRooms);
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "call: ", e);
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "dropCourse: ", e);
         }
     }
 }

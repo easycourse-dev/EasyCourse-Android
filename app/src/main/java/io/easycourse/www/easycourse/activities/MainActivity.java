@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     CoordinatorLayout coordinatorMain;
 
 
-    //TODO: add all realm stuff to asynctask
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

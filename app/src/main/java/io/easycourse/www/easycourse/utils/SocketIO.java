@@ -680,6 +680,18 @@ public class SocketIO {
         });
     }
 
+    public void removeFriend(final String friendId, Ack ack) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("otherUser", friendId);
+        socket.emit("removeFriend", jsonParam, ack);
+        socket.emit("removeFriend", jsonParam, new Ack() {
+            @Override
+            public void call(Object... args) {
+
+            }
+        });
+    }
+
     private void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
         if (obj == null) return;
         Message message;

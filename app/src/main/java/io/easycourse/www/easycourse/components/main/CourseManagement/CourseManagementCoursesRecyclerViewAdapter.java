@@ -67,7 +67,7 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         if (isCourseJoined(joinedCourses, course)) {
             courseViewHolder.courseCheckBox.setChecked(true);
         } else {
-            courseViewHolder.courseCheckBox.setChecked(false);
+            courseViewHolder.courseCheckBox.setVisibility(View.GONE);
         }
         courseViewHolder.courseCheckBox.setClickable(false);
         courseViewHolder.nameTextView.setText(course.getCoursename());

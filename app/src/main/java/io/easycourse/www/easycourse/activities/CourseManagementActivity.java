@@ -32,9 +32,11 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -45,6 +47,7 @@ public class CourseManagementActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;
+    User currentUser;
     String chosenUniversity;
     ArrayList<Course> joinedCourses = new ArrayList<>();
     ArrayList<Course> searchResults = new ArrayList<>();
@@ -85,6 +88,9 @@ public class CourseManagementActivity extends AppCompatActivity {
 
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         realm = Realm.getDefaultInstance();
+
+        currentUser = User.getCurrentUser(this, realm);
+
         handler = new Handler();
 
         // Initially hidden items
@@ -94,7 +100,7 @@ public class CourseManagementActivity extends AppCompatActivity {
         chosenUniversity = EasyCourse.getAppInstance().getUniversityId(this);
 
         // Get already registered classes
-        RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
+        RealmList<Course> enrolledCoursesRealmResults = currentUser.getJoinedCourses();
         for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
             joinedCourses.add(enrolledCoursesRealmResults.get(i));
             searchResults.add(enrolledCoursesRealmResults.get(i));
@@ -200,6 +206,11 @@ public class CourseManagementActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         socketIO.syncUser();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
     }
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {

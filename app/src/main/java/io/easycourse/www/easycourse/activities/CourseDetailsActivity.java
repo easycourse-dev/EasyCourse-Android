@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -70,6 +71,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
     @BindView(R.id.CourseDetailsToolbar)
     Toolbar toolbar;
+    @BindView(R.id.courseDetailsProgressBar)
+    ProgressBar progressBar;
     @BindView(R.id.CourseDetailsCourseName)
     TextView courseNameView;
     @BindView(R.id.CourseDetailsTitle)
@@ -101,6 +104,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
         currentUser = User.getCurrentUser(this, realm);
 
+        progressBar.setVisibility(View.VISIBLE);
+
         // Set up local variables
         Intent courseManageIntent = getIntent();
         courseId = courseManageIntent.getStringExtra("courseId");
@@ -112,7 +117,6 @@ public class CourseDetailsActivity extends AppCompatActivity {
             setupTextViews();
         }
         fetchCourseInfo();
-
 
         setupJoinButton();
 
@@ -211,6 +215,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
                 }
                 creditHrsView.setText(creditHrsText);
                 univView.setText(universityName);
+                progressBar.setVisibility(View.GONE);
                 doSearchRoom(0, courseId);
             }
         });

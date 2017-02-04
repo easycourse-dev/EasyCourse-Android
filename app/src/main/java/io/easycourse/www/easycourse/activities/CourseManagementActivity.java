@@ -206,12 +206,23 @@ public class CourseManagementActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         socketIO.syncUser();
+        currentUser = User.getCurrentUser(this, realm);
+        if (currentUser != null) {
+            RealmList<Course> enrolledCoursesRealmResults = currentUser.getJoinedCourses();
+            joinedCourses.clear();
+            searchResults.clear();
+            for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
+                joinedCourses.add(enrolledCoursesRealmResults.get(i));
+                searchResults.add(enrolledCoursesRealmResults.get(i));
+            }
+            coursesAdapter.setJoinedCourses(joinedCourses);
+            coursesAdapter.setSearchedCourses(searchResults);
+            coursesAdapter.notifyDataSetChanged();
+        }
+
+
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-    }
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {
         APIFunctions.searchCourse(getApplicationContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {

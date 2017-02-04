@@ -14,6 +14,7 @@ import android.widget.TextView;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.CourseDetailsActivity;
 import io.easycourse.www.easycourse.models.main.Course;
+
 import com.hanks.library.AnimateCheckBox;
 
 import java.util.ArrayList;
@@ -99,6 +100,10 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
 
     public void setJoinedCourses(ArrayList<Course> list) {
         this.joinedCourses = list;
+    }
+
+    public void setSearchedCourses(ArrayList<Course> list) {
+        this.coursesList = list;
     }
 
     private boolean isCourseJoined(ArrayList<Course> list, Course course) {

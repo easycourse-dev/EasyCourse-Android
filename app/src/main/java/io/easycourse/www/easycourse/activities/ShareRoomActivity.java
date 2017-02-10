@@ -29,6 +29,7 @@ import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.JSONUtils;
+import io.easycourse.www.easycourse.utils.ScreenSizeUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -57,7 +58,8 @@ public class ShareRoomActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_share_room);
+
+        ScreenSizeUtils.setActivityContent(this, R.layout.activity_share_room, R.layout.activity_share_room_tab);
 
         ButterKnife.bind(this);
 

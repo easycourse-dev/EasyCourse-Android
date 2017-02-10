@@ -3,6 +3,8 @@ package io.easycourse.www.easycourse.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -10,9 +12,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -38,6 +43,7 @@ import io.easycourse.www.easycourse.fragments.main.UserFragment;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.ScreenSizeUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
@@ -61,11 +67,23 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.coordinatorMain)
     CoordinatorLayout coordinatorMain;
 
+    private double mWidthPixels;
+    private double mHeightPixels;
+    public static double screensize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        //decides screen size and choose which xml to use.
+        setRealDeviceSizeInPixels();
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        double x = Math.pow(mWidthPixels/dm.xdpi,2);
+        double y = Math.pow(mHeightPixels/dm.ydpi,2);
+        screensize = Math.sqrt(x+y);
+
+        ScreenSizeUtils.setActivityContent(this, R.layout.activity_main, R.layout.activity_main_tab);
 
         //Binds all the views
         ButterKnife.bind(this);
@@ -287,6 +305,38 @@ public class MainActivity extends AppCompatActivity {
     public void reconnectEvent(Event.ReconnectEvent event) {
         if (disconnectSnackbar != null) {
             disconnectSnackbar.dismiss();
+        }
+    }
+
+    private void setRealDeviceSizeInPixels() {
+        WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+
+        // since SDK_INT = 1;
+        mWidthPixels = displayMetrics.widthPixels;
+        mHeightPixels = displayMetrics.heightPixels;
+
+        // includes window decorations (statusbar bar/menu bar)
+        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 17) {
+            try {
+                mWidthPixels = (Integer) Display.class.getMethod("getRawWidth").invoke(display);
+                mHeightPixels = (Integer) Display.class.getMethod("getRawHeight").invoke(display);
+            } catch (Exception ignored) {
+            }
+        }
+
+        // includes window decorations (statusbar bar/menu bar)
+        if (Build.VERSION.SDK_INT >= 17) {
+            try {
+                Point realSize = new Point();
+                Display.class.getMethod("getRealSize", Point.class).invoke(display, realSize);
+                mWidthPixels = realSize.x;
+                mHeightPixels = realSize.y;
+            } catch (Exception ignored) {
+            }
         }
     }
 }

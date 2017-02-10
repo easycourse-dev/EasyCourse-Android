@@ -23,7 +23,6 @@ public class APIFunctions {
 
     public static AsyncHttpClient client = new AsyncHttpClient();
     private static final String URL = BuildConfig.SERVER_URL+"/api";
-
     private static final String TAG = "APIFunctions";
 
     //API function for signup to server

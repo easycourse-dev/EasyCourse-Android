@@ -12,6 +12,7 @@ import io.easycourse.www.easycourse.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.utils.ScreenSizeUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -25,7 +26,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+
+        ScreenSizeUtils.setActivityContent(this, R.layout.activity_settings, R.layout.activity_settings_tab);
+
         getFragmentManager().beginTransaction()
                 .replace(R.id.contentSettings, new SettingsFragment())
                 .commit();

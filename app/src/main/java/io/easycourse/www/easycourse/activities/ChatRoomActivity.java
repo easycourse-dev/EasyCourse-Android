@@ -50,6 +50,7 @@ import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.ListsUtils;
+import io.easycourse.www.easycourse.utils.ScreenSizeUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
@@ -77,10 +78,15 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     Drawer roomDetailDrawer;
 
+    private double mWidthPixels;
+    private double mHeightPixels;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_room);
+
+
+        ScreenSizeUtils.setActivityContent(this, R.layout.activity_chat_room, R.layout.activity_chat_room_tab);
         ButterKnife.bind(this);
 
 
@@ -89,8 +95,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         currentUser = User.getCurrentUser(this, realm);
 
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         handleIntent();
 
@@ -170,7 +177,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-                   new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                     new SecondaryDrawerItem().withName(R.string.quit_room)
             );
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {

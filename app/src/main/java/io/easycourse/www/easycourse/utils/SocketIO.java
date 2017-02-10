@@ -43,9 +43,6 @@ import io.socket.emitter.Emitter;
 
 public class SocketIO {
     private static final String CHAT_SERVER_URL = BuildConfig.SERVER_URL;
-
-
-
     private static final String TAG = "SocketIO";
 
     public static final int TEXT_TO_ROOM = 0;
@@ -677,18 +674,6 @@ public class SocketIO {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
-        });
-    }
-
-    public void removeFriend(final String friendId, Ack ack) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("otherUser", friendId);
-        socket.emit("removeFriend", jsonParam, ack);
-        socket.emit("removeFriend", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-
             }
         });
     }

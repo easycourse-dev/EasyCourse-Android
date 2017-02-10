@@ -46,8 +46,7 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="147dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="177dp"
-            android:layout_marginStart="177dp"
+            android:layout_gravity="center"
             android:background="@drawable/login_button"
             android:text="@string/signupNext"
             android:textColor="@color/colorWhiteText" />

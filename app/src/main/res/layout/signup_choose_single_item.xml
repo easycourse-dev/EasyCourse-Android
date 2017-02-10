@@ -36,7 +36,7 @@
             app:animDuration="0"
             app:checkedColor="@color/colorAccent"
             app:lineColor="#fff"
-            app:lineWidth="1.2dp"
+            app:lineWidth="0dp"
             app:unCheckColor="#e0e0e0" />
 
     </RelativeLayout>

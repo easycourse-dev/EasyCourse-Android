@@ -22,18 +22,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
-import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -45,7 +33,20 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.JSONUtils;
+import io.easycourse.www.easycourse.utils.ScreenSizeUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -92,7 +93,9 @@ public class NewRoomActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_room);
+
+        ScreenSizeUtils.setActivityContent(this, R.layout.activity_new_room, R.layout.activity_new_room_tab);
+
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {

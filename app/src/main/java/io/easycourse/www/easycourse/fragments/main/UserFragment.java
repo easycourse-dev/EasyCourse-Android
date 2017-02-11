@@ -13,8 +13,10 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,7 @@ import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.CourseManagementActivity;
+import io.easycourse.www.easycourse.activities.MainActivity;
 import io.easycourse.www.easycourse.activities.MyCoursesActivity;
 import io.easycourse.www.easycourse.activities.SignupLoginActivity;
 import io.easycourse.www.easycourse.activities.UserProfileActivity;
@@ -209,6 +212,7 @@ public class UserFragment extends BaseFragment {
                 showLogoutDialog(v);
             }
         });
+
     }
 
     private void logout(final View v) throws JSONException {
@@ -324,4 +328,5 @@ public class UserFragment extends BaseFragment {
         if (realm != null)
             realm.close();
     }
+
 }

@@ -24,6 +24,7 @@ public class MyCoursesActivity extends BaseActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.myCoursesContent, fragment)
+                .addToBackStack("myCourses")
                 .commit();
     }
 }

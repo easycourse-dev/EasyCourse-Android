@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+import io.easycourse.www.easycourse.activities.MainActivity;
 import io.easycourse.www.easycourse.activities.NewRoomActivity;
 import io.easycourse.www.easycourse.components.main.RoomRecyclerViewAdapter;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
@@ -83,6 +86,7 @@ public class RoomsFragment extends BaseFragment {
 
         if (roomRecyclerViewAdapter != null)
             roomRecyclerViewAdapter.notifyDataSetChanged();
+
 
         return v;
     }

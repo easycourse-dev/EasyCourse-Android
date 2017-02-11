@@ -46,6 +46,7 @@ import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.CourseManagementActivity;
+import io.easycourse.www.easycourse.activities.MyCoursesActivity;
 import io.easycourse.www.easycourse.activities.SignupLoginActivity;
 import io.easycourse.www.easycourse.activities.UserProfileActivity;
 import io.easycourse.www.easycourse.models.main.User;
@@ -62,7 +63,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Created by Mark Wen on 10/18/2016.
  */
 
-public class UserFragment extends Fragment {
+public class UserFragment extends BaseFragment {
 
     private static final String TAG = "UserFragment";
 
@@ -87,10 +88,6 @@ public class UserFragment extends Fragment {
     RelativeLayout surveyCard;
 
 
-    User user;
-    Realm realm;
-    SocketIO socketIO;
-
     public UserFragment() {
     }
 
@@ -98,9 +95,6 @@ public class UserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        user = User.getCurrentUser(getActivity(), realm);
     }
 
     @Override
@@ -119,18 +113,18 @@ public class UserFragment extends Fragment {
     }
 
     private void setupUserViews() {
-        if (user != null) {
-            textViewUsername.setText(user.getUsername());
+        if (currentUser != null) {
+            textViewUsername.setText(currentUser.getUsername());
 
-            if (user.getProfilePicture() != null) {
+            if (currentUser.getProfilePicture() != null) {
                 Glide.with(this)
-                        .load(user.getProfilePicture())
+                        .load(currentUser.getProfilePicture())
                         .asBitmap()
                         .into(avatarImage);
             } else {
-                if (user.getProfilePictureUrl() != null) {
+                if (currentUser.getProfilePictureUrl() != null) {
                     Glide.with(this)
-                            .load(user.getProfilePictureUrl())
+                            .load(currentUser.getProfilePictureUrl())
                             .asBitmap()
                             .listener(new RequestListener<String, Bitmap>() {
                                 @Override
@@ -140,11 +134,11 @@ public class UserFragment extends Fragment {
 
                                 @Override
                                 public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                    if (resource == null ) return false;
+                                    if (resource == null) return false;
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     resource.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                                     byte[] byteArray = stream.toByteArray();
-                                    if(byteArray == null) return false;
+                                    if (byteArray == null) return false;
                                     Realm tempRealm = Realm.getDefaultInstance();
                                     User currentUser = User.getCurrentUser(getContext(), tempRealm);
                                     tempRealm.beginTransaction();
@@ -179,7 +173,9 @@ public class UserFragment extends Fragment {
 
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(view.getContext(), CourseManagementActivity.class));
+//                startActivity(new Intent(view.getContext(), CourseManagementActivity.class));
+                Intent intent = new Intent(getContext(), MyCoursesActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -313,12 +309,11 @@ public class UserFragment extends Fragment {
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
         getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
-        if (user != null && user.getProfilePicture() != null) {
+        if (currentUser != null && currentUser.getProfilePicture() != null) {
             setupUserViews();
         }
     }

@@ -71,7 +71,7 @@ import io.socket.client.Ack;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
-public class ChatRoomFragment extends Fragment {
+public class ChatRoomFragment extends BaseFragment {
 
     private static final String TAG = "ChatRoomFragment";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
@@ -80,11 +80,8 @@ public class ChatRoomFragment extends Fragment {
     private static final int TAKE_IMAGE_INTENT = 5;
 
     private ChatRoomActivity activity;
-    private Realm realm;
-    private SocketIO socketIO;
 
     private Room currentRoom;
-    private User currentUser;
 
     private Uri imageUri;
 
@@ -123,8 +120,7 @@ public class ChatRoomFragment extends Fragment {
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
+
 
         setupChatRecyclerView();
         setupOnClickListeners();

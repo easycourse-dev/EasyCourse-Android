@@ -5,18 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.util.Pair;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,30 +33,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.CourseManagementActivity;
-import io.easycourse.www.easycourse.activities.MainActivity;
 import io.easycourse.www.easycourse.activities.MyCoursesActivity;
 import io.easycourse.www.easycourse.activities.SignupLoginActivity;
 import io.easycourse.www.easycourse.activities.UserProfileActivity;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.socket.client.Ack;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Mark Wen on 10/18/2016.

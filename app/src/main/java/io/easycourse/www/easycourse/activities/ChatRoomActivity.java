@@ -136,7 +136,7 @@ public class ChatRoomActivity extends BaseActivity {
             finish();
             return;
         }
-        if (intent.hasExtra("delete")){
+        if (intent.hasExtra("delete")) {
             int intRoomId = intent.getIntExtra("delete", 0);
             RealmResults<NotificationMessage> messages = realm.where(NotificationMessage.class).equalTo("roomId", intRoomId).findAll();
             realm.beginTransaction();
@@ -171,7 +171,7 @@ public class ChatRoomActivity extends BaseActivity {
                                     silenceRoom(isChecked);
                                 }
                             }).withSelectable(false),
-                   new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
+                    new SecondaryDrawerItem().withName(R.string.share_room).withSelectable(false),
                     new SecondaryDrawerItem().withName(R.string.quit_room)
             );
             builder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -251,7 +251,7 @@ public class ChatRoomActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (currentRoom != null && currentRoom.getCourseName() != null && !currentRoom.getCourseName().equals("Private Room")) {
-                    Intent i = new Intent(getApplication(), CourseDetailsActivity.class);
+                    Intent i = new Intent(getApplication(), MyCoursesActivityg.class);
                     i.putExtra("courseId", currentRoom.getCourseID());
                     i.putExtra("isJoined", true);
                     startActivity(i);

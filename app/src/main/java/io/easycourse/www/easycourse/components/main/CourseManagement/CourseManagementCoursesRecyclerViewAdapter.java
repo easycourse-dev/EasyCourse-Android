@@ -1,7 +1,6 @@
 package io.easycourse.www.easycourse.components.main.CourseManagement;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -13,7 +12,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.CourseDetailsActivity;
 import io.easycourse.www.easycourse.fragments.main.CourseDetailsFragment;
 import io.easycourse.www.easycourse.models.main.Course;
 
@@ -90,7 +88,6 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
                 ((AppCompatActivity) context).getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.myCoursesContent, fragment)
-                        .addToBackStack("courseManagement")
                         .commit();
             }
         });

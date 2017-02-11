@@ -50,12 +50,10 @@ import io.realm.Realm;
 
 import static io.easycourse.www.easycourse.EasyCourse.bus;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
 
-    Realm realm;
-    SocketIO socketIO;
     Snackbar disconnectSnackbar;
 
     @BindView(R.id.toolbarMain)
@@ -73,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Binds all the views
         ButterKnife.bind(this);
 
         AsyncHttpClient client = APIFunctions.client;
@@ -88,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
             EasyCourse.getAppInstance().createSocketIO();
             socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -115,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-
-        bus.register(this);
 
 //        //Get data from signup, may be null, fields may be null, but why...
 //        Intent intentFromSignup = getIntent();
@@ -275,11 +268,6 @@ public class MainActivity extends AppCompatActivity {
         EasyCourse.getAppInstance().setShowNotification(true);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
-    }
 
     @Subscribe
     public void disconnectEvent(Event.DisconnectEvent event) {

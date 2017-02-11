@@ -43,11 +43,8 @@ import io.realm.RealmResults;
  * Created by markw on 12/26/2016.
  */
 
-public class CourseManagementActivity extends AppCompatActivity {
+public class CourseManagementActivity extends BaseActivity {
 
-    Realm realm;
-    SocketIO socketIO;
-    User currentUser;
     String chosenUniversity;
     ArrayList<Course> joinedCourses = new ArrayList<>();
     ArrayList<Course> searchResults = new ArrayList<>();
@@ -86,10 +83,6 @@ public class CourseManagementActivity extends AppCompatActivity {
             }
         });
 
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        realm = Realm.getDefaultInstance();
-
-        currentUser = User.getCurrentUser(this, realm);
 
         handler = new Handler();
 

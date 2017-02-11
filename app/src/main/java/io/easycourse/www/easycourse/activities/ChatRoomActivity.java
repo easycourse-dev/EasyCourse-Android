@@ -57,17 +57,14 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.socket.client.Ack;
 
-public class ChatRoomActivity extends AppCompatActivity {
+public class ChatRoomActivity extends BaseActivity {
 
     private static final String TAG = "ChatRoomActivity";
 
-    private Realm realm;
-    private SocketIO socketIO;
     private Snackbar disconnectSnackbar;
 
 
     private Room currentRoom;
-    private User currentUser;
 
     @BindView(R.id.toolbarChatRoom)
     Toolbar toolbar;
@@ -86,10 +83,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        currentUser = User.getCurrentUser(this, realm);
-
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -102,7 +95,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(findViewById(R.id.activity_chat_room), "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-        EasyCourse.bus.register(this);
     }
 
     public void gotoChatRoomFragment(Room currentRoom, User currentUser) {
@@ -491,11 +483,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         EasyCourse.getAppInstance().setInRoom("");
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
-    }
 
     @Subscribe
     public void disconnectEvent(Event.DisconnectEvent event) {

@@ -53,13 +53,10 @@ import io.socket.client.Ack;
  * Created by markw on 12/27/2016.
  */
 
-public class CourseDetailsActivity extends AppCompatActivity {
+public class CourseDetailsActivity extends BaseActivity {
 
     private static final String TAG = "CourseDetailsActivity";
 
-    Realm realm;
-    SocketIO socketIO;
-    User currentUser;
 
     Course course;
     String courseId, universityName;
@@ -99,10 +96,6 @@ public class CourseDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setElevation(0);
         }
 
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        realm = Realm.getDefaultInstance();
-
-        currentUser = User.getCurrentUser(this, realm);
 
         progressBar.setVisibility(View.VISIBLE);
 

@@ -3,7 +3,6 @@ package io.easycourse.www.easycourse;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.facebook.stetho.Stetho;
@@ -131,11 +130,5 @@ public class EasyCourse extends Application {
     public String getUniversityId(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         return sharedPref.getString("universityId", null);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(this);
     }
 }

@@ -280,14 +280,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        EasyCourse.getAppInstance().setNotification(false);
+        EasyCourse.getAppInstance().setShowNotification(false);
         EasyCourse.getAppInstance().setInRoom("");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EasyCourse.getAppInstance().setNotification(true);
+        EasyCourse.getAppInstance().setShowNotification(true);
     }
 
     @Override

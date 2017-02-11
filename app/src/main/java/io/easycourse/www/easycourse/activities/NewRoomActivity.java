@@ -68,6 +68,8 @@ public class NewRoomActivity extends AppCompatActivity {
     User currentUser;
     Handler handler;
     Runnable searchDelay;
+    String courseid="";
+    int courseidint=-1;
 
     @BindView(R.id.newRoomToolbar)
     Toolbar toolbar;
@@ -93,6 +95,11 @@ public class NewRoomActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            courseid = extras.getString("CourseID");
+        }
 
         ScreenSizeUtils.setActivityContent(this, R.layout.activity_new_room, R.layout.activity_new_room_tab);
 
@@ -132,6 +139,8 @@ public class NewRoomActivity extends AppCompatActivity {
                 courses.add(new Course("", "Private Room", "Private Room", null, 0, null));
             } else {
                 courses.add(coursesResults.get(i - 2));
+                if(courses.get(i).getId().equals(courseid))
+                    courseidint=i;
             }
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -152,6 +161,10 @@ public class NewRoomActivity extends AppCompatActivity {
             newRoomCoursesSpinner.getBackground().setColorFilter(Color.parseColor("#939393"), PorterDuff.Mode.SRC_ATOP);
             coursesAdapter = new NewRoomCoursesAdapter(getApplicationContext(), courses);
             newRoomCoursesSpinner.setAdapter(coursesAdapter);
+            if(courseidint>=0)
+            {
+                newRoomCoursesSpinner.setSelection(courseidint);
+            }
             newRoomCoursesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {

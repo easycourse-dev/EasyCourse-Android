@@ -84,6 +84,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
     TextView univView;
     @BindView(R.id.CourseDetailsRoomsView)
     RecyclerView roomsView;
+    @BindView(R.id.Addnewroom)
+    Button addnewroombutton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,6 +174,14 @@ public class CourseDetailsActivity extends AppCompatActivity {
                 }
             }
         });
+        addnewroombutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(CourseDetailsActivity.this,NewRoomActivity.class);
+                i.putExtra("CourseID",courseId);
+                startActivity(i);
+            }
+        });
     }
 
     private void setupRecyclerView() {
@@ -194,9 +204,11 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
     private void updateButtonView(Boolean joined) {
         if (joined) {
+            addnewroombutton.setVisibility(View.VISIBLE);
             joinCourseButton.setText(getResources().getString(R.string.joined));
             joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_joined_button));
         } else {
+            addnewroombutton.setVisibility(View.INVISIBLE);
             joinCourseButton.setText(getResources().getString(R.string.join));
             joinCourseButton.setBackground(ContextCompat.getDrawable(this, R.drawable.course_details_join_button));
         }

@@ -25,6 +25,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.facebook.login.LoginManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -37,6 +40,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
@@ -45,6 +50,7 @@ import io.easycourse.www.easycourse.activities.SignupLoginActivity;
 import io.easycourse.www.easycourse.activities.UserProfileActivity;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
@@ -60,13 +66,28 @@ public class UserFragment extends Fragment {
 
     private static final String TAG = "UserFragment";
 
-    Button logoutButton;
-    ImageView avatarImage;
-    TextView textViewUsername;
-    RelativeLayout cardProfile, cardCourses, joinUsCard, termsCard, surveyCard;
-    CardView courseManageCard;
 
-    User user = new User();
+    @BindView(R.id.buttonLogout)
+    Button logoutButton;
+    @BindView(R.id.textViewUsername)
+    TextView textViewUsername;
+    @BindView(R.id.avatarImage)
+    ImageView avatarImage;
+    @BindView(R.id.cardUserProfile)
+    RelativeLayout cardProfile;
+    @BindView(R.id.UserFragmentCourseManageView)
+    RelativeLayout cardCourses;
+    @BindView(R.id.joinUsCard)
+    RelativeLayout joinUsCard;
+    @BindView(R.id.UserFragmentCourseManageCard)
+    CardView courseManageCard;
+    @BindView(R.id.TermsPrivacyCard)
+    RelativeLayout termsCard;
+    @BindView(R.id.surveyCard)
+    RelativeLayout surveyCard;
+
+
+    User user;
     Realm realm;
     SocketIO socketIO;
 
@@ -79,6 +100,7 @@ public class UserFragment extends Fragment {
 
         realm = Realm.getDefaultInstance();
         socketIO = EasyCourse.getAppInstance().getSocketIO();
+        user = User.getCurrentUser(getActivity(), realm);
     }
 
     @Override
@@ -87,15 +109,60 @@ public class UserFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_user, container, false);
 
-        textViewUsername = (TextView) v.findViewById(R.id.textViewUsername);
-        avatarImage = (ImageView) v.findViewById(R.id.avatarImage);
-        cardProfile = (RelativeLayout) v.findViewById(R.id.cardUserProfile);
-        cardCourses = (RelativeLayout) v.findViewById(R.id.UserFragmentCourseManageView);
-        joinUsCard = (RelativeLayout) v.findViewById(R.id.joinUsCard);
-        courseManageCard = (CardView) v.findViewById(R.id.UserFragmentCourseManageCard);
-        termsCard = (RelativeLayout) v.findViewById(R.id.TermsPrivacyCard);
-        surveyCard = (RelativeLayout) v.findViewById(R.id.surveyCard);
+        ButterKnife.bind(this, v);
 
+        setupOnClickListeners();
+
+        setupUserViews();
+
+        return v;
+    }
+
+    private void setupUserViews() {
+        if (user != null) {
+            textViewUsername.setText(user.getUsername());
+
+            if (user.getProfilePicture() != null) {
+                Glide.with(this)
+                        .load(user.getProfilePicture())
+                        .asBitmap()
+                        .into(avatarImage);
+            } else {
+                if (user.getProfilePictureUrl() != null) {
+                    Glide.with(this)
+                            .load(user.getProfilePictureUrl())
+                            .asBitmap()
+                            .listener(new RequestListener<String, Bitmap>() {
+                                @Override
+                                public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    if (resource == null ) return false;
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    resource.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    byte[] byteArray = stream.toByteArray();
+                                    if(byteArray == null) return false;
+                                    Realm tempRealm = Realm.getDefaultInstance();
+                                    User currentUser = User.getCurrentUser(getContext(), tempRealm);
+                                    tempRealm.beginTransaction();
+                                    currentUser.setProfilePicture(byteArray);
+                                    tempRealm.commitTransaction();
+                                    tempRealm.close();
+                                    return false;
+                                }
+                            })
+                            .into(avatarImage);
+                } else {
+                    avatarImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_account_circle_black_48dp, null));
+                }
+            }
+        }
+    }
+
+    private void setupOnClickListeners() {
         cardProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,32 +207,12 @@ public class UserFragment extends Fragment {
             }
         });
 
-        user = User.getCurrentUser(getActivity(), realm);
-        textViewUsername.setText(user.getUsername());
-        if (user.getProfilePicture() != null) {
-            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-            avatarImage.setImageBitmap(bm);
-        } else {
-            if (user.getProfilePictureUrl() != null) {
-                try {
-                    downloadImage(new URL(user.getProfilePictureUrl()));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                avatarImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_account_circle_black_48dp, null));
-            }
-        }
-
-        logoutButton = (Button) v.findViewById(R.id.buttonLogout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showLogoutDialog(v);
             }
         });
-
-        return v;
     }
 
     private void logout(final View v) throws JSONException {
@@ -243,12 +290,6 @@ public class UserFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (realm != null)
-            realm.close();
-    }
 
     private void showLogoutDialog(final View v) {
         MaterialDialog dialog = new MaterialDialog.Builder(getContext())
@@ -271,63 +312,21 @@ public class UserFragment extends Fragment {
         dialog.show();
     }
 
-    private void downloadImage(final URL url) {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    // Download image
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    Bitmap image = BitmapFactory.decodeStream(input);
-                    // Convert image
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    byte[] byteArray = stream.toByteArray();
-                    // Saving image
-                    Realm tempRealm = Realm.getDefaultInstance();
-                    User user = User.getCurrentUser(getApplicationContext(), tempRealm);
-                    tempRealm.beginTransaction();
-                    user.setProfilePicture(byteArray);
-                    tempRealm.commitTransaction();
-                    tempRealm.close();
-                    // Setting image
-                    setImageAfterDownload(image);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
 
-    public void setImageAfterDownload(final Bitmap image) {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                synchronized (this) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            avatarImage.setImageBitmap(image);
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
-    }
 
     @Override
     public void onResume() {
         super.onResume();
         getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
         if (user != null && user.getProfilePicture() != null) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-            if (bitmap != null)
-                avatarImage.setImageBitmap(bitmap);
+            setupUserViews();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

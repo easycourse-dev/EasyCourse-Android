@@ -15,6 +15,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -373,10 +374,13 @@ public class SocketIO {
     public void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         Realm realm = Realm.getDefaultInstance();
+        long time = Calendar.getInstance().getTimeInMillis();
+        time -= 604800000;
         RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-        if (list.size() < 1) return;
-        Message message = list.first();
-        long time = message.getCreatedAt().getTime();
+        if (list.size() > 0) {
+            Message message = list.first();
+            time = message.getCreatedAt().getTime();
+        }
         jsonParam.put("lastUpdateTime", time);
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
@@ -433,7 +437,7 @@ public class SocketIO {
             public void call(Object... args) {
                 try {
                     JSONObject obj = (JSONObject) args[0];
-
+                    Log.e(TAG, "getRoomMessage: "+obj.toString());
                     if (obj.has("error")) {
                         Log.e(TAG, obj.toString());
                     } else {

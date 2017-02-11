@@ -251,7 +251,7 @@ public class ChatRoomActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (currentRoom != null && currentRoom.getCourseName() != null && !currentRoom.getCourseName().equals("Private Room")) {
-                    Intent i = new Intent(getApplication(), MyCoursesActivityg.class);
+                    Intent i = new Intent(getApplication(), MyCoursesActivity.class);
                     i.putExtra("courseId", currentRoom.getCourseID());
                     i.putExtra("isJoined", true);
                     startActivity(i);

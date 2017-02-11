@@ -82,15 +82,16 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent courseIntent = new Intent(context, CourseDetailsActivity.class);
-                courseIntent.putExtra("courseId", course.getId());
-                courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
-                context.startActivity(courseIntent);
-//                CourseDetailsFragment fragment = CourseDetailsFragment.newInstance(course.getId(), isCourseJoined(joinedCourses, course));
-//                ((AppCompatActivity) context).getSupportFragmentManager()
-//                        .beginTransaction()
-//                        .replace(R.id.myCoursesContent, fragment)
-//                        .commit();
+//                Intent courseIntent = new Intent(context, CourseDetailsActivity.class);
+//                courseIntent.putExtra("courseId", course.getId());
+//                courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
+//                context.startActivity(courseIntent);
+                CourseDetailsFragment fragment = CourseDetailsFragment.newInstance(course.getId(), isCourseJoined(joinedCourses, course));
+                ((AppCompatActivity) context).getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.myCoursesContent, fragment)
+                        .addToBackStack("courseManagement")
+                        .commit();
             }
         });
     }

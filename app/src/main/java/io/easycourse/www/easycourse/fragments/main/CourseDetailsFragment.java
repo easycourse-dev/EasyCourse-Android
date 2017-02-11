@@ -93,10 +93,11 @@ public class CourseDetailsFragment extends BaseFragment {
         View v = inflater.inflate(R.layout.fragment_course_details, container, false);
         ButterKnife.bind(this, v);
 
-
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
         if (course != null) {
+            creditHrs = course.getCreditHours();
             university = realm.where(University.class).equalTo("id", course.getUniversityID()).findFirst();
+            if (university != null) universityName = university.getName();
             setupTextViews();
         }
         setupJoinedButton();
@@ -122,6 +123,14 @@ public class CourseDetailsFragment extends BaseFragment {
     }
 
     private void setupTextViews() {
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Course Details");
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setElevation(0);
+        }
+
         courseNameView.setText(course.getCoursename());
         titleView.setText(course.getTitle());
         String creditString;

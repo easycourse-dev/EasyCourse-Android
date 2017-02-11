@@ -34,9 +34,10 @@
             android:clickable="false"
             android:enabled="false"
             app:animDuration="0"
+            android:padding="30dp"
             app:checkedColor="@color/colorAccent"
             app:lineColor="#fff"
-            app:lineWidth="0dp"
+            app:lineWidth="1.2dp"
             app:unCheckColor="#e0e0e0" />
 
     </RelativeLayout>

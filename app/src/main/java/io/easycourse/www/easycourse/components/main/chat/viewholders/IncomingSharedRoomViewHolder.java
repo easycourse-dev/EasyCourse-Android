@@ -107,7 +107,8 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void fillUserInfo(User thisUser, final Context context, final Message message) {
-        if (thisUser != null && thisUser != User.getCurrentUser(activity, Realm.getDefaultInstance())) {
+        Realm realm = Realm.getDefaultInstance();
+        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
 
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
@@ -143,6 +144,7 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                 }
             });
         }
+        realm.close();
     }
 
     private void showJoinRoomDialog(final Message message, final Context context) {

@@ -1,6 +1,9 @@
 package io.easycourse.www.easycourse;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.facebook.FacebookSdk;
@@ -13,7 +16,11 @@ import java.net.URISyntaxException;
 
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
+import io.realm.DynamicRealm;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
+import io.realm.RealmSchema;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -27,15 +34,12 @@ public class EasyCourse extends Application {
     private static EasyCourse appInstance = null;
     private String inRoom;
     private boolean notification;
-
     private String deviceToken;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
-
-        FacebookSdk.sdkInitialize(this);
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -66,7 +70,7 @@ public class EasyCourse extends Application {
         return appInstance;
     }
 
-    public void setDeviceToken(String deviceToken){
+    public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
     }
 
@@ -89,5 +93,23 @@ public class EasyCourse extends Application {
 
     public String getInRoom() {
         return inRoom;
+    }
+
+    public void setUniversityId(Context context, String univId) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("universityId", univId);
+        editor.apply();
+    }
+
+    public String getUniversityId(Context context) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+        return sharedPref.getString("universityId", null);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

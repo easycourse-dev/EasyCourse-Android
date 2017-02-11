@@ -250,7 +250,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         headerCourseTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!currentRoom.getCourseName().equals("Private Room")) {
+                if (currentRoom != null && currentRoom.getCourseName() != null && !currentRoom.getCourseName().equals("Private Room")) {
                     Intent i = new Intent(getApplication(), CourseDetailsActivity.class);
                     i.putExtra("courseId", currentRoom.getCourseID());
                     i.putExtra("isJoined", true);

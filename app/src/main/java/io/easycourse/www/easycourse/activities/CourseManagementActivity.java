@@ -32,11 +32,11 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.University;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -47,6 +47,7 @@ public class CourseManagementActivity extends AppCompatActivity {
 
     Realm realm;
     SocketIO socketIO;
+    User currentUser;
     String chosenUniversity;
     ArrayList<Course> joinedCourses = new ArrayList<>();
     ArrayList<Course> searchResults = new ArrayList<>();
@@ -78,29 +79,35 @@ public class CourseManagementActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("My Courses");
         }
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CourseManagementActivity.this.onBackPressed();
+            }
+        });
+
         socketIO = EasyCourse.getAppInstance().getSocketIO();
         realm = Realm.getDefaultInstance();
+
+        currentUser = User.getCurrentUser(this, realm);
+
         handler = new Handler();
 
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
 
         // Get UniversityID
-        chosenUniversity = User.getCurrentUser(this, realm).getUniversityID();
-        if (chosenUniversity == null) {
-            // TODO: for some reason universityId in currentUser is sometimes missing...
-            chosenUniversity = realm.where(University.class).findAll().first().getId();
-            Log.e("Univ", chosenUniversity);
-        }
+        chosenUniversity = EasyCourse.getAppInstance().getUniversityId(this);
 
         // Get already registered classes
-        RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
+        RealmList<Course> enrolledCoursesRealmResults = currentUser.getJoinedCourses();
         for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
             joinedCourses.add(enrolledCoursesRealmResults.get(i));
             searchResults.add(enrolledCoursesRealmResults.get(i));
         }
 
         // Clear button
+        clearButton.setVisibility(View.GONE);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,6 +147,9 @@ public class CourseManagementActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
+                    // Hide clear button
+                    clearButton.setVisibility(View.GONE);
+                    // Show already joined courses
                     searchResults.clear();
                     for (int i = 0; i < joinedCourses.size(); i++) {
                         searchResults.add(joinedCourses.get(i));
@@ -148,6 +158,9 @@ public class CourseManagementActivity extends AppCompatActivity {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
+                    // Show clear button
+                    clearButton.setVisibility(View.VISIBLE);
+                    // Do search
                     handler.removeCallbacks(searchDelay);
                     searchDelay = new Runnable() {
                         @Override
@@ -173,7 +186,6 @@ public class CourseManagementActivity extends AppCompatActivity {
                                     }
                                     coursesAdapter.notifyDataSetChanged();
                                     coursesOnScrollListener.resetState();
-//                            updateRecyclerView();
                                 }
 
                                 @Override
@@ -185,41 +197,6 @@ public class CourseManagementActivity extends AppCompatActivity {
                         }
                     };
                     handler.postDelayed(searchDelay, 250);
-//                    try {
-//                        socketIO = new SocketIO(getApplicationContext());
-//                        socketIO.searchCourses(editable.toString(), 20, 0, chosenUniversity, new Ack() {
-//
-//                            @Override
-//                            public void call(Object... args) {
-//
-//                                JSONObject obj = (JSONObject) args[0];
-//                                if (!obj.has("error")) {
-//                                    try {
-//                                        JSONArray response = obj.getJSONArray("course");
-//                                        searchResults.clear();
-//                                        for (int i = 0; i < response.length(); i++) {
-//                                            JSONObject course = (JSONObject) response.get(i);
-//                                            searchResults.add(new Course(
-//                                                    course.getString("_id"),
-//                                                    course.getString("name"),
-//                                                    course.getString("title"),
-//                                                    course.getString("description"),
-//                                                    course.getInt("creditHours"),
-//                                                    course.getJSONObject("university").getString("_id")
-//                                                    ));
-//                                        }
-//                                        updateRecyclerView();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                } else{
-//                                    Log.e("com.example.easycourse", "failure" + obj.toString());
-//                                }
-//                            }
-//                        });
-//                    } catch (URISyntaxException | JSONException e) {
-//                        Log.e("emit searchCourse", e.toString());
-//                    }
                 }
             }
         });
@@ -229,7 +206,23 @@ public class CourseManagementActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         socketIO.syncUser();
+        currentUser = User.getCurrentUser(this, realm);
+        if (currentUser != null) {
+            RealmList<Course> enrolledCoursesRealmResults = currentUser.getJoinedCourses();
+            joinedCourses.clear();
+            searchResults.clear();
+            for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
+                joinedCourses.add(enrolledCoursesRealmResults.get(i));
+                searchResults.add(enrolledCoursesRealmResults.get(i));
+            }
+            coursesAdapter.setJoinedCourses(joinedCourses);
+            coursesAdapter.setSearchedCourses(searchResults);
+            coursesAdapter.notifyDataSetChanged();
+        }
+
+
     }
+
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {
         APIFunctions.searchCourse(getApplicationContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
@@ -255,50 +248,5 @@ public class CourseManagementActivity extends AppCompatActivity {
                 Snackbar.make(view, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
-//        try {
-//            socketIO.searchCourses(searchQuery, 20, skip, chosenUniversity, new Ack() {
-//                @Override
-//                public void call(Object... args) {
-//                    JSONObject obj = (JSONObject) args[0];
-//                    if (!obj.has("error")) {
-//                        int startPosition = searchResults.size();
-//                        try {
-//                            JSONArray response = obj.getJSONArray("course");
-//                            for (int i = 0; i < response.length(); i++) {
-//                                JSONObject courseJSON = (JSONObject) response.get(i);
-//                                Course courseObj = new Course(courseJSON.getString("name"), courseJSON.getString("title"), courseJSON.getString("_id"));
-//                                if (!searchResults.contains(courseObj))
-//                                    searchResults.add(courseObj);
-//                            }
-//                            coursesAdapter.notifyItemRangeInserted(startPosition, 20);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    } else{
-//                        Log.e("com.example.easycourse", "failure" + obj.toString());
-//                    }
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    public void updateRecyclerView(){
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            coursesAdapter.notifyDataSetChanged();
-                            coursesOnScrollListener.resetState();
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
     }
 }

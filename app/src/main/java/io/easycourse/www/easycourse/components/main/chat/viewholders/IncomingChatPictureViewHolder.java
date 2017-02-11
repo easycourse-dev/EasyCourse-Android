@@ -57,7 +57,7 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
 
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
@@ -74,21 +74,21 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void call(Object... args) {
                         User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
-                        fillUserInfo(thisUser, context, message);
+                        fillUserInfo(thisUser, roomId, context, message);
                     }
                 });
             } catch (JSONException e) {
                 Log.e(TAG, "setupView: ", e);
             }
         } else {
-            fillUserInfo(thisUser, context, message);
+            fillUserInfo(thisUser, roomId, context, message);
         }
 
 
 
     }
 
-    private void fillUserInfo(User thisUser, final Context context, final Message message) {
+    private void fillUserInfo(User thisUser, final String roomId, final Context context, final Message message) {
         if (thisUser != null) {
             try {
                 if (thisUser.getProfilePictureUrl() != null)

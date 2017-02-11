@@ -46,6 +46,7 @@ import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.main.ChatRoomFragment;
 import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
+import io.easycourse.www.easycourse.models.NotificationMessage;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
@@ -53,6 +54,7 @@ import io.easycourse.www.easycourse.utils.ListsUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import io.socket.client.Ack;
 
 public class ChatRoomActivity extends AppCompatActivity {
@@ -142,6 +144,13 @@ public class ChatRoomActivity extends AppCompatActivity {
             finish();
             return;
         }
+        if (intent.hasExtra("delete")){
+            int intRoomId = intent.getIntExtra("delete", 0);
+            RealmResults<NotificationMessage> messages = realm.where(NotificationMessage.class).equalTo("roomId", intRoomId).findAll();
+            realm.beginTransaction();
+            messages.deleteAllFromRealm();
+            realm.commitTransaction();
+        }
         if (currentRoom.getRoomName() != null)
             toolbarTitleTextView.setText(currentRoom.getRoomName());
         if (currentRoom.getCourseName() != null)
@@ -178,7 +187,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                 public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                     switch (position) {
                         case 1:
-                            //TODO: Add intent to classmates
                             gotoRoomUserListFragment();
                             return false;
                         case 4:

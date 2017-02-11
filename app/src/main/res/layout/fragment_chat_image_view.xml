@@ -43,8 +43,6 @@
         android:padding="5dp"
         android:paddingBottom="16dp">
 
-        <!--TODO: add ripple-->
-
         <ImageButton
             android:id="@+id/chatImageViewShare"
             android:layout_width="0dp"

@@ -24,8 +24,14 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -77,9 +83,8 @@ public class MainActivity extends AppCompatActivity {
             MySSLSocketFactory sf = new MySSLSocketFactory(trustStore);
             sf.setHostnameVerifier(MySSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             client.setSSLSocketFactory(sf);
-        }
-        catch (Exception e) {
-
+        } catch (IOException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
+            Log.e(TAG, "onCreate: ", e);
         }
 
 
@@ -145,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
     private void parseSetupIntent(UserSetup userSetup) {
         if (userSetup == null) return;
         try {
-
             APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -163,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(TAG, "onSuccess: setCoursesAndLanguages");
-                    EasyCourse.bus.post( new Event.SyncEvent());
+                    EasyCourse.bus.post(new Event.SyncEvent());
                 }
 
                 @Override
@@ -178,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
         }
-        if(socketIO != null)
+        if (socketIO != null)
             try {
                 socketIO.getAllMessage();
             } catch (JSONException e) {
@@ -239,8 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // TODO: make sure settings page work first
-//        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -262,14 +265,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        EasyCourse.getAppInstance().setNotification(false);
+        EasyCourse.getAppInstance().setShowNotification(false);
         EasyCourse.getAppInstance().setInRoom("");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EasyCourse.getAppInstance().setNotification(true);
+        EasyCourse.getAppInstance().setShowNotification(true);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package io.easycourse.www.easycourse.components.main.CourseManagement;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.CourseDetailsActivity;
+import io.easycourse.www.easycourse.fragments.main.CourseDetailsFragment;
 import io.easycourse.www.easycourse.models.main.Course;
 
 import com.hanks.library.AnimateCheckBox;
@@ -80,10 +80,15 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
         courseViewHolder.courseHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent courseIntent = new Intent(context, CourseDetailsActivity.class);
-                courseIntent.putExtra("courseId", course.getId());
-                courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
-                context.startActivity(courseIntent);
+//                Intent courseIntent = new Intent(context, CourseDetailsActivity.class);
+//                courseIntent.putExtra("courseId", course.getId());
+//                courseIntent.putExtra("isJoined", courseViewHolder.courseCheckBox.isChecked());
+//                context.startActivity(courseIntent);
+                CourseDetailsFragment fragment = CourseDetailsFragment.newInstance(course.getId(), isCourseJoined(joinedCourses, course));
+                ((AppCompatActivity) context).getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.myCoursesContent, fragment)
+                        .commit();
             }
         });
     }

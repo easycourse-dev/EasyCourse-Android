@@ -38,7 +38,7 @@ import io.realm.RealmList;
 import io.socket.client.Ack;
 
 
-public class RoomUserListFragment extends Fragment {
+public class RoomUserListFragment extends BaseFragment {
 
     private static final String TAG = "RoomUserListFragment";
 
@@ -47,11 +47,8 @@ public class RoomUserListFragment extends Fragment {
     @BindView(R.id.room_user_list_progressbar)
     ProgressBar chatProgressBar;
 
-    private SocketIO socketIO;
     private Room curRoom;
-    private User curUser;
     private List<User> users;
-    private Realm realm;
     private RoomUserListViewAdapter roomUserListViewAdapter;
     private ChatRoomActivity activity;
 
@@ -62,7 +59,7 @@ public class RoomUserListFragment extends Fragment {
         if (curRoom == null) return null;
         RoomUserListFragment fragment = new RoomUserListFragment();
         fragment.curRoom = curRoom;
-        fragment.curUser = curUser;
+        fragment.currentUser = curUser;
         return fragment;
     }
 
@@ -84,7 +81,7 @@ public class RoomUserListFragment extends Fragment {
         activity.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.gotoChatRoomFragment(curRoom, curUser);
+                activity.gotoChatRoomFragment(curRoom, currentUser);
             }
         });
 
@@ -97,13 +94,9 @@ public class RoomUserListFragment extends Fragment {
     private void getRoomUsers() {
         chatProgressBar.setVisibility(View.VISIBLE);
         try {
-            long time1 = System.currentTimeMillis();
-            Log.d(TAG, "getRoomUsers: " + time1);
             socketIO.getRoomMembers(curRoom.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
-                    long time2 = System.currentTimeMillis();
-                    Log.d(TAG, "getRoomUsers: " + time2);
                     try {
                         JSONObject obj = (JSONObject) args[0];
                         JSONArray response = obj.getJSONArray("users");
@@ -135,7 +128,7 @@ public class RoomUserListFragment extends Fragment {
 
 
     private void setupRecyclerView() {
-        Thread thread = new Thread(){
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 synchronized (this) {
@@ -172,11 +165,11 @@ public class RoomUserListFragment extends Fragment {
                 null,
                 null,
                 null,
-                new RealmList<>(curUser, toUser),
+                new RealmList<>(currentUser, toUser),
                 2,
                 "<10",
                 null,
-                curUser,
+                currentUser,
                 false,
                 false,
                 true,
@@ -190,7 +183,7 @@ public class RoomUserListFragment extends Fragment {
         startActivity(chatActivityIntent);
     }
 
-    public void updateRoomInSocket(final Room room){
+    public void updateRoomInSocket(final Room room) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -206,6 +199,6 @@ public class RoomUserListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(realm != null) realm.close();
+        if (realm != null) realm.close();
     }
 }

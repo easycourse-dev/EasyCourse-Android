@@ -34,6 +34,7 @@ import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -55,16 +56,14 @@ import io.socket.client.Ack;
  * Created by markw on 12/17/2016.
  */
 
-public class NewRoomActivity extends AppCompatActivity {
+public class NewRoomActivity extends BaseActivity {
 
-    Realm realm;
-    SocketIO socketIO;
+
     NewRoomRoomsEndlessRecyclerViewScrollListener roomsOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
     NewRoomCoursesAdapter coursesAdapter;
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
-    User currentUser;
     Handler handler;
     Runnable searchDelay;
 
@@ -101,13 +100,18 @@ public class NewRoomActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Join/Create Room");
         }
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NewRoomActivity.this.onBackPressed();
+            }
+        });
+
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
         newRoomButton.setVisibility(View.GONE);
 
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        realm = Realm.getDefaultInstance();
-        currentUser = User.getCurrentUser(this, realm);
+
         handler = new Handler();
 
         // Setup courses
@@ -178,6 +182,7 @@ public class NewRoomActivity extends AppCompatActivity {
         existedRoomView.addItemDecoration(new RecyclerViewDivider(this));
 
         // Clear text button
+        clearText.setVisibility(View.GONE);
         clearText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -201,6 +206,7 @@ public class NewRoomActivity extends AppCompatActivity {
             public void afterTextChanged(final Editable editable) {
                 final Course selectedCourse = coursesAdapter.getSelectedCourse();
                 if (selectedCourse != null && !selectedCourse.getId().equals("")) {
+                    // Do search
                     handler.removeCallbacks(searchDelay);
                     searchDelay = new Runnable() {
                         @Override
@@ -211,8 +217,14 @@ public class NewRoomActivity extends AppCompatActivity {
                     handler.postDelayed(searchDelay, 250);
                 }
                 if (editable.toString().equals("")) {
+                    // Show clear button
+                    clearText.setVisibility(View.GONE);
+                    // Create room button
                     newRoomButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.login_button_disable, null));
                 } else {
+                    // Show clear button
+                    clearText.setVisibility(View.VISIBLE);
+                    // Create room button
                     newRoomButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.login_button, null));
                 }
             }
@@ -234,7 +246,7 @@ public class NewRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final String selectedCourseName = coursesAdapter.getSelectedCourse().getCoursename();
-                if (newRoomName.getText().toString().equals("")){
+                if (newRoomName.getText().toString().equals("")) {
                     Snackbar.make(view, "Please enter a room name", Snackbar.LENGTH_LONG).show();
                 } else if (coursesAdapter.getSelectedCourse() == null) {
                     Snackbar.make(view, "Please select a class that this room belongs to", Snackbar.LENGTH_LONG).show();
@@ -352,20 +364,12 @@ public class NewRoomActivity extends AppCompatActivity {
         });
     }
 
-    public void updateRoomInSocket(final Room room){
-        Thread thread = new Thread(){
+    public void updateRoomInSocket(final Room room) {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (this) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Room.updateRoomToRealm(room, realm);
-                        }
-                    });
-                }
+                Room.updateRoomToRealm(room, realm);
             }
-        };
-        thread.start();
+        });
     }
 }

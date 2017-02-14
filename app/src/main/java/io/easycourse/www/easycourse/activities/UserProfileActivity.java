@@ -18,7 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -42,6 +42,15 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
+
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -49,7 +58,7 @@ import io.socket.client.Ack;
  * Created by nisarg on 28/11/16.
  */
 
-public class UserProfileActivity extends AppCompatActivity {
+public class UserProfileActivity extends BaseActivity {
 
     private static final String TAG = "UserProfileActivity";
 
@@ -73,7 +82,7 @@ public class UserProfileActivity extends AppCompatActivity {
     FloatingActionButton editAvatarButton;
     @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
-//    @BindView(R.id.userProfileLanguageView)
+    //    @BindView(R.id.userProfileLanguageView)
 //    RecyclerView languageView;
 //    @BindView(R.id.userProfileLanguageLabel)
 //    TextView languageLabel;
@@ -82,10 +91,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     boolean isInEditMode = false;
 
-    User user = new User();
 
-    Realm realm;
-    SocketIO socket;
 //    LanguageRecyclerViewAdapter languageAdapter;
 
 //    RealmList<Language> userLanguages;
@@ -108,7 +114,14 @@ public class UserProfileActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        socket = EasyCourse.getAppInstance().getSocketIO();
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                UserProfileActivity.this.onBackPressed();
+            }
+        });
+
 
         saveChangesButton.hide();
 
@@ -119,14 +132,12 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
-        realm = Realm.getDefaultInstance();
 
-        user = User.getCurrentUser(this, realm);
-        if (user != null) {
-            if (user.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+        if (currentUser != null) {
+            if (currentUser.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
                 avatarImage.setImageBitmap(bm);
-            } else if (user.getProfilePictureUrl() != null && user.getProfilePictureUrl().length() > 1) {
+            } else if (currentUser.getProfilePictureUrl() != null && currentUser.getProfilePictureUrl().length() > 1) {
                 Picasso.Builder builder = new Picasso.Builder(this);
                 builder.listener(new Picasso.Listener() {
                     @Override
@@ -134,7 +145,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         exception.printStackTrace();
                     }
                 });
-                builder.build().load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
+                builder.build().load(currentUser.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
             } else {
                 avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
             }
@@ -152,7 +163,7 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(final View view) {
                 try {
-                    socket.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
+                    socketIO.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                         @Override
                         public void call(Object... args) {
                             JSONObject obj = (JSONObject) args[0];
@@ -219,8 +230,8 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserInfoOnScreen() {
-        if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
-            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
+        if (currentUser.getProfilePicture() != null && currentUser.getProfilePicture().length > 0) {
+            Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
             avatarImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_black_48dp));
@@ -286,7 +297,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 if (bytes != null) {
                     try {
                         Log.d(TAG, "onTaskCompleted: calling sync user");
-                        socket.syncUser(null, bytes, null, new Ack() {
+                        socketIO.syncUser(null, bytes, null, new Ack() {
                             @Override
                             public void call(Object... args) {
                                 setUserImage(bitmap, bytes);
@@ -368,7 +379,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             avatarImage.setImageBitmap(image);
                             Realm tempRealm = Realm.getDefaultInstance();
                             tempRealm.beginTransaction();
-                            user.setProfilePicture(profile);
+                            currentUser.setProfilePicture(profile);
                             tempRealm.commitTransaction();
                             tempRealm.close();
                         }

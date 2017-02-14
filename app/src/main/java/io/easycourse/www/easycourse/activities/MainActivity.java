@@ -17,15 +17,12 @@ import android.view.MenuItem;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.MySSLSocketFactory;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -35,14 +32,12 @@ import java.security.cert.CertificateException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.ViewPagerAdapter;
 import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
 import io.easycourse.www.easycourse.fragments.main.UserFragment;
 import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
@@ -102,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-            socketIO.getAllMessage();
+            //socketIO.getAllMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -147,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void parseSetupIntent(UserSetup userSetup) {
+    /*private void parseSetupIntent(UserSetup userSetup) {
         if (userSetup == null) return;
         try {
             APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
@@ -188,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-    }
+    }*/
 
     private void setupNavigation() {
 

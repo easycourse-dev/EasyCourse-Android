@@ -71,15 +71,24 @@
         </activity>
 
         <activity
-            android:name=".activities.MyCoursesActivity"
-            android:parentActivityName=".activities.MainActivity"
+            android:name="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
 
+        <activity
+            android:name="io.easycourse.www.easycourse.activities.CourseDetailsActivity"
+            android:parentActivityName="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.easycourse.www.easycourse.activities.CourseManagementActivity" />
+        </activity>
 
         <activity
             android:name="io.easycourse.www.easycourse.activities.ShareRoomActivity"
@@ -91,6 +100,7 @@
                 android:value="io.easycourse.www.easycourse.activities.ChatRoomActivity" />
         </activity>
 
+        <!--To access files from uri-->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -112,6 +122,7 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
 
         <receiver
             android:name=".utils.BroadcastRecievers.NotificationClearBroadcastReceiver"

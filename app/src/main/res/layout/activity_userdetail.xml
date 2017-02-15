@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/userProfileLinear"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <android.support.v7.widget.CardView
+        android:id="@+id/userProfileCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp">
+
+        <RelativeLayout
+            android:id="@+id/userProfileCardRelative"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
+
+            <android.support.v4.widget.CircleImageView
+                android:id="@+id/userProfileCardImage"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/ic_account_circle_black_48dp" />
+
+            <TextView
+                android:id="@+id/userProfileCardName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/userProfileCardImage"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:text="Test" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+    <Button
+        android:text="Message"
+        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:id="@+id/buttonLogout"
+        android:background="@drawable/message_button"
+        android:textColor="@color/colorWhiteText"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal"/>
+    
+    
+
+</LinearLayout>

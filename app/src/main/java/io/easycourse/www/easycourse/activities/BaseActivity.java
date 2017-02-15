@@ -19,6 +19,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected SocketIO socketIO;
     protected User currentUser;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

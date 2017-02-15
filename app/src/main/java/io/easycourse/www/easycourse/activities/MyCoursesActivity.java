@@ -42,7 +42,12 @@ public class MyCoursesActivity extends BaseActivity {
                 .beginTransaction()
                 .replace(R.id.myCoursesContent, fragment)
                 .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
-                .addToBackStack("courseManagement")
                 .commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        goToMyCourses();
     }
 }

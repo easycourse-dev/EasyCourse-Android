@@ -89,6 +89,7 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
                         .beginTransaction()
                         .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
                         .replace(R.id.myCoursesContent, fragment)
+                        .addToBackStack("courseDetails")
                         .commit();
             }
         });

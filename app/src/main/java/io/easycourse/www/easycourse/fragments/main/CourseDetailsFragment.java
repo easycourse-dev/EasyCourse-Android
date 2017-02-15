@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -134,25 +135,14 @@ public class CourseDetailsFragment extends BaseFragment {
     }
 
     private void setupTextViews() {
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Course Details");
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setElevation(0);
-        }
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        toolbar.setNavigationIcon(R.drawable.md_nav_back);
+        toolbar.setTitle("Course Details");
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                CourseManagementFragment fragment = new CourseManagementFragment();
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.myCoursesContent, fragment)
-                        .setCustomAnimations(R.anim.exit_to_left, R.anim.enter_from_right)
-                        .addToBackStack("courseManagement")
-                        .commit();
-                return false;
+            public void onClick(View v) {
+                goToCourseManagement();
             }
         });
 
@@ -505,6 +495,15 @@ public class CourseDetailsFragment extends BaseFragment {
 //        thread.start();
     }
 
+
+    private void goToCourseManagement() {
+        CourseManagementFragment fragment = new CourseManagementFragment();
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.myCoursesContent, fragment)
+                .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
+                .commit();
+    }
 
 
 }

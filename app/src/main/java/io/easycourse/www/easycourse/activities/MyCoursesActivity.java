@@ -22,7 +22,7 @@ public class MyCoursesActivity extends BaseActivity {
 
 
         Intent intent = getIntent();
-        if (intent != null) {
+        if (intent != null && intent.hasExtra("courseId")) {
             String courseId = intent.getStringExtra("courseId");
             boolean isJoined = intent.getBooleanExtra("isJoined", false);
             CourseDetailsFragment fragment = CourseDetailsFragment.newInstance(courseId, isJoined);
@@ -41,6 +41,8 @@ public class MyCoursesActivity extends BaseActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.myCoursesContent, fragment)
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
+                .addToBackStack("courseManagement")
                 .commit();
     }
 }

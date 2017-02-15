@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -93,6 +94,13 @@ public class CourseDetailsFragment extends BaseFragment {
         View v = inflater.inflate(R.layout.fragment_course_details, container, false);
         ButterKnife.bind(this, v);
 
+        fetchAndCreate();
+
+        return v;
+    }
+
+    private void fetchAndCreate() {
+
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
         if (course != null) {
             creditHrs = course.getCreditHours();
@@ -118,8 +126,11 @@ public class CourseDetailsFragment extends BaseFragment {
 
         fetchCourseInfo();
         setupTextViews();
+    }
 
-        return v;
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     private void setupTextViews() {
@@ -130,6 +141,20 @@ public class CourseDetailsFragment extends BaseFragment {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Course Details");
             ((AppCompatActivity) getActivity()).getSupportActionBar().setElevation(0);
         }
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                CourseManagementFragment fragment = new CourseManagementFragment();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.myCoursesContent, fragment)
+                        .setCustomAnimations(R.anim.exit_to_left, R.anim.enter_from_right)
+                        .addToBackStack("courseManagement")
+                        .commit();
+                return false;
+            }
+        });
 
         courseNameView.setText(course.getCoursename());
         titleView.setText(course.getTitle());
@@ -479,5 +504,7 @@ public class CourseDetailsFragment extends BaseFragment {
 //        };
 //        thread.start();
     }
+
+
 
 }

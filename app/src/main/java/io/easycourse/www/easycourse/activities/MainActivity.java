@@ -106,6 +106,7 @@ public class MainActivity extends BaseActivity {
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
             socketIO.getHistMessage();
+            socketIO.syncUser();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }

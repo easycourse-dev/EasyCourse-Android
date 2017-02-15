@@ -3,6 +3,9 @@ package io.easycourse.www.easycourse.fragments.main;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +36,7 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -206,6 +210,8 @@ public class CourseManagementFragment extends BaseFragment {
             joinedCourses.add(course);
             searchResults.add(course);
         }
+        if (coursesAdapter != null)
+            coursesAdapter.notifyDataSetChanged();
     }
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {
@@ -239,6 +245,8 @@ public class CourseManagementFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         fetchCourses();
+        if (coursesAdapter != null)
+            coursesAdapter.notifyDataSetChanged();
     }
 
     @Override

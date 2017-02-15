@@ -87,6 +87,7 @@ public class CourseManagementCoursesRecyclerViewAdapter extends RecyclerView.Ada
                 CourseDetailsFragment fragment = CourseDetailsFragment.newInstance(course.getId(), isCourseJoined(joinedCourses, course));
                 ((AppCompatActivity) context).getSupportFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
                         .replace(R.id.myCoursesContent, fragment)
                         .commit();
             }

@@ -71,23 +71,14 @@
         </activity>
 
         <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:name="io.easycourse.www.easycourse.activities.MyCoursesActivity"
             android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
             android:screenOrientation="portrait"
+            android:noHistory="true"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
-        </activity>
-
-        <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseDetailsActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.CourseManagementActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.CourseManagementActivity" />
         </activity>
 
         <activity

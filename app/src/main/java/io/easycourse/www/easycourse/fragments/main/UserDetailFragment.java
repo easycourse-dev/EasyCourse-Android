@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
@@ -213,7 +216,18 @@ public class UserDetailFragment extends BaseFragment {
 
     private void reportUser(String input) {
         try {
-            APIFunctions.reportUser(getContext(), user.getId(), input, null);
+            APIFunctions.reportUser(getContext(), user.getId(), input, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Toast.makeText(getContext(), user.getUsername() + " was reported.", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Toast.makeText(getContext(), "Error reporting user! Try again later", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onFailure: " + res + statusCode, t);
+                }
+            });
         } catch (JSONException | UnsupportedEncodingException e) {
             Log.e(TAG, "reportUser: ", e);
         }

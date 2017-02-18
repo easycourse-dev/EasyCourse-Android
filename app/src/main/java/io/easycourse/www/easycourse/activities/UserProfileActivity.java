@@ -34,6 +34,7 @@ import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -124,7 +125,8 @@ public class UserProfileActivity extends BaseActivity {
             if (currentUser.getProfilePicture() != null) {
                 Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
                 avatarImage.setImageBitmap(bm);
-            } else if (currentUser.getProfilePictureUrl() != null && currentUser.getProfilePictureUrl().length() > 1) {
+            } else if (currentUser.getProfilePictureUrl() != null && !currentUser.getProfilePictureUrl().isEmpty()) {
+
                 Picasso.Builder builder = new Picasso.Builder(this);
                 builder.listener(new Picasso.Listener() {
                     @Override

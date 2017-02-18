@@ -53,24 +53,25 @@ public class UserDetailFragment extends BaseFragment {
     @BindView(R.id.userDetailReport)
     TextView userDetailReport;
 
+    private String userId;
     private User user;
 
     public UserDetailFragment() {
     }
 
-    public static UserDetailFragment newInstance(User user) {
+    public static UserDetailFragment newInstance(String userId) {
         UserDetailFragment userdetailFragment = new UserDetailFragment();
-        userdetailFragment.user = user;
+        userdetailFragment.userId = userId;
         return userdetailFragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View v = inflater.inflate(R.layout.fragment_userdetail, container, false);
         ButterKnife.bind(this, v);
 
+        user = realm.where(User.class).equalTo("id", userId).findFirst();
 
         setupViews();
         fetchUserDetails();
@@ -86,13 +87,19 @@ public class UserDetailFragment extends BaseFragment {
             public void run() {
                 userDetailToolbar.setTitle("Profile");
 
-                Glide.with(UserDetailFragment.this)
-                        .load(user.getProfilePicture())
-                        .centerCrop()
-                        .placeholder(R.drawable.ic_account_circle_black_48dp)
-                        .crossFade()
-                        .into(userDetailCardImage);
-
+                if (user.getProfilePicture() != null) {
+                    Glide.with(UserDetailFragment.this)
+                            .load(user.getProfilePicture())
+                            .centerCrop()
+                            .placeholder(R.drawable.ic_person_black_24px)
+                            .into(userDetailCardImage);
+                } else if (user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()) {
+                    Glide.with(UserDetailFragment.this)
+                            .load(user.getProfilePictureUrl())
+                            .centerCrop()
+                            .placeholder(R.drawable.ic_person_black_24px)
+                            .into(userDetailCardImage);
+                }
 
                 userDetailCardName.setText(user.getUsername());
 
@@ -114,9 +121,8 @@ public class UserDetailFragment extends BaseFragment {
     }
 
     private void fetchUserDetails() {
-        if (user == null) return;
         try {
-            socketIO.getUserInfoJson(user.getId(), new Ack() {
+            socketIO.getUserInfoJson(userId, new Ack() {
                 @Override
                 public void call(Object... args) {
                     final JSONObject jsonObject = (JSONObject) args[0];

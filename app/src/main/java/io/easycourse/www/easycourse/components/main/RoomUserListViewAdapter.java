@@ -44,7 +44,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             this.curUser = curUser;
         else {
             Realm realm = Realm.getDefaultInstance();
-            curUser = User.getCurrentUser(activity, realm);
+            this.curUser = User.getCurrentUser(activity, realm);
             realm.close();
         }
         this.fragment = fragment;

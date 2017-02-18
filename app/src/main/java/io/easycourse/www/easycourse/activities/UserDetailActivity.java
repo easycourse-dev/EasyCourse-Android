@@ -36,14 +36,12 @@ public class UserDetailActivity extends BaseActivity {
         Intent intent = getIntent();
         if (intent.hasExtra("user")) {
             String userId = intent.getStringExtra("user");
-            User user = realm.where(User.class).equalTo("id", userId).findFirst();
-            UserDetailFragment userDetailFragment = UserDetailFragment.newInstance(user);
+            UserDetailFragment userDetailFragment = UserDetailFragment.newInstance(userId);
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.userDetailContent, userDetailFragment)
                     .commit();
-
-        } else {
+        }else {
             Toast.makeText(this, "Use not found!", Toast.LENGTH_SHORT).show();
             this.finish();
         }

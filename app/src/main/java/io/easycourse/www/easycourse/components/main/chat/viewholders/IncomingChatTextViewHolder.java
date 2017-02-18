@@ -3,7 +3,6 @@ package io.easycourse.www.easycourse.components.main.chat.viewholders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -19,12 +18,10 @@ import android.widget.Toast;
 
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.DateUtils;
-
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -93,9 +90,8 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void fillUserInfo(final User thisUser, final Context context, final Message message, final String reportDateIncoming) {
-        Realm realm = Realm.getDefaultInstance();
-        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
+    private void fillUserInfo(User thisUser, final Context context, final Message message, final String reportDateIncoming) {
+        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, Realm.getDefaultInstance()).getId())) {
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
             } else {
@@ -105,15 +101,6 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
             }
             incomingName.setText(thisUser.getUsername());
             incomingMessage.setText(message.getText());
-
-            incomingImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, UserDetailActivity.class);
-                    intent.putExtra("user", thisUser.getId());
-                    context.startActivity(intent);
-                }
-            });
 
             incomingLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -136,7 +123,6 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
                 }
             });
         }
-        realm.close();
     }
 
     private boolean showPopup(LinearLayout linearLayout, final Message message, final Context context) {

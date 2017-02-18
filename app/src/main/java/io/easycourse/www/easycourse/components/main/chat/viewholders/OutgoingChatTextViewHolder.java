@@ -59,7 +59,6 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setupView(final Message message, Message prevMessage, User curUser, final Context context, final ChatRecyclerViewAdapter adapter) {
-        Realm realm = Realm.getDefaultInstance();
         final String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
@@ -76,7 +75,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
             outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            curUser = User.getCurrentUser(activity, realm);
+            curUser = User.getCurrentUser(activity, Realm.getDefaultInstance());
             if (curUser != null) {
                 if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
                     outgoingImageView.setImageResource(R.drawable.ic_person_black_24px);
@@ -110,7 +109,6 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
                 }
             });
         }
-        realm.close();
     }
 
     private boolean showPopup(LinearLayout linearLayout, final Message message, final Context context) {

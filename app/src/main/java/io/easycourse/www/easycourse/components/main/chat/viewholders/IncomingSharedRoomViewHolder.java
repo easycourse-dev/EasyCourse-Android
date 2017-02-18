@@ -22,17 +22,14 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
-import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.DateUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
-
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -109,9 +106,8 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void fillUserInfo(final User thisUser, final Context context, final Message message) {
-        Realm realm = Realm.getDefaultInstance();
-        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
+    private void fillUserInfo(User thisUser, final Context context, final Message message) {
+        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, Realm.getDefaultInstance()).getId())) {
 
             if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
                 incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
@@ -127,15 +123,6 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                 @Override
                 public void onClick(View view) {
                     showJoinRoomDialog(message, context);
-                }
-            });
-
-            incomingImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, UserDetailActivity.class);
-                    intent.putExtra("user", thisUser.getId());
-                    context.startActivity(intent);
                 }
             });
 
@@ -156,7 +143,6 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                 }
             });
         }
-        realm.close();
     }
 
     private void showJoinRoomDialog(final Message message, final Context context) {
@@ -185,10 +171,10 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                     JSONObject obj = (JSONObject) args[0];
                     Log.e(TAG, obj.toString());
                     try {
-                        if (!obj.has("error")) {
+                        if(!obj.has("error")) {
                             JSONObject roomObj = obj.getJSONObject("room");
-                            String msgObj = obj.getString("msg");
-                            if (msgObj.equals("User already join this room")) {
+                            String msgObj  = obj.getString("msg");
+                            if(msgObj.equals("User already join this room")) {
                                 String roomId = roomObj.getString("_id");
                                 Intent chatActivityIntent = new Intent(context, ChatRoomActivity.class);
                                 chatActivityIntent.putExtra("roomId", roomId);

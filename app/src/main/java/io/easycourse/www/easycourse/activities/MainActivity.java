@@ -1,27 +1,19 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.loopj.android.http.AsyncHttpClient;
@@ -32,14 +24,8 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,10 +44,12 @@ import io.realm.Realm;
 
 import static io.easycourse.www.easycourse.EasyCourse.bus;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    Realm realm;
+    SocketIO socketIO;
     Snackbar disconnectSnackbar;
 
     @BindView(R.id.toolbarMain)
@@ -74,11 +62,13 @@ public class MainActivity extends BaseActivity {
     CoordinatorLayout coordinatorMain;
 
 
+    //TODO: add all realm stuff to asynctask
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Binds all the views
         ButterKnife.bind(this);
 
         AsyncHttpClient client = APIFunctions.client;
@@ -88,11 +78,14 @@ public class MainActivity extends BaseActivity {
             MySSLSocketFactory sf = new MySSLSocketFactory(trustStore);
             sf.setHostnameVerifier(MySSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             client.setSSLSocketFactory(sf);
-        } catch (IOException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
-            Log.e(TAG, "onCreate: ", e);
+        }
+        catch (Exception e) {
+
         }
 
 
+        realm = Realm.getDefaultInstance();
+        socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
             EasyCourse.getAppInstance().createSocketIO();
             socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -105,8 +98,7 @@ public class MainActivity extends BaseActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-            socketIO.getHistMessage();
-            socketIO.syncUser();
+            socketIO.getAllMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -119,6 +111,8 @@ public class MainActivity extends BaseActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+
+        bus.register(this);
 
 //        //Get data from signup, may be null, fields may be null, but why...
 //        Intent intentFromSignup = getIntent();
@@ -152,6 +146,7 @@ public class MainActivity extends BaseActivity {
     private void parseSetupIntent(UserSetup userSetup) {
         if (userSetup == null) return;
         try {
+
             APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -169,7 +164,7 @@ public class MainActivity extends BaseActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(TAG, "onSuccess: setCoursesAndLanguages");
-                    EasyCourse.bus.post(new Event.SyncEvent());
+                    EasyCourse.bus.post( new Event.SyncEvent());
                 }
 
                 @Override
@@ -184,7 +179,7 @@ public class MainActivity extends BaseActivity {
         } catch (UnsupportedEncodingException e) {
             Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
         }
-        if (socketIO != null)
+        if(socketIO != null)
             try {
                 socketIO.getAllMessage();
             } catch (JSONException e) {
@@ -245,7 +240,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        // TODO: make sure settings page work first
+//        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -265,27 +261,23 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && viewPager.getCurrentItem() == 1) {
-            viewPager.setCurrentItem(0, true);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        EasyCourse.getAppInstance().setShowNotification(false);
+        EasyCourse.getAppInstance().setNotification(false);
         EasyCourse.getAppInstance().setInRoom("");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EasyCourse.getAppInstance().setShowNotification(true);
+        EasyCourse.getAppInstance().setNotification(true);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
+    }
 
     @Subscribe
     public void disconnectEvent(Event.DisconnectEvent event) {

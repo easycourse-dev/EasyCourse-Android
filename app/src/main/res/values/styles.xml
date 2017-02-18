@@ -11,8 +11,11 @@
         <item name="colorControlNormal">#FFF</item>
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="android:windowContentTransitions">true</item>
 
         <!--Toolbar-->
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 </resources>

@@ -62,6 +62,8 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
         }
 
 
+
+
         if (curUser != null) {
             try {
                 if (!curUser.getProfilePictureUrl().isEmpty())
@@ -92,13 +94,14 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 public void onClick(View v) {
                     FragmentManager fragmentManager = activity.getSupportFragmentManager();
                     fragmentManager.executePendingTransactions();
-                    ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl(), message.getImageData());
-                    fragmentManager
-                            .beginTransaction()
-                            .add(android.R.id.content, fragment, message.getImageUrl())
-                            .addToBackStack(fragment.getClass().getSimpleName())
-                            .commit();
-
+                    if (fragmentManager.findFragmentByTag(message.getImageUrl()) == null) {
+                        ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl(), message.getImageData());
+                        fragmentManager
+                                .beginTransaction()
+                                .add(android.R.id.content, fragment, message.getImageUrl())
+                                .addToBackStack(fragment.getClass().getSimpleName())
+                                .commit();
+                    }
                 }
             });
         }

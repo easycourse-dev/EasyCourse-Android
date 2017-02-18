@@ -4,6 +4,7 @@ package io.easycourse.www.easycourse.fragments.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,8 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,15 +28,17 @@ import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
-import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.components.main.RoomUserListViewAdapter;
+import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.socket.client.Ack;
 
 
-public class RoomUserListFragment extends BaseFragment {
+public class RoomUserListFragment extends Fragment {
 
     private static final String TAG = "RoomUserListFragment";
 
@@ -44,18 +47,22 @@ public class RoomUserListFragment extends BaseFragment {
     @BindView(R.id.room_user_list_progressbar)
     ProgressBar chatProgressBar;
 
+    private SocketIO socketIO;
     private Room curRoom;
+    private User curUser;
     private List<User> users;
+    private Realm realm;
     private RoomUserListViewAdapter roomUserListViewAdapter;
     private ChatRoomActivity activity;
 
 
+    @Contract("null -> null")
     @Nullable
     public static RoomUserListFragment newInstance(Room curRoom, User curUser) {
         if (curRoom == null) return null;
         RoomUserListFragment fragment = new RoomUserListFragment();
         fragment.curRoom = curRoom;
-        fragment.currentUser = curUser;
+        fragment.curUser = curUser;
         return fragment;
     }
 
@@ -77,7 +84,7 @@ public class RoomUserListFragment extends BaseFragment {
         activity.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.gotoChatRoomFragment(curRoom, currentUser);
+                activity.gotoChatRoomFragment(curRoom, curUser);
             }
         });
 
@@ -90,9 +97,13 @@ public class RoomUserListFragment extends BaseFragment {
     private void getRoomUsers() {
         chatProgressBar.setVisibility(View.VISIBLE);
         try {
+            long time1 = System.currentTimeMillis();
+            Log.d(TAG, "getRoomUsers: " + time1);
             socketIO.getRoomMembers(curRoom.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
+                    long time2 = System.currentTimeMillis();
+                    Log.d(TAG, "getRoomUsers: " + time2);
                     try {
                         JSONObject obj = (JSONObject) args[0];
                         JSONArray response = obj.getJSONArray("users");
@@ -124,7 +135,7 @@ public class RoomUserListFragment extends BaseFragment {
 
 
     private void setupRecyclerView() {
-        Thread thread = new Thread() {
+        Thread thread = new Thread(){
             @Override
             public void run() {
                 synchronized (this) {
@@ -137,7 +148,7 @@ public class RoomUserListFragment extends BaseFragment {
                                     return o1.getUsername().compareTo(o2.getUsername());
                                 }
                             });
-                            roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users, RoomUserListFragment.this, currentUser);
+                            roomUserListViewAdapter = new RoomUserListViewAdapter(getContext(), users, getCurrentFragment());
                             roomUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                             roomUserListRecyclerView.setAdapter(roomUserListViewAdapter);
                             roomUserListRecyclerView.setHasFixedSize(true);
@@ -151,19 +162,50 @@ public class RoomUserListFragment extends BaseFragment {
     }
 
 
-    public void openUserDetails(final User toUser) {
-        if (toUser == null) {
-            Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent intent = new Intent(getContext(), UserDetailActivity.class);
-        intent.putExtra("user", toUser.getId());
-        startActivityForResult(intent, 99);
+    public void goToPrivateRoom(final User toUser) {
+        Room room = new Room(
+                toUser.getId(),
+                toUser.getUsername(),
+                new RealmList<Message>(),
+                0,
+                false,
+                null,
+                null,
+                null,
+                new RealmList<>(curUser, toUser),
+                2,
+                "<10",
+                null,
+                curUser,
+                false,
+                false,
+                true,
+                true);
+
+
+        updateRoomInSocket(room);
+        Intent chatActivityIntent = new Intent(activity, ChatRoomActivity.class);
+        chatActivityIntent.putExtra("roomId", room.getId());
+        activity.finish();
+        startActivity(chatActivityIntent);
+    }
+
+    public void updateRoomInSocket(final Room room){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Room.updateRoomToRealm(room, realm);
+            }
+        });
+    }
+
+    private RoomUserListFragment getCurrentFragment() {
+        return this;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (realm != null) realm.close();
+        if(realm != null) realm.close();
     }
 }

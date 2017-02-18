@@ -251,15 +251,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     private void quitRoom(final Room room) {
         try {
             if (room.isToUser()) {
-                socketIO.removeFriend(room.getId(), new Ack() {
-                    @Override
-                    public void call(Object... args) {
-                        JSONObject obj = (JSONObject) args[0];
-                        if (obj.has("error")) return;
-                        deleteRoomInSocket(room);
-                    }
-                });
-
+                deleteRoomInSocket(room);
             } else {
                 socketIO.quitRoom(room.getId(), new Ack() {
                     @Override
@@ -310,8 +302,8 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     }
 
 
-    private void deleteRoomInSocket(final Room room) {
-        ((Activity) context).runOnUiThread(new Runnable() {
+    public void deleteRoomInSocket(final Room room) {
+        ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Realm tempRealm = Realm.getDefaultInstance();

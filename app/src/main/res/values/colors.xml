@@ -16,5 +16,4 @@
     <color name="white">#FFF</color>
     <color name="colorChatBubbleReceivedBackground">#F3F0F3</color>
     <color name="colorChatRoomBackground">#FFFEFF</color>
-    <color name="colorUserDetailMessage">#62b7fd</color>
 </resources>

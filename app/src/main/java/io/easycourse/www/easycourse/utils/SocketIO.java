@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import io.easycourse.www.easycourse.BuildConfig;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.models.main.Course;
 import io.easycourse.www.easycourse.models.main.Message;
@@ -42,8 +41,8 @@ import io.socket.emitter.Emitter;
 
 
 public class SocketIO {
-    private static final String CHAT_SERVER_URL = BuildConfig.SERVER_URL;
-
+    private static final String CHAT_SERVER_URL = "https://zengjintaotest.com";
+//    private static final String CHAT_SERVER_URL = "https://www.easycourseserver.com";
 
 
     private static final String TAG = "SocketIO";
@@ -677,18 +676,6 @@ public class SocketIO {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
-        });
-    }
-
-    public void removeFriend(final String friendId, Ack ack) throws JSONException {
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("otherUser", friendId);
-        socket.emit("removeFriend", jsonParam, ack);
-        socket.emit("removeFriend", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-
             }
         });
     }

@@ -111,7 +111,6 @@ public class SignupChooseCourses extends Fragment {
         nextButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesNext);
         prevButton = (Button) rootView.findViewById(R.id.buttonChooseCoursesPrev);
         clearEditTextButton = (Button) rootView.findViewById(R.id.buttonClearEditText);
-        clearEditTextButton.setVisibility(View.GONE);
 
         courses = userSetup.getSelectedCourses();
         coursesAdapter = new SignupChooseCoursesAdapter(courses);
@@ -147,9 +146,6 @@ public class SignupChooseCourses extends Fragment {
             @Override
             public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
-                    // Hide clear button
-                    clearEditTextButton.setVisibility(View.GONE);
-                    // Show already joined courses
                     courses.clear();
                     ArrayList<Course> checkedCourses = coursesAdapter.getCheckedCourseList();
                     for (int i = 0; i < checkedCourses.size(); i++) {
@@ -158,9 +154,6 @@ public class SignupChooseCourses extends Fragment {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
-                    // Show clear button
-                    clearEditTextButton.setVisibility(View.VISIBLE);
-                    // Do search
                     handler.removeCallbacks(searchDelay);
                     searchDelay = new Runnable() {
                         @Override
@@ -212,6 +205,7 @@ public class SignupChooseCourses extends Fragment {
                 @Override
                 public void onClick(View v) {
                     saveToUserSetup();
+//                    gotoSignupChooseLanguage(v);
                     progress.show();
                     userSetup.setLanguageCodeArray(new String[0]);
                     postSignupData(userSetup);
@@ -229,6 +223,24 @@ public class SignupChooseCourses extends Fragment {
 
 
         return rootView;
+    }
+
+    public void updateRecyclerView() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            coursesAdapter.notifyDataSetChanged();
+                            coursesOnScrollListener.resetState();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
     public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {

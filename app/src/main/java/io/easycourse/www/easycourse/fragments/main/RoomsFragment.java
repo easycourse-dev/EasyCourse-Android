@@ -49,8 +49,6 @@ public class RoomsFragment extends BaseFragment {
     public RoomsFragment() {
     }
 
-    //TODO: realm listener to change time and bold text
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,6 +127,7 @@ public class RoomsFragment extends BaseFragment {
     }
 
     public void startChatRoom(Room room) {
+        if (room == null || !room.isValid()) return;
         Intent chatActivityIntent = new Intent(getContext(), ChatRoomActivity.class);
         chatActivityIntent.putExtra("roomId", room.getId());
         realm.close();

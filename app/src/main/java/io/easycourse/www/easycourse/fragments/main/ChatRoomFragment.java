@@ -101,7 +101,6 @@ public class ChatRoomFragment extends BaseFragment {
     public ChatRoomFragment() {
     }
 
-    //TODO: streamline new fragments so current user/realm not reinitiated
     public static ChatRoomFragment newInstance(Room currentRoom, User currentUser) {
         ChatRoomFragment fragment = new ChatRoomFragment();
         fragment.currentRoom = currentRoom;

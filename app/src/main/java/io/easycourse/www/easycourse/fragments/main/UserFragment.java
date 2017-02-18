@@ -127,9 +127,8 @@ public class UserFragment extends BaseFragment {
                                     Realm tempRealm = Realm.getDefaultInstance();
                                     User currentUser = User.getCurrentUser(getContext(), tempRealm);
                                     if (currentUser != null) {
-                                        currentUser.setProfilePicture(byteArray);
                                         tempRealm.beginTransaction();
-                                        realm.copyToRealmOrUpdate(currentUser);
+                                        currentUser.setProfilePicture(byteArray);
                                         tempRealm.commitTransaction();
                                         tempRealm.close();
                                     }
@@ -300,7 +299,7 @@ public class UserFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
-        if (currentUser != null && currentUser.getProfilePicture() != null) {
+        if (currentUser != null && currentUser.isValid() && currentUser.getProfilePicture() != null) {
             setupUserViews();
         }
     }

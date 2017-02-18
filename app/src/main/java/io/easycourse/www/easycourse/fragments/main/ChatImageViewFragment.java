@@ -69,7 +69,6 @@ public class ChatImageViewFragment extends Fragment {
         return fragment;
     }
 
-    //TODO: Viewpager to go to next image
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

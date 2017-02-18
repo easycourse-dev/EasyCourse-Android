@@ -1,9 +1,11 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -24,6 +26,12 @@ public class UserDetailActivity extends BaseActivity {
 
         setContentView(R.layout.activity_userdetails);
 
+        if (Build.VERSION.SDK_INT >= 21) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+        }
 
         Intent intent = getIntent();
         if (intent.hasExtra("user")) {

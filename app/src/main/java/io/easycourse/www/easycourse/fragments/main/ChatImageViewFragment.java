@@ -5,45 +5,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Vibrator;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.utils.BitmapUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.asyntasks.DownloadImageTask;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -95,20 +81,9 @@ public class ChatImageViewFragment extends Fragment {
 
         chatImageView.setDrawingCacheEnabled(true);
 
-        Callback imageLoadedCallback = new Callback() {
-
+        RequestListener<String, GlideDrawable> requestListener = new RequestListener<String, GlideDrawable>() {
             @Override
-            public void onSuccess() {
-                if (photoAttacher != null) {
-                    photoAttacher.update();
-                } else {
-                    photoAttacher = getPhotoViewAttacher();
-                }
-                chatProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onError() {
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                 Log.e(TAG, "onError: photoimage callback");
                 if (imageData != null) {
                     Bitmap bitmap = BitmapUtils.byteArrayToBitmap(imageData);
@@ -121,10 +96,23 @@ public class ChatImageViewFragment extends Fragment {
                     }
                     chatProgressBar.setVisibility(View.GONE);
                 }
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                if (photoAttacher != null) {
+                    photoAttacher.update();
+                } else {
+                    photoAttacher = getPhotoViewAttacher();
+                }
+                chatProgressBar.setVisibility(View.GONE);
+                return false;
             }
         };
 
-        Picasso.with(getContext()).load(url).into(chatImageView, imageLoadedCallback);
+
+        Glide.with(getContext()).load(url).listener(requestListener).into(chatImageView);
 
         chatImageViewShare.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +154,7 @@ public class ChatImageViewFragment extends Fragment {
         chatImageView.buildDrawingCache();
         Bitmap bm = chatImageView.getDrawingCache();
         Uri uri = BitmapUtils.getImageUri(getContext(), bm);
-        if(uri != null) {
+        if (uri != null) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -183,7 +171,6 @@ public class ChatImageViewFragment extends Fragment {
         DownloadImageTask task = new DownloadImageTask(bm, getContext());
         task.execute();
     }
-
 
 
     private boolean isStoragePermissionGranted() {

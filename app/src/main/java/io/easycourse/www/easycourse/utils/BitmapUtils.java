@@ -8,14 +8,18 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
+import android.widget.ImageView;
 
-import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -154,7 +158,24 @@ public class BitmapUtils {
             path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             cursor.close();
         }
-
         return path;
     }
+
+
+    public static void loadImage(Context context, ImageView imageView, byte[] imageBytes, String imageUrl, int placeholder) {
+        if (imageBytes != null && imageBytes.length > 0) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
+        } else if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context.getApplicationContext())
+                    .load(imageUrl)
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(placeholder)
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(placeholder);
+        }
+    }
+
 }

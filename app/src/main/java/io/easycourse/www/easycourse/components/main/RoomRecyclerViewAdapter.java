@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -139,8 +139,6 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
         Realm realm = Realm.getDefaultInstance();
         User curUser = User.getCurrentUser(context, realm);
 
-        Picasso.with(context).cancelRequest(roomViewHolder.roomImageView);
-
         if (!room.isToUser()) {
             roomViewHolder.roomImageView.setImageResource(R.drawable.ic_group_black_24px);
         }
@@ -149,10 +147,9 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
             User otherUser = Room.getOtherUserIfPrivate(room, curUser, realm);
             if (otherUser != null) {
                 if (otherUser.getProfilePicture() != null) {
-                    Bitmap bm = BitmapFactory.decodeByteArray(otherUser.getProfilePicture(), 0, otherUser.getProfilePicture().length);
-                    roomViewHolder.roomImageView.setImageBitmap(bm);
-                } else if (otherUser.getProfilePictureUrl() != null) {
-                    Picasso.with(context).load(otherUser.getProfilePictureUrl()).error(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
+                    Glide.with(context).load(otherUser.getProfilePicture()).asBitmap().placeholder(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
+                } else if (otherUser.getProfilePictureUrl() != null && !otherUser.getProfilePictureUrl().isEmpty()) {
+                    Glide.with(context).load(otherUser.getProfilePictureUrl()).asBitmap().placeholder(R.drawable.ic_person_black_24px).into(roomViewHolder.roomImageView);
                 } else {
                     roomViewHolder.roomImageView.setImageResource(R.drawable.ic_person_black_24px);
                 }

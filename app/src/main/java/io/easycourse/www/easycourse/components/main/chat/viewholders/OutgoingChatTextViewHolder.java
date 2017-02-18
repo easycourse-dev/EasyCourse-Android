@@ -20,8 +20,8 @@ import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -78,13 +78,9 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
         if (curUser != null) {
             curUser = User.getCurrentUser(activity, realm);
             if (curUser != null) {
-                if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
-                    outgoingImageView.setImageResource(R.drawable.ic_person_black_24px);
-                } else {
-                    Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(outgoingImageView);
-                }
+
+                BitmapUtils.loadImage(context, outgoingImageView, curUser.getProfilePicture(), curUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
+
                 outgoingName.setText(curUser.getUsername());
                 outgoingMessage.setText(message.getText());
             }

@@ -2,7 +2,6 @@ package io.easycourse.www.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,23 +10,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.UserDetailActivity;
-import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
-import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.BitmapUtils;
-import io.easycourse.www.easycourse.utils.DateUtils;
-
-import com.squareup.picasso.Picasso;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.UserDetailActivity;
+import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
+import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
+import io.easycourse.www.easycourse.utils.DateUtils;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -93,22 +89,10 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
     private void fillUserInfo(final User thisUser, final String roomId, final Context context, final Message message) {
         if (thisUser != null) {
             try {
-                if (thisUser.getProfilePictureUrl() != null)
-                    Picasso.with(context)
-                            .load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(incomingPicUserImage);
 
-                if (!message.getImageUrl().isEmpty()) {
-                    if (message.getImageData() != null) {
-                        Bitmap bitmap = BitmapUtils.byteArrayToBitmap(message.getImageData());
-                        incomingPicImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
-                    } else {
-                        Picasso.with(context)
-                                .load(message.getImageUrl())
-                                .into(incomingPicImageView);
-                    }
-                }
+                BitmapUtils.loadImage(context, incomingPicUserImage, thisUser.getProfilePicture(), thisUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
+
+                BitmapUtils.loadImage(context, incomingPicImageView, message.getImageData(), message.getImageUrl(), R.drawable.ic_photo_black_24dp);
 
 
             } catch (NullPointerException e) {

@@ -23,6 +23,11 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
@@ -30,16 +35,9 @@ import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
-
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -113,13 +111,8 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         Realm realm = Realm.getDefaultInstance();
         if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
 
-            if (thisUser.getProfilePictureUrl() == null || thisUser.getProfilePictureUrl().isEmpty()) {
-                incomingImageView.setImageResource(R.drawable.ic_person_black_24px);
-            } else {
-                Picasso.with(context).load(thisUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                        .placeholder(R.drawable.ic_person_black_24px)
-                        .into(incomingImageView);
-            }
+            BitmapUtils.loadImage(context, incomingImageView, thisUser.getProfilePicture(), thisUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
+
 
             incomingName.setText(thisUser.getUsername());
             textViewRoomName.setText(message.getSharedRoom().getRoomName());

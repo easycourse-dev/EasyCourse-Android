@@ -15,10 +15,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -26,16 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.models.main.Language;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.BitmapUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
-
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +32,10 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.models.main.Language;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
+import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -122,22 +115,7 @@ public class UserProfileActivity extends BaseActivity {
 
 
         if (currentUser != null) {
-            if (currentUser.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
-                avatarImage.setImageBitmap(bm);
-            } else if (currentUser.getProfilePictureUrl() != null && !currentUser.getProfilePictureUrl().isEmpty()) {
-
-                Picasso.Builder builder = new Picasso.Builder(this);
-                builder.listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        exception.printStackTrace();
-                    }
-                });
-                builder.build().load(currentUser.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
-            } else {
-                avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
-            }
+            BitmapUtils.loadImage(this, avatarImage, currentUser.getProfilePicture(), currentUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
             textViewUsername.setText(currentUser.getUsername());
             editTextUsername.setText(currentUser.getUsername());
         }

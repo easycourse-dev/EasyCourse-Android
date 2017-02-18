@@ -147,7 +147,7 @@ public class ChatRoomActivity extends BaseActivity {
         if (currentRoom.getCourseName() != null)
             toolbarSubtitleTextView.setText(currentRoom.getCourseName());
         if (currentRoom.getCourseName() == null) {
-            toolbarSubtitleTextView.setVisibility(View.GONE);
+            toolbarSubtitleTextView.setText("Private Chat");
             toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
         }
     }

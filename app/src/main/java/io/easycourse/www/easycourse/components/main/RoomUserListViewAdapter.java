@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -22,6 +21,7 @@ import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
 import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.realm.Realm;
 
 /**
@@ -68,16 +68,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         void setupView(final User user, final User curUser, final Context context) {
             if (user == null) return;
 
-
-            if (user.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
-                avatarImageView.setImageBitmap(bm);
-            } else if (user.getProfilePictureUrl() != null) {
-                Picasso.with(context).load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(avatarImageView);
-            } else {
-                avatarImageView.setImageResource(R.drawable.ic_person_black_24px);
-            }
-
+            BitmapUtils.loadImage(context, avatarImageView, user.getProfilePicture(), user.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
 
             nameTextView.setText(user.getUsername());
             if (user.getId().equals(curUser.getId())) { //User is current user

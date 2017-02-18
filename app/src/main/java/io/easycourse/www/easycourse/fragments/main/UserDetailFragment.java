@@ -33,6 +33,7 @@ import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -87,19 +88,7 @@ public class UserDetailFragment extends BaseFragment {
             public void run() {
                 userDetailToolbar.setTitle("Profile");
 
-                if (user.getProfilePicture() != null) {
-                    Glide.with(UserDetailFragment.this)
-                            .load(user.getProfilePicture())
-                            .centerCrop()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(userDetailCardImage);
-                } else if (user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()) {
-                    Glide.with(UserDetailFragment.this)
-                            .load(user.getProfilePictureUrl())
-                            .centerCrop()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(userDetailCardImage);
-                }
+                BitmapUtils.loadImage(getContext(), userDetailCardImage, user.getProfilePicture(), user.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
 
                 userDetailCardName.setText(user.getUsername());
 

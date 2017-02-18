@@ -1,11 +1,9 @@
 package io.easycourse.www.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,7 +17,6 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
 
-import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,29 +60,11 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
 
 
         if (curUser != null) {
-            try {
-                if (!curUser.getProfilePictureUrl().isEmpty())
-                    Picasso.with(context)
-                            .load(curUser.getProfilePictureUrl()).resize(40, 40).centerInside()
-                            .placeholder(R.drawable.ic_person_black_24px)
-                            .into(outgoingPicUserView);
 
-                if (!message.getImageUrl().isEmpty()) {
-                    if (message.getImageData() != null) {
-                        Bitmap bitmap = BitmapUtils.byteArrayToBitmap(message.getImageData());
-                        outgoingPicImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
-                    } else {
-                        //TODO: placeholder image
-                        Picasso.with(context)
-                                .load(message.getImageUrl())
-                                .into(outgoingPicImageView);
-                    }
-                }
+            BitmapUtils.loadImage(context, outgoingPicUserView, curUser.getProfilePicture(), curUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
 
+            BitmapUtils.loadImage(context, outgoingPicImageView, message.getImageData(), message.getImageUrl(), R.drawable.ic_photo_black_24dp);
 
-            } catch (NullPointerException e) {
-                Log.e(TAG, e.toString());
-            }
             outgoingPicName.setText(curUser.getUsername());
             outgoingPicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override

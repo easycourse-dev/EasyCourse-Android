@@ -23,9 +23,9 @@ import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,13 +85,9 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
             sharedRoomHolder.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            if (curUser.getProfilePictureUrl() == null || curUser.getProfilePictureUrl().isEmpty()) {
-                outgoingImageView.setImageResource(R.drawable.ic_person_black_24px);
-            } else {
-                Picasso.with(context).load(curUser.getProfilePictureUrl()).resize(36, 36).centerInside()
-                        .placeholder(R.drawable.ic_person_black_24px)
-                        .into(outgoingImageView);
-            }
+
+            BitmapUtils.loadImage(context, outgoingImageView, curUser.getProfilePicture(), curUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
+
             outgoingName.setText(curUser.getUsername());
             textViewRoomName.setText(message.getSharedRoom().getRoomName());
             sharedRoomHolder.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +100,7 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                                 JSONObject obj = (JSONObject) args[0];
                                 Log.e(TAG, obj.toString());
                                 try {
-                                    if(!obj.has("error")) {
+                                    if (!obj.has("error")) {
                                         JSONObject roomObj = obj.getJSONObject("room");
                                         Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
                                                 .show();

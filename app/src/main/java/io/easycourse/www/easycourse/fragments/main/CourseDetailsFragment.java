@@ -53,8 +53,6 @@ import io.socket.client.Ack;
  */
 
 public class CourseDetailsFragment extends BaseFragment {
-
-
     Course course;
     String courseId;
     boolean isJoinIn;
@@ -108,6 +106,8 @@ public class CourseDetailsFragment extends BaseFragment {
             university = realm.where(University.class).equalTo("id", course.getUniversityID()).findFirst();
             if (university != null) universityName = university.getName();
             setupTextViews();
+        } else {
+            fetchCourseInfo();
         }
         setupJoinedButton();
         joinCourseButton.setOnClickListener(new View.OnClickListener() {
@@ -122,10 +122,7 @@ public class CourseDetailsFragment extends BaseFragment {
         });
 
         searchSubRooms(0);
-
         setupRecyclerView();
-
-        fetchCourseInfo();
         setupTextViews();
     }
 
@@ -383,7 +380,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                             tempRealm.close();
                                             // Update view
                                             isJoinIn = false;
-                                            courseUpdateView(course.getId(), course.getCoursename(), deletedRooms);
+                                            courseUpdateView(deletedRooms);
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -464,7 +461,7 @@ public class CourseDetailsFragment extends BaseFragment {
                         tempRealm.close();
                         // Update view
                         isJoinIn = true;
-                        courseUpdateView(course.getId(), course.getCoursename(), newRooms);
+                        courseUpdateView(newRooms);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -475,24 +472,24 @@ public class CourseDetailsFragment extends BaseFragment {
         }
     }
 
-    private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined) {
-//        Thread thread = new Thread() {
-//            @Override
-//            public void run() {
-//                synchronized (this) {
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            updateButtonView(isJoinIn);
-//                            courseRooms.clear();
-//                            roomsAdapter.updateCourse(isJoinIn, roomsJoined);
-//                            doSearchRoom(0, courseId);
-//                        }
-//                    });
-//                }
-//            }
-//        };
-//        thread.start();
+    private void courseUpdateView(final ArrayList<Room> roomsJoined) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupJoinedButton();
+                            courseRooms.clear();
+                            roomsAdapter.updateCourse(isJoinIn, roomsJoined);
+                            searchSubRooms(0);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
 

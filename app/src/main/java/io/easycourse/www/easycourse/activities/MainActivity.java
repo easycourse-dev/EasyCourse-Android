@@ -119,6 +119,13 @@ public class MainActivity extends BaseActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
+
+//        //Get data from signup, may be null, fields may be null, but why...
+//        Intent intentFromSignup = getIntent();
+//        UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
+//        if (userSetup != null) {
+//            parseSetupIntent(userSetup);
+//        }
     }
 
 
@@ -140,6 +147,49 @@ public class MainActivity extends BaseActivity {
             }
             finish();
         }
+    }
+
+    private void parseSetupIntent(UserSetup userSetup) {
+        if (userSetup == null) return;
+        try {
+            APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess: updateUser");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e(TAG, "onFailure: updateuser", t);
+                }
+            });
+
+
+            APIFunctions.setCoursesAndLanguages(this, userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess: setCoursesAndLanguages");
+                    EasyCourse.bus.post(new Event.SyncEvent());
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                    Log.e(TAG, "onFailure: setCoursesAndLanguages", t);
+                }
+            });
+
+
+        } catch (JSONException e) {
+            Log.e(TAG, "JSONexception in parsing usersetup", e);
+        } catch (UnsupportedEncodingException e) {
+            Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
+        }
+        if (socketIO != null)
+            try {
+                socketIO.getAllMessage();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     }
 
     private void setupNavigation() {

@@ -62,8 +62,7 @@ public class ChatRoomActivity extends BaseActivity {
     private static final String TAG = "ChatRoomActivity";
 
     private Snackbar disconnectSnackbar;
-
-
+    
     private Room currentRoom;
 
     @BindView(R.id.toolbarChatRoom)

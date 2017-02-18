@@ -1,6 +1,8 @@
 package io.easycourse.www.easycourse.fragments.main;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -23,15 +25,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.socket.client.Ack;
-
-/**
- * Created by nrinehart on 2/15/17.
- */
 
 public class UserDetailFragment extends BaseFragment {
 
@@ -114,8 +116,13 @@ public class UserDetailFragment extends BaseFragment {
             socketIO.getUserInfoJson(user.getId(), new Ack() {
                 @Override
                 public void call(Object... args) {
-                    JSONObject jsonObject = (JSONObject) args[0];
-                    saveUser(jsonObject);
+                    final JSONObject jsonObject = (JSONObject) args[0];
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveUser(jsonObject);
+                        }
+                    });
                 }
             });
         } catch (JSONException e) {
@@ -128,12 +135,12 @@ public class UserDetailFragment extends BaseFragment {
         if (jsonObject.has("error")) {
             Log.e(TAG, jsonObject.toString());
         } else {
-            JSONObject userObj = null;
-            String userIdString = "";
-            String displayNameString = "";
-            String avatarUrlString = "";
-            String emailString = "";
-            String universityId = "";
+            JSONObject userObj;
+            String userIdString;
+            String displayNameString;
+            String avatarUrlString;
+            String emailString;
+            String universityId;
 
             try {
                 userObj = jsonObject.getJSONObject("user");
@@ -151,9 +158,9 @@ public class UserDetailFragment extends BaseFragment {
                         emailString,
                         universityId);
 
-                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
                 user = realm.copyToRealmOrUpdate(otherUser);
-                realm.close();
+                realm.commitTransaction();
             } catch (JSONException | NullPointerException e) {
                 Log.e(TAG, "saveUser: ", e);
             }
@@ -162,6 +169,32 @@ public class UserDetailFragment extends BaseFragment {
     }
 
     private void messageUser() {
+        if (user == null) return;
+        Room room = new Room(
+                user.getId(),
+                user.getUsername(),
+                new RealmList<Message>(),
+                0,
+                false,
+                null,
+                null,
+                null,
+                new RealmList<>(currentUser, user),
+                2,
+                "<10",
+                null,
+                currentUser,
+                false,
+                false,
+                true,
+                true);
+
+        realm.beginTransaction();
+        room = realm.copyToRealmOrUpdate(room);
+        realm.commitTransaction();
+        Intent intent = new Intent(getContext(), ChatRoomActivity.class);
+        intent.putExtra("roomId", room.getId());
+        startActivity(intent);
     }
 
 
@@ -172,7 +205,7 @@ public class UserDetailFragment extends BaseFragment {
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .input(null, null, new MaterialDialog.InputCallback() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                         reportUser(input.toString());
                     }
                 }).show();

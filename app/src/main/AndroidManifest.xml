@@ -72,13 +72,23 @@
 
         <activity
             android:name="io.easycourse.www.easycourse.activities.MyCoursesActivity"
+            android:noHistory="true"
             android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
             android:screenOrientation="portrait"
-            android:noHistory="true"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activities.UserDetailActivity"
+            android:parentActivityName="io.easycourse.www.easycourse.activities.ChatRoomActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ChatRoomActivity" />
         </activity>
 
         <activity

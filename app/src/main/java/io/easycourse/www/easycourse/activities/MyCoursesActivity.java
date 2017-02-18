@@ -50,4 +50,6 @@ public class MyCoursesActivity extends BaseActivity {
         super.onResume();
         goToMyCourses();
     }
+
+
 }

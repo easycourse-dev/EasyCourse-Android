@@ -102,7 +102,6 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                         Bitmap bitmap = BitmapUtils.byteArrayToBitmap(message.getImageData());
                         incomingPicImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
                     } else {
-                        //TODO: placeholder image
                         Picasso.with(context)
                                 .load(message.getImageUrl())
                                 .into(incomingPicImageView);

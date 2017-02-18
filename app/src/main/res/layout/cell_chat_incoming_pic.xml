@@ -40,7 +40,7 @@
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:clickable="false"
+                android:clickable="true"
                 android:contentDescription="@string/chatMessageAccessibility"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -50,7 +50,6 @@
                 android:id="@+id/imageViewIncomingPicImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="false"
                 android:contentDescription="@string/chatMessageAccessibility"
                 android:maxHeight="500dp"
                 android:maxWidth="300dp" />

@@ -1,6 +1,7 @@
 package io.easycourse.www.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,12 +13,14 @@ import android.widget.TextView;
 
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
+
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -85,10 +88,9 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         }
 
 
-
     }
 
-    private void fillUserInfo(User thisUser, final String roomId, final Context context, final Message message) {
+    private void fillUserInfo(final User thisUser, final String roomId, final Context context, final Message message) {
         if (thisUser != null) {
             try {
                 if (thisUser.getProfilePictureUrl() != null)
@@ -113,6 +115,14 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 Log.e(TAG, e.toString());
             }
             incomingPicName.setText(thisUser.getUsername());
+            incomingPicUserImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, UserDetailActivity.class);
+                    intent.putExtra("user", thisUser.getId());
+                    context.startActivity(intent);
+                }
+            });
             incomingPicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -29,7 +29,6 @@ public class Course extends RealmObject implements ParentListItem{
     private String universityID;
 
     public Course() {
-
     }
 
     public Course(String name, String title, String id) {
@@ -47,7 +46,7 @@ public class Course extends RealmObject implements ParentListItem{
         this.universityID = universityID;
     }
 
-    public static Course getCourseById (String id, Realm realm) {
+    public static Course getCourseById(String id, Realm realm) {
         RealmResults<Course> results = realm.where(Course.class).equalTo("id", id).findAll();
         return results.first();
     }

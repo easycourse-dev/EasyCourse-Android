@@ -3,20 +3,25 @@ package io.easycourse.www.easycourse;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.multidex.MultiDex;
 import android.util.Log;
 
-import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.net.URISyntaxException;
+import java.util.Date;
 
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
+import io.realm.DynamicRealm;
+import io.realm.FieldAttribute;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
+import io.realm.RealmSchema;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -29,8 +34,7 @@ public class EasyCourse extends Application {
     private SocketIO socketIO;
     private static EasyCourse appInstance = null;
     private String inRoom;
-    private boolean notification;
-
+    private boolean showNotification;
     private String deviceToken;
 
     @Override
@@ -38,7 +42,7 @@ public class EasyCourse extends Application {
         super.onCreate();
         Realm.init(this);
 
-        FacebookSdk.sdkInitialize(this);
+        doRealmMigration();
 
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
@@ -49,6 +53,29 @@ public class EasyCourse extends Application {
         appInstance = this;
 
         deviceToken = FirebaseInstanceId.getInstance().getToken();
+    }
+
+    private void doRealmMigration() {
+        //Realm migration
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .schemaVersion(1)
+                .migration(new RealmMigration() {
+                    @Override
+                    public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
+                        RealmSchema schema = realm.getSchema();
+                        if (oldVersion == 0) {
+                            schema.create("NotificationMessage")
+                                    .addField("id", String.class, FieldAttribute.PRIMARY_KEY)
+                                    .addField("roomId", int.class)
+                                    .addField("roomName", String.class)
+                                    .addField("message", String.class)
+                                    .addField("createdAt", Date.class);
+                            oldVersion++;
+                        }
+                    }
+                })
+                .build();
+        Realm.setDefaultConfiguration(config);
     }
 
     public static MainBus bus = new MainBus(ThreadEnforcer.ANY);
@@ -69,7 +96,7 @@ public class EasyCourse extends Application {
         return appInstance;
     }
 
-    public void setDeviceToken(String deviceToken){
+    public void setDeviceToken(String deviceToken) {
         this.deviceToken = deviceToken;
     }
 
@@ -77,12 +104,12 @@ public class EasyCourse extends Application {
         return deviceToken;
     }
 
-    public void setNotification(boolean notify) {
-        this.notification = notify;
+    public void setShowNotification(boolean notify) {
+        this.showNotification = notify;
     }
 
-    public boolean getNotification() {
-        return notification;
+    public boolean getShowNotification() {
+        return showNotification;
     }
 
     // When not in a room, set it to "" instead of null
@@ -106,9 +133,4 @@ public class EasyCourse extends Application {
         return sharedPref.getString("universityId", null);
     }
 
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(this);
-    }
 }

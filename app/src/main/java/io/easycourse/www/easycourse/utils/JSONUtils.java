@@ -14,29 +14,22 @@ public class JSONUtils {
 
     static final private String TAG = "JSONUtils";
 
-    public static JSONArray getJsonArrayFromStringArray(String[] arr) {
+    public static JSONArray getJsonArrayFromStringArray(String[] arr) throws JSONException {
         JSONArray jsonLanguageCodeArray = new JSONArray();
 
-        try {
-            for (int i = 0; i < arr.length; i++) {
-                jsonLanguageCodeArray.put(i,arr[i]);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+        for (int i = 0; i < arr.length; i++) {
+            jsonLanguageCodeArray.put(i, arr[i]);
         }
         return jsonLanguageCodeArray;
     }
 
-    static JSONArray getJsonArrayFromIntArray(int[] arr) {
+    public static JSONArray getJsonArrayFromIntArray(int[] arr) throws JSONException {
         JSONArray jsonLanguageCodeArray = new JSONArray();
 
-        try {
-            for (int i = 0; i < arr.length; i++) {
-                jsonLanguageCodeArray.put(i,arr[i]);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+        for (int i = 0; i < arr.length; i++) {
+            jsonLanguageCodeArray.put(i, arr[i]);
         }
+
         return jsonLanguageCodeArray;
     }
 

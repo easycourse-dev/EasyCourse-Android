@@ -18,6 +18,7 @@ import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
+
 import com.hanks.library.AnimateCheckBox;
 
 import org.json.JSONException;

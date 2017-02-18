@@ -34,15 +34,19 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     private List<User> users;
     private AppCompatActivity activity;
-    private Realm realm;
     private User curUser;
     private RoomUserListFragment fragment;
 
-    public RoomUserListViewAdapter(Context context, List<User> users, RoomUserListFragment fragment) {
+    public RoomUserListViewAdapter(Context context, List<User> users, RoomUserListFragment fragment, User curUser) {
         this.users = users;
         this.activity = (AppCompatActivity) context;
-        realm = Realm.getDefaultInstance();
-        this.curUser = User.getCurrentUser(this.activity, this.realm);
+        if (curUser != null)
+            this.curUser = curUser;
+        else {
+            Realm realm = Realm.getDefaultInstance();
+            curUser = User.getCurrentUser(activity, realm);
+            realm.close();
+        }
         this.fragment = fragment;
     }
 
@@ -82,7 +86,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        fragment.goToPrivateRoom(user);
+                        fragment.openUserDetails(user);
                     }
                 });
             }
@@ -94,9 +98,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.cell_user_list, parent, false);
-        RoomUserListViewHolder viewHolder = new RoomUserListViewHolder(view);
-
-        return viewHolder;
+        return new RoomUserListViewHolder(view);
     }
 
     @Override

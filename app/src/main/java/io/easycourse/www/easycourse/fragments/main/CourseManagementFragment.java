@@ -1,16 +1,20 @@
-package io.easycourse.www.easycourse.activities;
+package io.easycourse.www.easycourse.fragments.main;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -32,19 +36,14 @@ import io.easycourse.www.easycourse.components.main.CourseManagement.CourseManag
 import io.easycourse.www.easycourse.components.main.CourseManagement.CoursesEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
-/**
- * Created by markw on 12/26/2016.
- */
 
-public class CourseManagementActivity extends AppCompatActivity {
+public class CourseManagementFragment extends BaseFragment {
 
-    Realm realm;
-    SocketIO socketIO;
     String chosenUniversity;
     ArrayList<Course> joinedCourses = new ArrayList<>();
     ArrayList<Course> searchResults = new ArrayList<>();
@@ -53,47 +52,36 @@ public class CourseManagementActivity extends AppCompatActivity {
     Handler handler;
     Runnable searchDelay;
 
-    @BindView(R.id.CourseManageToolbar)
+
+    @BindView(R.id.courseManagerToolbar)
     Toolbar toolbar;
-    @BindView(R.id.CourseManageSearchCoursesEditText)
+    @BindView(R.id.courseManagerSearchCoursesEditText)
     EditText courseSearch;
-    @BindView(R.id.CourseManageRecyclerView)
-    RecyclerView coursesView;
-    @BindView(R.id.CourseNanagementNoCourseTextView)
-    TextView noCourseText;
-    @BindView(R.id.CourseManageButtonClearEditText)
+    @BindView(R.id.courseManagerButtonClearEditText)
     Button clearButton;
+    @BindView(R.id.courseManagerNoCourseTextView)
+    TextView noCourseText;
+    @BindView(R.id.courseManagerRecyclerView)
+    RecyclerView recyclerView;
+
+    public CourseManagementFragment() {
+    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_course_management);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setTitle("My Courses");
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_course_management, container, false);
+        ButterKnife.bind(this, v);
+        setupToolbar();
 
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        realm = Realm.getDefaultInstance();
+
         handler = new Handler();
 
         // Initially hidden items
         noCourseText.setVisibility(View.GONE);
 
-        // Get UniversityID
-        chosenUniversity = EasyCourse.getAppInstance().getUniversityId(this);
-
-        // Get already registered classes
-        RealmResults<Course> enrolledCoursesRealmResults = realm.where(Course.class).findAll();
-        for (int i = 0; i < enrolledCoursesRealmResults.size(); i++) {
-            joinedCourses.add(enrolledCoursesRealmResults.get(i));
-            searchResults.add(enrolledCoursesRealmResults.get(i));
-        }
-
         // Clear button
+        clearButton.setVisibility(View.GONE);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,23 +89,49 @@ public class CourseManagementActivity extends AppCompatActivity {
             }
         });
 
-        // Set up recycler view
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+
+        // Get UniversityID
+        chosenUniversity = EasyCourse.getAppInstance().getUniversityId(getContext());
+
+        fetchCourses();
+
+        setupCourseRecyclerView();
+        setupTextListener();
+
+        return v;
+    }
+
+
+    private void setupToolbar() {
+        toolbar.setTitle("My Courses");
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+    }
+
+    private void setupCourseRecyclerView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        coursesAdapter = new CourseManagementCoursesRecyclerViewAdapter(this, searchResults);
+        coursesAdapter = new CourseManagementCoursesRecyclerViewAdapter(getContext(), searchResults);
         coursesAdapter.setJoinedCourses(joinedCourses);
-        coursesView.setHasFixedSize(true);
-        coursesView.setLayoutManager(layoutManager);
-        coursesView.setAdapter(coursesAdapter);
-        coursesView.addItemDecoration(new RecyclerViewDivider(this));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(coursesAdapter);
+        recyclerView.addItemDecoration(new RecyclerViewDivider(getContext()));
         coursesOnScrollListener = new CoursesEndlessRecyclerViewScrollListener(layoutManager, coursesAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 loadMoreCourses(courseSearch.getText().toString(), chosenUniversity, page, view);
             }
         };
-        coursesView.addOnScrollListener(coursesOnScrollListener);
+        recyclerView.addOnScrollListener(coursesOnScrollListener);
+    }
 
+    private void setupTextListener() {
         // On search
         courseSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -133,6 +147,9 @@ public class CourseManagementActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(final Editable editable) {
                 if (editable.toString().equals("")) {
+                    // Hide clear button
+                    clearButton.setVisibility(View.GONE);
+                    // Show already joined courses
                     searchResults.clear();
                     for (int i = 0; i < joinedCourses.size(); i++) {
                         searchResults.add(joinedCourses.get(i));
@@ -141,11 +158,14 @@ public class CourseManagementActivity extends AppCompatActivity {
                     coursesAdapter.notifyDataSetChanged();
                     coursesOnScrollListener.resetState();
                 } else {
+                    // Show clear button
+                    clearButton.setVisibility(View.VISIBLE);
+                    // Do search
                     handler.removeCallbacks(searchDelay);
                     searchDelay = new Runnable() {
                         @Override
                         public void run() {
-                            APIFunctions.searchCourse(getApplicationContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
+                            APIFunctions.searchCourse(getContext(), editable.toString(), 20, 0, chosenUniversity, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                                     searchResults.clear();
@@ -182,14 +202,20 @@ public class CourseManagementActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        socketIO.syncUser();
+    private void fetchCourses() {
+        RealmList<Course> enrolledCoursesRealm = currentUser.getJoinedCourses();
+        joinedCourses.clear();
+        searchResults.clear();
+        for (Course course : enrolledCoursesRealm) {
+            joinedCourses.add(course);
+            searchResults.add(course);
+        }
+        if (coursesAdapter != null)
+            coursesAdapter.notifyDataSetChanged();
     }
 
     public void loadMoreCourses(String searchQuery, String chosenUniversity, int skip, final RecyclerView view) {
-        APIFunctions.searchCourse(getApplicationContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
+        APIFunctions.searchCourse(getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 int startPosition = searchResults.size();
@@ -212,5 +238,21 @@ public class CourseManagementActivity extends AppCompatActivity {
                 Snackbar.make(view, responseString, Snackbar.LENGTH_LONG).show();
             }
         });
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchCourses();
+        if (coursesAdapter != null)
+            coursesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

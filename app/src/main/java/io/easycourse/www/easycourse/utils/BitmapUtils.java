@@ -1,13 +1,10 @@
 package io.easycourse.www.easycourse.utils;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
-import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -16,23 +13,13 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 
-/**
- * Created by noahrinehart on 11/5/16.
- */
 
 public class BitmapUtils {
 
-
-    public static byte[] bitmapToByteArray(Bitmap bmp) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
-    }
 
     public static Bitmap byteArrayToBitmap(byte[] bitmapdata) {
         return BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
@@ -45,32 +32,8 @@ public class BitmapUtils {
         return Uri.parse(path);
     }
 
-    @Nullable
-    public static Byte[] convertBytesToWrapper(byte[] bytes) {
-        Byte[] wrappedBytes = new Byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            wrappedBytes[i] = bytes[i];
-        }
-        return wrappedBytes;
-    }
-
-    @Nullable
-    public static byte[] convertWrapperToBytes(Byte[] wrappedBytes) {
-        byte[] bytes = new byte[wrappedBytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = wrappedBytes[i];
-        }
-        return bytes;
-    }
-
-    public static byte[] convertBitmapToBytes(Bitmap bitmap, int percent) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, percent, out);
-        return out.toByteArray();
-    }
-
     public static Bitmap decodeFile(File f) throws IOException {
-        Bitmap b = null;
+        Bitmap b;
 
         //Decode image size
         BitmapFactory.Options o = new BitmapFactory.Options();
@@ -99,66 +62,6 @@ public class BitmapUtils {
     public static void compressBitmap(Uri uri, Context context, CompressImageTask.OnCompressImageTaskCompleted listener) {
         CompressImageTask task = new CompressImageTask(context, listener);
         task.execute(uri);
-    }
-
-    @Nullable
-    public static File convertBytesToFile(byte[] bytes, String filename, Context context) throws IOException {
-        File f = new File(context.getCacheDir(), filename);
-//        if (!f.createNewFile())
-//            return null;
-        FileOutputStream fos = new FileOutputStream(f);
-        fos.write(bytes);
-        fos.flush();
-        fos.close();
-        return f;
-
-    }
-
-    public static String getFileName(Uri uri, Context context) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
-    public static Bitmap getBitmapFromUri(Uri uri, Context context) throws IOException {
-        return MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
-    }
-
-    /**
-     * helper to retrieve the path of an image URI
-     */
-    public static String getImagePath(Uri uri, Context context) {
-        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-        String path = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            String document_id = cursor.getString(0);
-            document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-            cursor.close();
-
-            cursor = context.getContentResolver().query(
-                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-            cursor.moveToFirst();
-            path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            cursor.close();
-        }
-        return path;
     }
 
 

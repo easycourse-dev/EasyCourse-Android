@@ -1,8 +1,5 @@
 package io.easycourse.www.easycourse.models.signup;
 
-/**
- * Created by nisarg on 29/10/16.
- */
 
 public class Course {
     private String id = "";

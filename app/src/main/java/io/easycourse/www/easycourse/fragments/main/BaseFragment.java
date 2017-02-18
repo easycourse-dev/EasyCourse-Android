@@ -9,9 +9,6 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 
-/**
- * Created by noahrinehart on 2/11/17.
- */
 
 public abstract class BaseFragment extends Fragment {
 

@@ -49,9 +49,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.socket.client.Ack;
 
-/**
- * Created by Mark Wen on 10/18/2016.
- */
+
 
 public class SignupChooseCourses extends Fragment {
 
@@ -126,7 +124,7 @@ public class SignupChooseCourses extends Fragment {
         coursesOnScrollListener = new EndlessRecyclerViewScrollListener(coursesLayoutManager, coursesAdapter) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMoreCourses(searchCoursesEditText.getText().toString(), chosenUniversity, page, view);
+                loadMoreCourses(searchCoursesEditText.getText().toString(), chosenUniversity, page);
             }
         };
 
@@ -231,7 +229,7 @@ public class SignupChooseCourses extends Fragment {
         return rootView;
     }
 
-    public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip, RecyclerView view) {
+    public void loadMoreCourses(String searchQuery, final String chosenUniversity, int skip) {
         APIFunctions.searchCourse(getContext(), searchQuery, 20, skip, chosenUniversity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {

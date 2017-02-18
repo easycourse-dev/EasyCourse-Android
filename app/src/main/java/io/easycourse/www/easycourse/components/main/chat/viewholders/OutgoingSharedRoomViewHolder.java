@@ -18,6 +18,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
@@ -26,19 +31,9 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.socket.client.Ack;
 
-/**
- * Created by nisarg on 5/1/17.
- */
-
-public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
+public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
     private static final String TAG = "OutgoingSharedRoomView";
 
     private AppCompatActivity activity;
@@ -68,7 +63,9 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, final Context context, final ChatRecyclerViewAdapter adapter) {
+
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, String roomId, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
@@ -101,7 +98,7 @@ public class OutgoingSharedRoomViewHolder extends RecyclerView.ViewHolder {
                                 Log.e(TAG, obj.toString());
                                 try {
                                     if (!obj.has("error")) {
-                                        JSONObject roomObj = obj.getJSONObject("room");
+//                                        JSONObject roomObj = obj.getJSONObject("room");
                                         Snackbar.make(activity.getWindow().getDecorView().getRootView(), obj.getString("msg"), Snackbar.LENGTH_LONG)
                                                 .show();
                                     } else {

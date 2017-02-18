@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-/**
- * Created by markw on 1/5/2017.
- */
 
 public class ExternalLinkUtils {
     public static void OpenLinkInChrome(String link, Context context) {

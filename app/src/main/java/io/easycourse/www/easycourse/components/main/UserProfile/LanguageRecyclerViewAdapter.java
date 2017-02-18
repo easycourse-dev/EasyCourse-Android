@@ -31,7 +31,7 @@ public class LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRe
         realm = Realm.getDefaultInstance();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         CardView languageCardView;
         TextView languageTextView;
         AnimateCheckBox languageCheckBox;

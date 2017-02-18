@@ -47,9 +47,6 @@ import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
-/**
- * Created by Mark Wen on 10/18/2016.
- */
 
 public class UserFragment extends BaseFragment {
 
@@ -129,10 +126,13 @@ public class UserFragment extends BaseFragment {
                                     if (byteArray == null) return false;
                                     Realm tempRealm = Realm.getDefaultInstance();
                                     User currentUser = User.getCurrentUser(getContext(), tempRealm);
-                                    tempRealm.beginTransaction();
-                                    currentUser.setProfilePicture(byteArray);
-                                    tempRealm.commitTransaction();
-                                    tempRealm.close();
+                                    if (currentUser != null) {
+                                        currentUser.setProfilePicture(byteArray);
+                                        tempRealm.beginTransaction();
+                                        realm.copyToRealmOrUpdate(currentUser);
+                                        tempRealm.commitTransaction();
+                                        tempRealm.close();
+                                    }
                                     return false;
                                 }
                             })
@@ -151,8 +151,7 @@ public class UserFragment extends BaseFragment {
                 Intent i = new Intent(view.getContext(), UserProfileActivity.class);
                 Pair<View, String> p1 = Pair.create((View) avatarImage, "avatar");
                 Pair<View, String> p2 = Pair.create((View) textViewUsername, "username");
-                ActivityOptionsCompat options = ActivityOptionsCompat.
-                        makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) view.getContext(), p1, p2);
                 startActivity(i, options.toBundle());
             }
         });
@@ -251,8 +250,7 @@ public class UserFragment extends BaseFragment {
 
                 // Clear Realm
                 try {
-                    if (realm != null)
-                        realm.beginTransaction();
+                    realm.beginTransaction();
                     realm.deleteAll();
                     realm.commitTransaction();
                 } catch (NullPointerException e) {

@@ -6,9 +6,6 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
-/**
- * Created by noahrinehart on 11/2/16.
- */
 
 public class UserSetup implements Parcelable {
 

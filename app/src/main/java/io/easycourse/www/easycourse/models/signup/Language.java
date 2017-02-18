@@ -1,8 +1,5 @@
 package io.easycourse.www.easycourse.models.signup;
 
-/**
- * Created by noahrinehart on 10/29/16.
- */
 
 public class Language {
 

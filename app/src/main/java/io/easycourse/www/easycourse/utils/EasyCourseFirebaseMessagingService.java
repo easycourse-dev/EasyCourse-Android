@@ -30,11 +30,8 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-/**
- * Created by nisarg on 30/12/16.
- */
 public class EasyCourseFirebaseMessagingService extends FirebaseMessagingService {
-    String TAG = "MessagingService";
+    private static final String TAG = "EasyCourseFirebaseMessa";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {

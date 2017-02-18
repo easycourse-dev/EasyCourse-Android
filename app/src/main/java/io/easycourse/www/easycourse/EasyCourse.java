@@ -13,7 +13,6 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.DynamicRealm;
@@ -22,10 +21,6 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmMigration;
 import io.realm.RealmSchema;
-
-/**
- * Created by noahrinehart on 11/5/16.
- */
 
 public class EasyCourse extends Application {
 
@@ -70,7 +65,7 @@ public class EasyCourse extends Application {
                                     .addField("roomName", String.class)
                                     .addField("message", String.class)
                                     .addField("createdAt", Date.class);
-                            oldVersion++;
+//                            oldVersion++;
                         }
                     }
                 })

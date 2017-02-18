@@ -8,7 +8,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -51,7 +50,6 @@ import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.ListsUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -62,7 +60,7 @@ public class ChatRoomActivity extends BaseActivity {
     private static final String TAG = "ChatRoomActivity";
 
     private Snackbar disconnectSnackbar;
-    
+
     private Room currentRoom;
 
     @BindView(R.id.toolbarChatRoom)
@@ -147,7 +145,7 @@ public class ChatRoomActivity extends BaseActivity {
         if (currentRoom.getCourseName() != null)
             toolbarSubtitleTextView.setText(currentRoom.getCourseName());
         if (currentRoom.getCourseName() == null) {
-            toolbarSubtitleTextView.setText("Private Chat");
+            toolbarSubtitleTextView.setText(R.string.private_chat);
             toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
         }
     }
@@ -389,12 +387,9 @@ public class ChatRoomActivity extends BaseActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                     Toast.makeText(ChatRoomActivity.this, "Error reporting user! Try again later", Toast.LENGTH_SHORT).show();
-                    return;
                 }
             });
-        } catch (JSONException e) {
-            Log.e(TAG, "reportUser: ", e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (JSONException | UnsupportedEncodingException e) {
             Log.e(TAG, "reportUser: ", e);
         }
     }
@@ -460,7 +455,7 @@ public class ChatRoomActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         if (fragments != null) {

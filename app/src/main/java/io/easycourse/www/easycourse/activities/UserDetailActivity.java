@@ -1,7 +1,6 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -11,11 +10,7 @@ import android.widget.Toast;
 
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.main.UserDetailFragment;
-import io.easycourse.www.easycourse.models.main.User;
 
-/**
- * Created by noahrinehart on 2/18/17.
- */
 
 public class UserDetailActivity extends BaseActivity {
 

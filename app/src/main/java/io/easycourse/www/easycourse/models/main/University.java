@@ -5,9 +5,6 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by noahrinehart on 11/5/16.
- */
 
 public class University extends RealmObject {
 
@@ -22,36 +19,6 @@ public class University extends RealmObject {
     public University(String id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public static University getUniversityById (String id, Realm realm) {
-        RealmResults<University> results = realm.where(University.class).equalTo("id", id).findAll();
-        return results.first();
-    }
-
-    public static void updateUniversityToRealm(University university, Realm realm) {
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(university);
-        realm.commitTransaction();
-    }
-
-    public static boolean isUniversityInRealm(University university, Realm realm) {
-        RealmResults<University> results = realm.where(University.class)
-                .equalTo("id", university.getId())
-                .findAll();
-        return results.size() != 0;
-    }
-
-    public static void deleteUniversityFromRealm(final University university, Realm realm) {
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmResults<University> results = realm.where(University.class)
-                        .equalTo("id", university.getId())
-                        .findAll();
-                results.deleteAllFromRealm();
-            }
-        });
     }
 
     public String getId() {

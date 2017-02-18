@@ -13,7 +13,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,7 +49,6 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
@@ -99,7 +97,6 @@ public class ChatRoomFragment extends BaseFragment {
 
 
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
-    private RealmResults<Message> messages;
 
     public ChatRoomFragment() {
     }
@@ -121,7 +118,6 @@ public class ChatRoomFragment extends BaseFragment {
         activity = (ChatRoomActivity) getActivity();
 
 
-
         setupChatRecyclerView();
         setupOnClickListeners();
 
@@ -132,7 +128,7 @@ public class ChatRoomFragment extends BaseFragment {
     }
 
     private void setupChatRecyclerView() {
-        messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
+        RealmResults<Message> messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
 
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
@@ -222,8 +218,10 @@ public class ChatRoomFragment extends BaseFragment {
             int sizeX = bitmap.getWidth() * sizeY / bitmap.getHeight();
             Bitmap scaled = Bitmap.createScaledBitmap(bitmap, sizeX, sizeY, false);
 
-            ImageView image = (ImageView) dialog.getCustomView().findViewById(R.id.image_view_send_dialog);
-            image.setImageBitmap(scaled);
+            if (dialog.getCustomView() != null) {
+                ImageView image = (ImageView) dialog.getCustomView().findViewById(R.id.image_view_send_dialog);
+                image.setImageBitmap(scaled);
+            }
 
 
         } catch (Exception e) {
@@ -239,13 +237,13 @@ public class ChatRoomFragment extends BaseFragment {
                 .itemsCallback(new MaterialDialog.ListCallback() {
                     @Override
                     public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        handleAddImage(which, view);
+                        handleAddImage(which);
                     }
                 })
                 .show();
     }
 
-    private void handleAddImage(int which, View view) {
+    private void handleAddImage(int which) {
         switch (which) {
             case 0:  // choose image
                 int permissionCheck1 = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -320,12 +318,12 @@ public class ChatRoomFragment extends BaseFragment {
                             String senderName = (String) JSONUtils.checkIfJsonExists(sender, "displayName", null);
                             String senderImageUrl = (String) JSONUtils.checkIfJsonExists(sender, "avatarUrl", null);
 
-                            String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
+//                            String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
                             String remoteId = (String) JSONUtils.checkIfJsonExists(message, "id", null);
                             String text = (String) JSONUtils.checkIfJsonExists(message, "text", null);
                             String imageUrl = (String) JSONUtils.checkIfJsonExists(message, "imageUrl", null);
                             byte[] imageData = (byte[]) JSONUtils.checkIfJsonExists(message, "imageData", null);
-                            boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
+//                            boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
                             String toRoom = (String) JSONUtils.checkIfJsonExists(message, "toRoom", null);
                             String toUser = (String) JSONUtils.checkIfJsonExists(message, "toUser", null);
                             float imageWidth = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageWidth", "0.0"));
@@ -445,12 +443,12 @@ public class ChatRoomFragment extends BaseFragment {
                         String senderName = (String) JSONUtils.checkIfJsonExists(sender, "displayName", null);
                         String senderImageUrl = (String) JSONUtils.checkIfJsonExists(sender, "avatarUrl", null);
 
-                        String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
+//                        String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
                         String remoteId = (String) JSONUtils.checkIfJsonExists(message, "id", null);
                         String text = (String) JSONUtils.checkIfJsonExists(message, "text", null);
                         String imageUrl = (String) JSONUtils.checkIfJsonExists(message, "imageUrl", null);
                         byte[] imageData = (byte[]) JSONUtils.checkIfJsonExists(message, "imageData", null);
-                        boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
+//                        boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
                         String toRoom = (String) JSONUtils.checkIfJsonExists(message, "toRoom", null);
                         String toUser = (String) JSONUtils.checkIfJsonExists(message, "toUser", null);
                         float imageWidth = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageWidth", "0.0"));

@@ -1,39 +1,28 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.MySSLSocketFactory;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -43,20 +32,13 @@ import java.security.cert.CertificateException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.ViewPagerAdapter;
 import io.easycourse.www.easycourse.fragments.main.RoomsFragment;
 import io.easycourse.www.easycourse.fragments.main.UserFragment;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
-import io.realm.Realm;
-
-import static io.easycourse.www.easycourse.EasyCourse.bus;
 
 public class MainActivity extends BaseActivity {
 
@@ -104,7 +86,7 @@ public class MainActivity extends BaseActivity {
         checkUserLogin();
 
         try {
-            socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
+            socketIO.getUserInfo(currentUser.getId());
             socketIO.getHistMessage();
             socketIO.syncUser();
         } catch (JSONException | NullPointerException e) {
@@ -149,48 +131,48 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void parseSetupIntent(UserSetup userSetup) {
-        if (userSetup == null) return;
-        try {
-            APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "onSuccess: updateUser");
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: updateuser", t);
-                }
-            });
-
-
-            APIFunctions.setCoursesAndLanguages(this, userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "onSuccess: setCoursesAndLanguages");
-                    EasyCourse.bus.post(new Event.SyncEvent());
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: setCoursesAndLanguages", t);
-                }
-            });
-
-
-        } catch (JSONException e) {
-            Log.e(TAG, "JSONexception in parsing usersetup", e);
-        } catch (UnsupportedEncodingException e) {
-            Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
-        }
-        if (socketIO != null)
-            try {
-                socketIO.getAllMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-    }
+//    private void parseSetupIntent(UserSetup userSetup) {
+//        if (userSetup == null) return;
+//        try {
+//            APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
+//                @Override
+//                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                    Log.d(TAG, "onSuccess: updateUser");
+//                }
+//
+//                @Override
+//                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+//                    Log.e(TAG, "onFailure: updateuser", t);
+//                }
+//            });
+//
+//
+//            APIFunctions.setCoursesAndLanguages(this, userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
+//                @Override
+//                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                    Log.d(TAG, "onSuccess: setCoursesAndLanguages");
+//                    EasyCourse.bus.post(new Event.SyncEvent());
+//                }
+//
+//                @Override
+//                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+//                    Log.e(TAG, "onFailure: setCoursesAndLanguages", t);
+//                }
+//            });
+//
+//
+//        } catch (JSONException e) {
+//            Log.e(TAG, "JSONexception in parsing usersetup", e);
+//        } catch (UnsupportedEncodingException e) {
+//            Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
+//        }
+//        if (socketIO != null)
+//            try {
+//                socketIO.getAllMessage();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//    }
 
     private void setupNavigation() {
 

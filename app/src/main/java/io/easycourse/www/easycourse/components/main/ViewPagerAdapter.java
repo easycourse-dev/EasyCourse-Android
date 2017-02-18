@@ -8,10 +8,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Mark Wen on 10/27/2016.
- */
-
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
@@ -49,7 +45,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         super.setPrimaryItem(container, position, object);
     }
 
-    public Fragment getCurrentItem() {
+    private Fragment getCurrentItem() {
         return currentItem;
     }
 }

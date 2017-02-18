@@ -9,25 +9,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
+import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
 
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
 
-/**
- * Created by nrinehart on 12/22/16.
- */
-
-public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
-
-    private static final String TAG = "OutgoingChatPictureView";
+//    private static final String TAG = "OutgoingChatPictureView";
 
     private AppCompatActivity activity;
 
@@ -49,7 +44,8 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, String roomId, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingPicTime.setVisibility(View.VISIBLE);

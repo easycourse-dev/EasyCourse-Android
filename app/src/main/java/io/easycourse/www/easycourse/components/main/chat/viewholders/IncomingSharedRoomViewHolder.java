@@ -41,15 +41,13 @@ import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
-/**
- * Created by nisarg on 5/1/17.
- */
 
-public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
+public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
 
     private static final String TAG = "IncomingSharedRoomView";
 
     private AppCompatActivity activity;
+    private boolean timeVisible;
 
     @BindView(R.id.linearIncomingSharedChatCell)
     LinearLayout incomingLinearLayout;
@@ -64,23 +62,23 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.textViewIncomingSharedChatRoomName)
     TextView textViewRoomName;
 
-    private boolean timeVisible;
 
-    private Realm realm;
-    private User currentUser;
     private SocketIO socketIO;
 
-    public IncomingSharedRoomViewHolder(View itemView, AppCompatActivity activity) {
+    public IncomingSharedRoomViewHolder(View itemView, AppCompatActivity activity, boolean timeVisible) {
         super(itemView);
+        this.timeVisible = timeVisible;
         ButterKnife.bind(this, itemView);
         this.activity = activity;
 
-        realm = Realm.getDefaultInstance();
-        currentUser = User.getCurrentUser(activity, realm);
         socketIO = EasyCourse.getAppInstance().getSocketIO();
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, String roomId, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+
+        Realm realm = Realm.getDefaultInstance();
+
         String reportDateIncoming = DateUtils.getTimeString(message, prevMessage);
         if (reportDateIncoming != null) {
             incomingTime.setVisibility(View.VISIBLE);
@@ -105,11 +103,14 @@ public class IncomingSharedRoomViewHolder extends RecyclerView.ViewHolder {
         } else {
             fillUserInfo(thisUser, context, message);
         }
+        realm.close();
     }
+
 
     private void fillUserInfo(final User thisUser, final Context context, final Message message) {
         Realm realm = Realm.getDefaultInstance();
-        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
+        User currentUser = User.getCurrentUser(context, realm);
+        if (thisUser != null && currentUser != null && !thisUser.getId().equals(currentUser.getId())) {
 
             BitmapUtils.loadImage(context, incomingImageView, thisUser.getProfilePicture(), thisUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
 

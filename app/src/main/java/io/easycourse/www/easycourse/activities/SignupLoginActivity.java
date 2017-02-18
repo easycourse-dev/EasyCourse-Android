@@ -13,14 +13,10 @@ import io.easycourse.www.easycourse.fragments.signup.SignupLogin;
 import io.easycourse.www.easycourse.models.main.Course;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
-
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 
-/**
- * Created by Mark Wen on 10/18/2016.
- */
 
 public class SignupLoginActivity extends AppCompatActivity {
 

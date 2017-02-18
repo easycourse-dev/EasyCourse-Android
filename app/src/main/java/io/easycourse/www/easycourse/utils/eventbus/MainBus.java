@@ -6,9 +6,6 @@ import android.os.Looper;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-/**
- * Created by noahrinehart on 11/17/16.
- */
 
 public class MainBus extends Bus {
     private final Handler mHandler = new Handler(Looper.getMainLooper());

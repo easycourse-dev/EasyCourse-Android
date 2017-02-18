@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,19 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
-import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
-import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
-
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -46,15 +32,20 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomCoursesAdapter;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsEndlessRecyclerViewScrollListener;
+import io.easycourse.www.easycourse.components.main.NewRoom.NewRoomRoomsRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
+import io.easycourse.www.easycourse.models.main.Course;
+import io.easycourse.www.easycourse.models.main.Message;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.JSONUtils;
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.socket.client.Ack;
-
-/**
- * Created by markw on 12/17/2016.
- */
 
 public class NewRoomActivity extends BaseActivity {
 

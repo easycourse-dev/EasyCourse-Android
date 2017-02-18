@@ -8,14 +8,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.models.main.Course;
 
-import java.util.ArrayList;
-
-/**
- * Created by markw on 12/19/2016.
- */
 
 public class NewRoomCoursesAdapter extends BaseAdapter {
 

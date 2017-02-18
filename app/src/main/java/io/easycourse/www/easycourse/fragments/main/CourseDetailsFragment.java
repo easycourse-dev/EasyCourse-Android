@@ -11,9 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -48,9 +46,6 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.socket.client.Ack;
 
-/**
- * Created by noahrinehart on 2/1/17.
- */
 
 public class CourseDetailsFragment extends BaseFragment {
 
@@ -338,15 +333,15 @@ public class CourseDetailsFragment extends BaseFragment {
         });
     }
 
-    private void notifyRecyclerView() {
-        if (roomsAdapter == null) return;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                roomsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
+//    private void notifyRecyclerView() {
+//        if (roomsAdapter == null) return;
+//        getActivity().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                roomsAdapter.notifyDataSetChanged();
+//            }
+//        });
+//    }
 
     private void showDropCourseDialog() {
         MaterialDialog dialog = new MaterialDialog.Builder(getContext())

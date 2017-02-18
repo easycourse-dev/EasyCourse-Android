@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.components.main.chat.viewholders.BaseChatViewHolder;
 import io.easycourse.www.easycourse.components.main.chat.viewholders.IncomingChatPictureViewHolder;
 import io.easycourse.www.easycourse.components.main.chat.viewholders.IncomingChatTextViewHolder;
 import io.easycourse.www.easycourse.components.main.chat.viewholders.IncomingSharedRoomViewHolder;
@@ -22,13 +23,9 @@ import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 
 
-/**
- * Created by noahrinehart on 11/19/16.
- */
-
 public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, RecyclerView.ViewHolder> {
 
-    private static final String TAG = "ChatRecyclerViewAdapter";
+//    private static final String TAG = "ChatRecyclerViewAdapter";
 
     private final int INCOMING_TEXT = 1, INCOMING_PIC = 2, INCOMING_ROOM = 3, OUTGOING_TEXT = 4, OUTGOING_PIC = 5, OUTGOING_ROOM = 6;
 
@@ -51,7 +48,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         switch (viewType) {
             case INCOMING_TEXT:
                 View incomingTextView = inflater.inflate(R.layout.cell_chat_incoming_text, viewGroup, false);
-                viewHolder = new IncomingChatTextViewHolder(incomingTextView, activity);
+                viewHolder = new IncomingChatTextViewHolder(incomingTextView);
                 break;
 
             case INCOMING_PIC:
@@ -61,7 +58,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
             case INCOMING_ROOM:
                 View incomingSharedRoomView = inflater.inflate(R.layout.cell_chat_incoming_shared_room, viewGroup, false);
-                viewHolder = new IncomingSharedRoomViewHolder(incomingSharedRoomView, activity);
+                viewHolder = new IncomingSharedRoomViewHolder(incomingSharedRoomView, activity, false);
                 break;
 
             case OUTGOING_TEXT:
@@ -94,46 +91,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
         if (position != 0)
             prevMessage = getData().get(position - 1);
 
-
-        switch (viewHolder.getItemViewType()) {
-            case OUTGOING_TEXT: {
-                OutgoingChatTextViewHolder outgoingViewHolder = (OutgoingChatTextViewHolder) viewHolder;
-                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
-                break;
-
-            }
-
-            case OUTGOING_PIC: {
-                OutgoingChatPictureViewHolder outgoingViewHolder = (OutgoingChatPictureViewHolder) viewHolder;
-                outgoingViewHolder.setupView(message, prevMessage, curUser, message.getToRoom(), context, this);
-                break;
-            }
-
-            case OUTGOING_ROOM: {
-                OutgoingSharedRoomViewHolder outgoingViewHolder = (OutgoingSharedRoomViewHolder) viewHolder;
-                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
-                break;
-            }
-
-
-            case INCOMING_TEXT: {
-                IncomingChatTextViewHolder incomingViewHolder = (IncomingChatTextViewHolder) viewHolder;
-                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
-                break;
-            }
-
-            case INCOMING_PIC: {
-                IncomingChatPictureViewHolder incomingViewHolder = (IncomingChatPictureViewHolder) viewHolder;
-                incomingViewHolder.setupView(message, prevMessage, curUser, message.getToRoom(), realm, context, this);
-                break;
-            }
-
-            case INCOMING_ROOM: {
-                IncomingSharedRoomViewHolder incomingViewHolder = (IncomingSharedRoomViewHolder) viewHolder;
-                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
-                break;
-            }
-        }
+        ((BaseChatViewHolder) viewHolder).setupView(message, prevMessage, curUser, message.getToRoom(), context, this);
     }
 
 

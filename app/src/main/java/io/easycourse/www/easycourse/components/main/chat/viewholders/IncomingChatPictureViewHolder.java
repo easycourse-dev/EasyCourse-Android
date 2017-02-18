@@ -27,11 +27,8 @@ import io.easycourse.www.easycourse.utils.DateUtils;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
-/**
- * Created by nrinehart on 12/22/16.
- */
 
-public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
+public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
 
     private static final String TAG = "IncomingChatPictureView";
 
@@ -56,7 +53,9 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+        Realm realm = Realm.getDefaultInstance();
 
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
@@ -73,20 +72,20 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void call(Object... args) {
                         User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
-                        fillUserInfo(thisUser, roomId, context, message);
+                        fillUserInfo(thisUser, context, message);
                     }
                 });
             } catch (JSONException e) {
                 Log.e(TAG, "setupView: ", e);
             }
         } else {
-            fillUserInfo(thisUser, roomId, context, message);
+            fillUserInfo(thisUser, context, message);
         }
 
-
+        realm.close();
     }
 
-    private void fillUserInfo(final User thisUser, final String roomId, final Context context, final Message message) {
+    private void fillUserInfo(final User thisUser, final Context context, final Message message) {
         if (thisUser != null) {
             try {
 

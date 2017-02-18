@@ -7,10 +7,10 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -24,8 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,10 +36,6 @@ import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 import io.realm.Realm;
 import io.socket.client.Ack;
-
-/**
- * Created by nisarg on 28/11/16.
- */
 
 public class UserProfileActivity extends BaseActivity {
 
@@ -192,14 +186,14 @@ public class UserProfileActivity extends BaseActivity {
 //        languageView.setAdapter(languageAdapter);
     }
 
-    private void updateUserInfoOnScreen() {
-        if (currentUser.getProfilePicture() != null && currentUser.getProfilePicture().length > 0) {
-            Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
-            avatarImage.setImageBitmap(bm);
-        } else {
-            avatarImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_black_48dp));
-        }
-    }
+//    private void updateUserInfoOnScreen() {
+//        if (currentUser.getProfilePicture() != null && currentUser.getProfilePicture().length > 0) {
+//            Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
+//            avatarImage.setImageBitmap(bm);
+//        } else {
+//            avatarImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_black_48dp));
+//        }
+//    }
 
     public void toggleProfileEdit() {
         isInEditMode = !isInEditMode;
@@ -303,8 +297,7 @@ public class UserProfileActivity extends BaseActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
                 if (grantResults.length > 0
@@ -312,7 +305,6 @@ public class UserProfileActivity extends BaseActivity {
                     openGallery();
 
                 }
-                return;
             }
         }
     }

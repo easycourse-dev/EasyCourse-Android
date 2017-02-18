@@ -2,22 +2,13 @@ package io.easycourse.www.easycourse.models.main;
 
 import android.support.annotation.Nullable;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import io.easycourse.www.easycourse.utils.JSONUtils;
-import io.easycourse.www.easycourse.utils.ListsUtils;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
-
-import static io.easycourse.www.easycourse.utils.ListsUtils.isRoomJoined;
 
 /**
  * Created by noahrinehart on 11/5/16.
@@ -126,20 +117,6 @@ public class Room extends RealmObject {
         realm.close();
     }
 
-    public static void syncRooms(JSONArray updatedRooms, Realm realm) {
-        RealmResults<Room> roomsInRealm = realm.where(Room.class).findAll();
-
-        addNewRooms(updatedRooms, roomsInRealm, realm);
-        deleteOldRooms(updatedRooms, roomsInRealm, realm);
-    }
-
-    public static boolean isRoomInRealm(Room room, Realm realm) {
-        RealmResults<Room> results = realm.where(Room.class)
-                .equalTo("id", room.getId())
-                .findAll();
-        return results.size() != 0;
-    }
-
     public static void deleteRoomFromRealm(final Room room, Realm realm) {
         realm.executeTransaction(new Realm.Transaction() {
             @Override
@@ -152,11 +129,6 @@ public class Room extends RealmObject {
         });
     }
 
-    public static ArrayList<Room> getRoomsFromRealm(Realm realm) {
-        RealmResults<Room> results = realm.where(Room.class)
-                .findAll();
-        return new ArrayList<>(results);
-    }
 
     @Nullable
     public static Room getRoomById(Realm realm, String id) {
@@ -327,67 +299,4 @@ public class Room extends RealmObject {
         isSystem = system;
     }
 
-    private static void addNewRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {
-        String JSONId;
-        JSONObject temp;
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                temp = jsonArray.getJSONObject(i);
-                JSONId = temp.getString("_id");
-                if (!ListsUtils.isRoomJoined(realmList, JSONId)) {
-                    String courseID = (String) JSONUtils.checkIfJsonExists(temp, "course", null);
-                    updateRoomToRealm(new Room(
-                            JSONId,
-                            (String) JSONUtils.checkIfJsonExists(temp, "name", null),
-                            new RealmList<Message>(),
-                            courseID,
-                            Course.getCourseById(courseID, realm).getCoursename(),
-                            (String) JSONUtils.checkIfJsonExists(temp, "university", null),
-                            new RealmList<User>(),
-                            Integer.parseInt((String) JSONUtils.checkIfJsonExists(temp, "memberCounts", "1")),
-                            (String) JSONUtils.checkIfJsonExists(temp, "memberCountsDescription", null),
-                            new User((String) JSONUtils.checkIfJsonExists(temp, "founder", null), null, null, null, null, null),
-                            (String) JSONUtils.checkIfJsonExists(temp, "language", null),
-                            (boolean) JSONUtils.checkIfJsonExists(temp, "isPublic", true),
-                            (boolean) JSONUtils.checkIfJsonExists(temp, "isSystem", true)
-                    ), realm);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void deleteOldRooms(JSONArray jsonArray, RealmResults<Room> realmList, Realm realm) {
-        String realmId;
-        Room realmTemp;
-        JSONObject temp;
-        for (int i = 0; i < realmList.size(); i++) {
-            try {
-                realmTemp = realmList.get(i);
-                realmId = realmTemp.getId();
-                if (!ListsUtils.isRoomJoined(jsonArray, realmId)) {
-                    temp = jsonArray.getJSONObject(i);
-                    String courseID = (String) JSONUtils.checkIfJsonExists(temp, "course", null);
-                    deleteRoomFromRealm(new Room(
-                            (String) JSONUtils.checkIfJsonExists(temp, "_id", null),
-                            (String) JSONUtils.checkIfJsonExists(temp, "name", null),
-                            new RealmList<Message>(),
-                            courseID,
-                            Course.getCourseById(courseID, realm).getCoursename(),
-                            (String) JSONUtils.checkIfJsonExists(temp, "university", null),
-                            new RealmList<User>(),
-                            Integer.parseInt((String) JSONUtils.checkIfJsonExists(temp, "memberCounts", "1")),
-                            (String) JSONUtils.checkIfJsonExists(temp, "memberCountsDescription", null),
-                            new User((String) JSONUtils.checkIfJsonExists(temp, "founder", null), null, null, null, null, null),
-                            (String) JSONUtils.checkIfJsonExists(temp, "language", null),
-                            (boolean) JSONUtils.checkIfJsonExists(temp, "isPublic", true),
-                            (boolean) JSONUtils.checkIfJsonExists(temp, "isSystem", true)
-                    ), realm);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

@@ -2,8 +2,6 @@ package io.easycourse.www.easycourse.utils;
 
 import android.support.annotation.Nullable;
 
-import io.easycourse.www.easycourse.models.main.Message;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -11,9 +9,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
- * Created by noahrinehart on 11/12/16.
- */
+import io.easycourse.www.easycourse.models.main.Message;
+
 
 public class DateUtils {
 
@@ -25,7 +22,7 @@ public class DateUtils {
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static int timeDifferenceInMinutes(Date date1, Date date2) {
+    private static int timeDifferenceInMinutes(Date date1, Date date2) {
         return (int)((date1.getTime()/60000) - (date2.getTime()/60000));
     }
 

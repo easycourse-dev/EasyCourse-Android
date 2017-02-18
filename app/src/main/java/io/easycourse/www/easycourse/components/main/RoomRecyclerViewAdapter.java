@@ -2,8 +2,6 @@ package io.easycourse.www.easycourse.components.main;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -50,10 +48,6 @@ import io.realm.Sort;
 import io.socket.client.Ack;
 import su.levenetc.android.badgeview.BadgeView;
 
-
-/**
- * Created by noahrinehart on 11/19/16.
- */
 
 public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, RecyclerView.ViewHolder> {
 
@@ -104,8 +98,7 @@ public class RoomRecyclerViewAdapter extends RealmRecyclerViewAdapter<Room, Recy
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cell_room_list, viewGroup, false);
-        RoomRecyclerViewAdapter.RoomViewHolder roomViewHolder = new RoomRecyclerViewAdapter.RoomViewHolder(v);
-        return roomViewHolder;
+        return new RoomRecyclerViewAdapter.RoomViewHolder(v);
     }
 
     @Override

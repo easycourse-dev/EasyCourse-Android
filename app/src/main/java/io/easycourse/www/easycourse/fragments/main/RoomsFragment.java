@@ -2,27 +2,12 @@ package io.easycourse.www.easycourse.fragments.main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.ChatRoomActivity;
-import io.easycourse.www.easycourse.activities.MainActivity;
-import io.easycourse.www.easycourse.activities.NewRoomActivity;
-import io.easycourse.www.easycourse.components.main.RoomRecyclerViewAdapter;
-import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
-import io.easycourse.www.easycourse.models.main.Message;
-import io.easycourse.www.easycourse.models.main.Room;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.eventbus.Event;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -32,20 +17,21 @@ import org.json.JSONException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+import io.easycourse.www.easycourse.activities.NewRoomActivity;
+import io.easycourse.www.easycourse.components.main.RoomRecyclerViewAdapter;
+import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
+import io.easycourse.www.easycourse.models.main.Room;
+import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
-/**
- * Created by Mark Wen on 10/18/2016.
- */
 
 public class RoomsFragment extends BaseFragment {
 
-    private static final String TAG = "RoomsFragment";
-
-
-    private RealmChangeListener<RealmResults<Room>> realmChangeListener;
+//    private static final String TAG = "RoomsFragment";
 
 
     @BindView(R.id.roomsRecyclerView)
@@ -126,7 +112,7 @@ public class RoomsFragment extends BaseFragment {
         LinearLayoutManager chatLinearManager = new LinearLayoutManager(getContext());
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         roomRecyclerView.setLayoutManager(chatLinearManager);
-        realmChangeListener = new RealmChangeListener<RealmResults<Room>>() {
+        RealmChangeListener<RealmResults<Room>> realmChangeListener = new RealmChangeListener<RealmResults<Room>>() {
             @Override
             public void onChange(RealmResults<Room> element) {
                 roomRecyclerView.setVisibility(View.VISIBLE);
@@ -149,16 +135,16 @@ public class RoomsFragment extends BaseFragment {
         getActivity().startActivity(chatActivityIntent);
     }
 
-    public void deleteRoom(Room room) {
-        Realm tempRelm = Realm.getDefaultInstance();
-        RealmResults<Message> messages = tempRelm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
-        tempRelm.beginTransaction();
-        room.deleteFromRealm();
-        if (messages.isValid())
-            messages.deleteAllFromRealm();
-        tempRelm.commitTransaction();
-        tempRelm.close();
-    }
+//    public void deleteRoom(Room room) {
+//        Realm tempRelm = Realm.getDefaultInstance();
+//        RealmResults<Message> messages = tempRelm.where(Message.class).equalTo("toRoom", room.getId()).findAll();
+//        tempRelm.beginTransaction();
+//        room.deleteFromRealm();
+//        if (messages.isValid())
+//            messages.deleteAllFromRealm();
+//        tempRelm.commitTransaction();
+//        tempRelm.close();
+//    }
 
     @Override
     public void onDestroy() {

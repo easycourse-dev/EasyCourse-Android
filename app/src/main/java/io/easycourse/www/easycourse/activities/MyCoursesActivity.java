@@ -6,12 +6,7 @@ import android.os.Bundle;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.main.CourseDetailsFragment;
 import io.easycourse.www.easycourse.fragments.main.CourseManagementFragment;
-import io.easycourse.www.easycourse.models.main.Course;
-import io.easycourse.www.easycourse.models.main.University;
 
-/**
- * Created by noahrinehart on 2/11/17.
- */
 
 public class MyCoursesActivity extends BaseActivity {
 

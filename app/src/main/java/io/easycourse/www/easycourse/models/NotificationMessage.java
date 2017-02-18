@@ -5,10 +5,6 @@ import java.util.Date;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by noahrinehart on 2/4/17.
- */
-
 public class NotificationMessage extends RealmObject {
 
     @PrimaryKey

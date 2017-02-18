@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -19,20 +18,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.UUID;
 
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.ChatRoomActivity;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-/**
- * Created by noahrinehart on 1/28/17.
- */
 
 public class DownloadImageTask extends AsyncTask<Void, Void, File> {
 
@@ -105,11 +96,10 @@ public class DownloadImageTask extends AsyncTask<Void, Void, File> {
             File file = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES), "EasyCourse");
             if (!file.exists()) {
-                file.mkdirs();
-                file.createNewFile();
+                if (!file.mkdirs()) return null;
+                if (!file.createNewFile()) return null;
             }
-            File picFile = new File(file, name);
-            return picFile;
+            return new File(file, name);
         } catch (IOException e) {
             Log.e(TAG, "getPictureFile: ", e);
         }

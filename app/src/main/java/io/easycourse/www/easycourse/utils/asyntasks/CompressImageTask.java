@@ -16,9 +16,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Created by nrinehart on 12/28/16.
- */
 
 public class CompressImageTask extends AsyncTask<Uri, Void, Bitmap> {
 

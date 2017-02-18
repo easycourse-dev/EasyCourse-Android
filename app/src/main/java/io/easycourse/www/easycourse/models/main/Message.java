@@ -7,9 +7,6 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by noahrinehart on 11/5/16.
- */
 
 public class Message extends RealmObject {
 
@@ -68,32 +65,6 @@ public class Message extends RealmObject {
         realm.commitTransaction();
         return realmMessage;
     }
-
-    public static void updateMessageToRealm(Message message, Realm realm) {
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(message);
-        realm.commitTransaction();
-    }
-
-    public static boolean isMessageInRealm(Message message, Realm realm) {
-        RealmResults<Message> results = realm.where(Message.class)
-                .equalTo("id", message.getId())
-                .findAll();
-        return results.size() != 0;
-    }
-
-    public static void deleteMessageFromRealm(final Message message, Realm realm) {
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmResults<Message> results = realm.where(Message.class)
-                        .equalTo("id", message.getId())
-                        .findAll();
-                results.deleteAllFromRealm();
-            }
-        });
-    }
-
     public String getId() {
         return id;
     }

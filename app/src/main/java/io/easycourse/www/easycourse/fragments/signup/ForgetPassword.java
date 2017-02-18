@@ -15,8 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.utils.APIFunctions;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -28,10 +26,10 @@ import java.io.UnsupportedEncodingException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.utils.APIFunctions;
 
-/**
- * Created by Mark Wen on 10/18/2016.
- */
+
 
 public class ForgetPassword extends Fragment {
 

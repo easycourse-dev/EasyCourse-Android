@@ -8,9 +8,7 @@ import io.easycourse.www.easycourse.models.NotificationMessage;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-/**
- * Created by noahrinehart on 2/4/17.
- */
+
 
 public class NotificationClearBroadcastReceiver extends BroadcastReceiver {
     @Override

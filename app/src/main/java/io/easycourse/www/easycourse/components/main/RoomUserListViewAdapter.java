@@ -1,8 +1,6 @@
 package io.easycourse.www.easycourse.components.main;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -12,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 
 import java.util.List;
 
@@ -24,13 +21,10 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.realm.Realm;
 
-/**
- * Created by nrinehart on 12/30/16.
- */
 
 public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "RoomUserListViewAdapter";
+//    private static final String TAG = "RoomUserListViewAdapter";
 
     private List<User> users;
     private AppCompatActivity activity;

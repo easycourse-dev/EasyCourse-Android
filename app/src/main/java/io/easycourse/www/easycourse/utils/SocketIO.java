@@ -36,9 +36,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-/**
- * Created by nisarg on 9/11/16.
- */
 
 
 public class SocketIO {
@@ -308,7 +305,7 @@ public class SocketIO {
                     }
 
                     JSONArray contactsArray = (JSONArray) JSONUtils.checkIfJsonExists(userObj, "contacts", null);
-                    RealmList<User> contacts = new RealmList<>();
+//                    RealmList<User> contacts = new RealmList<>();
                     if (contactsArray != null) {
                         for (int i = 0; i < contactsArray.length(); i++) {
                             JSONObject contactObj = contactsArray.getJSONObject(i);
@@ -399,7 +396,7 @@ public class SocketIO {
         });
     }
 
-    public void getAllMessage() throws JSONException {
+    private void getAllMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("lastUpdateTime", 1);
         socket.emit("getHistMessage", jsonParam, new Ack() {

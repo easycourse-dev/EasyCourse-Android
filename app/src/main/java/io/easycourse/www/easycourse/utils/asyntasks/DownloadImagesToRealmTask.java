@@ -15,10 +15,6 @@ import java.net.URL;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-/**
- * Created by nrinehart on 12/27/16.
- */
-
 public class DownloadImagesToRealmTask extends AsyncTask<Void, Void, Void> {
 
     private static final String TAG = "DownloadImagesToRealm";
@@ -51,7 +47,6 @@ public class DownloadImagesToRealmTask extends AsyncTask<Void, Void, Void> {
         Bitmap bitmap = null;
         HttpURLConnection connection = null;
         InputStream is = null;
-        ByteArrayOutputStream out = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             is = connection.getInputStream();
@@ -63,10 +58,6 @@ public class DownloadImagesToRealmTask extends AsyncTask<Void, Void, Void> {
             try {
                 if (connection != null)
                     connection.disconnect();
-                if (out != null) {
-                    out.flush();
-                    out.close();
-                }
                 if (is != null)
                     is.close();
             } catch (Exception e) {

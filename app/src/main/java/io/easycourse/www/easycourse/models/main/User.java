@@ -12,10 +12,6 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by noahrinehart on 11/5/16.
- */
-
 public class User extends RealmObject {
 
     @PrimaryKey
@@ -69,20 +65,6 @@ public class User extends RealmObject {
         realm.commitTransaction();
     }
 
-    public static void updateUserFromJson(String json, Realm realm){
-        realm.beginTransaction();
-        realm.createOrUpdateAllFromJson(User.class, "["+json+"]");
-        realm.commitTransaction();
-    }
-
-    @Contract("null, _ -> false")
-    public static boolean isUserInRealm(User user, Realm realm) {
-        if (user == null) return false;
-        RealmResults<User> results = realm.where(User.class)
-                .equalTo("id", user.getId())
-                .findAll();
-        return results.size() != 0;
-    }
 
     @Nullable
     public static User getUserFromRealm(Realm realm, String id) {
@@ -93,22 +75,6 @@ public class User extends RealmObject {
             return results.first();
         else
             return null;
-    }
-
-    public static void deleteUserFromRealm(final User user, Realm realm) {
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmResults<User> results = realm.where(User.class)
-                        .equalTo("id", user.getId())
-                        .findAll();
-                results.deleteAllFromRealm();
-            }
-        });
-    }
-
-    public User getByPrimaryKey(Realm realm, String id) {
-        return realm.where(getClass()).equalTo("id", id).findFirst();
     }
 
     @Nullable

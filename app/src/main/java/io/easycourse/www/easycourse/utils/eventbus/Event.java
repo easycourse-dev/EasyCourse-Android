@@ -2,10 +2,6 @@ package io.easycourse.www.easycourse.utils.eventbus;
 
 import io.easycourse.www.easycourse.models.main.Message;
 
-/**
- * Created by noahrinehart on 12/1/16.
- */
-
 public class Event {
 
     public static class ConnectEvent{}

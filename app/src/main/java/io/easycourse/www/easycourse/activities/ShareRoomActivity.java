@@ -2,7 +2,6 @@ package io.easycourse.www.easycourse.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -22,7 +21,6 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.RoomListViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
@@ -33,10 +31,6 @@ import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.socket.client.Ack;
-
-/**
- * Created by nisarg on 5/1/17.
- */
 
 public class ShareRoomActivity extends BaseActivity {
 
@@ -133,12 +127,12 @@ public class ShareRoomActivity extends BaseActivity {
                     String senderName = (String) JSONUtils.checkIfJsonExists(sender, "displayName", null);
                     String senderImageUrl = (String) JSONUtils.checkIfJsonExists(sender, "avatarUrl", null);
 
-                    String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
+//                    String id = (String) JSONUtils.checkIfJsonExists(message, "_id", null);
                     String remoteId = (String) JSONUtils.checkIfJsonExists(message, "id", null);
                     String text = (String) JSONUtils.checkIfJsonExists(message, "text", null);
                     String imageUrl = (String) JSONUtils.checkIfJsonExists(message, "imageUrl", null);
                     byte[] imageData = (byte[]) JSONUtils.checkIfJsonExists(message, "imageData", null);
-                    boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
+//                    boolean successSent = (boolean) JSONUtils.checkIfJsonExists(message, "successSent", false);
                     String toRoom = (String) JSONUtils.checkIfJsonExists(message, "toRoom", null);
                     String toUser = (String) JSONUtils.checkIfJsonExists(message, "toUser", null);
                     float imageWidth = Float.parseFloat((String) JSONUtils.checkIfJsonExists(message, "imageWidth", "0.0"));

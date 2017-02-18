@@ -92,6 +92,8 @@
     <!--CourseDetailsActivity-->
     <string name="joined">Joined</string>
     <string name="join">Join</string>
+    <string name="private_chat">Private Chat</string>
+    <string name="official">Official</string>
 
 
 </resources>

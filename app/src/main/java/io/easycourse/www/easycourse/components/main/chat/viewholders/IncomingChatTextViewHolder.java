@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
@@ -33,15 +32,10 @@ import io.easycourse.www.easycourse.utils.DateUtils;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
-/**
- * Created by nrinehart on 12/22/16.
- */
-
-public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
+public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
 
     private static final String TAG = "IncomingChatTextViewHol";
 
-    private AppCompatActivity activity;
 
     @BindView(R.id.linearIncomingChatCell)
     LinearLayout incomingLinearLayout;
@@ -57,14 +51,17 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
     private boolean timeVisible;
 
 
-    public IncomingChatTextViewHolder(View itemView, AppCompatActivity activity) {
+    public IncomingChatTextViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         Linkify.addLinks(incomingMessage, Linkify.ALL);
-        this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, String roomId, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+
+        Realm realm = Realm.getDefaultInstance();
+
         final String reportDateIncoming = DateUtils.getTimeString(message, prevMessage);
         if (reportDateIncoming != null) {
             incomingTime.setVisibility(View.VISIBLE);
@@ -89,11 +86,14 @@ public class IncomingChatTextViewHolder extends RecyclerView.ViewHolder {
         } else {
             fillUserInfo(thisUser, context, message, reportDateIncoming);
         }
+        realm.close();
     }
+
 
     private void fillUserInfo(final User thisUser, final Context context, final Message message, final String reportDateIncoming) {
         Realm realm = Realm.getDefaultInstance();
-        if (thisUser != null && !thisUser.getId().equals(User.getCurrentUser(activity, realm).getId())) {
+        User currentUser = User.getCurrentUser(context, realm);
+        if (thisUser != null && currentUser != null && !thisUser.getId().equals(currentUser.getId())) {
 
             BitmapUtils.loadImage(context, incomingImageView, thisUser.getProfilePicture(), thisUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
 

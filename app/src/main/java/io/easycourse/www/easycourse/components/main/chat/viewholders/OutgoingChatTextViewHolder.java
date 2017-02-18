@@ -16,24 +16,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.realm.Realm;
 
-/**
- * Created by nrinehart on 12/22/16.
- */
 
-public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
+public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder implements BaseChatViewHolder {
 
-    private static final String TAG = "OutgoingChatTextViewHol";
+//    private static final String TAG = "OutgoingChatTextViewHol";
 
     private AppCompatActivity activity;
 
@@ -58,8 +54,9 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, final Context context, final ChatRecyclerViewAdapter adapter) {
-        Realm realm = Realm.getDefaultInstance();
+    @Override
+    public void setupView(final Message message, Message prevMessage, User curUser, String roomId, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+        Realm tempRealm = Realm.getDefaultInstance();
         final String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingTime.setVisibility(View.VISIBLE);
@@ -76,7 +73,7 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
             outgoingMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
-            curUser = User.getCurrentUser(activity, realm);
+            curUser = User.getCurrentUser(activity, tempRealm);
             if (curUser != null) {
 
                 BitmapUtils.loadImage(context, outgoingImageView, curUser.getProfilePicture(), curUser.getProfilePictureUrl(), R.drawable.ic_person_black_24px);
@@ -106,8 +103,9 @@ public class OutgoingChatTextViewHolder extends RecyclerView.ViewHolder {
                 }
             });
         }
-        realm.close();
+        tempRealm.close();
     }
+
 
     private boolean showPopup(LinearLayout linearLayout, final Message message, final Context context) {
         if (message.getText() == null) return false;

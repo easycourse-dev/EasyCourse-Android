@@ -13,9 +13,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -36,6 +36,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,7 +51,6 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
@@ -97,6 +97,9 @@ public class ChatRoomFragment extends BaseFragment {
     @BindView(R.id.chatSendImageProgressBar)
     ProgressBar sendImageProgressBar;
 
+    @BindView(R.id.swipeContainer)
+    SwipeRefreshLayout swipeContainer;
+
 
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     private RealmResults<Message> messages;
@@ -140,7 +143,6 @@ public class ChatRoomFragment extends BaseFragment {
 
     private void setupChatRecyclerView() {
         messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
-
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
         chatRecyclerView.setHasFixedSize(true);
@@ -154,6 +156,46 @@ public class ChatRoomFragment extends BaseFragment {
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
             }
         });
+
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                Message message = messages.get(0);
+                try {
+                    socketIO.getRoomMessage(currentRoom.getId(), message.getCreatedAt().getTime(), 100, new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipeContainer.setRefreshing(false);
+                                }
+                            });
+                            try {
+                                JSONObject obj = (JSONObject) args[0];
+                                Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                if (obj.has("error")) {
+                                    Log.e(TAG, obj.toString());
+                                } else {
+                                    JSONArray msgArray = obj.getJSONArray("msg");
+                                    for (int i = 0; i < msgArray.length(); i++) {
+                                        socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, e.toString());
+                            }
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     private void setupOnClickListeners() {

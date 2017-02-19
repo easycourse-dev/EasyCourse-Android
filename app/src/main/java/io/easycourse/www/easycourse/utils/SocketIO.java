@@ -425,30 +425,12 @@ public class SocketIO {
         });
     }
 
-    public void getRoomMessage(String roomID, long time, int limit) throws JSONException {
+    public void getRoomMessage(String roomID, long time, int limit, Ack ack) throws JSONException {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("roomId", roomID);
         jsonParam.put("fromTime", time);
         jsonParam.put("limit", limit);
-        socket.emit("getRoomMessage", jsonParam, new Ack() {
-            @Override
-            public void call(Object... args) {
-                try {
-                    JSONObject obj = (JSONObject) args[0];
-                    Log.e(TAG, "getRoomMessage: "+obj.toString());
-                    if (obj.has("error")) {
-                        Log.e(TAG, obj.toString());
-                    } else {
-                        JSONArray msgArray = obj.getJSONArray("msg");
-                        for (int i = 0; i < msgArray.length(); i++) {
-                            saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
-                        }
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, e.toString());
-                }
-            }
-        });
+        socket.emit("getRoomMessage", jsonParam, ack);
     }
 
     public void logout(Ack callback) throws JSONException {
@@ -722,7 +704,7 @@ public class SocketIO {
         });
     }
 
-    private void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
+    public void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
         if (obj == null) return;
         Message message;
         try {

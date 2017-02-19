@@ -15,10 +15,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -35,22 +34,10 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.models.main.Language;
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
-
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -149,11 +136,11 @@ public class UserProfileActivity extends BaseActivity {
             } else {
                 avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
             }
-            textViewUsername.setText(user.getUsername());
-            editTextUsername.setText(user.getUsername());
-            if(user.getEmail() != null){
+            textViewUsername.setText(currentUser.getUsername());
+            editTextUsername.setText(currentUser.getUsername());
+            if(currentUser.getEmail() != null){
                 emailContainer.setVisibility(View.VISIBLE);
-                textViewEmail.setText(user.getEmail());
+                textViewEmail.setText(currentUser.getEmail());
             }
         }
 

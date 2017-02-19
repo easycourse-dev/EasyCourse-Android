@@ -3,7 +3,6 @@ package io.easycourse.www.easycourse.activities;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import butterknife.ButterKnife;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;

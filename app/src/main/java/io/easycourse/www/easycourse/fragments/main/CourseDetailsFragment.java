@@ -201,11 +201,11 @@ public class CourseDetailsFragment extends BaseFragment {
                         String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        realm.copyToRealmOrUpdate(course);
-                        realm.commitTransaction();
-                        realm.close();
+//                        Realm realm = Realm.getDefaultInstance();
+//                        realm.beginTransaction();
+//                        realm.copyToRealmOrUpdate(course);
+//                        realm.commitTransaction();
+//                        realm.close();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -271,7 +271,6 @@ public class CourseDetailsFragment extends BaseFragment {
                             courseRooms.add(roomObj);
                         }
                         roomsAdapter.notifyDataSetChanged();
-//                        updateRecyclerView();
                     } else { // load more
                         int roomsOrigSize = courseRooms.size();
                         for (int i = 0; i < response.length(); i++) {

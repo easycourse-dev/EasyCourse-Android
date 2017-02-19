@@ -56,16 +56,14 @@ import io.socket.client.Ack;
  * Created by markw on 12/17/2016.
  */
 
-public class NewRoomActivity extends AppCompatActivity {
+public class NewRoomActivity extends BaseActivity {
 
-    Realm realm;
-    SocketIO socketIO;
+
     NewRoomRoomsEndlessRecyclerViewScrollListener roomsOnScrollListener;
     ArrayList<Course> courses = new ArrayList<>();
     NewRoomCoursesAdapter coursesAdapter;
     ArrayList<Room> rooms = new ArrayList<>();
     NewRoomRoomsRecyclerViewAdapter roomsRecyclerViewAdapter;
-    User currentUser;
     Handler handler;
     Runnable searchDelay;
 
@@ -113,9 +111,7 @@ public class NewRoomActivity extends AppCompatActivity {
         noCourseText.setVisibility(View.GONE);
         newRoomButton.setVisibility(View.GONE);
 
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
-        realm = Realm.getDefaultInstance();
-        currentUser = User.getCurrentUser(this, realm);
+
         handler = new Handler();
 
         // Setup courses

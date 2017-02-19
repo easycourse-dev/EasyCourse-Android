@@ -1,19 +1,27 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.loopj.android.http.AsyncHttpClient;
@@ -45,12 +53,10 @@ import io.realm.Realm;
 
 import static io.easycourse.www.easycourse.EasyCourse.bus;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
 
-    Realm realm;
-    SocketIO socketIO;
     Snackbar disconnectSnackbar;
 
     @BindView(R.id.toolbarMain)
@@ -83,8 +89,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
             EasyCourse.getAppInstance().createSocketIO();
             socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -110,8 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-
-        bus.register(this);
 
 //        //Get data from signup, may be null, fields may be null, but why...
 //        Intent intentFromSignup = getIntent();
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*private void parseSetupIntent(UserSetup userSetup) {
+    private void parseSetupIntent(UserSetup userSetup) {
         if (userSetup == null) return;
         try {
             APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-    }*/
+    }
 
     private void setupNavigation() {
 
@@ -258,6 +260,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && viewPager.getCurrentItem() == 1) {
+            viewPager.setCurrentItem(0, true);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         EasyCourse.getAppInstance().setShowNotification(false);
@@ -270,11 +281,6 @@ public class MainActivity extends AppCompatActivity {
         EasyCourse.getAppInstance().setShowNotification(true);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
-    }
 
     @Subscribe
     public void disconnectEvent(Event.DisconnectEvent event) {

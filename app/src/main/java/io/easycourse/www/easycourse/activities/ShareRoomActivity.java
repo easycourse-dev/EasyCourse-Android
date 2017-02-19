@@ -38,7 +38,7 @@ import io.socket.client.Ack;
  * Created by nisarg on 5/1/17.
  */
 
-public class ShareRoomActivity extends AppCompatActivity {
+public class ShareRoomActivity extends BaseActivity {
 
     private static final String TAG = "ShareRoomActivity";
 
@@ -47,8 +47,7 @@ public class ShareRoomActivity extends AppCompatActivity {
     @BindView(R.id.toolbarShareRoom)
     Toolbar toolbar;
 
-    private Realm realm;
-    private SocketIO socketIO;
+
 
     String roomShareId;
 
@@ -79,8 +78,6 @@ public class ShareRoomActivity extends AppCompatActivity {
         });
         getSupportActionBar().setTitle("Share Room");
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
 
         rooms = realm.where(Room.class).equalTo("isJoinIn", true).findAll();
 

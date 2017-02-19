@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,6 +27,8 @@ import java.util.UUID;
 
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by noahrinehart on 1/28/17.
@@ -47,7 +50,7 @@ public class DownloadImageTask extends AsyncTask<Void, Void, File> {
     @Override
     protected File doInBackground(Void... voids) {
         File file = getPictureFile();
-        if(file == null) return null;
+        if (file == null) return null;
 //        if(!file.exists()) return null;
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -60,11 +63,12 @@ public class DownloadImageTask extends AsyncTask<Void, Void, File> {
     @Override
     protected void onPostExecute(File file) {
         super.onPostExecute(file);
-        if(file == null) return;
+        if (file == null) return;
 
         Intent intent = new Intent();
         intent.setAction(android.content.Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(file), "image/*");
+        Uri photoUri = FileProvider.getUriForFile(mContext, getApplicationContext().getPackageName() + ".provider", file);
+        intent.setDataAndType(photoUri, "image/*");
         PendingIntent pIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
 
         NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);

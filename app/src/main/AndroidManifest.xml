@@ -71,23 +71,24 @@
         </activity>
 
         <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:name="io.easycourse.www.easycourse.activities.MyCoursesActivity"
+            android:noHistory="true"
             android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
         <activity
-            android:name="io.easycourse.www.easycourse.activities.CourseDetailsActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.CourseManagementActivity"
+            android:name=".activities.UserDetailActivity"
+            android:parentActivityName="io.easycourse.www.easycourse.activities.ChatRoomActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.easycourse.www.easycourse.activities.CourseManagementActivity" />
+                android:value=".activities.ChatRoomActivity" />
         </activity>
 
         <activity
@@ -100,6 +101,7 @@
                 android:value="io.easycourse.www.easycourse.activities.ChatRoomActivity" />
         </activity>
 
+        <!--To access files from uri-->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -122,9 +124,10 @@
             </intent-filter>
         </service>
 
+
         <receiver
             android:name=".utils.BroadcastRecievers.NotificationClearBroadcastReceiver"
-            android:exported="false"></receiver>
+            android:exported="false" />
 
 
         <meta-data

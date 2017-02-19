@@ -13,6 +13,7 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.DynamicRealm;
@@ -131,4 +132,5 @@ public class EasyCourse extends Application {
         SharedPreferences sharedPref = context.getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
         return sharedPref.getString("universityId", null);
     }
+
 }

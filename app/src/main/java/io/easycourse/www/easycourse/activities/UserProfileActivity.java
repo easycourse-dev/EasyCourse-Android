@@ -148,7 +148,10 @@ public class UserProfileActivity extends AppCompatActivity {
                 avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
             }
             textViewUsername.setText(user.getUsername());
+            if(user.getEmail().length()>2)
             textViewUseremail.setText(user.getEmail());
+            else
+            textViewUseremail.setVisibility(View.GONE);
             editTextUsername.setText(user.getUsername());
         }
 

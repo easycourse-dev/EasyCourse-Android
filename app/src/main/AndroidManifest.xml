@@ -16,7 +16,7 @@
         android:required="true" />
 
     <application
-        android:name="io.easycourse.www.easycourse.EasyCourse"
+        android:name=".EasyCourse"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -24,15 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="io.easycourse.www.easycourse.activities.SignupLoginActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:name=".activities.SignupLoginActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.easycourse.www.easycourse.activities.MainActivity" />
         </activity>
-        <activity android:name="io.easycourse.www.easycourse.activities.MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,9 +40,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="io.easycourse.www.easycourse.activities.ChatRoomActivity"
+            android:name=".activities.ChatRoomActivity"
             android:label=""
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
@@ -50,50 +50,46 @@
                 android:value="io.easycourse.www.easycourse.activities.MainActivity" />
         </activity>
         <activity
-            android:name="io.easycourse.www.easycourse.activities.UserProfileActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:name=".activities.UserProfileActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.easycourse.www.easycourse.activities.MainActivity" />
         </activity>
-
-        <activity android:name="io.easycourse.www.easycourse.activities.SettingsActivity" />
+        <activity android:name=".activities.SettingsActivity" />
         <activity
-            android:name="io.easycourse.www.easycourse.activities.NewRoomActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:name=".activities.NewRoomActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.easycourse.www.easycourse.activities.MainActivity" />
         </activity>
-
         <activity
-            android:name="io.easycourse.www.easycourse.activities.MyCoursesActivity"
+            android:name=".activities.MyCoursesActivity"
             android:noHistory="true"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
-
         <activity
             android:name=".activities.UserDetailActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.ChatRoomActivity"
+            android:parentActivityName=".activities.ChatRoomActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ChatRoomActivity" />
         </activity>
-
         <activity
-            android:name="io.easycourse.www.easycourse.activities.ShareRoomActivity"
-            android:parentActivityName="io.easycourse.www.easycourse.activities.ChatRoomActivity"
+            android:name=".activities.ShareRoomActivity"
+            android:parentActivityName=".activities.ChatRoomActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <meta-data
@@ -101,7 +97,7 @@
                 android:value="io.easycourse.www.easycourse.activities.ChatRoomActivity" />
         </activity>
 
-        <!--To access files from uri-->
+        <!-- To access files from uri -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -112,28 +108,24 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <service android:name="io.easycourse.www.easycourse.utils.EasyCourseFirebaseMessagingService">
+        <service android:name=".utils.EasyCourseFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <service android:name="io.easycourse.www.easycourse.utils.EasyCourseFirebaseInstanceIdService">
+        <service android:name=".utils.EasyCourseFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-
         <receiver
             android:name=".utils.BroadcastRecievers.NotificationClearBroadcastReceiver"
             android:exported="false" />
 
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_ic_notification" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
@@ -148,5 +140,8 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
+        <activity android:name=".fragments.main.ResetPassword"></activity>
     </application>
+
 </manifest>

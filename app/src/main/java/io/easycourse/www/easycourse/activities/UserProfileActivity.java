@@ -18,21 +18,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import io.easycourse.www.easycourse.EasyCourse;
-import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.models.main.Language;
-import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.BitmapUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
-import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 
 import com.squareup.picasso.Picasso;
 
@@ -42,6 +33,14 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.easycourse.www.easycourse.EasyCourse;
+import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.fragments.main.ResetPassword;
+import io.easycourse.www.easycourse.models.main.Language;
+import io.easycourse.www.easycourse.models.main.User;
+import io.easycourse.www.easycourse.utils.BitmapUtils;
+import io.easycourse.www.easycourse.utils.SocketIO;
+import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
 import io.realm.Realm;
 import io.socket.client.Ack;
 
@@ -49,7 +48,7 @@ import io.socket.client.Ack;
  * Created by nisarg on 28/11/16.
  */
 
-public class UserProfileActivity extends BaseActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "UserProfileActivity";
 
@@ -59,6 +58,8 @@ public class UserProfileActivity extends BaseActivity {
     Toolbar toolbar;
     @BindView(R.id.textViewUsername)
     TextView textViewUsername;
+    @BindView(R.id.textViewUseremail)
+    TextView textViewUseremail;
     @BindView(R.id.editTextUsername)
     EditText editTextUsername;
     @BindView(R.id.saveChangesButton)
@@ -69,6 +70,8 @@ public class UserProfileActivity extends BaseActivity {
     FloatingActionButton editAvatarButton;
     @BindView(R.id.avatarImage)
     CircleImageView avatarImage;
+    @BindView(R.id.resetpassword)
+    TextView forgetpasswordbutton;
     //    @BindView(R.id.userProfileLanguageView)
 //    RecyclerView languageView;
 //    @BindView(R.id.userProfileLanguageLabel)
@@ -78,7 +81,10 @@ public class UserProfileActivity extends BaseActivity {
 
     boolean isInEditMode = false;
 
+    User user = new User();
 
+    Realm realm;
+    SocketIO socket;
 //    LanguageRecyclerViewAdapter languageAdapter;
 
 //    RealmList<Language> userLanguages;
@@ -90,6 +96,7 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_userprofile);
 
         //Binds all the views
@@ -110,6 +117,8 @@ public class UserProfileActivity extends BaseActivity {
         });
 
 
+        socket = EasyCourse.getAppInstance().getSocketIO();
+
         saveChangesButton.hide();
 
         editUsernameButton.setOnClickListener(new View.OnClickListener() {
@@ -119,12 +128,14 @@ public class UserProfileActivity extends BaseActivity {
             }
         });
 
+        realm = Realm.getDefaultInstance();
 
-        if (currentUser != null) {
-            if (currentUser.getProfilePicture() != null) {
-                Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
+        user = User.getCurrentUser(this, realm);
+        if (user != null) {
+            if (user.getProfilePicture() != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
                 avatarImage.setImageBitmap(bm);
-            } else if (currentUser.getProfilePictureUrl() != null && currentUser.getProfilePictureUrl().length() > 1) {
+            } else if (user.getProfilePictureUrl() != null && user.getProfilePictureUrl().length() > 1) {
                 Picasso.Builder builder = new Picasso.Builder(this);
                 builder.listener(new Picasso.Listener() {
                     @Override
@@ -132,12 +143,13 @@ public class UserProfileActivity extends BaseActivity {
                         exception.printStackTrace();
                     }
                 });
-                builder.build().load(currentUser.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
+                builder.build().load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_account_circle_black_48dp).into(avatarImage);
             } else {
                 avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
             }
-            textViewUsername.setText(currentUser.getUsername());
-            editTextUsername.setText(currentUser.getUsername());
+            textViewUsername.setText(user.getUsername());
+            textViewUseremail.setText(user.getEmail());
+            editTextUsername.setText(user.getUsername());
         }
 
 //        languageLabel.setText("Chosen language(s):");
@@ -146,7 +158,7 @@ public class UserProfileActivity extends BaseActivity {
             @Override
             public void onClick(final View view) {
                 try {
-                    socketIO.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
+                    socket.syncUser(editTextUsername.getText().toString(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                         @Override
                         public void call(Object... args) {
                             JSONObject obj = (JSONObject) args[0];
@@ -199,6 +211,13 @@ public class UserProfileActivity extends BaseActivity {
             }
         });
 
+        forgetpasswordbutton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i=new Intent(UserProfileActivity.this, ResetPassword.class);
+                startActivity(i);
+            }
+        });
+
         // Setup language recycler view
 //        userLanguages = Language.getCheckedLanguages(realm);
 //        allLanguages = Language.getCheckedLanguages(realm);
@@ -213,8 +232,8 @@ public class UserProfileActivity extends BaseActivity {
     }
 
     private void updateUserInfoOnScreen() {
-        if (currentUser.getProfilePicture() != null && currentUser.getProfilePicture().length > 0) {
-            Bitmap bm = BitmapFactory.decodeByteArray(currentUser.getProfilePicture(), 0, currentUser.getProfilePicture().length);
+        if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
+            Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
             avatarImage.setImageBitmap(bm);
         } else {
             avatarImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_black_48dp));
@@ -280,7 +299,7 @@ public class UserProfileActivity extends BaseActivity {
                 if (bytes != null) {
                     try {
                         Log.d(TAG, "onTaskCompleted: calling sync user");
-                        socketIO.syncUser(null, bytes, null, new Ack() {
+                        socket.syncUser(null, bytes, null, new Ack() {
                             @Override
                             public void call(Object... args) {
                                 setUserImage(bitmap, bytes);
@@ -362,7 +381,7 @@ public class UserProfileActivity extends BaseActivity {
                             avatarImage.setImageBitmap(image);
                             Realm tempRealm = Realm.getDefaultInstance();
                             tempRealm.beginTransaction();
-                            currentUser.setProfilePicture(profile);
+                            user.setProfilePicture(profile);
                             tempRealm.commitTransaction();
                             tempRealm.close();
                         }

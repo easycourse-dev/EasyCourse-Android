@@ -231,4 +231,15 @@ public class APIFunctions {
         else
             return userToken;
     }
+    //API function to update user's password
+    public static boolean updatePassword(Context context,String email,String opwd ,String npwd, JsonHttpResponseHandler jsonHttpResponseHandler) throws JSONException, UnsupportedEncodingException {
+        client.addHeader("auth", "1");
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("email", email);
+        jsonParam.put("password", opwd);
+        jsonParam.put("newPassword", npwd);
+        StringEntity body = new StringEntity(jsonParam.toString());
+        client.post(context, URL+"/resetPassword", body, "application/json", jsonHttpResponseHandler);
+        return true;
+    }
 }

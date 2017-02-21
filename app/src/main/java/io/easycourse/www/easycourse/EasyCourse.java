@@ -13,7 +13,6 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.MainBus;
 import io.realm.DynamicRealm;
@@ -31,7 +30,7 @@ public class EasyCourse extends Application {
 
     private static final String TAG = "EasyCourse";
 
-    private SocketIO socketIO;
+    public SocketIO socketIO;
     private static EasyCourse appInstance = null;
     private String inRoom;
     private boolean showNotification;

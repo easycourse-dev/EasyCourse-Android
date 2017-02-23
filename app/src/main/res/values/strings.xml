@@ -93,5 +93,9 @@
     <string name="joined">Joined</string>
     <string name="join">Join</string>
 
+    <!--LanguageSettingActivity-->
+    <string name="language">This is not system language. If you choose a language, next time when you join courses,
+        you will also join the course rooms with language automatically.</string>
+
 
 </resources>

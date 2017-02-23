@@ -36,6 +36,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.fragments.main.LanguageSetting;
 import io.easycourse.www.easycourse.fragments.main.ResetPassword;
 import io.easycourse.www.easycourse.models.main.Language;
 import io.easycourse.www.easycourse.models.main.User;
@@ -77,6 +78,9 @@ public class UserProfileActivity extends AppCompatActivity {
     TextView forgetpasswordbutton;
     @BindView(R.id.userprofileemail)
     CardView email;
+    @BindView(R.id.language)
+    CardView lang;
+
     //    @BindView(R.id.userProfileLanguageView)
 //    RecyclerView languageView;
 //    @BindView(R.id.userProfileLanguageLabel)
@@ -226,6 +230,12 @@ public class UserProfileActivity extends AppCompatActivity {
         forgetpasswordbutton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i=new Intent(UserProfileActivity.this, ResetPassword.class);
+                startActivity(i);
+            }
+        });
+        lang.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i=new Intent(UserProfileActivity.this, LanguageSetting.class);
                 startActivity(i);
             }
         });

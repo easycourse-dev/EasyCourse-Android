@@ -151,7 +151,37 @@
 
         </android.support.v7.widget.CardView>
         <android.support.v7.widget.CardView
-            android:layout_marginTop="50dp"
+            android:id="@+id/language"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentPadding="8dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Language Settings"
+                    android:textSize="18sp"
+                    android:clickable="false"
+                    android:textAlignment="center"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView
+            android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="2dp"
@@ -163,6 +193,7 @@
 
 
                 <TextView
+                    android:gravity="center"
                     android:id="@+id/resetpassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -171,8 +202,6 @@
                     android:clickable="true"
                     android:transitionName="username"
                     android:textAlignment="center"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true" />
 
 

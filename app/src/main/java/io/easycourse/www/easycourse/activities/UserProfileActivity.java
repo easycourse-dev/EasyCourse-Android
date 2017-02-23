@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -60,6 +61,8 @@ public class UserProfileActivity extends AppCompatActivity {
     TextView textViewUsername;
     @BindView(R.id.textViewUseremail)
     TextView textViewUseremail;
+    @BindView(R.id.emailheading)
+    TextView emailheading;
     @BindView(R.id.editTextUsername)
     EditText editTextUsername;
     @BindView(R.id.saveChangesButton)
@@ -72,6 +75,8 @@ public class UserProfileActivity extends AppCompatActivity {
     CircleImageView avatarImage;
     @BindView(R.id.resetpassword)
     TextView forgetpasswordbutton;
+    @BindView(R.id.userprofileemail)
+    CardView email;
     //    @BindView(R.id.userProfileLanguageView)
 //    RecyclerView languageView;
 //    @BindView(R.id.userProfileLanguageLabel)
@@ -148,10 +153,14 @@ public class UserProfileActivity extends AppCompatActivity {
                 avatarImage.setImageResource(R.drawable.ic_account_circle_black_48dp);
             }
             textViewUsername.setText(user.getUsername());
-            if(user.getEmail().length()>2)
+            String s=user.getEmail();
+            if(s!=null)
             textViewUseremail.setText(user.getEmail());
-            else
-            textViewUseremail.setVisibility(View.GONE);
+            else {
+                textViewUseremail.setVisibility(View.GONE);
+                emailheading.setVisibility(View.GONE);
+                email.setVisibility(View.GONE);
+            }
             editTextUsername.setText(user.getUsername());
         }
 

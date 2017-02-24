@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.hanks.library.AnimateCheckBox;
+
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.models.main.Language;
 import io.easycourse.www.easycourse.utils.ListsUtils;
-import com.hanks.library.AnimateCheckBox;
-
 import io.realm.Realm;
 import io.realm.RealmList;
 
@@ -20,7 +20,7 @@ import io.realm.RealmList;
  * Created by markw on 1/5/2017.
  */
 
-public class LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRecyclerViewAdapter.ViewHolder> {
+public class    LanguageRecyclerViewAdapter extends RecyclerView.Adapter<LanguageRecyclerViewAdapter.ViewHolder> {
     private RealmList<Language> languageList = new RealmList<>();
     private RealmList<Language> checkedLanguageList = new RealmList<>();
     private Realm realm;

@@ -1,23 +1,28 @@
 package io.easycourse.www.easycourse.fragments.main;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Button;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.components.main.UserProfile.LanguageRecyclerViewAdapter;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Language;
@@ -26,6 +31,7 @@ import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.socket.client.Ack;
 
 public class LanguageSetting extends AppCompatActivity {
 
@@ -33,6 +39,8 @@ public class LanguageSetting extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.existedlang)
     RecyclerView languageView;
+    @BindView(R.id.languagesettingsave)
+    Button Save;
     User user = new User();
 
     Realm realm;
@@ -84,7 +92,7 @@ public class LanguageSetting extends AppCompatActivity {
                                 allLanguages.add(new Language(
                                         response.getJSONObject(i).getString("name"),
                                         response.getJSONObject(i).getString("code"),
-                                        "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"+
+                                        "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"+
                                                 response.getJSONObject(i).getString("translation")
                                 ));
                             else
@@ -102,12 +110,30 @@ public class LanguageSetting extends AppCompatActivity {
                     languageAdapter.notifyDataSetChanged();
                 }
             });
-        languageView.setOnClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                call( position );
+        Save.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                try {
+                    socket.syncUser(null, null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            JSONObject obj = (JSONObject) args[0];
+                            if (obj.has("error")) {
+                                try {
+                                    Snackbar.make(v, obj.getString("error"), Snackbar.LENGTH_LONG).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.e("syncUser", obj.toString());
+                            }
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Intent i=new Intent(LanguageSetting.this, UserDetailActivity.class);
+                startActivity(i);
             }
         });
-
     }
 }

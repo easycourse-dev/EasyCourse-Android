@@ -12,8 +12,6 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
-import static io.easycourse.www.easycourse.utils.ListsUtils.isLanguageInList;
-
 /**
  * Created by noahrinehart on 10/29/16.
  */
@@ -83,6 +81,7 @@ public class Language extends RealmObject {
         }
         return results;
     }
+
 
     public static RealmList<Language> syncLanguage(RealmList<Language> list, JSONArray listJSON, Realm realm) {
         for (int i = 0; i < listJSON.length(); i++) {

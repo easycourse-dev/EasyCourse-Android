@@ -1,27 +1,19 @@
 package io.easycourse.www.easycourse.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.loopj.android.http.AsyncHttpClient;
@@ -52,11 +44,7 @@ import io.easycourse.www.easycourse.fragments.main.UserFragment;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
-import io.realm.Realm;
-
-import static io.easycourse.www.easycourse.EasyCourse.bus;
 
 public class MainActivity extends BaseActivity {
 
@@ -79,6 +67,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Binds all the views
         ButterKnife.bind(this);
 
         AsyncHttpClient client = APIFunctions.client;
@@ -104,9 +93,8 @@ public class MainActivity extends BaseActivity {
         checkUserLogin();
 
         try {
-            socketIO.getHistMessage();
-            socketIO.syncUser();
-            socketIO.getUniversityInfo(currentUser.getUniversityID());
+            socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
+            //socketIO.getAllMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }

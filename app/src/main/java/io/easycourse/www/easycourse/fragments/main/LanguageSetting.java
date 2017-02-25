@@ -1,6 +1,8 @@
 package io.easycourse.www.easycourse.fragments.main;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +24,7 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
-import io.easycourse.www.easycourse.activities.UserDetailActivity;
+import io.easycourse.www.easycourse.activities.MainActivity;
 import io.easycourse.www.easycourse.components.main.UserProfile.LanguageRecyclerViewAdapter;
 import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Language;
@@ -48,6 +50,7 @@ public class LanguageSetting extends AppCompatActivity {
     LanguageRecyclerViewAdapter languageAdapter;
     RealmList<Language> userLanguages;
     RealmList<Language> allLanguages;
+    SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +116,7 @@ public class LanguageSetting extends AppCompatActivity {
         Save.setOnClickListener(new View.OnClickListener() {
             public void onClick(final View v) {
                 try {
-                    socket.syncUser(null, null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
+                    socket.syncUser(user.getUsername(), null, Language.getCheckedLanguageCodeArrayList(realm), new Ack() {
                         @Override
                         public void call(Object... args) {
                             JSONObject obj = (JSONObject) args[0];
@@ -131,7 +134,15 @@ public class LanguageSetting extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Intent i=new Intent(LanguageSetting.this, UserDetailActivity.class);
+                try {
+                    EasyCourse.getAppInstance().socketIO.disconnect();
+                    sharedPref = getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
+                    EasyCourse.getAppInstance().createSocketIO();
+                }catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                Intent i=new Intent(LanguageSetting.this,MainActivity.class);
                 startActivity(i);
             }
         });

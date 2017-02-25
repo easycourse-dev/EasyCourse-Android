@@ -163,6 +163,12 @@ public class ChatRoomFragment extends BaseFragment {
                 // Your code to refresh the list here.
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
+                if(messages.isEmpty())
+                {
+                    swipeContainer.setRefreshing(false);
+                    Toast.makeText(activity, "No more messages to load.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Message message = messages.get(0);
                 try {
                     socketIO.getRoomMessage(currentRoom.getId(), message.getCreatedAt().getTime(), 100, new Ack() {

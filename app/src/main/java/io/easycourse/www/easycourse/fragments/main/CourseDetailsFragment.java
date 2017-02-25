@@ -59,6 +59,7 @@ public class CourseDetailsFragment extends BaseFragment {
     int creditHrs;
     University university;
     String universityName;
+    String courseName;
     ArrayList<Room> courseRooms = new ArrayList<>();
     CourseDetailsRoomsRecyclerViewAdapter roomsAdapter;
     CourseDetailsRoomsEndlessRecyclerViewScrollListener scrollListener;
@@ -99,11 +100,10 @@ public class CourseDetailsFragment extends BaseFragment {
     }
 
     private void fetchAndCreate() {
-
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
         if (course != null) {
             creditHrs = course.getCreditHours();
-            university = realm.where(University.class).equalTo("id", course.getUniversityID()).findFirst();
+            university = realm.where(University.class).equalTo("id", university.getId()).findFirst();
             if (university != null) universityName = university.getName();
             setupTextViews();
         } else {
@@ -144,7 +144,8 @@ public class CourseDetailsFragment extends BaseFragment {
         });
 
         if (course != null) {
-            courseNameView.setText(course.getCoursename());
+            courseName = course.getCourseDescription();
+            courseNameView.setText(courseName);
             titleView.setText(course.getTitle());
             String creditString;
             if (creditHrs == 1) {
@@ -233,8 +234,8 @@ public class CourseDetailsFragment extends BaseFragment {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        course.getCoursename(),
-                                        course.getUniversityID(),
+                                        courseName,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -254,8 +255,8 @@ public class CourseDetailsFragment extends BaseFragment {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        course.getCoursename(),
-                                        course.getUniversityID(),
+                                        courseName,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -280,8 +281,8 @@ public class CourseDetailsFragment extends BaseFragment {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        course.getCoursename(),
-                                        course.getUniversityID(),
+                                        courseName,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -301,8 +302,8 @@ public class CourseDetailsFragment extends BaseFragment {
                                         room.getString("name"),
                                         new RealmList<Message>(),
                                         courseId,
-                                        course.getCoursename(),
-                                        course.getUniversityID(),
+                                        courseName,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -334,8 +335,8 @@ public class CourseDetailsFragment extends BaseFragment {
 
     private void showDropCourseDialog() {
         MaterialDialog dialog = new MaterialDialog.Builder(getContext())
-                .title("Dropping " + course.getCoursename() + "?")
-                .content("If you drop this course, then you will automatically quit all the rooms belonging to " + course.getCoursename() + ".")
+                .title("Dropping " + courseName + "?")
+                .content("If you drop this course, then you will automatically quit all the rooms belonging to " + courseName + ".")
                 .negativeText("Maybe Not")
                 .positiveText("Drop It")
                 .positiveColor(ResourcesCompat.getColor(getResources(), R.color.colorLogout, null))
@@ -344,7 +345,6 @@ public class CourseDetailsFragment extends BaseFragment {
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // Drop the course
                         try {
-                            final String courseId = course.getId();
                             socketIO.dropCourse(courseId, new Ack() {
                                 @Override
                                 public void call(Object... args) {
@@ -353,7 +353,6 @@ public class CourseDetailsFragment extends BaseFragment {
                                         boolean status = obj.getBoolean("success");
                                         if (status) {
                                             Realm tempRealm = Realm.getDefaultInstance();
-                                            ArrayList<Room> deletedRooms = new ArrayList<>();
                                             JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
                                             String quitedRoomId;
                                             Room quitedRoom;
@@ -361,7 +360,6 @@ public class CourseDetailsFragment extends BaseFragment {
                                                 // Quit rooms in Realm
                                                 quitedRoomId = quitedRoomsJSON.getString(i);
                                                 quitedRoom = Room.getRoomById(tempRealm, quitedRoomId);
-                                                deletedRooms.add(quitedRoom);
                                                 Room.deleteRoomFromRealm(quitedRoom, tempRealm);
                                             }
                                             Course tempCourse = Course.getCourseById(courseId, tempRealm);

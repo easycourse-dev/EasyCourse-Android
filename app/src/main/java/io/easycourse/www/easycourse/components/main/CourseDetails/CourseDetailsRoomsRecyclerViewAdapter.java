@@ -177,9 +177,13 @@ public class CourseDetailsRoomsRecyclerViewAdapter extends RecyclerView.Adapter<
 
 
     private Room isRoomJoined(ArrayList<Room> list, Room room) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().equals(room.getId())) {
-                return list.get(i);
+        if (room != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i) != null) {
+                    if (list.get(i).getId().equals(room.getId())) {
+                        return list.get(i);
+                    }
+                }
             }
         }
         return null;

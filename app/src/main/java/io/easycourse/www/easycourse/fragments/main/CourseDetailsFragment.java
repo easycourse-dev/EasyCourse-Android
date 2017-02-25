@@ -332,16 +332,6 @@ public class CourseDetailsFragment extends BaseFragment {
         });
     }
 
-    private void notifyRecyclerView() {
-        if (roomsAdapter == null) return;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                roomsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
     private void showDropCourseDialog() {
         MaterialDialog dialog = new MaterialDialog.Builder(getContext())
                 .title("Dropping " + course.getCoursename() + "?")
@@ -354,15 +344,16 @@ public class CourseDetailsFragment extends BaseFragment {
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // Drop the course
                         try {
-                            socketIO.dropCourse(course.getId(), new Ack() {
+                            final String courseId = course.getId();
+                            socketIO.dropCourse(courseId, new Ack() {
                                 @Override
                                 public void call(Object... args) {
                                     try {
-                                        Realm tempRealm = Realm.getDefaultInstance();
                                         JSONObject obj = (JSONObject) args[0];
                                         boolean status = obj.getBoolean("success");
-                                        ArrayList<Room> deletedRooms = new ArrayList<>();
                                         if (status) {
+                                            Realm tempRealm = Realm.getDefaultInstance();
+                                            ArrayList<Room> deletedRooms = new ArrayList<>();
                                             JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
                                             String quitedRoomId;
                                             Room quitedRoom;
@@ -373,11 +364,12 @@ public class CourseDetailsFragment extends BaseFragment {
                                                 deletedRooms.add(quitedRoom);
                                                 Room.deleteRoomFromRealm(quitedRoom, tempRealm);
                                             }
-                                            Course.deleteCourseFromRealm(course, tempRealm);
+                                            Course tempCourse = Course.getCourseById(courseId, tempRealm);
+                                            Course.deleteCourseFromRealm(tempCourse, tempRealm);
                                             tempRealm.close();
                                             // Update view
                                             isJoinIn = false;
-                                            courseUpdateView(deletedRooms);
+                                            reFetchAndUpdate();
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -452,6 +444,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                     isPublic,
                                     isSystem
                             );
+                            tempRoom.setJoinIn(true);
                             newRooms.add(tempRoom);
                             Room.updateRoomToRealm(tempRoom, tempRealm);
                         }
@@ -481,6 +474,23 @@ public class CourseDetailsFragment extends BaseFragment {
                             courseRooms.clear();
                             roomsAdapter.updateCourse(isJoinIn, roomsJoined);
                             searchSubRooms(0);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void reFetchAndUpdate() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchAndCreate();
                         }
                     });
                 }

@@ -8,7 +8,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -51,7 +50,6 @@ import io.easycourse.www.easycourse.models.main.Room;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.ListsUtils;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -149,8 +147,7 @@ public class ChatRoomActivity extends BaseActivity {
         if (currentRoom.getCourseName() == null) {
             toolbarSubtitleTextView.setVisibility(View.GONE);
             toolbarTitleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
-        }
-    }
+        }    }
 
     private void setupDrawer() {
         DrawerBuilder builder = new DrawerBuilder(this);

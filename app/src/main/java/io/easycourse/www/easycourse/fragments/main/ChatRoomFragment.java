@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -104,6 +105,8 @@ public class ChatRoomFragment extends BaseFragment {
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     private RealmResults<Message> messages;
 
+    private Handler handler = new Handler();
+
     public ChatRoomFragment() {
     }
 
@@ -122,7 +125,6 @@ public class ChatRoomFragment extends BaseFragment {
         View v = inflater.inflate(R.layout.fragment_chat_room, container, false);
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
-
 
 
         /*try {
@@ -145,7 +147,7 @@ public class ChatRoomFragment extends BaseFragment {
         messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
-        chatRecyclerView.setHasFixedSize(true);
+        chatRecyclerView.setHasFixedSize(false);
         LinearLayoutManager chatLinearManager = new LinearLayoutManager(activity);
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         chatLinearManager.setStackFromEnd(true);
@@ -173,27 +175,28 @@ public class ChatRoomFragment extends BaseFragment {
                 try {
                     socketIO.getRoomMessage(currentRoom.getId(), message.getCreatedAt().getTime(), 100, new Ack() {
                         @Override
-                        public void call(Object... args) {
+                        public void call(final Object... args) {
                             activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    swipeContainer.setRefreshing(false);
+                                    try {
+                                        JSONObject obj = (JSONObject) args[0];
+                                        Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                        if (obj.has("error")) {
+                                            Log.e(TAG, obj.toString());
+                                        } else {
+                                            JSONArray msgArray = obj.getJSONArray("msg");
+                                            for (int i = 0; i < msgArray.length(); i++) {
+                                                socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, e.toString());
+                                    }
+                                        swipeContainer.setRefreshing(false);
                                 }
                             });
-                            try {
-                                JSONObject obj = (JSONObject) args[0];
-                                Log.e(TAG, "getRoomMessage: "+obj.toString());
-                                if (obj.has("error")) {
-                                    Log.e(TAG, obj.toString());
-                                } else {
-                                    JSONArray msgArray = obj.getJSONArray("msg");
-                                    for (int i = 0; i < msgArray.length(); i++) {
-                                        socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                Log.e(TAG, e.toString());
-                            }
+
                         }
                     });
                 } catch (JSONException e) {

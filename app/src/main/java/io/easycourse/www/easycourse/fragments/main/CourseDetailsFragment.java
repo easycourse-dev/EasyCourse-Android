@@ -143,16 +143,18 @@ public class CourseDetailsFragment extends BaseFragment {
             }
         });
 
-        courseNameView.setText(course.getCoursename());
-        titleView.setText(course.getTitle());
-        String creditString;
-        if (creditHrs == 1) {
-            creditString = "1 credit";
-        } else {
-            creditString = creditHrs + " credits";
+        if (course != null) {
+            courseNameView.setText(course.getCoursename());
+            titleView.setText(course.getTitle());
+            String creditString;
+            if (creditHrs == 1) {
+                creditString = "1 credit";
+            } else {
+                creditString = creditHrs + " credits";
+            }
+            creditHrsView.setText(creditString);
+            univView.setText(universityName);
         }
-        creditHrsView.setText(creditString);
-        univView.setText(universityName);
     }
 
     private void setupJoinedButton() {
@@ -201,11 +203,7 @@ public class CourseDetailsFragment extends BaseFragment {
                         String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-//                        Realm realm = Realm.getDefaultInstance();
-//                        realm.beginTransaction();
-//                        realm.copyToRealmOrUpdate(course);
-//                        realm.commitTransaction();
-//                        realm.close();
+                        updateTextView();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -483,6 +481,24 @@ public class CourseDetailsFragment extends BaseFragment {
                             courseRooms.clear();
                             roomsAdapter.updateCourse(isJoinIn, roomsJoined);
                             searchSubRooms(0);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void updateTextView() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupTextViews();
+                            setupJoinedButton();
                         }
                     });
                 }

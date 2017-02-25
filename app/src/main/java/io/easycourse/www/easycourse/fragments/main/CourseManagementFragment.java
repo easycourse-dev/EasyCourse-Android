@@ -38,7 +38,9 @@ import io.easycourse.www.easycourse.components.signup.RecyclerViewDivider;
 import io.easycourse.www.easycourse.models.main.Course;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.APIFunctions;
+import io.realm.RealmChangeListener;
 import io.realm.RealmList;
+import io.realm.RealmModel;
 import io.realm.RealmResults;
 
 
@@ -203,7 +205,7 @@ public class CourseManagementFragment extends BaseFragment {
     }
 
     private void fetchCourses() {
-        RealmList<Course> enrolledCoursesRealm = currentUser.getJoinedCourses();
+        RealmResults<Course> enrolledCoursesRealm = realm.where(Course.class).findAll();
         joinedCourses.clear();
         searchResults.clear();
         for (Course course : enrolledCoursesRealm) {

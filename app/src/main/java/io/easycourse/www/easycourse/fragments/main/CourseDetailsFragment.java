@@ -53,8 +53,6 @@ import io.socket.client.Ack;
  */
 
 public class CourseDetailsFragment extends BaseFragment {
-
-
     Course course;
     String courseId;
     boolean isJoinIn;
@@ -108,6 +106,8 @@ public class CourseDetailsFragment extends BaseFragment {
             university = realm.where(University.class).equalTo("id", course.getUniversityID()).findFirst();
             if (university != null) universityName = university.getName();
             setupTextViews();
+        } else {
+            fetchCourseInfo();
         }
         setupJoinedButton();
         joinCourseButton.setOnClickListener(new View.OnClickListener() {
@@ -122,10 +122,7 @@ public class CourseDetailsFragment extends BaseFragment {
         });
 
         searchSubRooms(0);
-
         setupRecyclerView();
-
-        fetchCourseInfo();
         setupTextViews();
     }
 
@@ -146,16 +143,18 @@ public class CourseDetailsFragment extends BaseFragment {
             }
         });
 
-        courseNameView.setText(course.getCoursename());
-        titleView.setText(course.getTitle());
-        String creditString;
-        if (creditHrs == 1) {
-            creditString = "1 credit";
-        } else {
-            creditString = creditHrs + " credits";
+        if (course != null) {
+            courseNameView.setText(course.getCoursename());
+            titleView.setText(course.getTitle());
+            String creditString;
+            if (creditHrs == 1) {
+                creditString = "1 credit";
+            } else {
+                creditString = creditHrs + " credits";
+            }
+            creditHrsView.setText(creditString);
+            univView.setText(universityName);
         }
-        creditHrsView.setText(creditString);
-        univView.setText(universityName);
     }
 
     private void setupJoinedButton() {
@@ -204,11 +203,7 @@ public class CourseDetailsFragment extends BaseFragment {
                         String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        realm.copyToRealmOrUpdate(course);
-                        realm.commitTransaction();
-                        realm.close();
+                        updateTextView();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -274,7 +269,6 @@ public class CourseDetailsFragment extends BaseFragment {
                             courseRooms.add(roomObj);
                         }
                         roomsAdapter.notifyDataSetChanged();
-//                        updateRecyclerView();
                     } else { // load more
                         int roomsOrigSize = courseRooms.size();
                         for (int i = 0; i < response.length(); i++) {
@@ -338,16 +332,6 @@ public class CourseDetailsFragment extends BaseFragment {
         });
     }
 
-    private void notifyRecyclerView() {
-        if (roomsAdapter == null) return;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                roomsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
     private void showDropCourseDialog() {
         MaterialDialog dialog = new MaterialDialog.Builder(getContext())
                 .title("Dropping " + course.getCoursename() + "?")
@@ -360,15 +344,16 @@ public class CourseDetailsFragment extends BaseFragment {
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         // Drop the course
                         try {
-                            socketIO.dropCourse(course.getId(), new Ack() {
+                            final String courseId = course.getId();
+                            socketIO.dropCourse(courseId, new Ack() {
                                 @Override
                                 public void call(Object... args) {
                                     try {
-                                        Realm tempRealm = Realm.getDefaultInstance();
                                         JSONObject obj = (JSONObject) args[0];
                                         boolean status = obj.getBoolean("success");
-                                        ArrayList<Room> deletedRooms = new ArrayList<>();
                                         if (status) {
+                                            Realm tempRealm = Realm.getDefaultInstance();
+                                            ArrayList<Room> deletedRooms = new ArrayList<>();
                                             JSONArray quitedRoomsJSON = obj.getJSONArray("quitRooms");
                                             String quitedRoomId;
                                             Room quitedRoom;
@@ -379,11 +364,12 @@ public class CourseDetailsFragment extends BaseFragment {
                                                 deletedRooms.add(quitedRoom);
                                                 Room.deleteRoomFromRealm(quitedRoom, tempRealm);
                                             }
-                                            Course.deleteCourseFromRealm(course, tempRealm);
+                                            Course tempCourse = Course.getCourseById(courseId, tempRealm);
+                                            Course.deleteCourseFromRealm(tempCourse, tempRealm);
                                             tempRealm.close();
                                             // Update view
                                             isJoinIn = false;
-                                            courseUpdateView(course.getId(), course.getCoursename(), deletedRooms);
+                                            reFetchAndUpdate();
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -458,13 +444,14 @@ public class CourseDetailsFragment extends BaseFragment {
                                     isPublic,
                                     isSystem
                             );
+                            tempRoom.setJoinIn(true);
                             newRooms.add(tempRoom);
                             Room.updateRoomToRealm(tempRoom, tempRealm);
                         }
                         tempRealm.close();
                         // Update view
                         isJoinIn = true;
-                        courseUpdateView(course.getId(), course.getCoursename(), newRooms);
+                        courseUpdateView(newRooms);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -475,24 +462,59 @@ public class CourseDetailsFragment extends BaseFragment {
         }
     }
 
-    private void courseUpdateView(final String courseId, final String courseName, final ArrayList<Room> roomsJoined) {
-//        Thread thread = new Thread() {
-//            @Override
-//            public void run() {
-//                synchronized (this) {
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            updateButtonView(isJoinIn);
-//                            courseRooms.clear();
-//                            roomsAdapter.updateCourse(isJoinIn, roomsJoined);
-//                            doSearchRoom(0, courseId);
-//                        }
-//                    });
-//                }
-//            }
-//        };
-//        thread.start();
+    private void courseUpdateView(final ArrayList<Room> roomsJoined) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupJoinedButton();
+                            courseRooms.clear();
+                            roomsAdapter.updateCourse(isJoinIn, roomsJoined);
+                            searchSubRooms(0);
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void reFetchAndUpdate() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchAndCreate();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private void updateTextView() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupTextViews();
+                            setupJoinedButton();
+                        }
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
 

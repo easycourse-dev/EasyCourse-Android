@@ -15,6 +15,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -29,8 +30,6 @@ import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import io.realm.Sort;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -184,7 +183,7 @@ public class SocketIO {
 
     public synchronized void syncUser() {
         try {
-            getAllMessage();
+            getHistMessage();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -277,7 +276,6 @@ public class SocketIO {
                             User founderUser = realm.where(User.class).equalTo("id", roomFounder).findFirst();
                             if (founderUser == null) {
                                 founderUser = realm.createObject(User.class, roomFounder);
-                                founderUser.setId(roomFounder);
                             }
 
                             room.setFounder(founderUser);
@@ -373,11 +371,16 @@ public class SocketIO {
     public void getHistMessage() throws JSONException {
         JSONObject jsonParam = new JSONObject();
         Realm realm = Realm.getDefaultInstance();
+        long time = Calendar.getInstance().getTimeInMillis();
+        /*time -= 604800000;
         RealmResults<Message> list = realm.where(Message.class).findAllSorted("createdAt", Sort.DESCENDING);
-        if (list.size() < 1) return;
-        Message message = list.first();
-        long time = message.getCreatedAt().getTime();
+        if (list.size() > 0) {
+            Message message = list.first();
+            time = message.getCreatedAt().getTime();
+        }*/
         jsonParam.put("lastUpdateTime", time);
+        jsonParam.put("descending", true);
+
         socket.emit("getHistMessage", jsonParam, new Ack() {
             @Override
             public void call(Object... args) {
@@ -420,6 +423,14 @@ public class SocketIO {
                 }
             }
         });
+    }
+
+    public void getRoomMessage(String roomID, long time, int limit, Ack ack) throws JSONException {
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("roomId", roomID);
+        jsonParam.put("fromTime", time);
+        jsonParam.put("limit", limit);
+        socket.emit("getRoomMessage", jsonParam, ack);
     }
 
     public void logout(Ack callback) throws JSONException {
@@ -693,7 +704,7 @@ public class SocketIO {
         });
     }
 
-    private void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
+    public void saveJsonMessageToRealm(JSONObject obj, boolean unread) {
         if (obj == null) return;
         Message message;
         try {

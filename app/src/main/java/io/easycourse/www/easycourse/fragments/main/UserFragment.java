@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.MyCoursesActivity;
 import io.easycourse.www.easycourse.activities.SignupLoginActivity;
@@ -218,7 +219,7 @@ public class UserFragment extends BaseFragment {
                     tempRealm.deleteAll();
                     tempRealm.commitTransaction();
                     tempRealm.close();
-
+                    EasyCourse.getAppInstance().getSocketIO().disconnect();
                     // Go back to SignupLoginActivity
                     startActivity(new Intent(getContext(), SignupLoginActivity.class));
                     // Logout from Facebook

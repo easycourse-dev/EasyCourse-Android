@@ -830,4 +830,9 @@ public class SocketIO {
         Room.updateRoomToRealm(room, tempRealm);
         return Room.getRoomById(tempRealm, roomId);
     }
+
+    public void disconnect()
+    {
+        this.socket.disconnect();
+    }
 }

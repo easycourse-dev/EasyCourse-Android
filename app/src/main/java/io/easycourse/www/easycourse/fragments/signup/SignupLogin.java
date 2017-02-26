@@ -548,8 +548,9 @@ public class SignupLogin extends Fragment {
                         String roomName = (String) JSONUtils.checkIfJsonExists(temp, "name", null);
                         String courseID = (String) JSONUtils.checkIfJsonExists(temp, "course", null);
                         String courseName;
-                        if (courseID == null) {
+                        if (courseID == null||joinedCourses.length()==0) {
                             // Private rooms don't have courseID
+                            //joinedCourses.length()==0 for cases when one has joined a room but not the course.
                             courseName = "Private Room";
                         } else {
                             courseName = Course.getCourseById(courseID, realm).getCoursename();

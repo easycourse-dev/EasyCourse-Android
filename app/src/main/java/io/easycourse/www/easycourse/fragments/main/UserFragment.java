@@ -27,7 +27,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.facebook.login.LoginManager;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,13 +35,11 @@ import java.io.ByteArrayOutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.MyCoursesActivity;
 import io.easycourse.www.easycourse.activities.SignupLoginActivity;
 import io.easycourse.www.easycourse.activities.UserProfileActivity;
 import io.easycourse.www.easycourse.models.main.User;
-import io.easycourse.www.easycourse.utils.APIFunctions;
 import io.easycourse.www.easycourse.utils.ExternalLinkUtils;
 import io.realm.Realm;
 import io.socket.client.Ack;
@@ -234,43 +231,6 @@ public class UserFragment extends BaseFragment {
                         e.printStackTrace();
                     }
                 }
-            }
-        });
-
-        APIFunctions.logout(getContext(), new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                // Remove userToken and currentUser in SharedPreferences
-                SharedPreferences sharedPref = getActivity().getSharedPreferences("EasyCourse", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("userToken", null);
-                editor.putString("currentUser", null);
-                editor.putString("universityId", null);
-                editor.apply();
-
-                // Clear Realm
-                try {
-                    if (realm != null)
-                        realm.beginTransaction();
-                    realm.deleteAll();
-                    realm.commitTransaction();
-                } catch (NullPointerException e) {
-                    Log.e(TAG, "onSuccess: ", e);
-                }
-
-                Log.i("Token after logout:", sharedPref.getString("userToken", "can't get token"));
-
-                // Go back to SignupLoginActivity
-                startActivity(new Intent(getContext(), SignupLoginActivity.class));
-                // Logout from Facebook
-                LoginManager.getInstance().logOut();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // Make a Snackbar to notify user with error
-                Snackbar.make(v, "Log out failed because of " + res, Snackbar.LENGTH_LONG).show();
             }
         });
     }

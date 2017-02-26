@@ -16,13 +16,14 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
+import io.easycourse.www.easycourse.BuildConfig;
 
 
 public class APIFunctions {
 
     public static AsyncHttpClient client = new AsyncHttpClient();
-//    private static final String URL = "https://zengjintaotest.com/api";
-    private static final String URL = "https://easycourse-production-server.herokuapp.com/api";
+    private static final String URL = BuildConfig.SERVER_URL+"/api";
+
     private static final String TAG = "APIFunctions";
 
     //API function for signup to server

@@ -10,12 +10,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,7 +52,6 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.activities.ChatRoomActivity;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
@@ -61,7 +62,7 @@ import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.JSONUtils;
 import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.asyntasks.CompressImageTask;
-import io.easycourse.www.easycourse.utils.asyntasks.DownloadImagesTask;
+import io.easycourse.www.easycourse.utils.asyntasks.DownloadImagesToRealmTask;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -71,7 +72,7 @@ import io.socket.client.Ack;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
-public class ChatRoomFragment extends Fragment {
+public class ChatRoomFragment extends BaseFragment {
 
     private static final String TAG = "ChatRoomFragment";
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
@@ -80,11 +81,8 @@ public class ChatRoomFragment extends Fragment {
     private static final int TAKE_IMAGE_INTENT = 5;
 
     private ChatRoomActivity activity;
-    private Realm realm;
-    private SocketIO socketIO;
 
     private Room currentRoom;
-    private User currentUser;
 
     private Uri imageUri;
 
@@ -100,9 +98,14 @@ public class ChatRoomFragment extends Fragment {
     @BindView(R.id.chatSendImageProgressBar)
     ProgressBar sendImageProgressBar;
 
+    @BindView(R.id.swipeContainer)
+    SwipeRefreshLayout swipeContainer;
+
 
     private ChatRecyclerViewAdapter chatRecyclerViewAdapter;
     private RealmResults<Message> messages;
+
+    private Handler handler = new Handler();
 
     public ChatRoomFragment() {
     }
@@ -123,13 +126,18 @@ public class ChatRoomFragment extends Fragment {
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
+
+        /*try {
+            long time = Calendar.getInstance().getTimeInMillis();
+            socketIO.getRoomMessage(currentRoom.getId(), time, 100);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
 
         setupChatRecyclerView();
         setupOnClickListeners();
 
-        DownloadImagesTask task = new DownloadImagesTask();
+        DownloadImagesToRealmTask task = new DownloadImagesToRealmTask();
         task.execute();
 
         return v;
@@ -137,10 +145,9 @@ public class ChatRoomFragment extends Fragment {
 
     private void setupChatRecyclerView() {
         messages = realm.where(Message.class).equalTo("toRoom", currentRoom.getId()).findAllSorted("createdAt", Sort.ASCENDING);
-
         chatRecyclerViewAdapter = new ChatRecyclerViewAdapter(activity, messages);
         chatRecyclerView.setAdapter(chatRecyclerViewAdapter);
-        chatRecyclerView.setHasFixedSize(true);
+        chatRecyclerView.setHasFixedSize(false);
         LinearLayoutManager chatLinearManager = new LinearLayoutManager(activity);
         chatLinearManager.setOrientation(LinearLayoutManager.VERTICAL);
         chatLinearManager.setStackFromEnd(true);
@@ -151,6 +158,53 @@ public class ChatRoomFragment extends Fragment {
                 chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
             }
         });
+
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                if(messages.isEmpty())
+                {
+                    swipeContainer.setRefreshing(false);
+                    Toast.makeText(activity, "No more messages to load.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Message message = messages.get(0);
+                try {
+                    socketIO.getRoomMessage(currentRoom.getId(), message.getCreatedAt().getTime(), 100, new Ack() {
+                        @Override
+                        public void call(final Object... args) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        JSONObject obj = (JSONObject) args[0];
+                                        Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                        if (obj.has("error")) {
+                                            Log.e(TAG, obj.toString());
+                                        } else {
+                                            JSONArray msgArray = obj.getJSONArray("msg");
+                                            for (int i = 0; i < msgArray.length(); i++) {
+                                                socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, e.toString());
+                                    }
+                                        swipeContainer.setRefreshing(false);
+                                }
+                            });
+
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     private void setupOnClickListeners() {
@@ -288,7 +342,7 @@ public class ChatRoomFragment extends Fragment {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photo = new File(Environment.getExternalStorageDirectory(), new Date().toString() + ".jpg");
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getContext(), getApplicationContext().getPackageName() + ".provider", photo));
-        imageUri = Uri.fromFile(photo);
+        imageUri = FileProvider.getUriForFile(getContext(), getApplicationContext().getPackageName() + ".provider", photo);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, TAKE_IMAGE_INTENT);
         }

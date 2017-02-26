@@ -1,6 +1,7 @@
 package io.easycourse.www.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,12 +13,14 @@ import android.widget.TextView;
 
 import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
+import io.easycourse.www.easycourse.activities.UserDetailActivity;
 import io.easycourse.www.easycourse.fragments.main.ChatImageViewFragment;
 import io.easycourse.www.easycourse.components.main.chat.ChatRecyclerViewAdapter;
 import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
+
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -57,7 +60,7 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Realm realm, final Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
 
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
@@ -74,21 +77,20 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void call(Object... args) {
                         User thisUser = EasyCourse.getAppInstance().getSocketIO().parseUserJsonInfo((JSONObject) args[0]);
-                        fillUserInfo(thisUser, context, message);
+                        fillUserInfo(thisUser, roomId, context, message);
                     }
                 });
             } catch (JSONException e) {
                 Log.e(TAG, "setupView: ", e);
             }
         } else {
-            fillUserInfo(thisUser, context, message);
+            fillUserInfo(thisUser, roomId, context, message);
         }
-
 
 
     }
 
-    private void fillUserInfo(User thisUser, final Context context, final Message message) {
+    private void fillUserInfo(final User thisUser, final String roomId, final Context context, final Message message) {
         if (thisUser != null) {
             try {
                 if (thisUser.getProfilePictureUrl() != null)
@@ -102,7 +104,6 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                         Bitmap bitmap = BitmapUtils.byteArrayToBitmap(message.getImageData());
                         incomingPicImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
                     } else {
-                        //TODO: placeholder image
                         Picasso.with(context)
                                 .load(message.getImageUrl())
                                 .into(incomingPicImageView);
@@ -114,6 +115,14 @@ public class IncomingChatPictureViewHolder extends RecyclerView.ViewHolder {
                 Log.e(TAG, e.toString());
             }
             incomingPicName.setText(thisUser.getUsername());
+            incomingPicUserImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, UserDetailActivity.class);
+                    intent.putExtra("user", thisUser.getId());
+                    context.startActivity(intent);
+                }
+            });
             incomingPicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -2,6 +2,7 @@ package io.easycourse.www.easycourse.components.main.chat.viewholders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,6 +18,7 @@ import io.easycourse.www.easycourse.models.main.Message;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.utils.BitmapUtils;
 import io.easycourse.www.easycourse.utils.DateUtils;
+
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -50,7 +52,7 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
     }
 
-    public void setupView(final Message message, Message prevMessage, User curUser, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
+    public void setupView(final Message message, Message prevMessage, User curUser, final String roomId, Context context, ChatRecyclerViewAdapter chatRecyclerViewAdapter) {
         String reportDateOutgoing = DateUtils.getTimeString(message, prevMessage);
         if (reportDateOutgoing != null) {
             outgoingPicTime.setVisibility(View.VISIBLE);
@@ -59,11 +61,6 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
             outgoingPicTime.setVisibility(View.GONE);
         }
 
-
-//        if (!message.isSuccessSent())
-//            outgoingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_unsent));
-//        else
-//            outgoingPicImageView.setBackground(ContextCompat.getDrawable(context, R.drawable.cell_message_sent));
 
         if (curUser != null) {
             try {
@@ -93,12 +90,15 @@ public class OutgoingChatPictureViewHolder extends RecyclerView.ViewHolder {
             outgoingPicImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                    fragmentManager.executePendingTransactions();
                     ChatImageViewFragment fragment = ChatImageViewFragment.newInstance(message.getImageUrl(), message.getImageData());
-                    activity.getSupportFragmentManager()
+                    fragmentManager
                             .beginTransaction()
                             .add(android.R.id.content, fragment, message.getImageUrl())
                             .addToBackStack(fragment.getClass().getSimpleName())
                             .commit();
+
                 }
             });
         }

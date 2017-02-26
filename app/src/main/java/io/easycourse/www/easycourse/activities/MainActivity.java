@@ -8,9 +8,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,8 +24,14 @@ import com.squareup.otto.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,18 +44,12 @@ import io.easycourse.www.easycourse.fragments.main.UserFragment;
 import io.easycourse.www.easycourse.models.main.User;
 import io.easycourse.www.easycourse.models.signup.UserSetup;
 import io.easycourse.www.easycourse.utils.APIFunctions;
-import io.easycourse.www.easycourse.utils.SocketIO;
 import io.easycourse.www.easycourse.utils.eventbus.Event;
-import io.realm.Realm;
 
-import static io.easycourse.www.easycourse.EasyCourse.bus;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
 
-    Realm realm;
-    SocketIO socketIO;
     Snackbar disconnectSnackbar;
 
     @BindView(R.id.toolbarMain)
@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     CoordinatorLayout coordinatorMain;
 
 
-    //TODO: add all realm stuff to asynctask
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,14 +77,11 @@ public class MainActivity extends AppCompatActivity {
             MySSLSocketFactory sf = new MySSLSocketFactory(trustStore);
             sf.setHostnameVerifier(MySSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             client.setSSLSocketFactory(sf);
+        } catch (IOException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
+            Log.e(TAG, "onCreate: ", e);
         }
-        catch (Exception e) {
-
-        }
 
 
-        realm = Realm.getDefaultInstance();
-        socketIO = EasyCourse.getAppInstance().getSocketIO();
         if (socketIO == null) {
             EasyCourse.getAppInstance().createSocketIO();
             socketIO = EasyCourse.getAppInstance().getSocketIO();
@@ -98,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socketIO.getUserInfo(User.getCurrentUser(this, realm).getId());
-            socketIO.getHistMessage();
+            //socketIO.getAllMessage();
         } catch (JSONException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -111,15 +107,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Setup snackbar for disconnect
         disconnectSnackbar = Snackbar.make(coordinatorMain, "Disconnected!", Snackbar.LENGTH_INDEFINITE);
-
-        bus.register(this);
-
-//        //Get data from signup, may be null, fields may be null, but why...
-//        Intent intentFromSignup = getIntent();
-//        UserSetup userSetup = intentFromSignup.getParcelableExtra("UserSetup");
-//        if (userSetup != null) {
-//            parseSetupIntent(userSetup);
-//        }
     }
 
 
@@ -141,50 +128,6 @@ public class MainActivity extends AppCompatActivity {
             }
             finish();
         }
-    }
-
-    private void parseSetupIntent(UserSetup userSetup) {
-        if (userSetup == null) return;
-        try {
-
-            APIFunctions.updateUser(this, userSetup.getUniversityID(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "onSuccess: updateUser");
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: updateuser", t);
-                }
-            });
-
-
-            APIFunctions.setCoursesAndLanguages(this, userSetup.getLanguageCodeArray(), userSetup.getCourseCodeArray(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(TAG, "onSuccess: setCoursesAndLanguages");
-                    EasyCourse.bus.post( new Event.SyncEvent());
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                    Log.e(TAG, "onFailure: setCoursesAndLanguages", t);
-                }
-            });
-
-
-        } catch (JSONException e) {
-            Log.e(TAG, "JSONexception in parsing usersetup", e);
-        } catch (UnsupportedEncodingException e) {
-            Log.d(TAG, "UnsupportedEncodingException in parsing usersetup", e);
-        }
-        if(socketIO != null)
-            try {
-                socketIO.getAllMessage();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
     }
 
     private void setupNavigation() {
@@ -240,8 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // TODO: make sure settings page work first
-//        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -261,23 +203,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && viewPager.getCurrentItem() == 1) {
+            viewPager.setCurrentItem(0, true);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        EasyCourse.getAppInstance().setNotification(false);
+        EasyCourse.getAppInstance().setShowNotification(false);
         EasyCourse.getAppInstance().setInRoom("");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EasyCourse.getAppInstance().setNotification(true);
+        EasyCourse.getAppInstance().setShowNotification(true);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        realm.close();
-    }
 
     @Subscribe
     public void disconnectEvent(Event.DisconnectEvent event) {

@@ -105,7 +105,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
             case OUTGOING_PIC: {
                 OutgoingChatPictureViewHolder outgoingViewHolder = (OutgoingChatPictureViewHolder) viewHolder;
-                outgoingViewHolder.setupView(message, prevMessage, curUser, context, this);
+                outgoingViewHolder.setupView(message, prevMessage, curUser, message.getToRoom(), context, this);
                 break;
             }
 
@@ -124,7 +124,7 @@ public class ChatRecyclerViewAdapter extends RealmRecyclerViewAdapter<Message, R
 
             case INCOMING_PIC: {
                 IncomingChatPictureViewHolder incomingViewHolder = (IncomingChatPictureViewHolder) viewHolder;
-                incomingViewHolder.setupView(message, prevMessage, curUser, realm, context, this);
+                incomingViewHolder.setupView(message, prevMessage, curUser, message.getToRoom(), realm, context, this);
                 break;
             }
 

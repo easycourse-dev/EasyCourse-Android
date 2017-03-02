@@ -82,6 +82,7 @@ public class ChatRoomFragment extends BaseFragment {
     private static final int TAKE_IMAGE_INTENT = 5;
     private static boolean firsttime=true;
     private static boolean gettingoldmessages=false;
+    private static boolean stillfirsttime=true;
 
     private ChatRoomActivity activity;
 
@@ -127,10 +128,11 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        firsttime=true;
+        stillfirsttime=true;
         v = inflater.inflate(R.layout.fragment_chat_room, container, false);
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
-
 
         /*try {
             long time = Calendar.getInstance().getTimeInMillis();
@@ -145,6 +147,7 @@ public class ChatRoomFragment extends BaseFragment {
         DownloadImagesToRealmTask task = new DownloadImagesToRealmTask();
         task.execute();
 
+        stillfirsttime=false;
         return v;
     }
 
@@ -164,10 +167,13 @@ public class ChatRoomFragment extends BaseFragment {
                 //chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
                 if(gettingoldmessages==true)
                     gettingoldmessages=false;
-                else if(firsttime==true)
+                else if(firsttime==true&&stillfirsttime==false)
                     firsttime=false;
-                else
+                else if(stillfirsttime==false)
+                {
+                    if(currentRoom.getUnread()>0)
                     Snackbar.make(v, "New message please scroll down to view.", Snackbar.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -613,6 +619,8 @@ public class ChatRoomFragment extends BaseFragment {
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
     }
+
+
 
 
 }

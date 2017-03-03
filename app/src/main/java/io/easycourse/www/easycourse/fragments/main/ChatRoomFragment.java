@@ -83,6 +83,7 @@ public class ChatRoomFragment extends BaseFragment {
     private static boolean firsttime=true;
     private static boolean gettingoldmessages=false;
     private static boolean stillfirsttime=true;
+    private static int msgcount=0;
 
     private ChatRoomActivity activity;
 
@@ -166,7 +167,10 @@ public class ChatRoomFragment extends BaseFragment {
                 //we do not require it.
                 //chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
                 if(gettingoldmessages==true)
+                {
+                    chatRecyclerView.scrollToPosition(msgcount+4);
                     gettingoldmessages=false;
+                }
                 else if(firsttime==true&&stillfirsttime==false)
                     firsttime=false;
                 else if(stillfirsttime==false)
@@ -180,6 +184,12 @@ public class ChatRoomFragment extends BaseFragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                if(messages.isEmpty())
+                {
+                    Snackbar.make(v, "No more messages to load", Snackbar.LENGTH_LONG).show();
+                    swipeContainer.setRefreshing(false);
+                    return;
+                }
                 Message message = messages.get(0);
                 try {
                     gettingoldmessages=true;
@@ -195,6 +205,7 @@ public class ChatRoomFragment extends BaseFragment {
                                             Log.e(TAG, obj.toString());
                                         } else {
                                             JSONArray msgArray = obj.getJSONArray("msg");
+                                            msgcount=msgArray.length();
                                             for (int i = 0; i < msgArray.length(); i++) {
                                                 socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
                                             }

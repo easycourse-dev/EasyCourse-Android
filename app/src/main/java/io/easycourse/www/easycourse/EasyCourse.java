@@ -3,10 +3,12 @@ package io.easycourse.www.easycourse;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.facebook.stetho.Stetho;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.squareup.leakcanary.LeakCanary;
 import com.squareup.otto.ThreadEnforcer;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
@@ -27,7 +29,7 @@ import io.realm.RealmSchema;
  * Created by noahrinehart on 11/5/16.
  */
 
-public class EasyCourse extends Application {
+public class EasyCourse extends MultiDexApplication {
 
     private static final String TAG = "EasyCourse";
 
@@ -53,6 +55,14 @@ public class EasyCourse extends Application {
         appInstance = this;
 
         deviceToken = FirebaseInstanceId.getInstance().getToken();
+
+        // Memory leak detection
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
     }
 
     private void doRealmMigration() {

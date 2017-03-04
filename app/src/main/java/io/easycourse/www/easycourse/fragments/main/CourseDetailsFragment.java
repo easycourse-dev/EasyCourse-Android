@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.CourseDetails.CourseDetailsRoomsEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.main.CourseDetails.CourseDetailsRoomsRecyclerViewAdapter;
@@ -56,7 +57,6 @@ public class CourseDetailsFragment extends BaseFragment {
     boolean isJoinIn;
     int creditHrs;
     University university;
-    String universityName;
     String courseName;
     ArrayList<Room> courseRooms = new ArrayList<>();
     CourseDetailsRoomsRecyclerViewAdapter roomsAdapter;
@@ -101,9 +101,9 @@ public class CourseDetailsFragment extends BaseFragment {
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
         if (course != null) {
             creditHrs = course.getCreditHours();
-            if(university.getId()!=null)
-            university = realm.where(University.class).equalTo("id", university.getId()).findFirst();
-            if (university != null) universityName = university.getName();
+            if(university == null) {
+                university = realm.where(University.class).equalTo("id", EasyCourse.getAppInstance().getUniversityId(getContext())).findFirst();
+            }
             setupTextViews();
         } else {
             fetchCourseInfo();
@@ -143,7 +143,7 @@ public class CourseDetailsFragment extends BaseFragment {
         });
 
         if (course != null) {
-            courseName = course.getCourseDescription();
+            courseName = course.getCoursename();
             courseNameView.setText(courseName);
             titleView.setText(course.getTitle());
             String creditString;
@@ -153,7 +153,7 @@ public class CourseDetailsFragment extends BaseFragment {
                 creditString = creditHrs + " credits";
             }
             creditHrsView.setText(creditString);
-            univView.setText(universityName);
+            univView.setText(university.getName());
         }
     }
 
@@ -200,10 +200,8 @@ public class CourseDetailsFragment extends BaseFragment {
                         String title = res.getString("title");
                         String courseDesc = res.getString("description");
                         creditHrs = res.getInt("creditHours");
-                        String universityId = res.getJSONObject("university").getString("_id");
-                        universityName = res.getJSONObject("university").getString("name");
-                        course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
-                        university=new University(universityId,universityName);
+                        university = new University(res.getJSONObject("university").getString("_id"), res.getJSONObject("university").getString("name"));
+                        course = new Course(courseId, courseName, title, courseDesc, creditHrs, university.getId());
                         updateTextView();
                     } catch (JSONException e) {
                         e.printStackTrace();

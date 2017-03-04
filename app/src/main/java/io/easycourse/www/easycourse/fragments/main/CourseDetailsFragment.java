@@ -58,7 +58,6 @@ public class CourseDetailsFragment extends BaseFragment {
     String courseId;
     boolean isJoinIn;
     int creditHrs;
-    University university;
     String universityId, universityName;
     String courseName;
     ArrayList<Room> courseRooms = new ArrayList<>();
@@ -105,7 +104,7 @@ public class CourseDetailsFragment extends BaseFragment {
         universityId = EasyCourse.getAppInstance().getUniversityId(getContext());
         if (course != null) {
             creditHrs = course.getCreditHours();
-            university = realm.where(University.class).equalTo("id", universityId).findFirst();
+            University university = realm.where(University.class).equalTo("id", universityId).findFirst();
             if (university != null) {
                 universityName = university.getName();
             }
@@ -205,9 +204,8 @@ public class CourseDetailsFragment extends BaseFragment {
                         String title = res.getString("title");
                         String courseDesc = res.getString("description");
                         creditHrs = res.getInt("creditHours");
-                        String universityId = res.getJSONObject("university").getString("_id");
+                        universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
-                        university = new University(universityId, universityName);
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
                         updateTextView();
                     } catch (JSONException e) {

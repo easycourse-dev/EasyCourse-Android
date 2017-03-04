@@ -84,6 +84,7 @@ public class ChatRoomFragment extends BaseFragment {
     private static boolean gettingoldmessages=false;
     private static boolean stillfirsttime=true;
     private static int msgcount=0;
+    private static int sendmsg=0;
 
     private ChatRoomActivity activity;
 
@@ -186,8 +187,9 @@ public class ChatRoomFragment extends BaseFragment {
                         LinearLayoutManager lm= (LinearLayoutManager) chatRecyclerView.getLayoutManager();
                         int pos = lm.findLastCompletelyVisibleItemPosition();
                         int ppos=chatRecyclerViewAdapter.getItemCount();
-                        if(ppos-pos<4)
+                        if(ppos-pos<4||sendmsg==1)
                         {
+                            sendmsg=0;
                             chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
                         }
                         else
@@ -204,7 +206,7 @@ public class ChatRoomFragment extends BaseFragment {
             public void onRefresh() {
                 if(messages.isEmpty())
                 {
-                    final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                    final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
                     snackbar.setAction("Dismiss", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -238,7 +240,7 @@ public class ChatRoomFragment extends BaseFragment {
                                             }
                                             if(msgArray.length()==0)
                                             {
-                                                final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                                                final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
                                                 snackbar.setAction("Dismiss", new View.OnClickListener() {
                                                     @Override
                                                     public void onClick(View v) {
@@ -249,7 +251,7 @@ public class ChatRoomFragment extends BaseFragment {
                                             }
                                         }
                                     } catch (JSONException e) {
-                                        final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                                        final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
                                         snackbar.setAction("Dismiss", new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
@@ -529,6 +531,7 @@ public class ChatRoomFragment extends BaseFragment {
         }
 
         String messageText = messageEditText.getText().toString();
+        sendmsg=1;
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
 

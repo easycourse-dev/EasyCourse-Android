@@ -63,9 +63,6 @@ dependencies {
     // Animated CheckBox
     compile 'com.hanks.animatecheckbox:library:0.1'
 
-    // Circle Avatar
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-
     // Picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
 

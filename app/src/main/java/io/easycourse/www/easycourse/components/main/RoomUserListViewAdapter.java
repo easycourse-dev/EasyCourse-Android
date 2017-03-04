@@ -13,12 +13,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.fragments.main.RoomUserListFragment;
 import io.easycourse.www.easycourse.models.main.User;
@@ -55,7 +57,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         @BindView(R.id.cardViewUserList)
         CardView cardView;
         @BindView(R.id.imageViewUserList)
-        ImageView avatarImageView;
+        CircleImageView avatarImageView;
         @BindView(R.id.textViewNameUserList)
         TextView nameTextView;
 
@@ -73,7 +75,7 @@ public class RoomUserListViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 Bitmap bm = BitmapFactory.decodeByteArray(user.getProfilePicture(), 0, user.getProfilePicture().length);
                 avatarImageView.setImageBitmap(bm);
             } else if (user.getProfilePictureUrl() != null) {
-                Picasso.with(context).load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(avatarImageView);
+                Glide.with(context).load(user.getProfilePictureUrl()).placeholder(R.drawable.ic_person_black_24px).into(avatarImageView);
             } else {
                 avatarImageView.setImageResource(R.drawable.ic_person_black_24px);
             }

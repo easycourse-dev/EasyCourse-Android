@@ -136,12 +136,58 @@ public class ChatRoomFragment extends BaseFragment {
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
 
-        /*try {
             long time = Calendar.getInstance().getTimeInMillis();
-            socketIO.getRoomMessage(currentRoom.getId(), time, 100);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
+            try {
+                gettingoldmessages=true;
+                socketIO.getRoomMessage(currentRoom.getId(), time, 100, new Ack() {
+                    @Override
+                    public void call(final Object... args) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject obj = (JSONObject) args[0];
+                                    Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                    if (obj.has("error")) {
+                                        Log.e(TAG, obj.toString());
+                                    } else {
+                                        JSONArray msgArray = obj.getJSONArray("msg");
+                                        msgcount=msgArray.length();
+                                        for (int i = 0; i < msgArray.length(); i++) {
+                                            socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                                        }
+                                        if(msgArray.length()==0)
+                                        {
+                                            final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                            snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    snackbar.dismiss();
+                                                }
+                                            });
+                                            snackbar.show();
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                    snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            snackbar.dismiss();
+                                        }
+                                    });
+                                    snackbar.show();
+                                    Log.e(TAG, e.toString());
+                                }
+                                swipeContainer.setRefreshing(false);
+                            }
+                        });
+
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
         setupChatRecyclerView();
         setupOnClickListeners();

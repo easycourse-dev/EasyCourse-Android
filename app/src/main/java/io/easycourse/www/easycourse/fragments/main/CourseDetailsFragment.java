@@ -11,9 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,7 +30,6 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
-import io.easycourse.www.easycourse.EasyCourse;
 import io.easycourse.www.easycourse.R;
 import io.easycourse.www.easycourse.components.main.CourseDetails.CourseDetailsRoomsEndlessRecyclerViewScrollListener;
 import io.easycourse.www.easycourse.components.main.CourseDetails.CourseDetailsRoomsRecyclerViewAdapter;
@@ -58,7 +55,8 @@ public class CourseDetailsFragment extends BaseFragment {
     String courseId;
     boolean isJoinIn;
     int creditHrs;
-    String universityId, universityName;
+    University university;
+    String universityName;
     String courseName;
     ArrayList<Room> courseRooms = new ArrayList<>();
     CourseDetailsRoomsRecyclerViewAdapter roomsAdapter;
@@ -101,13 +99,11 @@ public class CourseDetailsFragment extends BaseFragment {
 
     private void fetchAndCreate() {
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
-        universityId = EasyCourse.getAppInstance().getUniversityId(getContext());
         if (course != null) {
             creditHrs = course.getCreditHours();
-            University university = realm.where(University.class).equalTo("id", universityId).findFirst();
-            if (university != null) {
-                universityName = university.getName();
-            }
+            if(university.getId()!=null)
+            university = realm.where(University.class).equalTo("id", university.getId()).findFirst();
+            if (university != null) universityName = university.getName();
             setupTextViews();
         } else {
             fetchCourseInfo();
@@ -147,7 +143,7 @@ public class CourseDetailsFragment extends BaseFragment {
         });
 
         if (course != null) {
-            courseName = course.getCoursename();
+            courseName = course.getCourseDescription();
             courseNameView.setText(courseName);
             titleView.setText(course.getTitle());
             String creditString;
@@ -204,9 +200,10 @@ public class CourseDetailsFragment extends BaseFragment {
                         String title = res.getString("title");
                         String courseDesc = res.getString("description");
                         creditHrs = res.getInt("creditHours");
-                        universityId = res.getJSONObject("university").getString("_id");
+                        String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
+                        university=new University(universityId,universityName);
                         updateTextView();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -238,7 +235,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                         new RealmList<Message>(),
                                         courseId,
                                         courseName,
-                                        universityId,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -259,7 +256,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                         new RealmList<Message>(),
                                         courseId,
                                         courseName,
-                                        universityId,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -285,7 +282,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                         new RealmList<Message>(),
                                         courseId,
                                         courseName,
-                                        universityId,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),
@@ -306,7 +303,7 @@ public class CourseDetailsFragment extends BaseFragment {
                                         new RealmList<Message>(),
                                         courseId,
                                         courseName,
-                                        universityId,
+                                        university.getId(),
                                         new RealmList<User>(),
                                         room.getInt("memberCounts"),
                                         room.getString("memberCountsDescription"),

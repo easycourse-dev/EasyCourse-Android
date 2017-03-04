@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -79,12 +80,19 @@ public class ChatRoomFragment extends BaseFragment {
     private static final int PERMISSION_DENIED = -1;
     private static final int CHOOSE_IMAGE_INTENT = 4;
     private static final int TAKE_IMAGE_INTENT = 5;
+    private static boolean firsttime=true;
+    private static boolean gettingoldmessages=false;
+    private static boolean stillfirsttime=true;
+    private static int msgcount=0;
+    private static int sendmsg=0;
 
     private ChatRoomActivity activity;
 
     private Room currentRoom;
 
     private Uri imageUri;
+
+    private static View v;
 
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
@@ -122,17 +130,64 @@ public class ChatRoomFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_chat_room, container, false);
+        firsttime=true;
+        stillfirsttime=true;
+        v = inflater.inflate(R.layout.fragment_chat_room, container, false);
         ButterKnife.bind(this, v);
         activity = (ChatRoomActivity) getActivity();
 
-
-        /*try {
             long time = Calendar.getInstance().getTimeInMillis();
-            socketIO.getRoomMessage(currentRoom.getId(), time, 100);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
+            try {
+                gettingoldmessages=true;
+                socketIO.getRoomMessage(currentRoom.getId(), time, 100, new Ack() {
+                    @Override
+                    public void call(final Object... args) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject obj = (JSONObject) args[0];
+                                    Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                    if (obj.has("error")) {
+                                        Log.e(TAG, obj.toString());
+                                    } else {
+                                        JSONArray msgArray = obj.getJSONArray("msg");
+                                        msgcount=msgArray.length();
+                                        for (int i = 0; i < msgArray.length(); i++) {
+                                            socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
+                                        }
+                                        if(msgArray.length()==0)
+                                        {
+                                            final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                            snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    snackbar.dismiss();
+                                                }
+                                            });
+                                            snackbar.show();
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                    snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            snackbar.dismiss();
+                                        }
+                                    });
+                                    snackbar.show();
+                                    Log.e(TAG, e.toString());
+                                }
+                                swipeContainer.setRefreshing(false);
+                            }
+                        });
+
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
         setupChatRecyclerView();
         setupOnClickListeners();
@@ -140,6 +195,7 @@ public class ChatRoomFragment extends BaseFragment {
         DownloadImagesToRealmTask task = new DownloadImagesToRealmTask();
         task.execute();
 
+        stillfirsttime=false;
         return v;
     }
 
@@ -155,24 +211,62 @@ public class ChatRoomFragment extends BaseFragment {
         messages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
             @Override
             public void onChange(RealmResults<Message> element) {
-                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                //we do not require it.
+                //chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                if(gettingoldmessages==true)
+                {
+                    chatRecyclerView.scrollToPosition(msgcount+4);
+                    gettingoldmessages=false;
+                }
+                else if(firsttime==true&&stillfirsttime==false)
+                    firsttime=false;
+                else if(stillfirsttime==false)
+                {
+                    if(currentRoom.getUnread()>0) {
+                        final Snackbar snackbar = Snackbar.make(v, "New message please scroll down to view.", Snackbar.LENGTH_LONG);
+                        snackbar.setAction("Go Down", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                            }
+                        });
+                        LinearLayoutManager lm= (LinearLayoutManager) chatRecyclerView.getLayoutManager();
+                        int pos = lm.findLastCompletelyVisibleItemPosition();
+                        int ppos=chatRecyclerViewAdapter.getItemCount();
+                        if(ppos-pos<4||sendmsg==1)
+                        {
+                            sendmsg=0;
+                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                        }
+                        else
+                            snackbar.show();
+                    }
+
+
+                }
             }
         });
 
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
                 if(messages.isEmpty())
                 {
+                    final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                    snackbar.setAction("Dismiss", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                        }
+                    });
+
+                    snackbar.show();
                     swipeContainer.setRefreshing(false);
-                    Toast.makeText(activity, "No more messages to load.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Message message = messages.get(0);
                 try {
+                    gettingoldmessages=true;
                     socketIO.getRoomMessage(currentRoom.getId(), message.getCreatedAt().getTime(), 100, new Ack() {
                         @Override
                         public void call(final Object... args) {
@@ -186,11 +280,31 @@ public class ChatRoomFragment extends BaseFragment {
                                             Log.e(TAG, obj.toString());
                                         } else {
                                             JSONArray msgArray = obj.getJSONArray("msg");
+                                            msgcount=msgArray.length();
                                             for (int i = 0; i < msgArray.length(); i++) {
                                                 socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
                                             }
+                                            if(msgArray.length()==0)
+                                            {
+                                                final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                                snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        snackbar.dismiss();
+                                                    }
+                                                });
+                                                snackbar.show();
+                                            }
                                         }
                                     } catch (JSONException e) {
+                                        final Snackbar snackbar = Snackbar.make(v, "No more messages to Load.", Snackbar.LENGTH_LONG);
+                                        snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                snackbar.dismiss();
+                                            }
+                                        });
+                                        snackbar.show();
                                         Log.e(TAG, e.toString());
                                     }
                                         swipeContainer.setRefreshing(false);
@@ -463,6 +577,7 @@ public class ChatRoomFragment extends BaseFragment {
         }
 
         String messageText = messageEditText.getText().toString();
+        sendmsg=1;
         String fixed = messageText.replace("\\", "");
         if (!TextUtils.isEmpty(fixed)) {
 
@@ -607,6 +722,8 @@ public class ChatRoomFragment extends BaseFragment {
         realm.close();
         chatRecyclerViewAdapter.closeRealm();
     }
+
+
 
 
 }

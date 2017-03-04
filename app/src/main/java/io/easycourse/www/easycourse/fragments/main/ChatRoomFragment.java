@@ -175,8 +175,26 @@ public class ChatRoomFragment extends BaseFragment {
                     firsttime=false;
                 else if(stillfirsttime==false)
                 {
-                    if(currentRoom.getUnread()>0)
-                    Snackbar.make(v, "New message please scroll down to view.", Snackbar.LENGTH_LONG).show();
+                    if(currentRoom.getUnread()>0) {
+                        final Snackbar snackbar = Snackbar.make(v, "New message please scroll down to view.", Snackbar.LENGTH_LONG);
+                        snackbar.setAction("Go Down", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                            }
+                        });
+                        LinearLayoutManager lm= (LinearLayoutManager) chatRecyclerView.getLayoutManager();
+                        int pos = lm.findLastCompletelyVisibleItemPosition();
+                        int ppos=chatRecyclerViewAdapter.getItemCount();
+                        if(ppos-pos<4)
+                        {
+                            chatRecyclerView.smoothScrollToPosition(chatRecyclerViewAdapter.getItemCount());
+                        }
+                        else
+                            snackbar.show();
+                    }
+
+
                 }
             }
         });
@@ -186,7 +204,15 @@ public class ChatRoomFragment extends BaseFragment {
             public void onRefresh() {
                 if(messages.isEmpty())
                 {
-                    Snackbar.make(v, "No more messages to load", Snackbar.LENGTH_LONG).show();
+                    final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                    snackbar.setAction("Dismiss", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                        }
+                    });
+
+                    snackbar.show();
                     swipeContainer.setRefreshing(false);
                     return;
                 }
@@ -201,7 +227,8 @@ public class ChatRoomFragment extends BaseFragment {
                                 public void run() {
                                     try {
                                         JSONObject obj = (JSONObject) args[0];
-                                        Log.e(TAG, "getRoomMessage: "+obj.toString());                                        if (obj.has("error")) {
+                                        Log.e(TAG, "getRoomMessage: "+obj.toString());
+                                        if (obj.has("error")) {
                                             Log.e(TAG, obj.toString());
                                         } else {
                                             JSONArray msgArray = obj.getJSONArray("msg");
@@ -210,10 +237,26 @@ public class ChatRoomFragment extends BaseFragment {
                                                 socketIO.saveJsonMessageToRealm(msgArray.getJSONObject(i), false);
                                             }
                                             if(msgArray.length()==0)
-                                                Snackbar.make(v, "No more messages to load", Snackbar.LENGTH_LONG).show();
+                                            {
+                                                final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                                                snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        snackbar.dismiss();
+                                                    }
+                                                });
+                                                snackbar.show();
+                                            }
                                         }
                                     } catch (JSONException e) {
-                                        Snackbar.make(v, "No more messages to load", Snackbar.LENGTH_LONG).show();
+                                        final Snackbar snackbar = Snackbar.make(v, "No more Messages to Load.", Snackbar.LENGTH_LONG);
+                                        snackbar.setAction("Dismiss", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                snackbar.dismiss();
+                                            }
+                                        });
+                                        snackbar.show();
                                         Log.e(TAG, e.toString());
                                     }
                                         swipeContainer.setRefreshing(false);

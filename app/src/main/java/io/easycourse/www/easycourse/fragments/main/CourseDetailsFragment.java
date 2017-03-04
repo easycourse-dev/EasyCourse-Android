@@ -11,9 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -103,6 +101,7 @@ public class CourseDetailsFragment extends BaseFragment {
         course = realm.where(Course.class).equalTo("id", courseId).findFirst();
         if (course != null) {
             creditHrs = course.getCreditHours();
+            if(university.getId()!=null)
             university = realm.where(University.class).equalTo("id", university.getId()).findFirst();
             if (university != null) universityName = university.getName();
             setupTextViews();
@@ -204,6 +203,7 @@ public class CourseDetailsFragment extends BaseFragment {
                         String universityId = res.getJSONObject("university").getString("_id");
                         universityName = res.getJSONObject("university").getString("name");
                         course = new Course(courseId, courseName, title, courseDesc, creditHrs, universityId);
+                        university=new University(universityId,universityName);
                         updateTextView();
                     } catch (JSONException e) {
                         e.printStackTrace();
